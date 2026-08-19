@@ -1,0 +1,1 @@
+"""VectorBT research project package."""

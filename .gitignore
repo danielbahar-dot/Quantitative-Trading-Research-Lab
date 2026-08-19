@@ -1,0 +1,60 @@
+# Python environments, bytecode, caches, and test artifacts
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+.ipynb_checkpoints/
+
+# Local environment files (an example file may be committed intentionally)
+.env
+.env.*
+!.env.example
+
+# IDE and operating-system metadata
+.idea/
+.vscode/
+*.suo
+*.user
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Market-data artifacts can be large or licensed. Keep directory placeholders.
+data/**/*.csv
+data/**/*.parquet
+data/**/*.feather
+data/**/*.arrow
+data/**/*.h5
+data/**/*.hdf5
+data/**/*.npy
+data/**/*.npz
+!data/**/.gitkeep
+
+# Experiment ledgers and run outputs are generated and remain local.
+experiments/experiment_ledger.sqlite
+experiments/experiment_ledger.sqlite-*
+experiments/ledger.csv
+experiments/runs/*
+!experiments/runs/.gitkeep
+
+# Timestamped working backups are local safety copies.
+backups/
+
+# Logs and temporary/generated output
+*.log
+*.tmp
+*.bak
+logs/
+tmp/
+temp/
+output/
+outputs/

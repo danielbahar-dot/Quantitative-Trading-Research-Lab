@@ -1,0 +1,31 @@
+{
+  "strategy_name": "ORB",
+  "strategy_version": "0.1.0",
+  "hypothesis": "A break of the first 15-minute MNQ regular-session range has positive expectancy after costs.",
+  "dataset": "data/processed/MNQ_1min_2025.csv",
+  "timeframe": "1 minute",
+  "session": {
+    "name": "CME US regular session",
+    "timezone": "America/New_York",
+    "start": "09:30",
+    "end": "16:00",
+    "force_flat": "15:55"
+  },
+  "parameters": {
+    "opening_range_minutes": 15,
+    "entry_buffer_points": 0.0,
+    "stop_loss_points": 20.0,
+    "profit_target_points": 40.0,
+    "max_trades_per_day": 1
+  },
+  "costs_slippage": {
+    "commission_per_contract_per_side_usd": 0.75,
+    "slippage_ticks_per_side": 1,
+    "mnq_tick_size": 0.25,
+    "mnq_tick_value_usd": 0.50
+  },
+  "results_summary": {},
+  "notes": "Baseline ORB run. Replace all example values with the assumptions actually tested.",
+  "artifact_paths": {}
+}
+

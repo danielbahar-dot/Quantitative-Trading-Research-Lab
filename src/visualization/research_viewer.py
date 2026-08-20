@@ -135,9 +135,12 @@ def find_orb_signals(
         or_high = float(level["or_high"])
         or_low = float(level["or_low"])
         or_mid = float(level["or_mid"])
-        eligible_start = pd.Timestamp.combine(
+        market_open = pd.Timestamp.combine(
             session_date, time(9, 30)
-        ).tz_localize(ET_TIMEZONE) + pd.Timedelta(minutes=or_minutes)
+        ).tz_localize(ET_TIMEZONE)
+        # NT8 labels each 1-minute bar by its end: timestamp_et = bar_end_time.
+        # The first post-OR bar ends one minute after the last OR bar-end label.
+        eligible_start = market_open + pd.Timedelta(minutes=or_minutes + 1)
         eligible_end = pd.Timestamp.combine(
             session_date, ENTRY_CUTOFF
         ).tz_localize(ET_TIMEZONE)
@@ -312,12 +315,14 @@ def build_research_viewer(
             level_segments["OR Mid"], session_x0, session_x1, level_row["or_mid"]
         )
 
-        or_start = pd.Timestamp.combine(session_date, time(9, 30)).tz_localize(
+        market_open = pd.Timestamp.combine(session_date, time(9, 30)).tz_localize(
             ET_TIMEZONE
         )
-        or_end = or_start + pd.Timedelta(minutes=or_minutes)
+        first_or_bar_end = market_open + pd.Timedelta(minutes=1)
+        last_or_bar_end = market_open + pd.Timedelta(minutes=or_minutes)
         visible_or = session_data.loc[
-            (session_data.index >= or_start) & (session_data.index < or_end)
+            (session_data.index >= first_or_bar_end)
+            & (session_data.index <= last_or_bar_end)
         ]
         if not visible_or.empty:
             figure.add_vrect(

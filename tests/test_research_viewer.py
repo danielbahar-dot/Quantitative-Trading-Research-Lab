@@ -35,6 +35,50 @@ class ResearchViewerTests(unittest.TestCase):
         self.assertFalse(figure.layout.xaxis.fixedrange)
         self.assertFalse(figure.layout.yaxis.fixedrange)
 
+    def test_or_shading_covers_true_bar_end_interval_only(self):
+        index = pd.date_range(
+            "2025-01-06 09:30",
+            "2025-01-06 09:36",
+            freq="min",
+            tz="America/New_York",
+        )
+        prices = pd.DataFrame(
+            {
+                "session_date": [stamp.date() for stamp in index],
+                "contract": "MNQ TEST",
+                "open": 100.0,
+                "high": 101.0,
+                "low": 99.0,
+                "close": 100.0,
+                "volume": 10,
+            },
+            index=index,
+        )
+        levels = pd.DataFrame(
+            {
+                "session_date": [index[0].date()],
+                "or_minutes": [5],
+                "valid_or": [True],
+                "or_high": [101.0],
+                "or_low": [99.0],
+                "or_mid": [100.0],
+            }
+        )
+
+        figure = build_research_viewer(
+            prices,
+            levels,
+            start_date="2025-01-06",
+            end_date="2025-01-06",
+            or_minutes=5,
+            start_time="09:30",
+            end_time="09:36",
+        )
+
+        self.assertEqual(len(figure.layout.shapes), 1)
+        self.assertEqual(float(figure.layout.shapes[0].x0), 0.5)
+        self.assertEqual(float(figure.layout.shapes[0].x1), 5.5)
+
 
 class ORBSignalVisualizationTests(unittest.TestCase):
     def setUp(self):
@@ -71,20 +115,21 @@ class ORBSignalVisualizationTests(unittest.TestCase):
     def test_print_skips_ambiguous_bar_then_fires_once_per_direction(self):
         self.prices.loc["2025-01-06 09:34", ["high", "close"]] = [101.0, 100.5]
         self.prices.loc["2025-01-06 09:35", ["high", "low"]] = [101.0, 98.0]
-        self.prices.loc["2025-01-06 09:36", "high"] = 100.25
-        self.prices.loc["2025-01-06 09:37", "high"] = 100.5
-        self.prices.loc["2025-01-06 09:38", "low"] = 98.75
-        self.prices.loc["2025-01-06 09:39", "low"] = 98.5
+        self.prices.loc["2025-01-06 09:36", ["high", "low"]] = [101.0, 98.0]
+        self.prices.loc["2025-01-06 09:37", "high"] = 100.25
+        self.prices.loc["2025-01-06 09:38", "high"] = 100.5
+        self.prices.loc["2025-01-06 09:39", "low"] = 98.75
+        self.prices.loc["2025-01-06 09:40", "low"] = 98.5
 
         signals, ambiguous = self._find("PRINT")
 
         self.assertEqual(list(signals["direction"]), ["LONG", "SHORT"])
         self.assertEqual(
             [value.strftime("%H:%M") for value in signals["signal_time"]],
-            ["09:36", "09:38"],
+            ["09:37", "09:39"],
         )
         self.assertEqual(len(ambiguous), 1)
-        self.assertEqual(ambiguous.iloc[0]["signal_time"].strftime("%H:%M"), "09:35")
+        self.assertEqual(ambiguous.iloc[0]["signal_time"].strftime("%H:%M"), "09:36")
         self.assertTrue(bool(ambiguous.iloc[0]["ambiguity_status"]))
 
     def test_close_uses_breakout_close_and_includes_1130_cutoff(self):
@@ -109,7 +154,8 @@ class ORBSignalVisualizationTests(unittest.TestCase):
 
     def test_figure_adds_signal_and_ambiguity_markers_with_required_hover(self):
         self.prices.loc["2025-01-06 09:35", ["high", "low"]] = [101.0, 98.0]
-        self.prices.loc["2025-01-06 09:36", "high"] = 100.25
+        self.prices.loc["2025-01-06 09:36", ["high", "low"]] = [101.0, 98.0]
+        self.prices.loc["2025-01-06 09:37", "high"] = 100.25
         figure = build_research_viewer(
             self.prices,
             self.levels,
@@ -138,6 +184,7 @@ class ORBSignalVisualizationTests(unittest.TestCase):
             self.assertIn(field, hover)
         self.assertEqual(figure.layout.meta["long_signals"], 1)
         self.assertEqual(figure.layout.meta["ambiguous_bar_count"], 1)
+        self.assertIn("signal_time: 2025-01-06 09:37 ET", hover)
 
     def _find(self, breakout_type):
         return find_orb_signals(

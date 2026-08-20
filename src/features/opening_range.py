@@ -13,23 +13,25 @@ def calculate_opening_range(
 ) -> dict[str, float | int | pd.Timestamp] | None:
     """Return a complete 09:30 ET opening range, or ``None`` if invalid.
 
-    Timestamp labels follow the existing research convention: a 5-minute OR
-    contains the bars labelled 09:30 through 09:34, inclusive.
+    NinjaTrader 1-minute timestamps are bar-end labels:
+    ``timestamp_et = bar_end_time``. Therefore a 5-minute OR beginning at
+    09:30 market time contains bars labelled 09:31 through 09:35, inclusive.
+    The corresponding bar start is ``timestamp_et - 1 minute``.
     """
     if duration_minutes <= 0:
         raise ValueError("duration_minutes must be positive")
     if not isinstance(session_df.index, pd.DatetimeIndex):
         raise TypeError("session_df must use a DatetimeIndex")
 
-    start = time(9, 30)
-    end = (
-        pd.Timestamp("2000-01-01 09:30")
-        + pd.Timedelta(minutes=duration_minutes - 1)
-    ).time()
+    market_open = pd.Timestamp("2000-01-01 09:30")
+    first_bar_end = market_open + pd.Timedelta(minutes=1)
+    last_bar_end = market_open + pd.Timedelta(minutes=duration_minutes)
+    start = first_bar_end.time()
+    end = last_bar_end.time()
     opening_range = session_df.between_time(start, end, inclusive="both")
 
     expected_times = pd.date_range(
-        pd.Timestamp("2000-01-01 09:30"),
+        first_bar_end,
         periods=duration_minutes,
         freq="min",
     ).time

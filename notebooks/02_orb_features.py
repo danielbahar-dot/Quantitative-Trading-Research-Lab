@@ -31,6 +31,9 @@ df["timestamp_et"] = (
     .dt.tz_convert("America/New_York")
 )
 
+# NinjaTrader stamps 1-minute bars at bar end:
+# timestamp_et = bar_end_time (bar_start_time = timestamp_et - 1 minute).
+
 df["session_date"] = pd.to_datetime(
     df["session_date"]
 ).dt.date
@@ -65,34 +68,38 @@ def calculate_opening_range(
     """
     Calculate opening range statistics for one trading session.
 
-    Opening range begins at 09:30 ET.
+    Opening range begins at 09:30 ET market time. NinjaTrader timestamps are
+    bar-end labels, so the first OR bar is stamped 09:31.
 
     Examples:
-        5 min  = 09:30 through 09:34
-        10 min = 09:30 through 09:39
-        15 min = 09:30 through 09:44
-        30 min = 09:30 through 09:59
+        5 min  = 09:31 through 09:35
+        10 min = 09:31 through 09:40
+        15 min = 09:31 through 09:45
+        30 min = 09:31 through 10:00
     """
 
-    start_time = pd.Timestamp("09:30").time()
-
-    end_timestamp = (
-        pd.Timestamp("09:30")
-        + pd.Timedelta(
-            minutes=duration_minutes - 1
-        )
-    )
-
-    end_time = end_timestamp.time()
+    market_open = pd.Timestamp("09:30")
+    first_bar_end = market_open + pd.Timedelta(minutes=1)
+    last_bar_end = market_open + pd.Timedelta(minutes=duration_minutes)
 
     opening_range = session_df.between_time(
-        start_time,
-        end_time
+        first_bar_end.time(),
+        last_bar_end.time(),
+        inclusive="both"
     )
 
     # We require the exact number of expected 1-minute bars.
     # If even one is missing, we do not trust this OR.
-    if len(opening_range) != duration_minutes:
+    expected_times = pd.date_range(
+        first_bar_end,
+        periods=duration_minutes,
+        freq="min"
+    ).time
+
+    if (
+        len(opening_range) != duration_minutes
+        or not all(opening_range.index.time == expected_times)
+    ):
         return None
 
     or_high = opening_range["high"].max()

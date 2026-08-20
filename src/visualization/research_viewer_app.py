@@ -16,6 +16,7 @@ import pandas as pd
 import plotly
 import plotly.io as pio
 
+from src.backtesting.candidate_entries import build_candidate_entries
 from src.visualization.research_viewer import (
     SUPPORTED_BREAKOUT_TYPES,
     SUPPORTED_OR_MINUTES,
@@ -39,6 +40,7 @@ class ViewerDefaults:
     end_time: str = "11:45"
     signal: str = "ORB"
     breakout_type: str = "PRINT"
+    execution_overlay: bool = False
 
 
 @dataclass
@@ -60,6 +62,7 @@ class ViewerState:
             "end_time": self.defaults.end_time,
             "signal": self.defaults.signal,
             "breakout_type": self.defaults.breakout_type,
+            "execution_overlay": self.defaults.execution_overlay,
             "signals": list(SIGNAL_BUILDERS),
             "breakout_types": list(SUPPORTED_BREAKOUT_TYPES),
             "or_choices": list(SUPPORTED_OR_MINUTES),
@@ -131,6 +134,9 @@ def _handler_for(state: ViewerState):
             if request.path == "/api/signals.csv":
                 self._send_signal_table(parse_qs(request.query))
                 return
+            if request.path == "/api/candidates.csv":
+                self._send_candidate_table(parse_qs(request.query))
+                return
             self.send_error(HTTPStatus.NOT_FOUND)
 
         def _send_figure(self, query: dict[str, list[str]]) -> None:
@@ -154,6 +160,11 @@ def _handler_for(state: ViewerState):
                     start_time=_query_value(query, "start_time", state.defaults.start_time),
                     end_time=_query_value(query, "end_time", state.defaults.end_time),
                     instrument="MNQ",
+                    execution_overlay=_query_bool(
+                        query,
+                        "execution_overlay",
+                        state.defaults.execution_overlay,
+                    ),
                 )
                 payload = pio.to_json(figure, validate=False, pretty=False).encode("utf-8")
                 self._send_bytes(payload, "application/json; charset=utf-8")
@@ -197,6 +208,47 @@ def _handler_for(state: ViewerState):
                     status=HTTPStatus.BAD_REQUEST,
                 )
 
+        def _send_candidate_table(self, query: dict[str, list[str]]) -> None:
+            try:
+                or_minutes = int(
+                    _query_value(query, "or_minutes", str(state.defaults.or_minutes))
+                )
+                signals, _ = find_orb_signals(
+                    state.price_data,
+                    state.or_levels,
+                    start_date=_query_value(
+                        query, "start_date", state.defaults.start_date
+                    ),
+                    end_date=_query_value(query, "end_date", state.defaults.end_date),
+                    or_minutes=or_minutes,
+                    breakout_type=_query_value(
+                        query, "breakout_type", state.defaults.breakout_type
+                    ),
+                )
+                export = build_candidate_entries(
+                    state.price_data,
+                    signals,
+                    or_minutes=or_minutes,
+                )
+                if not export.empty:
+                    export["session_date"] = export["session_date"].astype(str)
+                    for column in ("signal_time", "entry_time"):
+                        export[column] = export[column].map(
+                            lambda value: value.isoformat()
+                            if pd.notna(value)
+                            else ""
+                        )
+                self._send_bytes(
+                    export.to_csv(index=False).encode("utf-8"),
+                    "text/csv; charset=utf-8",
+                )
+            except (TypeError, ValueError) as error:
+                self._send_bytes(
+                    str(error).encode("utf-8"),
+                    "text/plain; charset=utf-8",
+                    status=HTTPStatus.BAD_REQUEST,
+                )
+
         def _send_bytes(
             self,
             payload: bytes,
@@ -220,6 +272,15 @@ def _handler_for(state: ViewerState):
 def _query_value(query: dict[str, list[str]], name: str, default: str) -> str:
     values = query.get(name)
     return values[0] if values and values[0] else default
+
+
+def _query_bool(query: dict[str, list[str]], name: str, default: bool) -> bool:
+    value = _query_value(query, name, str(default).lower()).strip().lower()
+    if value in {"true", "1", "yes", "on"}:
+        return True
+    if value in {"false", "0", "no", "off"}:
+        return False
+    raise ValueError(f"{name} must be true or false")
 
 
 INDEX_HTML = r"""<!doctype html>
@@ -264,10 +325,12 @@ INDEX_HTML = r"""<!doctype html>
     <label>End date<input id="end-date" type="date"></label>
     <label>OR duration<select id="or-minutes"></select></label>
     <label>Breakout type<select id="breakout-type"></select></label>
+    <label>Execution overlay<select id="execution-overlay"><option value="false">Off</option><option value="true">On</option></select></label>
     <label>Start time<input id="start-time" type="time"></label>
     <label>End time<input id="end-time" type="time"></label>
     <button id="update" class="primary" type="button">Update chart</button>
     <a id="signal-table" class="button-link" href="#" download="orb-signals.csv">Signal table (CSV)</a>
+    <a id="candidate-table" class="button-link" href="#" download="orb-candidates.csv">Candidate table (CSV)</a>
     <div class="axis-controls" aria-label="Axis scaling controls">
       <button id="fit-all" type="button">Fit all</button><button id="auto-y" type="button">Auto Y</button>
       <button id="x-in" type="button">X zoom in</button><button id="x-out" type="button">X zoom out</button>
@@ -305,11 +368,12 @@ INDEX_HTML = r"""<!doctype html>
     const breakoutType = document.getElementById("breakout-type");
     viewerConfig.breakout_types.forEach(value => breakoutType.appendChild(option(value)));
     breakoutType.value = viewerConfig.breakout_type;
+    document.getElementById("execution-overlay").value = String(viewerConfig.execution_overlay);
     document.getElementById("start-time").value = viewerConfig.start_time;
     document.getElementById("end-time").value = viewerConfig.end_time;
   }
   function queryString() {
-    return new URLSearchParams({ signal: document.getElementById("signal").value, start_date: document.getElementById("start-date").value, end_date: document.getElementById("end-date").value, or_minutes: document.getElementById("or-minutes").value, breakout_type: document.getElementById("breakout-type").value, start_time: document.getElementById("start-time").value, end_time: document.getElementById("end-time").value }).toString();
+    return new URLSearchParams({ signal: document.getElementById("signal").value, start_date: document.getElementById("start-date").value, end_date: document.getElementById("end-date").value, or_minutes: document.getElementById("or-minutes").value, breakout_type: document.getElementById("breakout-type").value, execution_overlay: document.getElementById("execution-overlay").value, start_time: document.getElementById("start-time").value, end_time: document.getElementById("end-time").value }).toString();
   }
   async function updateChart() {
     const updateButton = document.getElementById("update");
@@ -323,8 +387,10 @@ INDEX_HTML = r"""<!doctype html>
       await Plotly.react(chart, payload.data, payload.layout, { responsive: true, displayModeBar: true, scrollZoom: false, doubleClick: "reset", displaylogo: false });
       const meta = payload.layout.meta || {}; fullXRange = meta.full_x_range || null;
       const skipped = (meta.skipped_or_sessions || []).length;
-      status.textContent = `${meta.sessions || 0} sessions · ${meta.candles || 0} candles · ${meta.long_signals || 0} long · ${meta.short_signals || 0} short · ${meta.ambiguous_bar_count || 0} ambiguous` + (skipped ? ` · OR unavailable for ${skipped} session(s)` : "");
+      const candidateStatus = meta.execution_overlay ? ` · ${meta.valid_candidate_count || 0} valid candidates · ${meta.invalid_candidate_count || 0} invalid` : "";
+      status.textContent = `${meta.sessions || 0} sessions · ${meta.candles || 0} candles · ${meta.long_signals || 0} long · ${meta.short_signals || 0} short · ${meta.ambiguous_bar_count || 0} ambiguous${candidateStatus}` + (skipped ? ` · OR unavailable for ${skipped} session(s)` : "");
       document.getElementById("signal-table").href = `/api/signals.csv?${queryString()}`;
+      document.getElementById("candidate-table").href = `/api/candidates.csv?${queryString()}`;
       figureReady = true;
     } catch (problem) { error.textContent = problem.message; status.textContent = "Chart not updated"; }
     finally { updateButton.disabled = false; }

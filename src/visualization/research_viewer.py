@@ -13,6 +13,8 @@ import warnings
 import pandas as pd
 import plotly.graph_objects as go
 
+from src.backtesting.candidate_entries import build_candidate_entries
+
 
 ET_TIMEZONE = "America/New_York"
 SUPPORTED_OR_MINUTES = (5, 10, 15, 30)
@@ -219,6 +221,7 @@ def build_research_viewer(
     start_time: str | time,
     end_time: str | time,
     instrument: str = "MNQ",
+    execution_overlay: bool = False,
 ) -> go.Figure:
     """Build a multi-session ORB candlestick chart.
 
@@ -264,6 +267,11 @@ def build_research_viewer(
         end_date=selected_end_date,
         or_minutes=or_minutes,
         breakout_type=selected_breakout_type,
+    )
+    candidates = (
+        build_candidate_entries(price_data, signals, or_minutes=or_minutes)
+        if execution_overlay
+        else pd.DataFrame()
     )
 
     figure = go.Figure()
@@ -371,7 +379,15 @@ def build_research_viewer(
             )
         )
 
-    _add_signal_markers(figure, chart_data, signals, ambiguous_bars)
+    _add_signal_markers(
+        figure,
+        chart_data,
+        signals,
+        ambiguous_bars,
+        candidates if execution_overlay else None,
+    )
+    if execution_overlay:
+        _add_candidate_overlay(figure, chart_data, candidates)
 
     if skipped_sessions:
         warnings.warn(
@@ -415,12 +431,20 @@ def build_research_viewer(
             "short_signals": int((signals["direction"] == "SHORT").sum()),
             "signal_count": len(signals),
             "ambiguous_bar_count": len(ambiguous_bars),
+            "execution_overlay": bool(execution_overlay),
+            "candidate_count": len(candidates),
+            "valid_candidate_count": int(
+                candidates["candidate_validity"].sum()
+            ) if not candidates.empty else 0,
+            "invalid_candidate_count": int(
+                (~candidates["candidate_validity"]).sum()
+            ) if not candidates.empty else 0,
             "full_x_range": full_x_range,
         },
         uirevision=(
             f"orb-research-viewer-v0.2-{selected_start_date}-{selected_end_date}-"
             f"{or_minutes}-{selected_breakout_type}-"
-            f"{selected_start_time}-{selected_end_time}"
+            f"{selected_start_time}-{selected_end_time}-{execution_overlay}"
         ),
     )
     figure.update_xaxes(
@@ -499,6 +523,7 @@ def _add_signal_markers(
     chart_data: pd.DataFrame,
     signals: pd.DataFrame,
     ambiguous_bars: pd.DataFrame,
+    candidates: pd.DataFrame | None = None,
 ) -> None:
     display_lookup = chart_data["_display_x"]
     marker_styles = {
@@ -532,7 +557,7 @@ def _add_signal_markers(
                     "size": 14,
                     "line": {"color": "#ffffff", "width": 1},
                 },
-                text=_signal_hover_text(visible),
+                text=_signal_hover_text(visible, candidates),
                 hoverinfo="text",
                 legendrank=rank,
             )
@@ -564,9 +589,216 @@ def _add_signal_markers(
         )
 
 
-def _signal_hover_text(events: pd.DataFrame) -> list[str]:
+def _add_candidate_overlay(
+    figure: go.Figure,
+    chart_data: pd.DataFrame,
+    candidates: pd.DataFrame,
+) -> None:
+    if candidates.empty:
+        return
+
+    display_lookup = chart_data["_display_x"]
+    visible = candidates.loc[
+        candidates["entry_time"].notna()
+        & candidates["entry_time"].isin(display_lookup.index)
+        & candidates["entry_price"].notna()
+    ]
+    if visible.empty:
+        return
+
+    marker_styles = {
+        "LONG": {"symbol": "diamond-open", "color": "#065f46"},
+        "SHORT": {"symbol": "diamond-open", "color": "#9f1239"},
+    }
+    valid = visible.loc[visible["candidate_validity"]]
+    for rank, direction in enumerate(("LONG", "SHORT"), start=23):
+        direction_entries = valid.loc[valid["direction"] == direction]
+        if direction_entries.empty:
+            continue
+        style = marker_styles[direction]
+        figure.add_trace(
+            go.Scatter(
+                x=[
+                    int(display_lookup.loc[value])
+                    for value in direction_entries["entry_time"]
+                ],
+                y=list(direction_entries["entry_price"]),
+                mode="markers",
+                name=f"{direction.title()} entry",
+                marker={
+                    "symbol": style["symbol"],
+                    "color": style["color"],
+                    "size": 12,
+                    "line": {"width": 2},
+                },
+                text=_candidate_hover_text(direction_entries),
+                hoverinfo="text",
+                legendrank=rank,
+            )
+        )
+
+    invalid = visible.loc[~visible["candidate_validity"]]
+    if not invalid.empty:
+        figure.add_trace(
+            go.Scatter(
+                x=[int(display_lookup.loc[value]) for value in invalid["entry_time"]],
+                y=list(invalid["entry_price"]),
+                mode="markers",
+                name="Invalid candidate",
+                marker={
+                    "symbol": "x",
+                    "color": "#7c2d12",
+                    "size": 13,
+                    "line": {"width": 2},
+                },
+                text=_candidate_hover_text(invalid),
+                hoverinfo="text",
+                legendrank=25,
+            )
+        )
+
+    level_specs = {
+        "Entry price": {
+            "column": "entry_price",
+            "color": "#0f766e",
+            "dash": "solid",
+        },
+        "Initial stop": {
+            "column": "initial_stop",
+            "color": "#dc2626",
+            "dash": "dash",
+        },
+        "Initial target": {
+            "column": "initial_target",
+            "color": "#16a34a",
+            "dash": "dot",
+        },
+    }
+    for rank, (name, spec) in enumerate(level_specs.items(), start=30):
+        x_values: list[float | None] = []
+        y_values: list[float | None] = []
+        hover_values: list[str | None] = []
+        for candidate in visible.itertuples(index=False):
+            level = getattr(candidate, spec["column"])
+            if pd.isna(level):
+                continue
+            session_data = chart_data.loc[
+                chart_data["session_date"] == candidate.session_date
+            ]
+            entry_x = int(display_lookup.loc[candidate.entry_time])
+            session_x1 = int(session_data["_display_x"].max())
+            hover = _candidate_hover_row(candidate)
+            x_values.extend([entry_x, session_x1, None])
+            y_values.extend([float(level), float(level), None])
+            hover_values.extend([hover, hover, None])
+        if not x_values:
+            continue
+        figure.add_trace(
+            go.Scatter(
+                x=x_values,
+                y=y_values,
+                mode="lines",
+                name=name,
+                line={
+                    "color": spec["color"],
+                    "dash": spec["dash"],
+                    "width": 1.25,
+                },
+                connectgaps=False,
+                text=hover_values,
+                hoverinfo="text",
+                legendrank=rank,
+            )
+        )
+
+
+def _candidate_hover_text(candidates: pd.DataFrame) -> list[str]:
     return [
-        (
+        _candidate_hover_row(candidate)
+        for candidate in candidates.itertuples(index=False)
+    ]
+
+
+def _candidate_hover_row(candidate) -> str:
+    entry_time = (
+        candidate.entry_time.strftime("%Y-%m-%d %H:%M ET")
+        if pd.notna(candidate.entry_time)
+        else "N/A"
+    )
+    entry_price = (
+        f"{candidate.entry_price:,.2f}"
+        if pd.notna(candidate.entry_price)
+        else "N/A"
+    )
+    risk_points = (
+        f"{candidate.risk_points:,.2f}"
+        if pd.notna(candidate.risk_points)
+        else "N/A"
+    )
+    initial_target = (
+        f"{candidate.initial_target:,.2f}"
+        if pd.notna(candidate.initial_target)
+        else "N/A"
+    )
+    invalid_reason = candidate.invalid_reason or ""
+    entry_bar_open = _hover_price(candidate.entry_bar_open)
+    entry_bar_high = _hover_price(candidate.entry_bar_high)
+    entry_bar_low = _hover_price(candidate.entry_bar_low)
+    entry_bar_close = _hover_price(candidate.entry_bar_close)
+    return (
+        f"<b>{candidate.direction} candidate</b>"
+        f"<br>session_date: {candidate.session_date.isoformat()}"
+        f"<br>contract: {candidate.contract}"
+        f"<br>direction: {candidate.direction}"
+        f"<br>OR duration: {candidate.or_minutes} minutes"
+        f"<br>breakout_type: {candidate.breakout_type}"
+        f"<br>signal_time: {candidate.signal_time.strftime('%Y-%m-%d %H:%M ET')}"
+        f"<br>entry_time: {entry_time}"
+        f"<br>entry_price: {entry_price}"
+        f"<br><b>Entry bar OHLC (bar-end timestamp)</b>"
+        f"<br>entry_bar_open: {entry_bar_open}"
+        f"<br>entry_bar_high: {entry_bar_high}"
+        f"<br>entry_bar_low: {entry_bar_low}"
+        f"<br>entry_bar_close: {entry_bar_close}"
+        f"<br>OR high: {candidate.or_high:,.2f}"
+        f"<br>OR low: {candidate.or_low:,.2f}"
+        f"<br>OR midpoint: {candidate.or_mid:,.2f}"
+        f"<br>initial_stop: {candidate.initial_stop:,.2f}"
+        f"<br>risk_points: {risk_points}"
+        f"<br>initial_target: {initial_target}"
+        f"<br>candidate_validity: {str(bool(candidate.candidate_validity)).lower()}"
+        f"<br>invalid_reason: {invalid_reason}"
+    )
+
+
+def _signal_hover_text(
+    events: pd.DataFrame,
+    candidates: pd.DataFrame | None = None,
+) -> list[str]:
+    hover_text: list[str] = []
+    for row in events.itertuples(index=False):
+        execution_details = ""
+        if candidates is not None and not candidates.empty:
+            match = candidates.loc[
+                (candidates["session_date"] == row.session_date)
+                & (candidates["direction"] == row.direction)
+                & (candidates["breakout_type"] == row.breakout_type)
+                & (candidates["signal_time"] == row.signal_time)
+            ]
+            if not match.empty:
+                candidate = next(match.itertuples(index=False))
+                execution_details = (
+                    f"<br><b>Candidate execution</b>"
+                    f"<br>entry_time: {_hover_time(candidate.entry_time)}"
+                    f"<br>entry_price: {_hover_price(candidate.entry_price)}"
+                    f"<br><b>Entry bar OHLC (bar-end timestamp)</b>"
+                    f"<br>entry_bar_open: {_hover_price(candidate.entry_bar_open)}"
+                    f"<br>entry_bar_high: {_hover_price(candidate.entry_bar_high)}"
+                    f"<br>entry_bar_low: {_hover_price(candidate.entry_bar_low)}"
+                    f"<br>entry_bar_close: {_hover_price(candidate.entry_bar_close)}"
+                )
+        hover_text.append(
+            (
             f"<b>{row.direction}</b>"
             f"<br>session_date: {row.session_date.isoformat()}"
             f"<br>direction: {row.direction}"
@@ -576,9 +808,18 @@ def _signal_hover_text(events: pd.DataFrame) -> list[str]:
             f"<br>OR low: {row.or_low:,.2f}"
             f"<br>OR mid: {row.or_mid:,.2f}"
             f"<br>ambiguity status: {str(bool(row.ambiguity_status)).lower()}"
+            f"{execution_details}"
+            )
         )
-        for row in events.itertuples(index=False)
-    ]
+    return hover_text
+
+
+def _hover_time(value) -> str:
+    return value.strftime("%Y-%m-%d %H:%M ET") if pd.notna(value) else "N/A"
+
+
+def _hover_price(value) -> str:
+    return f"{value:,.2f}" if pd.notna(value) else "N/A"
 
 
 def show_research_viewer(figure: go.Figure, *, renderer: str | None = None) -> None:

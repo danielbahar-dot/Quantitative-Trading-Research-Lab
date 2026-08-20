@@ -186,6 +186,61 @@ class ORBSignalVisualizationTests(unittest.TestCase):
         self.assertEqual(figure.layout.meta["ambiguous_bar_count"], 1)
         self.assertIn("signal_time: 2025-01-06 09:37 ET", hover)
 
+    def test_execution_overlay_adds_candidate_entry_stop_and_target(self):
+        self.prices.loc["2025-01-06 09:36", ["high", "close"]] = [
+            100.25,
+            100.25,
+        ]
+        signals_before, _ = self._find("PRINT")
+
+        figure = build_research_viewer(
+            self.prices,
+            self.levels,
+            start_date="2025-01-06",
+            end_date="2025-01-06",
+            or_minutes=5,
+            breakout_type="PRINT",
+            start_time="09:30",
+            end_time="11:31",
+            execution_overlay=True,
+        )
+        signals_after, _ = self._find("PRINT")
+
+        traces = {trace.name: trace for trace in figure.data}
+        for name in (
+            "Long signal",
+            "Long entry",
+            "Entry price",
+            "Initial stop",
+            "Initial target",
+        ):
+            self.assertIn(name, traces)
+        self.assertEqual(float(traces["Long entry"].y[0]), 100.0)
+        hover = traces["Long entry"].text[0]
+        for field in (
+            "session_date",
+            "contract",
+            "direction",
+            "OR duration",
+            "breakout_type",
+            "signal_time",
+            "entry_time",
+            "entry_price",
+            "OR high",
+            "OR low",
+            "OR midpoint",
+            "initial_stop",
+            "risk_points",
+            "initial_target",
+            "candidate_validity",
+            "invalid_reason",
+        ):
+            self.assertIn(field, hover)
+        self.assertEqual(figure.layout.meta["candidate_count"], 1)
+        self.assertEqual(figure.layout.meta["valid_candidate_count"], 1)
+        self.assertEqual(figure.layout.meta["invalid_candidate_count"], 0)
+        pd.testing.assert_frame_equal(signals_before, signals_after)
+
     def _find(self, breakout_type):
         return find_orb_signals(
             self.prices,

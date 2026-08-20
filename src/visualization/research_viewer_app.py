@@ -17,6 +17,7 @@ import plotly
 import plotly.io as pio
 
 from src.backtesting.candidate_entries import build_candidate_entries
+from src.backtesting.completed_trades import simulate_completed_trades
 from src.visualization.research_viewer import (
     SUPPORTED_BREAKOUT_TYPES,
     SUPPORTED_OR_MINUTES,
@@ -137,6 +138,9 @@ def _handler_for(state: ViewerState):
             if request.path == "/api/candidates.csv":
                 self._send_candidate_table(parse_qs(request.query))
                 return
+            if request.path == "/api/trades.csv":
+                self._send_trade_table(parse_qs(request.query))
+                return
             self.send_error(HTTPStatus.NOT_FOUND)
 
         def _send_figure(self, query: dict[str, list[str]]) -> None:
@@ -249,6 +253,51 @@ def _handler_for(state: ViewerState):
                     status=HTTPStatus.BAD_REQUEST,
                 )
 
+        def _send_trade_table(self, query: dict[str, list[str]]) -> None:
+            try:
+                or_minutes = int(
+                    _query_value(query, "or_minutes", str(state.defaults.or_minutes))
+                )
+                signals, _ = find_orb_signals(
+                    state.price_data,
+                    state.or_levels,
+                    start_date=_query_value(
+                        query, "start_date", state.defaults.start_date
+                    ),
+                    end_date=_query_value(query, "end_date", state.defaults.end_date),
+                    or_minutes=or_minutes,
+                    breakout_type=_query_value(
+                        query, "breakout_type", state.defaults.breakout_type
+                    ),
+                )
+                candidates = build_candidate_entries(
+                    state.price_data,
+                    signals,
+                    or_minutes=or_minutes,
+                )
+                export = simulate_completed_trades(
+                    state.price_data,
+                    candidates,
+                )
+                if not export.empty:
+                    export["session_date"] = export["session_date"].astype(str)
+                    for column in ("signal_time", "entry_time", "exit_time"):
+                        export[column] = export[column].map(
+                            lambda value: value.isoformat()
+                            if pd.notna(value)
+                            else ""
+                        )
+                self._send_bytes(
+                    export.to_csv(index=False).encode("utf-8"),
+                    "text/csv; charset=utf-8",
+                )
+            except (TypeError, ValueError) as error:
+                self._send_bytes(
+                    str(error).encode("utf-8"),
+                    "text/plain; charset=utf-8",
+                    status=HTTPStatus.BAD_REQUEST,
+                )
+
         def _send_bytes(
             self,
             payload: bytes,
@@ -331,6 +380,7 @@ INDEX_HTML = r"""<!doctype html>
     <button id="update" class="primary" type="button">Update chart</button>
     <a id="signal-table" class="button-link" href="#" download="orb-signals.csv">Signal table (CSV)</a>
     <a id="candidate-table" class="button-link" href="#" download="orb-candidates.csv">Candidate table (CSV)</a>
+    <a id="trade-table" class="button-link" href="#" download="orb-completed-trades.csv">Completed trades (CSV)</a>
     <div class="axis-controls" aria-label="Axis scaling controls">
       <button id="fit-all" type="button">Fit all</button><button id="auto-y" type="button">Auto Y</button>
       <button id="x-in" type="button">X zoom in</button><button id="x-out" type="button">X zoom out</button>
@@ -388,9 +438,11 @@ INDEX_HTML = r"""<!doctype html>
       const meta = payload.layout.meta || {}; fullXRange = meta.full_x_range || null;
       const skipped = (meta.skipped_or_sessions || []).length;
       const candidateStatus = meta.execution_overlay ? ` · ${meta.valid_candidate_count || 0} valid candidates · ${meta.invalid_candidate_count || 0} invalid` : "";
-      status.textContent = `${meta.sessions || 0} sessions · ${meta.candles || 0} candles · ${meta.long_signals || 0} long · ${meta.short_signals || 0} short · ${meta.ambiguous_bar_count || 0} ambiguous${candidateStatus}` + (skipped ? ` · OR unavailable for ${skipped} session(s)` : "");
+      const tradeStatus = meta.execution_overlay ? ` · ${meta.completed_trade_count || 0} completed trades · ${meta.excluded_trade_count || 0} excluded` : "";
+      status.textContent = `${meta.sessions || 0} sessions · ${meta.candles || 0} candles · ${meta.long_signals || 0} long · ${meta.short_signals || 0} short · ${meta.ambiguous_bar_count || 0} ambiguous${candidateStatus}${tradeStatus}` + (skipped ? ` · OR unavailable for ${skipped} session(s)` : "");
       document.getElementById("signal-table").href = `/api/signals.csv?${queryString()}`;
       document.getElementById("candidate-table").href = `/api/candidates.csv?${queryString()}`;
+      document.getElementById("trade-table").href = `/api/trades.csv?${queryString()}`;
       figureReady = true;
     } catch (problem) { error.textContent = problem.message; status.textContent = "Chart not updated"; }
     finally { updateButton.disabled = false; }

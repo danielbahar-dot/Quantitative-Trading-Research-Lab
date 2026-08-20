@@ -241,6 +241,44 @@ class ORBSignalVisualizationTests(unittest.TestCase):
         self.assertEqual(figure.layout.meta["invalid_candidate_count"], 0)
         pd.testing.assert_frame_equal(signals_before, signals_after)
 
+    def test_execution_overlay_adds_completed_exit_with_required_hover(self):
+        self.prices.loc["2025-01-06 09:36", "close"] = 100.25
+        self.prices.loc[
+            "2025-01-06 09:37", ["open", "high", "low", "close"]
+        ] = [102.0, 108.0, 101.0, 107.0]
+
+        figure = build_research_viewer(
+            self.prices,
+            self.levels,
+            start_date="2025-01-06",
+            end_date="2025-01-06",
+            or_minutes=5,
+            breakout_type="CLOSE",
+            start_time="09:30",
+            end_time="11:31",
+            execution_overlay=True,
+        )
+
+        traces = {trace.name: trace for trace in figure.data}
+        self.assertIn("Target exit", traces)
+        hover = traces["Target exit"].text[0]
+        for field in (
+            "exit_time",
+            "exit_price",
+            "exit_reason",
+            "result_R",
+            "MFE_R",
+            "MAE_R",
+            "ambiguous",
+            "ambiguity_reason",
+        ):
+            self.assertIn(field, hover)
+        self.assertIn("exit_reason: TARGET", hover)
+        self.assertIn("exit_price: 107.00", hover)
+        self.assertEqual(figure.layout.meta["completed_trade_count"], 1)
+        self.assertEqual(figure.layout.meta["included_trade_count"], 1)
+        self.assertEqual(figure.layout.meta["excluded_trade_count"], 0)
+
     def _find(self, breakout_type):
         return find_orb_signals(
             self.prices,

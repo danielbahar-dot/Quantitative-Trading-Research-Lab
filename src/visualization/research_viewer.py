@@ -14,6 +14,7 @@ import pandas as pd
 import plotly.graph_objects as go
 
 from src.backtesting.candidate_entries import build_candidate_entries
+from src.backtesting.completed_trades import simulate_completed_trades
 
 
 ET_TIMEZONE = "America/New_York"
@@ -273,6 +274,11 @@ def build_research_viewer(
         if execution_overlay
         else pd.DataFrame()
     )
+    completed_trades = (
+        simulate_completed_trades(price_data, candidates)
+        if execution_overlay
+        else pd.DataFrame()
+    )
 
     figure = go.Figure()
     figure.add_trace(
@@ -387,7 +393,13 @@ def build_research_viewer(
         candidates if execution_overlay else None,
     )
     if execution_overlay:
-        _add_candidate_overlay(figure, chart_data, candidates)
+        _add_candidate_overlay(
+            figure,
+            chart_data,
+            candidates,
+            completed_trades,
+        )
+        _add_trade_exit_markers(figure, chart_data, completed_trades)
 
     if skipped_sessions:
         warnings.warn(
@@ -439,6 +451,13 @@ def build_research_viewer(
             "invalid_candidate_count": int(
                 (~candidates["candidate_validity"]).sum()
             ) if not candidates.empty else 0,
+            "completed_trade_count": len(completed_trades),
+            "included_trade_count": int(
+                (~completed_trades["excluded_from_performance"]).sum()
+            ) if not completed_trades.empty else 0,
+            "excluded_trade_count": int(
+                completed_trades["excluded_from_performance"].sum()
+            ) if not completed_trades.empty else 0,
             "full_x_range": full_x_range,
         },
         uirevision=(
@@ -593,6 +612,7 @@ def _add_candidate_overlay(
     figure: go.Figure,
     chart_data: pd.DataFrame,
     candidates: pd.DataFrame,
+    completed_trades: pd.DataFrame,
 ) -> None:
     if candidates.empty:
         return
@@ -674,6 +694,10 @@ def _add_candidate_overlay(
             "dash": "dot",
         },
     }
+    trade_lookup = {
+        _trade_match_key(trade): trade
+        for trade in completed_trades.itertuples(index=False)
+    }
     for rank, (name, spec) in enumerate(level_specs.items(), start=30):
         x_values: list[float | None] = []
         y_values: list[float | None] = []
@@ -687,6 +711,13 @@ def _add_candidate_overlay(
             ]
             entry_x = int(display_lookup.loc[candidate.entry_time])
             session_x1 = int(session_data["_display_x"].max())
+            trade = trade_lookup.get(_trade_match_key(candidate))
+            if (
+                trade is not None
+                and pd.notna(trade.exit_time)
+                and trade.exit_time in display_lookup.index
+            ):
+                session_x1 = int(display_lookup.loc[trade.exit_time])
             hover = _candidate_hover_row(candidate)
             x_values.extend([entry_x, session_x1, None])
             y_values.extend([float(level), float(level), None])
@@ -710,6 +741,112 @@ def _add_candidate_overlay(
                 legendrank=rank,
             )
         )
+
+
+def _add_trade_exit_markers(
+    figure: go.Figure,
+    chart_data: pd.DataFrame,
+    completed_trades: pd.DataFrame,
+) -> None:
+    if completed_trades.empty:
+        return
+    display_lookup = chart_data["_display_x"]
+    visible = completed_trades.loc[
+        completed_trades["exit_time"].notna()
+        & completed_trades["exit_time"].isin(display_lookup.index)
+    ]
+    if visible.empty:
+        return
+
+    styles = {
+        "TARGET": ("Target exit", "star", "#15803d"),
+        "STOP": ("Stop exit", "x", "#dc2626"),
+        "SESSION_END": ("Session-end exit", "square-open", "#1d4ed8"),
+        "AMBIGUOUS_STOP_TARGET": (
+            "Ambiguous stop/target",
+            "x-open",
+            "#d97706",
+        ),
+        "AMBIGUOUS_ENTRY_STOP": (
+            "Ambiguous entry/stop",
+            "x-open",
+            "#7c3aed",
+        ),
+        "MISSING_SESSION_EXIT_BAR": (
+            "Missing session exit",
+            "x-open",
+            "#6b7280",
+        ),
+    }
+    for rank, (reason, (name, symbol, color)) in enumerate(
+        styles.items(),
+        start=40,
+    ):
+        exits = visible.loc[visible["exit_reason"] == reason]
+        if exits.empty:
+            continue
+        marker_prices = [
+            row.exit_price
+            if pd.notna(row.exit_price)
+            else row.exit_bar_close
+            for row in exits.itertuples(index=False)
+        ]
+        figure.add_trace(
+            go.Scatter(
+                x=[
+                    int(display_lookup.loc[value])
+                    for value in exits["exit_time"]
+                ],
+                y=marker_prices,
+                mode="markers",
+                name=name,
+                marker={
+                    "symbol": symbol,
+                    "color": color,
+                    "size": 13,
+                    "line": {"width": 2},
+                },
+                text=[
+                    _trade_hover_row(trade)
+                    for trade in exits.itertuples(index=False)
+                ],
+                hoverinfo="text",
+                legendrank=rank,
+            )
+        )
+
+
+def _trade_match_key(event) -> tuple:
+    return (
+        event.session_date,
+        str(event.direction),
+        str(event.breakout_type),
+        pd.Timestamp(event.signal_time),
+    )
+
+
+def _trade_hover_row(trade) -> str:
+    return (
+        f"<b>{trade.direction} completed trade</b>"
+        f"<br>trade_id: {trade.trade_id}"
+        f"<br>session_date: {trade.session_date.isoformat()}"
+        f"<br>contract: {trade.contract}"
+        f"<br>OR duration: {trade.or_minutes} minutes"
+        f"<br>breakout_type: {trade.breakout_type}"
+        f"<br>signal_time: {_hover_time(trade.signal_time)}"
+        f"<br>entry_time: {_hover_time(trade.entry_time)}"
+        f"<br>entry_price: {_hover_price(trade.entry_price)}"
+        f"<br>initial_stop: {_hover_price(trade.initial_stop)}"
+        f"<br>initial_target: {_hover_price(trade.initial_target)}"
+        f"<br>exit_time: {_hover_time(trade.exit_time)}"
+        f"<br>exit_price: {_hover_price(trade.exit_price)}"
+        f"<br>exit_reason: {trade.exit_reason}"
+        f"<br>result_R: {_hover_ratio(trade.result_r)}"
+        f"<br>MFE_R: {_hover_ratio(trade.mfe_r)}"
+        f"<br>MAE_R: {_hover_ratio(trade.mae_r)}"
+        f"<br>ambiguous: {str(bool(trade.ambiguous)).lower()}"
+        f"<br>ambiguity_reason: {trade.ambiguity_reason or ''}"
+    )
 
 
 def _candidate_hover_text(candidates: pd.DataFrame) -> list[str]:
@@ -820,6 +957,10 @@ def _hover_time(value) -> str:
 
 def _hover_price(value) -> str:
     return f"{value:,.2f}" if pd.notna(value) else "N/A"
+
+
+def _hover_ratio(value) -> str:
+    return f"{value:,.4f}" if pd.notna(value) else "N/A"
 
 
 def show_research_viewer(figure: go.Figure, *, renderer: str | None = None) -> None:

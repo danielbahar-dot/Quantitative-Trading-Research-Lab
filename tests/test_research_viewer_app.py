@@ -39,7 +39,9 @@ class ResearchViewerAppExportTests(unittest.TestCase):
             101.0,
             100.25,
         ]
-        prices.loc["2026-01-05 09:37", "open"] = 102.0
+        prices.loc[
+            "2026-01-05 09:37", ["open", "high", "low", "close"]
+        ] = [102.0, 108.0, 101.0, 107.0]
         levels = pd.DataFrame(
             {
                 "session_date": [pd.Timestamp("2026-01-05").date()],
@@ -68,7 +70,7 @@ class ResearchViewerAppExportTests(unittest.TestCase):
         cls.server.server_close()
         cls.thread.join(timeout=5)
 
-    def test_signal_and_candidate_csv_exports_are_both_available(self):
+    def test_signal_candidate_and_trade_csv_exports_are_available(self):
         query = (
             "start_date=2026-01-05&end_date=2026-01-05"
             "&or_minutes=5&breakout_type=CLOSE"
@@ -81,9 +83,14 @@ class ResearchViewerAppExportTests(unittest.TestCase):
             candidate_rows = list(
                 csv.DictReader(io.StringIO(response.read().decode("utf-8")))
             )
+        with urlopen(f"{self.base_url}/api/trades.csv?{query}") as response:
+            trade_rows = list(
+                csv.DictReader(io.StringIO(response.read().decode("utf-8")))
+            )
 
         self.assertEqual(len(signal_rows), 1)
         self.assertEqual(len(candidate_rows), 1)
+        self.assertEqual(len(trade_rows), 1)
         candidate = candidate_rows[0]
         self.assertEqual(candidate["signal_time"], "2026-01-05T09:36:00-05:00")
         self.assertEqual(candidate["entry_time"], "2026-01-05T09:37:00-05:00")
@@ -93,6 +100,12 @@ class ResearchViewerAppExportTests(unittest.TestCase):
         self.assertEqual(float(candidate["initial_target"]), 107.0)
         self.assertEqual(candidate["candidate_validity"], "True")
         self.assertEqual(candidate["invalid_reason"], "")
+        trade = trade_rows[0]
+        self.assertEqual(trade["exit_time"], "2026-01-05T09:37:00-05:00")
+        self.assertEqual(float(trade["exit_price"]), 107.0)
+        self.assertEqual(trade["exit_reason"], "TARGET")
+        self.assertEqual(float(trade["result_r"]), 2.0)
+        self.assertEqual(trade["ambiguous"], "False")
 
 
 if __name__ == "__main__":

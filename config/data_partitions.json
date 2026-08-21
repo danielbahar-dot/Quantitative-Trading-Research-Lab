@@ -1,0 +1,35 @@
+{
+  "dataset_id": "MNQ_1m_actual_contract_v1",
+  "source_file": "data/MNQ_raw_cleaned_ET.csv",
+  "partition_column": "session_date",
+  "timestamp_column": "timestamp_et",
+  "timestamp_semantics": "NT8 bar-end time",
+  "timezone": "America/New_York",
+  "report_file": "data/processed/MNQ_raw_cleaned_ET_partition_report.json",
+  "current_orb_v01_oos_status": "BURNED",
+  "research_notes": [
+    "Full-history ORB V0.1 baseline results were viewed before formal partitioning.",
+    "The OOS partition remains useful for learning, robustness analysis, and walk-forward exercises, but is not untouched final OOS evidence for the current ORB V0.1 research path.",
+    "Future strategies can reuse this partition architecture from inception to maintain genuine OOS discipline."
+  ],
+  "partitions": [
+    {
+      "name": "DEVELOPMENT",
+      "start": "2024-06-21",
+      "end": "2025-06-30",
+      "output_file": "data/processed/MNQ_raw_cleaned_ET_DEVELOPMENT.csv"
+    },
+    {
+      "name": "VALIDATION",
+      "start": "2025-07-01",
+      "end": "2025-12-31",
+      "output_file": "data/processed/MNQ_raw_cleaned_ET_VALIDATION.csv"
+    },
+    {
+      "name": "OOS",
+      "start": "2026-01-01",
+      "end": "2026-08-17",
+      "output_file": "data/processed/MNQ_raw_cleaned_ET_OOS.csv"
+    }
+  ]
+}

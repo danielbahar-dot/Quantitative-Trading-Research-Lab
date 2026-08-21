@@ -1,0 +1,136 @@
+{
+  "dataset_id": "MNQ_1m_actual_contract_v1",
+  "source_file": "data/MNQ_raw_cleaned_ET.csv",
+  "source_sha256": "7da48b3b69b549c4ef7e31a1052ac61e25d6220d5d9c95770e2e79fc634f32f5",
+  "timestamp_semantics": "NT8 bar-end time",
+  "timezone": "America/New_York",
+  "current_orb_v01_oos_status": "BURNED",
+  "research_notes": [
+    "Full-history ORB V0.1 baseline results were viewed before formal partitioning.",
+    "The OOS partition remains useful for learning, robustness analysis, and walk-forward exercises, but is not untouched final OOS evidence for the current ORB V0.1 research path.",
+    "Future strategies can reuse this partition architecture from inception to maintain genuine OOS discipline."
+  ],
+  "canonical": {
+    "rows": 713082,
+    "sessions": 525,
+    "first_session_date": "2024-06-21",
+    "last_session_date": "2026-08-17",
+    "columns": [
+      "timestamp_et",
+      "session_date",
+      "contract",
+      "open",
+      "high",
+      "low",
+      "close",
+      "volume",
+      "source_file"
+    ],
+    "dtypes": {
+      "timestamp_et": "str",
+      "session_date": "str",
+      "contract": "str",
+      "open": "float64",
+      "high": "float64",
+      "low": "float64",
+      "close": "float64",
+      "volume": "int64",
+      "source_file": "str"
+    },
+    "contracts": [
+      "MNQ 03-25",
+      "MNQ 03-26",
+      "MNQ 06-25",
+      "MNQ 06-26",
+      "MNQ 09-24",
+      "MNQ 09-25",
+      "MNQ 09-26",
+      "MNQ 12-24",
+      "MNQ 12-25"
+    ],
+    "file_size_bytes": 75641053
+  },
+  "partitions": {
+    "DEVELOPMENT": {
+      "configured_start": "2024-06-21",
+      "configured_end": "2025-06-30",
+      "first_observed_session": "2024-06-21",
+      "last_observed_session": "2025-06-30",
+      "start_status": "EXACT",
+      "end_status": "EXACT",
+      "all_rows_within_configured_range": true,
+      "rows": 337815,
+      "sessions": 248,
+      "contracts": [
+        "MNQ 03-25",
+        "MNQ 06-25",
+        "MNQ 09-24",
+        "MNQ 09-25",
+        "MNQ 12-24"
+      ],
+      "output_file": "data/processed/MNQ_raw_cleaned_ET_DEVELOPMENT.csv",
+      "file_size_bytes": 36528608,
+      "sha256": "6c60be7885d5307694b94c8bd64376fc32fea1b04e1521d4100c859d4219b550"
+    },
+    "VALIDATION": {
+      "configured_start": "2025-07-01",
+      "configured_end": "2025-12-31",
+      "first_observed_session": "2025-07-01",
+      "last_observed_session": "2025-12-31",
+      "start_status": "EXACT",
+      "end_status": "EXACT",
+      "all_rows_within_configured_range": true,
+      "rows": 166973,
+      "sessions": 123,
+      "contracts": [
+        "MNQ 03-26",
+        "MNQ 09-25",
+        "MNQ 12-25"
+      ],
+      "output_file": "data/processed/MNQ_raw_cleaned_ET_VALIDATION.csv",
+      "file_size_bytes": 18056949,
+      "sha256": "c7d6d8f8a021f693458e262ba814c75eecbad8a2e235104f7a559bbe9ab3ee34"
+    },
+    "OOS": {
+      "configured_start": "2026-01-01",
+      "configured_end": "2026-08-17",
+      "first_observed_session": "2026-01-02",
+      "last_observed_session": "2026-08-17",
+      "start_status": "START_BOUNDARY_HAS_NO_SOURCE_SESSION",
+      "end_status": "EXACT",
+      "all_rows_within_configured_range": true,
+      "rows": 208294,
+      "sessions": 154,
+      "contracts": [
+        "MNQ 03-26",
+        "MNQ 06-26",
+        "MNQ 09-26"
+      ],
+      "output_file": "data/processed/MNQ_raw_cleaned_ET_OOS.csv",
+      "file_size_bytes": 22572284,
+      "sha256": "14fb5b0832ed1ff8edbbea67d05f61926aedb449d54e1943cd637dfe41d70abd"
+    }
+  },
+  "totals": {
+    "canonical_rows": 713082,
+    "sum_partition_rows": 713082,
+    "outside_rows": 0,
+    "outside_sessions": []
+  },
+  "integrity": {
+    "passed": true,
+    "checks": {
+      "every_row_assigned_exactly_once": true,
+      "no_session_date_split": true,
+      "recombined_row_count_matches": true,
+      "recombined_values_and_order_match": true,
+      "columns_preserved": true,
+      "dtypes_preserved_in_memory": true,
+      "no_duplicate_timestamps_introduced": true,
+      "contract_identifiers_unchanged": true,
+      "partition_rows_within_configured_boundaries": true,
+      "no_rows_repaired_or_removed": true,
+      "canonical_source_sha256_unchanged": true
+    }
+  }
+}

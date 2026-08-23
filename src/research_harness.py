@@ -6,6 +6,7 @@ import argparse
 import csv
 import hashlib
 import json
+import platform
 import re
 import sqlite3
 import subprocess
@@ -21,8 +22,29 @@ COLUMNS = (
     "run_id", "timestamp_utc", "strategy_name", "strategy_version",
     "hypothesis", "dataset", "timeframe", "session", "parameters_json",
     "costs_slippage_json", "results_summary_json", "notes", "code_version",
-    "code_hash", "artifact_paths_json", "config_path",
+    "code_hash", "artifact_paths_json", "config_path", "experiment_id",
+    "project_id", "strategy_family", "asset_class", "instrument_id",
+    "universe_id", "dataset_id", "dataset_hash", "partition_name",
+    "execution_model_json", "status", "conclusion", "dirty_worktree",
+    "environment_json",
 )
+
+EXTENDED_COLUMN_DEFINITIONS = {
+    "experiment_id": "TEXT NOT NULL DEFAULT ''",
+    "project_id": "TEXT NOT NULL DEFAULT ''",
+    "strategy_family": "TEXT NOT NULL DEFAULT ''",
+    "asset_class": "TEXT NOT NULL DEFAULT ''",
+    "instrument_id": "TEXT NOT NULL DEFAULT ''",
+    "universe_id": "TEXT NOT NULL DEFAULT ''",
+    "dataset_id": "TEXT NOT NULL DEFAULT ''",
+    "dataset_hash": "TEXT NOT NULL DEFAULT ''",
+    "partition_name": "TEXT NOT NULL DEFAULT ''",
+    "execution_model_json": "TEXT NOT NULL DEFAULT '{}'",
+    "status": "TEXT NOT NULL DEFAULT 'CREATED'",
+    "conclusion": "TEXT NOT NULL DEFAULT ''",
+    "dirty_worktree": "INTEGER NOT NULL DEFAULT 0",
+    "environment_json": "TEXT NOT NULL DEFAULT '{}'",
+}
 
 REQUIRED_CONFIG_FIELDS = (
     "strategy_name", "strategy_version", "hypothesis", "dataset", "timeframe",
@@ -48,7 +70,7 @@ class ExperimentLedger:
         self.runs_dir = self.experiments_dir / "runs"
         self.db_path = self.experiments_dir / "experiment_ledger.sqlite"
         self.csv_path = self.experiments_dir / "ledger.csv"
-        self.schema_path = self.experiments_dir / "schema.sql"
+        self.schema_path = self.experiments_dir / "schema" / "experiment_ledger.sql"
 
     def initialize(self) -> None:
         """Create folders, database schema, and the CSV ledger if needed."""
@@ -57,6 +79,15 @@ class ExperimentLedger:
             raise FileNotFoundError(f"Missing schema file: {self.schema_path}")
         with self._connection() as connection:
             connection.executescript(self.schema_path.read_text(encoding="utf-8"))
+            self._ensure_extended_schema(connection)
+            connection.execute(
+                """CREATE INDEX IF NOT EXISTS idx_experiments_project
+                   ON experiments (project_id, experiment_id, timestamp_utc)"""
+            )
+            connection.execute(
+                """CREATE INDEX IF NOT EXISTS idx_experiments_dataset_partition
+                   ON experiments (dataset_id, partition_name)"""
+            )
         self.sync_csv()
 
     def create_run(self, config: str | Path | Mapping[str, Any]) -> tuple[str, Path]:
@@ -104,6 +135,26 @@ class ExperimentLedger:
             "code_hash": str(config_data.get("code_hash") or self._code_hash()),
             "artifact_paths_json": _compact_json(artifacts),
             "config_path": self._store_path(source_path or snapshot_path),
+            "experiment_id": str(config_data.get("experiment_id", "LEGACY_UNSPECIFIED")),
+            "project_id": str(config_data.get("project_id", "LEGACY_UNSPECIFIED")),
+            "strategy_family": str(
+                config_data.get("strategy_family", config_data["strategy_name"])
+            ),
+            "asset_class": str(config_data.get("asset_class", "UNSPECIFIED")),
+            "instrument_id": str(config_data.get("instrument_id", "UNSPECIFIED")),
+            "universe_id": str(config_data.get("universe_id") or ""),
+            "dataset_id": str(config_data.get("dataset_id", "UNVERSIONED_DATASET")),
+            "dataset_hash": str(config_data.get("dataset_hash", "UNRECORDED")),
+            "partition_name": self._partition_name(
+                config_data.get("partition", "UNSPECIFIED")
+            ),
+            "execution_model_json": _compact_json(config_data.get("execution_model", {})),
+            "status": str(config_data.get("status", "CREATED")),
+            "conclusion": str(config_data.get("conclusion", "")),
+            "dirty_worktree": int(self._git_dirty()),
+            "environment_json": _compact_json(
+                config_data.get("environment", self._environment())
+            ),
         }
 
         placeholders = ", ".join("?" for _ in COLUMNS)
@@ -122,6 +173,8 @@ class ExperimentLedger:
         results_summary: Mapping[str, Any] | None = None,
         notes: str | None = None,
         artifact_paths: Mapping[str, str | Path] | None = None,
+        status: str | None = None,
+        conclusion: str | None = None,
     ) -> dict[str, str]:
         """Update results, notes, or artifacts for an existing run."""
         self.initialize()
@@ -136,13 +189,25 @@ class ExperimentLedger:
             else json.loads(current["results_summary_json"])
         )
         updated_notes = current["notes"] if notes is None else str(notes)
+        updated_status = current["status"] if status is None else str(status)
+        updated_conclusion = (
+            current["conclusion"] if conclusion is None else str(conclusion)
+        )
         artifacts_json = _compact_json(artifacts)
         with self._connection() as connection:
             connection.execute(
                 """UPDATE experiments
-                   SET results_summary_json = ?, notes = ?, artifact_paths_json = ?
+                   SET results_summary_json = ?, notes = ?, artifact_paths_json = ?,
+                       status = ?, conclusion = ?
                    WHERE run_id = ?""",
-                (results_json, updated_notes, artifacts_json, run_id),
+                (
+                    results_json,
+                    updated_notes,
+                    artifacts_json,
+                    updated_status,
+                    updated_conclusion,
+                    run_id,
+                ),
             )
         self.sync_csv()
         return self.get_run(run_id)
@@ -188,6 +253,31 @@ class ExperimentLedger:
             path = self.project_root / path
         return json.loads(path.read_text(encoding="utf-8")), path
 
+    @staticmethod
+    def _partition_name(value: Any) -> str:
+        if isinstance(value, Mapping):
+            return str(value.get("name", _compact_json(value)))
+        return str(value)
+
+    @staticmethod
+    def _environment() -> dict[str, str]:
+        return {
+            "python": platform.python_version(),
+            "platform": platform.platform(),
+        }
+
+    @staticmethod
+    def _ensure_extended_schema(connection: sqlite3.Connection) -> None:
+        existing = {
+            str(row[1])
+            for row in connection.execute("PRAGMA table_info(experiments)").fetchall()
+        }
+        for column, definition in EXTENDED_COLUMN_DEFINITIONS.items():
+            if column not in existing:
+                connection.execute(
+                    f"ALTER TABLE experiments ADD COLUMN {column} {definition}"
+                )
+
     @contextmanager
     def _connection(self) -> Iterator[sqlite3.Connection]:
         connection = sqlite3.connect(self.db_path)
@@ -218,6 +308,20 @@ class ExperimentLedger:
             return result.stdout.strip() or "unversioned"
         except (FileNotFoundError, subprocess.SubprocessError):
             return "unversioned"
+
+    def _git_dirty(self) -> bool:
+        try:
+            result = subprocess.run(
+                ["git", "status", "--porcelain"],
+                cwd=self.project_root,
+                check=True,
+                capture_output=True,
+                text=True,
+                timeout=3,
+            )
+            return bool(result.stdout.strip())
+        except (FileNotFoundError, subprocess.SubprocessError):
+            return True
 
     def _code_hash(self) -> str:
         digest = hashlib.sha256()
@@ -276,6 +380,8 @@ def build_parser() -> argparse.ArgumentParser:
     update.add_argument("--run-id", required=True)
     update.add_argument("--results-json", help="Inline JSON object or JSON file path")
     update.add_argument("--notes")
+    update.add_argument("--status")
+    update.add_argument("--conclusion")
     update.add_argument("--artifact", action="append", default=[], help="key=path")
     show = commands.add_parser("show", help="Print one ledger record as JSON")
     show.add_argument("--run-id", required=True)
@@ -298,6 +404,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             record = ledger.update_run(
                 args.run_id, results_summary=results, notes=args.notes,
                 artifact_paths=_parse_artifacts(args.artifact),
+                status=args.status, conclusion=args.conclusion,
             )
             print(json.dumps(record, indent=2, ensure_ascii=False, sort_keys=True))
         elif args.command == "show":

@@ -79,14 +79,15 @@ def trade_row(
 
 class SessionTradeLimitTests(unittest.TestCase):
     def test_earliest_valid_trade_executes_and_later_candidate_is_retained(self):
-        first = candidate_row("LONG", "2026-01-05 09:42")
-        second = candidate_row("SHORT", "2026-01-05 10:05")
+        first = candidate_row("LONG", "2026-01-05 09:51", or_minutes=20)
+        second = candidate_row("SHORT", "2026-01-05 10:05", or_minutes=20)
         candidates = pd.DataFrame([second, first])
         trades = pd.DataFrame([trade_row(second), trade_row(first)])
 
         executed, audit = apply_session_trade_limit(candidates, trades)
 
         self.assertEqual(len(executed), 1)
+        self.assertEqual(executed.iloc[0]["or_minutes"], 20)
         self.assertEqual(executed.iloc[0]["direction"], "LONG")
         self.assertEqual(
             audit.loc[audit["direction"] == "LONG", "gate4d_status"].iloc[0],

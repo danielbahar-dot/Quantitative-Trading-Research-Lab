@@ -2,7 +2,11 @@ import unittest
 
 import pandas as pd
 
-from src.visualization.research_viewer import build_research_viewer, find_orb_signals
+from src.visualization.research_viewer import (
+    SUPPORTED_OR_MINUTES,
+    build_research_viewer,
+    find_orb_signals,
+)
 
 
 class ResearchViewerTests(unittest.TestCase):
@@ -288,6 +292,83 @@ class ORBSignalVisualizationTests(unittest.TestCase):
             or_minutes=5,
             breakout_type=breakout_type,
         )
+
+
+class TwentyMinutePrintViewerTests(unittest.TestCase):
+    def test_20m_print_timing_shading_and_execution_overlay(self):
+        session_date = pd.Timestamp("2025-01-06").date()
+        index = pd.date_range(
+            "2025-01-06 09:30",
+            "2025-01-06 09:52",
+            freq="min",
+            tz="America/New_York",
+        )
+        prices = pd.DataFrame(
+            {
+                "session_date": session_date,
+                "contract": "MNQ TEST",
+                "open": 99.5,
+                "high": 100.0,
+                "low": 99.0,
+                "close": 99.5,
+                "volume": 10,
+            },
+            index=index,
+        )
+        # 09:50 still belongs to the OR and can never signal. 09:51 is the
+        # first eligible bar under NT8 bar-end timestamp semantics.
+        prices.loc["2025-01-06 09:50", "high"] = 101.0
+        prices.loc[
+            "2025-01-06 09:51", ["high", "low"]
+        ] = [100.25, 99.25]
+        prices.loc[
+            "2025-01-06 09:52", ["high", "low"]
+        ] = [102.0, 99.25]
+        levels = pd.DataFrame(
+            {
+                "session_date": [session_date],
+                "or_minutes": [20],
+                "valid_or": [True],
+                "or_high": [100.0],
+                "or_low": [98.0],
+                "or_mid": [99.0],
+            }
+        )
+
+        signals, ambiguous = find_orb_signals(
+            prices,
+            levels,
+            start_date=session_date,
+            end_date=session_date,
+            or_minutes=20,
+            breakout_type="PRINT",
+        )
+        self.assertIn(20, SUPPORTED_OR_MINUTES)
+        self.assertTrue(ambiguous.empty)
+        self.assertEqual(len(signals), 1)
+        self.assertEqual(
+            signals.iloc[0]["signal_time"],
+            pd.Timestamp("2025-01-06 09:51", tz="America/New_York"),
+        )
+
+        figure = build_research_viewer(
+            prices,
+            levels,
+            start_date=session_date,
+            end_date=session_date,
+            or_minutes=20,
+            breakout_type="PRINT",
+            start_time="09:30",
+            end_time="09:52",
+            execution_overlay=True,
+        )
+        traces = {trace.name: trace for trace in figure.data}
+        self.assertEqual(float(figure.layout.shapes[0].x0), 0.5)
+        self.assertEqual(float(figure.layout.shapes[0].x1), 20.5)
+        self.assertEqual(int(traces["Long signal"].x[0]), 21)
+        self.assertEqual(float(traces["Long entry"].y[0]), 100.0)
+        self.assertIn("Target exit", traces)
+        self.assertEqual(figure.layout.meta["completed_trade_count"], 1)
 
 
 if __name__ == "__main__":

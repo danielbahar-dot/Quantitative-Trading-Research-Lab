@@ -35,11 +35,22 @@ from src.experiments.orb_v01_development_diagnostics import (  # noqa: E402
 )
 
 
-COMPLETED_TRADES_FILE = (
-    PROJECT_ROOT / "data" / "processed" / "orb_v01_completed_trades.csv"
+COMPLETED_TRADES_FILES = (
+    PROJECT_ROOT / "data" / "processed" / "orb_v01_completed_trades.csv",
+    PROJECT_ROOT
+    / "data"
+    / "processed"
+    / "orb_v01_20m_print_DEV_completed_trades.csv",
 )
-PARTITION_CONFIG_FILE = PROJECT_ROOT / "config" / "data_partitions.json"
-OUTPUT_DIR = PROJECT_ROOT / "experiments" / "baselines"
+PARTITION_CONFIG_FILE = (
+    PROJECT_ROOT
+    / "config"
+    / "datasets"
+    / "mnq_1m_actual_contract_v1.partitions.json"
+)
+OUTPUT_DIR = (
+    PROJECT_ROOT / "experiments" / "projects" / "mnq_orb_v0_1" / "baselines"
+)
 
 
 def main() -> int:
@@ -47,7 +58,7 @@ def main() -> int:
 
     config = load_partition_config(PARTITION_CONFIG_FILE)
     start, end = development_bounds(config)
-    trades = load_development_trades(COMPLETED_TRADES_FILE, config)
+    trades = load_development_trades(COMPLETED_TRADES_FILES, config)
     assert_development_only(trades, start, end)
 
     independent = calculate_independent_summary(trades)

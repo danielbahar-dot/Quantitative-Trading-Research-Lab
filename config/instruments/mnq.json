@@ -1,0 +1,18 @@
+{
+  "instrument_id": "MNQ",
+  "name": "Micro E-mini Nasdaq-100 Futures",
+  "asset_class": "futures",
+  "exchange": "CME",
+  "currency": "USD",
+  "tick_size_points": 0.25,
+  "tick_value_usd": 0.5,
+  "point_value_usd": 2.0,
+  "research_timezone": "America/New_York",
+  "regular_session": {
+    "start": "09:30",
+    "end_bar_timestamp": "16:00",
+    "timestamp_semantics": "bar_end_time"
+  },
+  "contract_policy": "actual contract column supplied by the dataset",
+  "notes": "Instrument metadata only. Strategy rules do not belong here."
+}

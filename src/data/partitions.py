@@ -16,7 +16,12 @@ import pandas as pd
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_CONFIG = PROJECT_ROOT / "config" / "data_partitions.json"
+DEFAULT_CONFIG = (
+    PROJECT_ROOT
+    / "config"
+    / "datasets"
+    / "mnq_1m_actual_contract_v1.partitions.json"
+)
 
 
 def load_partition_config(path: str | Path = DEFAULT_CONFIG) -> dict[str, Any]:

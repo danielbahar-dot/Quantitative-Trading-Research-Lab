@@ -32,7 +32,9 @@ from src.experiments.orb_v01_baseline import (  # noqa: E402
 COMPLETED_TRADES_FILE = (
     PROJECT_ROOT / "data" / "processed" / "orb_v01_completed_trades.csv"
 )
-OUTPUT_DIR = PROJECT_ROOT / "experiments" / "baselines"
+OUTPUT_DIR = (
+    PROJECT_ROOT / "experiments" / "projects" / "mnq_orb_v0_1" / "baselines"
+)
 
 
 def main() -> int:

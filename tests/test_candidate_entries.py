@@ -59,9 +59,10 @@ def signal_row(
 class CandidateEntryTests(unittest.TestCase):
     def test_print_long_enters_at_or_high_on_signal_bar(self):
         candidates = build_candidate_entries(
-            make_prices(), signal_row("LONG", "PRINT"), or_minutes=5
+            make_prices(), signal_row("LONG", "PRINT"), or_minutes=20
         )
         candidate = candidates.iloc[0]
+        self.assertEqual(candidate["or_minutes"], 20)
         self.assertEqual(candidate["entry_price"], 100.0)
         self.assertEqual(candidate["entry_time"], candidate["signal_time"])
         self.assertEqual(candidate["initial_stop"], 95.0)

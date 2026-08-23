@@ -14,7 +14,21 @@ CREATE TABLE IF NOT EXISTS experiments (
     code_version TEXT NOT NULL,
     code_hash TEXT NOT NULL,
     artifact_paths_json TEXT NOT NULL,
-    config_path TEXT NOT NULL
+    config_path TEXT NOT NULL,
+    experiment_id TEXT NOT NULL DEFAULT '',
+    project_id TEXT NOT NULL DEFAULT '',
+    strategy_family TEXT NOT NULL DEFAULT '',
+    asset_class TEXT NOT NULL DEFAULT '',
+    instrument_id TEXT NOT NULL DEFAULT '',
+    universe_id TEXT NOT NULL DEFAULT '',
+    dataset_id TEXT NOT NULL DEFAULT '',
+    dataset_hash TEXT NOT NULL DEFAULT '',
+    partition_name TEXT NOT NULL DEFAULT '',
+    execution_model_json TEXT NOT NULL DEFAULT '{}',
+    status TEXT NOT NULL DEFAULT 'CREATED',
+    conclusion TEXT NOT NULL DEFAULT '',
+    dirty_worktree INTEGER NOT NULL DEFAULT 0,
+    environment_json TEXT NOT NULL DEFAULT '{}'
 );
 
 CREATE INDEX IF NOT EXISTS idx_experiments_strategy

@@ -68,9 +68,15 @@ def make_trade(
 
 class DevelopmentDiagnosticsTests(unittest.TestCase):
     def test_loader_discards_reserved_periods_before_analytics(self):
-        rows = []
+        historical_rows = []
+        twenty_minute_rows = []
         for index, (or_minutes, breakout_type) in enumerate(VARIANTS):
-            rows.append(
+            destination = (
+                twenty_minute_rows
+                if (or_minutes, breakout_type) == (20, "PRINT")
+                else historical_rows
+            )
+            destination.append(
                 make_trade(
                     index,
                     or_minutes,
@@ -79,7 +85,7 @@ class DevelopmentDiagnosticsTests(unittest.TestCase):
                     result_r=1.0,
                 )
             )
-            rows.append(
+            destination.append(
                 make_trade(
                     index,
                     or_minutes,
@@ -88,7 +94,7 @@ class DevelopmentDiagnosticsTests(unittest.TestCase):
                     result_r=999.0,
                 )
             )
-            rows.append(
+            destination.append(
                 make_trade(
                     index,
                     or_minutes,
@@ -98,14 +104,26 @@ class DevelopmentDiagnosticsTests(unittest.TestCase):
                 )
             )
         with TemporaryDirectory() as temp_dir:
-            path = Path(temp_dir) / "completed.csv"
-            pd.DataFrame(rows).to_csv(path, index=False)
-            selected = load_development_trades(path, make_config(), chunksize=5)
-        self.assertEqual(len(selected), 8)
+            historical_path = Path(temp_dir) / "historical.csv"
+            twenty_minute_path = Path(temp_dir) / "twenty_minute.csv"
+            pd.DataFrame(historical_rows).to_csv(historical_path, index=False)
+            pd.DataFrame(twenty_minute_rows).to_csv(
+                twenty_minute_path, index=False
+            )
+            selected = load_development_trades(
+                (historical_path, twenty_minute_path),
+                make_config(),
+                chunksize=5,
+            )
+        self.assertEqual(len(selected), len(VARIANTS))
         self.assertTrue(selected["result_r"].eq(1.0).all())
         self.assertLessEqual(
             selected["session_date"].max(), pd.Timestamp("2025-06-30")
         )
+
+    def test_current_research_variants_add_only_20m_print(self):
+        self.assertIn((20, "PRINT"), VARIANTS)
+        self.assertNotIn((20, "CLOSE"), VARIANTS)
 
     def test_rolling_windows_do_not_manufacture_early_values(self):
         trades = pd.DataFrame(

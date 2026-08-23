@@ -15,10 +15,24 @@ import numpy as np
 import pandas as pd
 
 
-VARIANTS = tuple(
+HISTORICAL_VARIANTS = tuple(
     (or_minutes, breakout_type)
     for or_minutes in (5, 10, 15, 30)
     for breakout_type in ("PRINT", "CLOSE")
+)
+
+# Gate 5B keeps the historical CLOSE variants as benchmarks and adds only the
+# 20-minute PRINT variant to the active DEVELOPMENT research set.
+VARIANTS = (
+    (5, "PRINT"),
+    (5, "CLOSE"),
+    (10, "PRINT"),
+    (10, "CLOSE"),
+    (15, "PRINT"),
+    (15, "CLOSE"),
+    (20, "PRINT"),
+    (30, "PRINT"),
+    (30, "CLOSE"),
 )
 
 REQUIRED_COLUMNS = {
@@ -79,8 +93,17 @@ def variant_name(or_minutes: int, breakout_type: str) -> str:
     return f"{int(or_minutes)}m {str(breakout_type).upper()}"
 
 
-def load_completed_trades(path: str | Path) -> pd.DataFrame:
-    """Load and validate the canonical Gate 4D completed-trade dataset."""
+def load_completed_trades(
+    path: str | Path,
+    *,
+    expected_variants: tuple[tuple[int, str], ...] = HISTORICAL_VARIANTS,
+) -> pd.DataFrame:
+    """Load and validate a canonical completed-trade dataset.
+
+    The default preserves the original full-history eight-variant benchmark.
+    DEVELOPMENT diagnostics validate their nine-variant combined input after
+    the reserved-period rows have been discarded.
+    """
     trades = pd.read_csv(path)
     missing = REQUIRED_COLUMNS.difference(trades.columns)
     if missing:
@@ -131,7 +154,7 @@ def load_completed_trades(path: str | Path) -> pd.DataFrame:
         .drop_duplicates()
         .itertuples(index=False, name=None)
     )
-    expected = set(VARIANTS)
+    expected = set(expected_variants)
     if observed != expected:
         missing_variants = sorted(expected.difference(observed))
         unexpected = sorted(observed.difference(expected))
@@ -371,7 +394,11 @@ def write_vectorbt_visualizations(
         index="month", columns="variant", values="total_r"
     )
     monthly_pivot = monthly_pivot.reindex(
-        columns=[variant_name(*variant) for variant in VARIANTS]
+        columns=[
+            variant_name(*variant)
+            for variant in VARIANTS
+            if variant_name(*variant) in monthly_pivot.columns
+        ]
     )
     monthly_figure = monthly_pivot.vbt.barplot()
     monthly_figure.update_layout(

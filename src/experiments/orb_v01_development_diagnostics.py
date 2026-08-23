@@ -6,6 +6,7 @@ trade CSV.  All calculations and plots receive DEVELOPMENT rows only.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
@@ -87,7 +88,7 @@ def development_bounds(config: dict[str, Any]) -> tuple[pd.Timestamp, pd.Timesta
 
 
 def load_development_trades(
-    completed_trades_path: str | Path,
+    completed_trades_path: str | Path | Sequence[str | Path],
     config: dict[str, Any],
     *,
     chunksize: int = 50_000,
@@ -99,21 +100,33 @@ def load_development_trades(
     analytics function.
     """
     start, end = development_bounds(config)
+    paths = (
+        (completed_trades_path,)
+        if isinstance(completed_trades_path, (str, Path))
+        else tuple(completed_trades_path)
+    )
+    if not paths:
+        raise ValueError("At least one completed-trade path is required")
+
     selected_chunks: list[pd.DataFrame] = []
     observed_columns: set[str] | None = None
-    for chunk in pd.read_csv(completed_trades_path, chunksize=chunksize):
-        if observed_columns is None:
-            observed_columns = set(chunk.columns)
+    for path in paths:
+        for chunk in pd.read_csv(path, chunksize=chunksize):
+            chunk_columns = set(chunk.columns)
+            if observed_columns is None:
+                observed_columns = chunk_columns
+            elif chunk_columns != observed_columns:
+                raise ValueError("Completed-trade inputs use different schemas")
             missing = REQUIRED_COLUMNS.difference(observed_columns)
             if missing:
                 raise ValueError(
                     "Completed trades are missing required columns: "
                     + ", ".join(sorted(missing))
                 )
-        session_dates = pd.to_datetime(chunk["session_date"], errors="raise")
-        in_development = session_dates.between(start, end, inclusive="both")
-        if in_development.any():
-            selected_chunks.append(chunk.loc[in_development].copy())
+            session_dates = pd.to_datetime(chunk["session_date"], errors="raise")
+            in_development = session_dates.between(start, end, inclusive="both")
+            if in_development.any():
+                selected_chunks.append(chunk.loc[in_development].copy())
 
     if not selected_chunks:
         raise ValueError("No completed trades fall inside DEVELOPMENT")
@@ -158,7 +171,7 @@ def load_development_trades(
     )
     if observed_variants != set(VARIANTS):
         raise ValueError(
-            "DEVELOPMENT does not contain all eight ORB V0.1 variants"
+            "DEVELOPMENT does not contain the current ORB V0.1 research variants"
         )
     return _sort_trades(trades)
 
@@ -303,17 +316,18 @@ def calculate_month_statistics(
 
 def development_output_paths(output_dir: str | Path) -> dict[str, Path]:
     output_dir = Path(output_dir)
+    prefix = "orb_v01_DEV_with_20m_PRINT"
     return {
-        "summary": output_dir / "orb_v01_DEV_summary.csv",
-        "monthly": output_dir / "orb_v01_DEV_monthly.csv",
-        "month_statistics": output_dir / "orb_v01_DEV_month_statistics.csv",
-        "equity_data": output_dir / "orb_v01_DEV_equity_curves.csv",
-        "equity_chart": output_dir / "orb_v01_DEV_equity_curves.html",
-        "monthly_chart": output_dir / "orb_v01_DEV_monthly.html",
-        "rolling_data": output_dir / "orb_v01_DEV_rolling_expectancy.csv",
-        "rolling_chart": output_dir / "orb_v01_DEV_rolling_expectancy.html",
-        "distribution_data": output_dir / "orb_v01_DEV_r_distribution.csv",
-        "distribution_chart": output_dir / "orb_v01_DEV_r_distribution.html",
+        "summary": output_dir / f"{prefix}_summary.csv",
+        "monthly": output_dir / f"{prefix}_monthly.csv",
+        "month_statistics": output_dir / f"{prefix}_month_statistics.csv",
+        "equity_data": output_dir / f"{prefix}_equity_curves.csv",
+        "equity_chart": output_dir / f"{prefix}_equity_curves.html",
+        "monthly_chart": output_dir / f"{prefix}_monthly.html",
+        "rolling_data": output_dir / f"{prefix}_rolling_expectancy.csv",
+        "rolling_chart": output_dir / f"{prefix}_rolling_expectancy.html",
+        "distribution_data": output_dir / f"{prefix}_r_distribution.csv",
+        "distribution_chart": output_dir / f"{prefix}_r_distribution.html",
     }
 
 
@@ -380,6 +394,7 @@ def write_development_visualizations(
         "#19D3F3",
         "#FF6692",
         "#B6E880",
+        "#FF97FF",
     ]
     rolling_figure = go.Figure()
     for index, (or_minutes, breakout_type) in enumerate(VARIANTS):
@@ -426,8 +441,9 @@ def write_development_visualizations(
     rolling_figure.update_layout(legend={"groupclick": "togglegroup"})
     _write_html(rolling_figure, paths["rolling_chart"], height=700)
 
+    distribution_rows = (len(VARIANTS) + 1) // 2
     distribution_figure = make_subplots(
-        rows=4,
+        rows=distribution_rows,
         cols=2,
         subplot_titles=[variant_name(*variant) for variant in VARIANTS],
         vertical_spacing=0.08,
@@ -455,14 +471,14 @@ def write_development_visualizations(
     distribution_figure.update_layout(
         title="ORB V0.1 trade R distributions — DEVELOPMENT ONLY",
         template="plotly_white",
-        height=1050,
+        height=1250,
         width=None,
         autosize=True,
         bargap=0.05,
         margin={"l": 70, "r": 50, "t": 100, "b": 70},
     )
     _write_html(
-        distribution_figure, paths["distribution_chart"], height=1050
+        distribution_figure, paths["distribution_chart"], height=1250
     )
 
 

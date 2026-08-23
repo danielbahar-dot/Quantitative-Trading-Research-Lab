@@ -1,0 +1,32 @@
+{
+  "experiment_id": "orb_gate6a_dev_print_static_r",
+  "project_id": "mnq_orb_v0_1",
+  "status": "PLANNED_NOT_RUN",
+  "strategy_family": "ORB",
+  "strategy_version": "0.1.0",
+  "asset_class": "futures",
+  "instrument_id": "MNQ",
+  "dataset_id": "MNQ_1m_actual_contract_v1",
+  "partition": "DEVELOPMENT",
+  "breakout_type": ["PRINT"],
+  "or_minutes": [5, 10, 15, 20, 30],
+  "stop_retracement_fraction": [0.25, 0.5],
+  "target_r": [1.0, 1.5, 2.0, 2.5, 3.0],
+  "expected_configuration_count": 50,
+  "control": {
+    "stop_retracement_fraction": 0.5,
+    "target_r": 2.0,
+    "require_exact_development_baseline_reproduction": true
+  },
+  "stop_formula": {
+    "long": "OR_high - stop_retracement_fraction * OR_width",
+    "short": "OR_low + stop_retracement_fraction * OR_width"
+  },
+  "constraints": {
+    "inspect_validation": false,
+    "inspect_oos_burned": false,
+    "change_signals": false,
+    "select_winner_automatically": false,
+    "add_filters_or_dynamic_exits": false
+  }
+}

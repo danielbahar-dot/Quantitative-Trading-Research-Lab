@@ -28,7 +28,7 @@ def make_session(breakout_time: str | None) -> pd.DataFrame:
 class ORBV01TimingTests(unittest.TestCase):
     def test_entry_is_after_opening_range_completion(self):
         market_open = pd.Timestamp("2026-01-05 09:30", tz="America/New_York")
-        for duration in (5, 10, 15, 30):
+        for duration in (5, 10, 15, 20, 30):
             with self.subTest(duration=duration):
                 session = make_session(None)
                 final_or_stamp = market_open + pd.Timedelta(minutes=duration)
@@ -73,7 +73,7 @@ class OpeningRangeBarEndTests(unittest.TestCase):
         )
         session.loc["2026-01-05 09:30", ["high", "low"]] = [1000.0, -1000.0]
 
-        for duration in (5, 10, 15, 30):
+        for duration in (5, 10, 15, 20, 30):
             with self.subTest(duration=duration):
                 opening_range = calculate_opening_range(session, duration)
                 self.assertIsNotNone(opening_range)
@@ -89,6 +89,29 @@ class OpeningRangeBarEndTests(unittest.TestCase):
                 self.assertEqual(opening_range["or_high"], 100.0 + duration)
                 self.assertEqual(opening_range["or_low"], 100.0 - duration)
                 self.assertEqual(opening_range["or_mid"], 100.0)
+
+    def test_20m_uses_exactly_0931_through_0950(self):
+        index = pd.date_range(
+            "2026-01-05 09:30",
+            "2026-01-05 09:51",
+            freq="min",
+            tz="America/New_York",
+        )
+        session = pd.DataFrame(
+            {"high": 101.0, "low": 99.0},
+            index=index,
+        )
+        opening_range = calculate_opening_range(session, 20)
+        self.assertIsNotNone(opening_range)
+        self.assertEqual(opening_range["bars_found"], 20)
+        self.assertEqual(
+            opening_range["start_timestamp"],
+            pd.Timestamp("2026-01-05 09:31", tz="America/New_York"),
+        )
+        self.assertEqual(
+            opening_range["end_timestamp"],
+            pd.Timestamp("2026-01-05 09:50", tz="America/New_York"),
+        )
 
 
 if __name__ == "__main__":

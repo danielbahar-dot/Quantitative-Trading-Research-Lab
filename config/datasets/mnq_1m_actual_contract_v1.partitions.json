@@ -1,5 +1,8 @@
 {
+  "project_id": "mnq_orb_v0_1",
   "dataset_id": "MNQ_1m_actual_contract_v1",
+  "instrument_id": "MNQ",
+  "asset_class": "futures",
   "source_file": "data/MNQ_raw_cleaned_ET.csv",
   "partition_column": "session_date",
   "timestamp_column": "timestamp_et",

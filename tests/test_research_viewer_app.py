@@ -59,6 +59,7 @@ class ResearchViewerAppExportTests(unittest.TestCase):
             breakout_type="CLOSE",
         )
         state = ViewerState(prices, levels, defaults)
+        cls.state = state
         cls.server = ThreadingHTTPServer(("127.0.0.1", 0), _handler_for(state))
         cls.thread = Thread(target=cls.server.serve_forever, daemon=True)
         cls.thread.start()
@@ -106,6 +107,9 @@ class ResearchViewerAppExportTests(unittest.TestCase):
         self.assertEqual(trade["exit_reason"], "TARGET")
         self.assertEqual(float(trade["result_r"]), 2.0)
         self.assertEqual(trade["ambiguous"], "False")
+
+    def test_browser_selector_exposes_20_minutes(self):
+        self.assertIn(20, self.state.browser_config["or_choices"])
 
 
 if __name__ == "__main__":

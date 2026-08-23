@@ -7,6 +7,9 @@ from datetime import time
 import pandas as pd
 
 
+SUPPORTED_OR_MINUTES = (5, 10, 15, 20, 30)
+
+
 def calculate_opening_range(
     session_df: pd.DataFrame,
     duration_minutes: int,
@@ -16,7 +19,9 @@ def calculate_opening_range(
     NinjaTrader 1-minute timestamps are bar-end labels:
     ``timestamp_et = bar_end_time``. Therefore a 5-minute OR beginning at
     09:30 market time contains bars labelled 09:31 through 09:35, inclusive.
-    The corresponding bar start is ``timestamp_et - 1 minute``.
+    A 20-minute OR contains exactly 09:31 through 09:50, making 09:51
+    the first eligible post-OR bar. The corresponding bar start is
+    ``timestamp_et - 1 minute``.
     """
     if duration_minutes <= 0:
         raise ValueError("duration_minutes must be positive")

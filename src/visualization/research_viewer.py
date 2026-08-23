@@ -15,10 +15,10 @@ import plotly.graph_objects as go
 
 from src.backtesting.candidate_entries import build_candidate_entries
 from src.backtesting.completed_trades import simulate_completed_trades
+from src.features.opening_range import SUPPORTED_OR_MINUTES
 
 
 ET_TIMEZONE = "America/New_York"
-SUPPORTED_OR_MINUTES = (5, 10, 15, 30)
 SUPPORTED_BREAKOUT_TYPES = ("PRINT", "CLOSE")
 ENTRY_CUTOFF = time(11, 30)
 

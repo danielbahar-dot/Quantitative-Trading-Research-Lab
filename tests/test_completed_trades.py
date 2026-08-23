@@ -19,7 +19,11 @@ SESSION_DATE = pd.Timestamp("2026-01-05").date()
 TZ = "America/New_York"
 
 
-def make_candidate(direction: str, breakout_type: str = "CLOSE") -> pd.DataFrame:
+def make_candidate(
+    direction: str,
+    breakout_type: str = "CLOSE",
+    or_minutes: int = 5,
+) -> pd.DataFrame:
     long_trade = direction == "LONG"
     signal_time = pd.Timestamp("2026-01-05 09:36", tz=TZ)
     entry_time = (
@@ -31,7 +35,7 @@ def make_candidate(direction: str, breakout_type: str = "CLOSE") -> pd.DataFrame
         {
             "session_date": [SESSION_DATE],
             "contract": ["MNQ TEST"],
-            "or_minutes": [5],
+            "or_minutes": [or_minutes],
             "breakout_type": [breakout_type],
             "direction": [direction],
             "signal_time": [signal_time],
@@ -138,9 +142,10 @@ class CompletedTradeTests(unittest.TestCase):
 
     def test_print_entry_bar_stop_touch_is_conservatively_ambiguous(self):
         trade = self._simulate(
-            make_candidate("LONG", "PRINT"),
+            make_candidate("LONG", "PRINT", or_minutes=20),
             [("2026-01-05 09:36", 99, 105, 94, 101)],
         )
+        self.assertEqual(trade["or_minutes"], 20)
         self.assertEqual(trade["exit_reason"], AMBIGUOUS_ENTRY_STOP)
         self.assertEqual(
             trade["ambiguity_reason"], ENTRY_AND_STOP_ORDER_UNKNOWN

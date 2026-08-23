@@ -53,6 +53,7 @@ OR_DURATIONS = [
     5,
     10,
     15,
+    20,
     30
 ]
 
@@ -75,6 +76,7 @@ def calculate_opening_range(
         5 min  = 09:31 through 09:35
         10 min = 09:31 through 09:40
         15 min = 09:31 through 09:45
+        20 min = 09:31 through 09:50
         30 min = 09:31 through 10:00
     """
 

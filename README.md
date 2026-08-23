@@ -1,104 +1,125 @@
-# VectorBT Research Harness v1
+# VectorBT ORB Research Lab
 
-A small, transparent experiment ledger for ORB and momentum backtests. It uses
-Python's standard library only: SQLite is the durable ledger, while a CSV mirror
-keeps every run easy to inspect in Excel or a text editor.
+A reproducible quantitative-research project for validating and analyzing an
+Opening Range Breakout (ORB) strategy on MNQ one-minute NinjaTrader data. The
+repository keeps strategy construction, execution simulation, analytics, and
+research artifacts separate so each gate can be validated before the next one.
+
+## Current validated state
+
+Gates 1 through 4D are frozen and validated:
+
+- NinjaTrader timestamps are interpreted as one-minute **bar-end times**.
+- Opening ranges are available for 5, 10, 15, and 30 minutes from 09:30 ET.
+- PRINT and CLOSE breakout signals retain the first long and first short signal
+  per session through the inclusive 11:30 ET cutoff.
+- PRINT entries occur at the breached OR boundary on the signal bar; existing
+  same-bar ambiguity handling is preserved.
+- CLOSE entries occur at the immediately following bar's open. The signal bar
+  is never treated as an executable bar.
+- Initial stop is the OR midpoint and initial target is 2R. Calculated prices
+  are rounded to the MNQ 0.25-point tick.
+- Exit simulation, SESSION_END behavior, MFE/MAE, and a maximum of one valid
+  executed trade per session and variant are implemented.
+- The canonical completed-trade table contains 4,073 full-history trades across
+  the eight OR-duration/breakout variants.
+
+Gate 5B DEVELOPMENT-only diagnostics are also implemented. They analyze 1,926
+trades from 2024-06-21 through 2025-06-30 without inspecting reserved-period
+performance.
+
+## Research partitions
+
+The formal boundaries are defined in `config/data_partitions.json`:
+
+| Partition | Dates | Permitted use |
+|---|---|---|
+| DEVELOPMENT | 2024-06-21 to 2025-06-30 | Research and parameter development |
+| VALIDATION | 2025-07-01 to 2025-12-31 | Reserved for a later validation gate |
+| OOS_BURNED | 2026-01-01 to 2026-08-17 | Robustness/learning only; not untouched OOS evidence |
+
+Do not inspect VALIDATION or OOS_BURNED performance while developing or
+selecting parameters. Raw/processed market data and completed-trade CSVs remain
+local and are intentionally excluded from Git.
 
 ## Project layout
 
 ```text
 vectorbt-lab/
+|-- config/                  # Research partition definitions
 |-- data/
-|   |-- raw/                 # Original NinjaTrader exports (never edit in place)
-|   `-- processed/           # Cleaned/session-normalized datasets
+|   |-- raw/                 # Local source exports; never edit in place
+|   `-- processed/           # Local derived features, trades, and audits
 |-- experiments/
-|   |-- experiment_ledger.sqlite
-|   |-- ledger.csv
-|   |-- run_config.template.json
-|   |-- schema.sql
-|   `-- runs/<run_id>/       # Config snapshots and backtest artifacts
-|-- notebooks/               # Research and validation scripts
+|   |-- baselines/           # Versioned baseline summary tables and charts
+|   `-- runs/                # Local generated experiment runs
+|-- notebooks/               # Executable research/viewer entry points
 |-- src/
-|   |-- data/                # Data ingestion, validation, and cleaning
-|   |-- features/            # Reusable feature engineering
-|   |-- strategies/          # Strategy definitions
-|   |-- backtesting/         # VectorBT engines and helpers
-|   |-- experiments/         # Experiment orchestration
-|   |-- visualization/       # Charts and NT8 export preparation
-|   `-- research_harness.py  # Existing experiment ledger
-|-- nt8/                     # NinjaTrader validation/display integration
-|-- strategies/              # Existing strategy package (preserved)
-|-- reports/
-`-- tests/
+|   |-- backtesting/         # Candidate, execution, exit, and daily-limit logic
+|   |-- data/                # Partition utilities
+|   |-- experiments/         # Reproducible analytics
+|   |-- features/            # Opening-range features
+|   `-- visualization/       # Research Viewer
+|-- strategies/              # Strategy notes/packages
+|-- tests/                   # Repository test suite
+|-- MEMORY.md                # Durable project state and research guardrails
+`-- README.md
 ```
 
-## First run
+## Local data prerequisites
 
-From the `vectorbt-lab` directory:
+These local files are required by the relevant scripts but are intentionally
+not committed:
+
+```text
+data/MNQ_raw_cleaned_ET.csv
+data/processed/mnq_or_levels.csv
+data/processed/orb_v01_completed_trades.csv
+data/processed/orb_v01_candidate_audit.csv
+```
+
+The source data must retain `timestamp_et` as the NinjaTrader bar-end timestamp.
+
+## Common commands
+
+Run these from the repository root with the project's virtual environment:
 
 ```powershell
-python src/research_harness.py init
-Copy-Item experiments/run_config.template.json experiments/orb_trial.json
+# Complete test suite
+.\.venv\Scripts\python.exe -m pytest -q
+
+# Interactive Research Viewer (http://127.0.0.1:8050)
+.\.venv\Scripts\python.exe notebooks\03_orb_signal_visual.py
+
+# Rebuild the canonical Gate 4D completed trades and candidate audit
+.\.venv\Scripts\python.exe notebooks\04_orb_v01_completed_trades.py
+
+# Full-history baseline cross-check (historical artifact; not for selection)
+.\.venv\Scripts\python.exe notebooks\05_orb_v01_vectorbt_baseline.py
+
+# Gate 5B DEVELOPMENT-only diagnostics
+.\.venv\Scripts\python.exe notebooks\06_orb_v01_development_diagnostics.py
 ```
 
-Edit `experiments/orb_trial.json` so it describes the exact hypothesis, data,
-session rules, parameters, trading costs, and planned outputs. Then register it:
+VectorBT is used for generic analytics cross-checks and interactive
+visualization. The validated completed-trade table remains the source of truth;
+`Portfolio.from_signals()` is not used to reconstruct execution.
 
-```powershell
-python src/research_harness.py create --config experiments/orb_trial.json
-```
+## Gate 5B outputs
 
-The command prints a unique `run_id` and its artifact folder. Use that folder for
-the VectorBT results from that run. When the backtest finishes, update the run:
+Versioned DEVELOPMENT-only outputs live under `experiments/baselines/` and use
+the `orb_v01_DEV_` prefix. They include baseline and monthly summaries,
+cumulative-R equity curves, rolling expectancy, R-distribution statistics,
+month-consistency statistics, and interactive HTML charts.
 
-```powershell
-python src/research_harness.py update `
-  --run-id ORB_20260817T120000000000Z_a1b2c3d4 `
-  --results-json '{"total_return_pct": 8.4, "profit_factor": 1.37, "trades": 62}' `
-  --notes "First pass; inspect performance by month." `
-  --artifact trades=experiments/runs/ORB_.../trades.parquet `
-  --artifact equity=experiments/runs/ORB_.../equity.parquet
-```
+## Research workflow
 
-`--results-json` may be inline JSON or the path to a JSON file. Repeat
-`--artifact key=path` for each output. To inspect one run:
+1. Keep validated upstream layers frozen while working on a new gate.
+2. Make the DEVELOPMENT boundary an executable assertion, not just a convention.
+3. Reproduce the existing baseline exactly before testing any parameter change.
+4. Save generated results with an explicit scope such as `DEV` in the filename.
+5. Run the complete test suite before committing a gate.
+6. Do not select a preferred variant from reserved-period results.
 
-```powershell
-python src/research_harness.py show --run-id ORB_...
-```
-
-## Using it from a backtest
-
-```python
-from pathlib import Path
-from src.research_harness import ExperimentLedger
-
-root = Path(__file__).resolve().parents[1]
-ledger = ExperimentLedger(root)
-
-run_id, run_dir = ledger.create_run("experiments/orb_trial.json")
-
-# Run VectorBT here and save outputs beneath run_dir.
-
-ledger.update_run(
-    run_id,
-    results_summary={"total_return_pct": 8.4, "profit_factor": 1.37},
-    notes="Initial ORB baseline.",
-    artifact_paths={"trades": run_dir / "trades.parquet"},
-)
-```
-
-## Recommended workflow
-
-1. Put untouched NT8 CSV exports in `data/raw/`.
-2. Save cleaned, timezone-aware, session-normalized data in `data/processed/`.
-3. Copy the config template and state one falsifiable hypothesis per run.
-4. Register the run before calculating results; never reuse a `run_id`.
-5. Save trades, equity, statistics, and charts inside that run's folder.
-6. Update the ledger with the final summary and honest notes, including failures.
-7. Compare runs in `experiments/ledger.csv`, but treat SQLite as authoritative.
-
-The harness automatically records a UTC timestamp, the current Git commit when
-available, and a SHA-256 hash of Python files under `src/` and `strategies/`.
-This makes results reproducible without introducing MLflow or another service.
-
+The next proposed milestone is a narrow DEVELOPMENT-only Gate 6 parameter sweep.
+It has not been implemented.

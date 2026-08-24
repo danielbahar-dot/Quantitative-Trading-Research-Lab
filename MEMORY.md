@@ -193,6 +193,9 @@ Market data, generated trade/audit tables, and local ledgers are ignored by Git.
 - Gate 7 evaluated exactly those three candidates on the predefined VALIDATION
   partition without parameter changes. HYP_001/HYP_002 and OOS_BURNED were not
   accessed.
+- Gate 8A retrospectively compares the complete 75-cell Gate 6B surface across
+  DEVELOPMENT and VALIDATION. It is diagnostic, not confirmatory, and does not
+  select or define a new strategy.
 
 ### DEVELOPMENT freeze
 
@@ -213,6 +216,19 @@ Market data, generated trade/audit tables, and local ledgers are ignored by Git.
 - Durable finding: the strongest DEVELOPMENT regions did not broadly persist
   through VALIDATION; execution observability alone did not explain the
   degradation.
+- No MNQ ORB V0.1 frozen candidate passed Validation. V0.1 is not approved for
+  OOS or production progression.
+
+### Gate 8A purpose and durable diagnostic state
+
+- The V0.1 post-mortem distinguishes broad edge deterioration, parameter
+  instability/migration, market-state dependence, and selection/overfitting.
+- The diagnostic supports broad edge deterioration, parameter migration, and
+  OR-width state dependence under its predeclared descriptive rules. It does
+  not support the specific frozen-candidate selection-error pattern.
+- Lower Validation ambiguity and exclusion rates across every stop family did
+  not explain the expectancy loss.
+- Gate 8A creates no V0.2 candidate and authorizes no parameter retuning.
 
 ## Current methodological findings
 
@@ -239,6 +255,11 @@ Market data, generated trade/audit tables, and local ledgers are ignored by Git.
 > be interpreted jointly with ambiguity rate, sample coverage and chronology
 > sensitivity.
 
+> Validation has now been exposed and is burned for V0.2 hypothesis generation.
+> It may be used for retrospective diagnosis, but cannot serve again as
+> untouched Validation evidence. OOS_BURNED remains unopened in the formal
+> lifecycle and must not be accessed without human approval.
+
 ## Parked feature research
 
 OR-width feature development is intentionally deferred until the first complete
@@ -257,7 +278,7 @@ future normalization hypothesis to investigate.
 
 ## Immediate project objective
 
-`Gate 7 complete -> human review -> new DEVELOPMENT version or V0.1 archive -> infrastructure consolidation`
+`Gate 8A post-mortem -> human interpretation -> infrastructure consolidation -> V0.2 hypothesis definition`
 
 Complete this research cycle before shifting emphasis toward reusable research
 infrastructure: the ledger, dashboard, feature/signal/execution registries, and
@@ -265,9 +286,8 @@ automation.
 
 ## Next gate
 
-**Human Gate 7 decision review.**
+**Human Gate 8A interpretation.**
 
-If CAND_001 is revised, it must return to DEVELOPMENT as a new strategy/research
-version; CAND_002/CAND_003 should remain rejected for V0.1. Human approval is
-required to open a new DEVELOPMENT cycle or take any later action. Do not access
-OOS_BURNED automatically.
+Review the post-mortem evidence before consolidating infrastructure and defining
+any V0.2 hypotheses. Do not automatically define the next experiment, retune
+V0.1, or access OOS_BURNED.

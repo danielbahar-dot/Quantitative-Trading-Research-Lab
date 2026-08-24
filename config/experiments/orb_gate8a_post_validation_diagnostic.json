@@ -1,0 +1,52 @@
+{
+  "experiment_id": "mnq_orb_v0_1_gate8a_post_validation_diagnostic",
+  "project_id": "mnq_orb_v0_1",
+  "strategy_version": "MNQ_ORB_V0.1",
+  "experiment_type": "POST_VALIDATION_DIAGNOSTIC",
+  "research_label": "POST-VALIDATION DIAGNOSTIC — NOT CONFIRMATORY",
+  "confirmatory": false,
+  "source_gates": ["6B", "6B.1", "6B.2", "6C", "7"],
+  "partitions_used": ["DEVELOPMENT", "VALIDATION"],
+  "oos_accessed": false,
+  "grid": {
+    "or_minutes": [15, 20, 30],
+    "breakout_type": ["PRINT"],
+    "stop_modes": ["OR_MIDPOINT", "OR_25_RETRACEMENT", "FIXED_30", "FIXED_40", "FIXED_50"],
+    "target_points": [40.0, 50.0, 60.0, 75.0, 100.0],
+    "expected_configurations": 75
+  },
+  "candidate_neighborhoods": {
+    "target_neighbors": {"75": [60.0, 100.0]},
+    "stop_peers": {
+      "OR_MIDPOINT": ["FIXED_40", "FIXED_50"],
+      "FIXED_50": ["FIXED_40", "OR_MIDPOINT"],
+      "FIXED_40": ["FIXED_30", "FIXED_50", "OR_MIDPOINT"]
+    }
+  },
+  "representative_regions": {
+    "REGION_15M_FIXED50": ["15m_PRINT_FIXED_50_TARGET60PT", "15m_PRINT_FIXED_50_TARGET75PT", "15m_PRINT_FIXED_50_TARGET100PT"],
+    "REGION_20M_MIDPOINT": ["20m_PRINT_OR_MIDPOINT_TARGET60PT", "20m_PRINT_OR_MIDPOINT_TARGET75PT", "20m_PRINT_OR_MIDPOINT_TARGET100PT"],
+    "REGION_30M_FIXED40": ["30m_PRINT_FIXED_40_TARGET60PT", "30m_PRINT_FIXED_40_TARGET75PT", "30m_PRINT_FIXED_40_TARGET100PT"]
+  },
+  "width_buckets": {
+    "initial_edges": [60.0, 80.0, 100.0, 125.0, 150.0, 200.0],
+    "minimum_combined_session_observations": 30,
+    "merge_rule": "Iteratively merge the globally smallest undersized bucket with its less-populated adjacent bucket; edge buckets merge inward. Width outcomes are never consulted."
+  },
+  "classification_rules": {
+    "broad_edge_deterioration": "SUPPORTS when at least 60% of DEV-positive cells become VAL-nonpositive and median Avg-R delta is negative; PARTIAL when either condition holds.",
+    "parameter_migration": "SUPPORTS when both Avg-R Spearman is <=0.25 and at least 60% of grouped descriptive optima shift; PARTIAL when either Spearman is <0.50 or at least 40% shift.",
+    "market_state_dependence": "SUPPORTS when at least 40% of matched within-period width cells change sign and at least two durations have median absolute conditional Avg-R change >=0.15R; PARTIAL when either condition holds.",
+    "selection_error_overfitting": "SUPPORTS when at least two frozen candidates had DEV Avg R > neighborhood DEV mean by >0.05R and then underperformed that neighborhood in VAL; PARTIAL when one does.",
+    "candidate_failure": "BROAD_SURFACE_DETERIORATION when the broad rule supports and <=50% of neighbors remain VAL-positive; LOCAL_FAILURE when >50% remain positive and neighborhood VAL Avg R is positive; otherwise NEIGHBORHOOD_DETERIORATION."
+  },
+  "constraints": {
+    "new_strategy_selected": false,
+    "v0_2_candidate_created": false,
+    "new_parameters": false,
+    "or_width_filter": false,
+    "percentage_strategy_rerun": false,
+    "premarket_feature_implemented": false,
+    "oos_data_access": false
+  }
+}

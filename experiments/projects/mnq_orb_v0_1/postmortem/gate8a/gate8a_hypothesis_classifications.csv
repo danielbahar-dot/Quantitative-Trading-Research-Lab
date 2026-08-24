@@ -1,0 +1,5 @@
+research_scope,hypothesis,classification,evidence
+POST-VALIDATION DIAGNOSTIC — NOT CONFIRMATORY,BROAD_EDGE_DETERIORATION,SUPPORTS,DEV-positive flip rate=0.640; median Avg-R delta=-0.2592.
+POST-VALIDATION DIAGNOSTIC — NOT CONFIRMATORY,PARAMETER_INSTABILITY_MIGRATION,SUPPORTS,Avg-R Spearman=0.132; grouped descriptive-peak shift rate=0.667.
+POST-VALIDATION DIAGNOSTIC — NOT CONFIRMATORY,MARKET_STATE_DEPENDENCE,SUPPORTS,Within-period width-cell sign-change rate=0.589; durations with median absolute change >=0.15R=3.
+POST-VALIDATION DIAGNOSTIC — NOT CONFIRMATORY,SELECTION_ERROR_OVERFITTING,DOES_NOT_SUPPORT,Frozen candidates satisfying the predeclared selection-error pattern=0/3.

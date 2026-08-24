@@ -45,6 +45,9 @@ of future profitability.
   candidates. CAND_001 is `REVISE`; CAND_002 and CAND_003 are `REJECT`. No
   Validation retuning or OOS_BURNED access occurred; the next action requires
   human review.
+- Gate 8A: the full frozen 75-cell surface has been replayed on VALIDATION for
+  retrospective failure diagnosis only. The outputs compare DEVELOPMENT with
+  VALIDATION, create no new candidate, and leave OOS_BURNED unopened.
 
 The authoritative handoff and research guardrails are in [MEMORY.md](MEMORY.md).
 Run history belongs in the experiment ledger, not in MEMORY.

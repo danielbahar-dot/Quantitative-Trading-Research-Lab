@@ -1,0 +1,169 @@
+{
+  "experiment_id": "orb_gate6a1_dev_25pct_ambiguity_sensitivity",
+  "research_scope": "DEVELOPMENT_ONLY",
+  "development_start": "2024-06-21",
+  "development_end": "2025-06-30",
+  "maximum_session_date_analyzed": "2025-06-30",
+  "configuration_count": 20,
+  "scenario_rows": 60,
+  "scenarios": [
+    "PESSIMISTIC",
+    "OBSERVED",
+    "OPTIMISTIC"
+  ],
+  "pessimistic_convention": "Entry first, then same-bar stop: executed -1R trade.",
+  "optimistic_convention": "The adverse entry-bar excursion occurs before entry. The entry bar is not used for any further stop/target inference; evaluation begins at the immediately following one-minute bar.",
+  "gate6a_inputs": {
+    "10m_1R": {
+      "eligible_candidates": 355,
+      "ambiguous_entry_stop_candidates": 145
+    },
+    "10m_1.5R": {
+      "eligible_candidates": 355,
+      "ambiguous_entry_stop_candidates": 157
+    },
+    "10m_2R": {
+      "eligible_candidates": 355,
+      "ambiguous_entry_stop_candidates": 158
+    },
+    "10m_2.5R": {
+      "eligible_candidates": 355,
+      "ambiguous_entry_stop_candidates": 160
+    },
+    "10m_3R": {
+      "eligible_candidates": 355,
+      "ambiguous_entry_stop_candidates": 160
+    },
+    "15m_1R": {
+      "eligible_candidates": 333,
+      "ambiguous_entry_stop_candidates": 108
+    },
+    "15m_1.5R": {
+      "eligible_candidates": 333,
+      "ambiguous_entry_stop_candidates": 114
+    },
+    "15m_2R": {
+      "eligible_candidates": 333,
+      "ambiguous_entry_stop_candidates": 115
+    },
+    "15m_2.5R": {
+      "eligible_candidates": 333,
+      "ambiguous_entry_stop_candidates": 117
+    },
+    "15m_3R": {
+      "eligible_candidates": 333,
+      "ambiguous_entry_stop_candidates": 117
+    },
+    "20m_1R": {
+      "eligible_candidates": 317,
+      "ambiguous_entry_stop_candidates": 79
+    },
+    "20m_1.5R": {
+      "eligible_candidates": 317,
+      "ambiguous_entry_stop_candidates": 82
+    },
+    "20m_2R": {
+      "eligible_candidates": 317,
+      "ambiguous_entry_stop_candidates": 82
+    },
+    "20m_2.5R": {
+      "eligible_candidates": 317,
+      "ambiguous_entry_stop_candidates": 82
+    },
+    "20m_3R": {
+      "eligible_candidates": 317,
+      "ambiguous_entry_stop_candidates": 82
+    },
+    "30m_1R": {
+      "eligible_candidates": 285,
+      "ambiguous_entry_stop_candidates": 63
+    },
+    "30m_1.5R": {
+      "eligible_candidates": 285,
+      "ambiguous_entry_stop_candidates": 65
+    },
+    "30m_2R": {
+      "eligible_candidates": 285,
+      "ambiguous_entry_stop_candidates": 65
+    },
+    "30m_2.5R": {
+      "eligible_candidates": 285,
+      "ambiguous_entry_stop_candidates": 65
+    },
+    "30m_3R": {
+      "eligible_candidates": 285,
+      "ambiguous_entry_stop_candidates": 65
+    }
+  },
+  "validated_execution_engine_modified": false,
+  "signal_generation_modified": false,
+  "experiment_config": {
+    "experiment_id": "orb_gate6a1_dev_25pct_ambiguity_sensitivity",
+    "project_id": "mnq_orb_v0_1",
+    "status": "READY_TO_RUN_DEVELOPMENT_ONLY",
+    "partition": "DEVELOPMENT",
+    "breakout_type": "PRINT",
+    "or_minutes": [
+      10,
+      15,
+      20,
+      30
+    ],
+    "stop_fraction": 0.25,
+    "target_r": [
+      1.0,
+      1.5,
+      2.0,
+      2.5,
+      3.0
+    ],
+    "scenarios": [
+      "PESSIMISTIC",
+      "OBSERVED",
+      "OPTIMISTIC"
+    ],
+    "expected_configuration_count": 20,
+    "expected_scenario_rows": 60,
+    "pessimistic_assumption": "Entry occurs before the entry-bar stop touch; resolve as an executed -1R stop.",
+    "optimistic_assumption": "Adverse entry-bar excursion occurs before entry; begin stop/target evaluation on the immediately following one-minute bar.",
+    "constraints": {
+      "modify_gate6a": false,
+      "inspect_validation": false,
+      "inspect_oos_burned": false,
+      "change_signal_or_execution_logic": false,
+      "select_winner_automatically": false
+    }
+  },
+  "gate6a_artifact_sha256_before": {
+    "orb_gate6a_DEV_print_static_r_average_r_heatmap.html": "e9b7d572d09d11c5a379e82073e3477399cc3206162bade6507d21e5492c2563",
+    "orb_gate6a_DEV_print_static_r_candidate_audit.csv": "df4e57416e3c62b1ac580e27c722f0ddfb2ad98a5e3a30d34191a8f18f142557",
+    "orb_gate6a_DEV_print_static_r_max_drawdown_heatmap.html": "1a2ffd27c13545e6c0a966272696975ad69754bd1f6856168b04e6de5fa47e32",
+    "orb_gate6a_DEV_print_static_r_metadata.json": "3807d42415043e72304706953173de6591b2c478795f95299d9cabe5613015ab",
+    "orb_gate6a_DEV_print_static_r_positive_month_percentage_heatmap.html": "62aa83ec5d382031ce180c4f01ade6a5aaa5aa63c555895d8f3b1ada2974436b",
+    "orb_gate6a_DEV_print_static_r_profit_factor_heatmap.html": "bded1fbbcae06599cabda1b7bd0a87a8a6aec75de100c5c22a2c999a3b39def7",
+    "orb_gate6a_DEV_print_static_r_rolling100_positive_window_percentage_heatmap.html": "1c9a45d32f36687e7667beeeef868cdf421244a8d4d40c1c171db1077cba5aca",
+    "orb_gate6a_DEV_print_static_r_sweep.csv": "29ff4e0ed50706f518c4a918922021336cc39bd41d75f67d72754260600752be",
+    "orb_gate6a_DEV_print_static_r_trades.csv": "77439f01880ff9df2271f7ef7d5129609dcadfb31f8583f1c6bb12c00a3a1954"
+  },
+  "gate6a_artifact_sha256_after": {
+    "orb_gate6a_DEV_print_static_r_average_r_heatmap.html": "e9b7d572d09d11c5a379e82073e3477399cc3206162bade6507d21e5492c2563",
+    "orb_gate6a_DEV_print_static_r_candidate_audit.csv": "df4e57416e3c62b1ac580e27c722f0ddfb2ad98a5e3a30d34191a8f18f142557",
+    "orb_gate6a_DEV_print_static_r_max_drawdown_heatmap.html": "1a2ffd27c13545e6c0a966272696975ad69754bd1f6856168b04e6de5fa47e32",
+    "orb_gate6a_DEV_print_static_r_metadata.json": "3807d42415043e72304706953173de6591b2c478795f95299d9cabe5613015ab",
+    "orb_gate6a_DEV_print_static_r_positive_month_percentage_heatmap.html": "62aa83ec5d382031ce180c4f01ade6a5aaa5aa63c555895d8f3b1ada2974436b",
+    "orb_gate6a_DEV_print_static_r_profit_factor_heatmap.html": "bded1fbbcae06599cabda1b7bd0a87a8a6aec75de100c5c22a2c999a3b39def7",
+    "orb_gate6a_DEV_print_static_r_rolling100_positive_window_percentage_heatmap.html": "1c9a45d32f36687e7667beeeef868cdf421244a8d4d40c1c171db1077cba5aca",
+    "orb_gate6a_DEV_print_static_r_sweep.csv": "29ff4e0ed50706f518c4a918922021336cc39bd41d75f67d72754260600752be",
+    "orb_gate6a_DEV_print_static_r_trades.csv": "77439f01880ff9df2271f7ef7d5129609dcadfb31f8583f1c6bb12c00a3a1954"
+  },
+  "gate6a_artifacts_unchanged": true,
+  "artifacts": {
+    "sensitivity": "C:\\Users\\danie\\Desktop\\Tradinig\\vectorbt-lab\\experiments\\projects\\mnq_orb_v0_1\\sweeps\\orb_gate6a1_DEV_25pct_ambiguity_sensitivity.csv",
+    "trades": "C:\\Users\\danie\\Desktop\\Tradinig\\vectorbt-lab\\experiments\\projects\\mnq_orb_v0_1\\sweeps\\orb_gate6a1_DEV_25pct_ambiguity_trades.csv",
+    "metadata": "C:\\Users\\danie\\Desktop\\Tradinig\\vectorbt-lab\\experiments\\projects\\mnq_orb_v0_1\\sweeps\\orb_gate6a1_DEV_25pct_ambiguity_metadata.json",
+    "ambiguity_heatmap": "C:\\Users\\danie\\Desktop\\Tradinig\\vectorbt-lab\\experiments\\projects\\mnq_orb_v0_1\\sweeps\\orb_gate6a1_DEV_25pct_ambiguity_rate_heatmap.html",
+    "average_r_bounds": "C:\\Users\\danie\\Desktop\\Tradinig\\vectorbt-lab\\experiments\\projects\\mnq_orb_v0_1\\sweeps\\orb_gate6a1_DEV_25pct_ambiguity_average_r_bounds.html",
+    "sensitivity_width_heatmap": "C:\\Users\\danie\\Desktop\\Tradinig\\vectorbt-lab\\experiments\\projects\\mnq_orb_v0_1\\sweeps\\orb_gate6a1_DEV_25pct_ambiguity_sensitivity_width_heatmap.html",
+    "profit_factor_bounds": "C:\\Users\\danie\\Desktop\\Tradinig\\vectorbt-lab\\experiments\\projects\\mnq_orb_v0_1\\sweeps\\orb_gate6a1_DEV_25pct_ambiguity_profit_factor_bounds.html"
+  }
+}

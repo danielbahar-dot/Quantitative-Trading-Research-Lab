@@ -1,0 +1,115 @@
+{
+  "experiment_id": "orb_gate6a_dev_print_static_r",
+  "research_scope": "DEVELOPMENT_ONLY",
+  "development_start": "2024-06-21",
+  "development_end": "2025-06-30",
+  "maximum_session_date_analyzed": "2025-06-30",
+  "breakout_type": "PRINT",
+  "or_minutes": [
+    10,
+    15,
+    20,
+    30
+  ],
+  "stop_definitions": [
+    {
+      "stop_mode": "OR_25_RETRACEMENT",
+      "stop_fraction": 0.25
+    },
+    {
+      "stop_mode": "OR_MIDPOINT_50",
+      "stop_fraction": 0.5
+    }
+  ],
+  "target_r": [
+    1.0,
+    1.5,
+    2.0,
+    2.5,
+    3.0
+  ],
+  "configuration_count": 40,
+  "tick_size": 0.25,
+  "target_rounding_note": "Theoretical R targets are rounded to the nearest 0.25 point tick, half-up.",
+  "execution_source_of_truth": "validated_custom_ORB_execution_engine",
+  "vectorbt_portfolio_from_signals_used": false,
+  "baseline_control": {
+    "stop_fraction": 0.5,
+    "target_r": 2.0,
+    "exact_trade_level_reproduction": {
+      "10m_PRINT": true,
+      "15m_PRINT": true,
+      "20m_PRINT": true,
+      "30m_PRINT": true
+    }
+  },
+  "validation": {
+    "exactly_40_configurations": true,
+    "no_duplicate_configurations": true,
+    "development_only": true,
+    "max_one_trade_per_session_per_configuration": true,
+    "stop_calculations_verified": true,
+    "target_calculations_verified": true,
+    "rolling_windows_use_executed_trade_chronology": true
+  },
+  "neighborhood_definition": "Orthogonally adjacent cells within one stop surface use the next tested OR duration or target R; diagonals are excluded.",
+  "experiment_config": {
+    "experiment_id": "orb_gate6a_dev_print_static_r",
+    "project_id": "mnq_orb_v0_1",
+    "status": "READY_TO_RUN_DEVELOPMENT_ONLY",
+    "strategy_family": "ORB",
+    "strategy_version": "0.1.0",
+    "asset_class": "futures",
+    "instrument_id": "MNQ",
+    "dataset_id": "MNQ_1m_actual_contract_v1",
+    "partition": "DEVELOPMENT",
+    "breakout_type": [
+      "PRINT"
+    ],
+    "or_minutes": [
+      10,
+      15,
+      20,
+      30
+    ],
+    "stop_retracement_fraction": [
+      0.25,
+      0.5
+    ],
+    "target_r": [
+      1.0,
+      1.5,
+      2.0,
+      2.5,
+      3.0
+    ],
+    "expected_configuration_count": 40,
+    "control": {
+      "stop_retracement_fraction": 0.5,
+      "target_r": 2.0,
+      "require_exact_development_baseline_reproduction": true
+    },
+    "stop_formula": {
+      "long": "OR_high - stop_retracement_fraction * OR_width",
+      "short": "OR_low + stop_retracement_fraction * OR_width"
+    },
+    "constraints": {
+      "inspect_validation": false,
+      "inspect_oos_burned": false,
+      "change_signals": false,
+      "select_winner_automatically": false,
+      "add_filters_or_dynamic_exits": false
+    }
+  },
+  "artifacts": {
+    "summary": "C:\\Users\\danie\\Desktop\\Tradinig\\vectorbt-lab\\experiments\\projects\\mnq_orb_v0_1\\sweeps\\orb_gate6a_DEV_print_static_r_sweep.csv",
+    "trades": "C:\\Users\\danie\\Desktop\\Tradinig\\vectorbt-lab\\experiments\\projects\\mnq_orb_v0_1\\sweeps\\orb_gate6a_DEV_print_static_r_trades.csv",
+    "candidate_audit": "C:\\Users\\danie\\Desktop\\Tradinig\\vectorbt-lab\\experiments\\projects\\mnq_orb_v0_1\\sweeps\\orb_gate6a_DEV_print_static_r_candidate_audit.csv",
+    "metadata": "C:\\Users\\danie\\Desktop\\Tradinig\\vectorbt-lab\\experiments\\projects\\mnq_orb_v0_1\\sweeps\\orb_gate6a_DEV_print_static_r_metadata.json",
+    "average_r_heatmap": "C:\\Users\\danie\\Desktop\\Tradinig\\vectorbt-lab\\experiments\\projects\\mnq_orb_v0_1\\sweeps\\orb_gate6a_DEV_print_static_r_average_r_heatmap.html",
+    "profit_factor_heatmap": "C:\\Users\\danie\\Desktop\\Tradinig\\vectorbt-lab\\experiments\\projects\\mnq_orb_v0_1\\sweeps\\orb_gate6a_DEV_print_static_r_profit_factor_heatmap.html",
+    "max_drawdown_heatmap": "C:\\Users\\danie\\Desktop\\Tradinig\\vectorbt-lab\\experiments\\projects\\mnq_orb_v0_1\\sweeps\\orb_gate6a_DEV_print_static_r_max_drawdown_heatmap.html",
+    "positive_month_percentage_heatmap": "C:\\Users\\danie\\Desktop\\Tradinig\\vectorbt-lab\\experiments\\projects\\mnq_orb_v0_1\\sweeps\\orb_gate6a_DEV_print_static_r_positive_month_percentage_heatmap.html",
+    "rolling100_positive_window_percentage_heatmap": "C:\\Users\\danie\\Desktop\\Tradinig\\vectorbt-lab\\experiments\\projects\\mnq_orb_v0_1\\sweeps\\orb_gate6a_DEV_print_static_r_rolling100_positive_window_percentage_heatmap.html"
+  }
+}

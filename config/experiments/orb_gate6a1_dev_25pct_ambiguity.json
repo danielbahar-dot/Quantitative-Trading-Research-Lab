@@ -1,0 +1,22 @@
+{
+  "experiment_id": "orb_gate6a1_dev_25pct_ambiguity_sensitivity",
+  "project_id": "mnq_orb_v0_1",
+  "status": "COMPLETED_DEVELOPMENT_ONLY_PENDING_REVIEW",
+  "partition": "DEVELOPMENT",
+  "breakout_type": "PRINT",
+  "or_minutes": [10, 15, 20, 30],
+  "stop_fraction": 0.25,
+  "target_r": [1.0, 1.5, 2.0, 2.5, 3.0],
+  "scenarios": ["PESSIMISTIC", "OBSERVED", "OPTIMISTIC"],
+  "expected_configuration_count": 20,
+  "expected_scenario_rows": 60,
+  "pessimistic_assumption": "Entry occurs before the entry-bar stop touch; resolve as an executed -1R stop.",
+  "optimistic_assumption": "Adverse entry-bar excursion occurs before entry; begin stop/target evaluation on the immediately following one-minute bar.",
+  "constraints": {
+    "modify_gate6a": false,
+    "inspect_validation": false,
+    "inspect_oos_burned": false,
+    "change_signal_or_execution_logic": false,
+    "select_winner_automatically": false
+  }
+}

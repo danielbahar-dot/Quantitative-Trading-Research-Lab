@@ -40,13 +40,15 @@ ORB timing, MNQ tick rules, and intraday limits are not platform-wide defaults.
 - A rerun creates a new `run_id`; completed history is never overwritten.
 - Prefer stable parameter regions, temporal robustness, and economic rationale
   over the single best in-sample cell.
+- Prevent lookahead at feature, state, signal, and execution boundaries.
+- Require a clean test/Git verification gate before advancing research stages.
 
 ## Canonical architecture
 
 ```text
-raw -> cleaned -> features/state -> signals -> candidates
--> strategy-aware execution -> completed trades/audit
--> analytics -> experiment artifacts/ledger -> gate decision
+raw -> validated/clean -> features -> causal state -> signals
+-> strategy definition -> execution -> completed trades/audit
+-> experiments -> analytics -> ledger/dashboard -> gate decision
 ```
 
 New strategy logic belongs in a strategy context. Instrument facts belong in
@@ -112,8 +114,8 @@ instrument/dataset configuration rather than strategy code.
 - SESSION_END, shortened sessions, holding time, MFE, and MAE are validated.
 - No BE, trailing, FVG/EMA/VWAP, partial exits, commissions, or slippage.
 
-Do not change these rules during analytics or Gate 6A. Rule changes require a
-separately approved gate and strategy version when appropriate.
+Do not change these rules during analytics. Rule changes require a separately
+approved gate and strategy version when appropriate.
 
 ### Canonical local artifacts
 
@@ -157,31 +159,69 @@ Market data, generated trade/audit tables, and local ledgers are ignored by Git.
   optimization capacity is limited.
 - Decision: optimize PRINT only; keep CLOSE as historical benchmark.
 
-## Current handoff
+## Current validated state
 
-Gate 5C 20m PRINT is implemented and the 60-test behavior suite passes. Manually
-verify representative 20m viewer sessions before Gate 6A. No sweep has run.
+- Gates 1-4D validate data, OR features, PRINT/CLOSE signals, candidate entries,
+  stop/target execution, ambiguity handling, completed trades, and one accepted
+  trade per session/variant.
+- Gates 5/5B provide baseline and DEVELOPMENT-only diagnostics.
+- Gate 5C adds 20m PRINT without changing existing duration behavior.
+- Gate 6A and 6A.1 provide the first R-target surface and entry-bar sensitivity.
+- Gate 6B evaluates 75 DEVELOPMENT-only 15m/20m/30m PRINT configurations using
+  40/50/60/75/100-point targets and midpoint, 25%-OR, or fixed 30/40/50 stops.
+- Gate 6B.1 maps the nonlinear OR-width relationship without creating a filter.
+- Gate 6B.2 maps EXCLUDED, ENTRY_FIRST, and ADVERSE_MOVE_FIRST chronology for
+  all 75 Gate 6B cells. EXCLUDED reproduces Gate 6B exactly, resolved first
+  candidates consume the daily allowance, and Gate 6B/6B.1 remain unchanged.
+- No final parameter candidate has been selected.
 
-Gate 6A is exactly:
+## Current methodological findings
 
-- DEVELOPMENT only; PRINT only.
-- OR: 5, 10, 15, 20, 30 minutes.
-- Stop fraction: 0.25 and 0.50.
-  - Long = `OR_high - fraction * OR_width`.
-  - Short = `OR_low + fraction * OR_width`.
-- Target R: 1.0, 1.5, 2.0, 2.5, 3.0.
-- Exactly 50 unique configurations.
-- No signal change, CLOSE optimization, indicators, filters, BE, trailing,
-  fixed-point targets, partial exits, walk-forward, or reserved-period access.
+- PRINT is retained for the current ORB research path; CLOSE is a historical
+  benchmark.
+- Current parameter research focuses on 15m/20m/30m OR durations.
+- OR width has a nonlinear relationship with outcomes and is a candidate future
+  feature/state variable, not a current strategy filter.
+- Fixed and relative stops can be materially affected by PRINT entry-bar
+  observability; chronology robustness must accompany parameter surfaces.
+- Parameter maxima alone are insufficient evidence. Stable neighborhoods,
+  sample size, causal availability, and chronology robustness matter.
 
-All five 50%-stop/2R controls must exactly reproduce DEV baselines before other
-cells are interpreted. Produce response surfaces; do not auto-select a winner.
+## Parked feature research
 
-## Housekeeping verification
+OR-width feature development is intentionally deferred until the first complete
+strategy-development lifecycle is finished. Future hypotheses may examine:
 
-- Preserve all pre-existing uncommitted Gate 5C work.
-- Make no strategy/execution logic changes.
-- Keep validated source/data paths working unless explicitly reconciled.
-- All 60 pre-housekeeping tests must pass afterward.
-- `git diff --check` must be clean.
-- Remote must match the Quantitative Trading Research Lab repository.
+- OR width as a percentage of price.
+- OR expansion normalized by the pre-market range.
+- A causal historical OR-width percentile.
+- A causally chosen historical lookback.
+
+Do not freeze formulas or lookbacks yet. Generic ATR normalization is not the
+preferred conceptual normalization for NY-open expansion at this stage.
+Pre-market expansion context remains a future hypothesis, and any percentile or
+lookback must use past information only.
+
+## Immediate project objective
+
+```text
+DEVELOPMENT research
+-> ambiguity robustness
+-> candidate reduction
+-> DEVELOPMENT freeze
+-> VALIDATION
+-> PASS / REVISE / REJECT
+-> strategy specification
+-> OOS_BURNED workflow
+```
+
+Complete this research cycle before shifting emphasis toward reusable research
+infrastructure: the ledger, dashboard, feature/signal/execution registries, and
+automation.
+
+## Next gate
+
+**Gate 6C — robust candidate reduction / DEVELOPMENT freeze preparation.**
+
+Gate 6C must not claim candidates are selected until human review approves the
+reduction and predeclared Validation criteria.

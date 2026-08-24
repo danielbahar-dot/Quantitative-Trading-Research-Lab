@@ -131,6 +131,42 @@ class CandidateEntryTests(unittest.TestCase):
         build_candidate_entries(make_prices(), signals, or_minutes=5)
         assert_frame_equal(signals, original)
 
+    def test_static_25pct_stop_and_1_5r_target_are_directionally_correct(self):
+        long_candidate = build_candidate_entries(
+            make_prices(),
+            signal_row("LONG", "PRINT"),
+            or_minutes=10,
+            stop_fraction=0.25,
+            target_r=1.5,
+        ).iloc[0]
+        short_candidate = build_candidate_entries(
+            make_prices(),
+            signal_row("SHORT", "PRINT"),
+            or_minutes=10,
+            stop_fraction=0.25,
+            target_r=1.5,
+        ).iloc[0]
+
+        self.assertEqual(long_candidate["initial_stop"], 97.5)
+        self.assertEqual(long_candidate["risk_points"], 2.5)
+        self.assertEqual(long_candidate["initial_target"], 103.75)
+        self.assertEqual(short_candidate["initial_stop"], 92.5)
+        self.assertEqual(short_candidate["risk_points"], 2.5)
+        self.assertEqual(short_candidate["initial_target"], 86.25)
+
+    def test_explicit_midpoint_2r_reproduces_default_candidates(self):
+        default = build_candidate_entries(
+            make_prices(), signal_row("LONG", "PRINT"), or_minutes=10
+        )
+        explicit = build_candidate_entries(
+            make_prices(),
+            signal_row("LONG", "PRINT"),
+            or_minutes=10,
+            stop_fraction=0.5,
+            target_r=2.0,
+        )
+        assert_frame_equal(default, explicit)
+
 
 if __name__ == "__main__":
     unittest.main()

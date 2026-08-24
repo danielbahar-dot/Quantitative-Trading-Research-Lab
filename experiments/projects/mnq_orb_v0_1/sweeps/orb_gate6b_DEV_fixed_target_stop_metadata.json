@@ -1,0 +1,238 @@
+{
+  "experiment_id": "orb_gate6b_dev_fixed_target_stop",
+  "research_scope": "DEVELOPMENT_ONLY",
+  "development_start": "2024-06-21",
+  "development_end": "2025-06-30",
+  "maximum_session_date_analyzed": "2025-06-30",
+  "configuration_count": 75,
+  "or_minutes": [
+    15,
+    20,
+    30
+  ],
+  "stop_definitions": [
+    {
+      "stop_mode": "OR_MIDPOINT",
+      "kind": "OR_FRACTION",
+      "value": 0.5
+    },
+    {
+      "stop_mode": "OR_25_RETRACEMENT",
+      "kind": "OR_FRACTION",
+      "value": 0.25
+    },
+    {
+      "stop_mode": "FIXED_30",
+      "kind": "FIXED_POINTS",
+      "value": 30.0
+    },
+    {
+      "stop_mode": "FIXED_40",
+      "kind": "FIXED_POINTS",
+      "value": 40.0
+    },
+    {
+      "stop_mode": "FIXED_50",
+      "kind": "FIXED_POINTS",
+      "value": 50.0
+    }
+  ],
+  "target_points": [
+    40.0,
+    50.0,
+    60.0,
+    75.0,
+    100.0
+  ],
+  "tick_size": 0.25,
+  "entry_bar_ambiguity": "The unchanged validated PRINT simulator classifies an entry-bar stop touch as AMBIGUOUS_ENTRY_STOP for every stop definition.",
+  "or_width_is_diagnostic_only": true,
+  "or_width_filter_used": false,
+  "exact_prior_candidate_control_counts": {
+    "15m_PRINT_OR_MIDPOINT_TARGET40PT": 0,
+    "15m_PRINT_OR_MIDPOINT_TARGET50PT": 5,
+    "15m_PRINT_OR_MIDPOINT_TARGET60PT": 3,
+    "15m_PRINT_OR_MIDPOINT_TARGET75PT": 0,
+    "15m_PRINT_OR_MIDPOINT_TARGET100PT": 0,
+    "15m_PRINT_OR_25_RETRACEMENT_TARGET40PT": 0,
+    "15m_PRINT_OR_25_RETRACEMENT_TARGET50PT": 0,
+    "15m_PRINT_OR_25_RETRACEMENT_TARGET60PT": 0,
+    "15m_PRINT_OR_25_RETRACEMENT_TARGET75PT": 0,
+    "15m_PRINT_OR_25_RETRACEMENT_TARGET100PT": 0,
+    "15m_PRINT_FIXED_30_TARGET40PT": 0,
+    "15m_PRINT_FIXED_30_TARGET50PT": 0,
+    "15m_PRINT_FIXED_30_TARGET60PT": 0,
+    "15m_PRINT_FIXED_30_TARGET75PT": 0,
+    "15m_PRINT_FIXED_30_TARGET100PT": 0,
+    "15m_PRINT_FIXED_40_TARGET40PT": 0,
+    "15m_PRINT_FIXED_40_TARGET50PT": 0,
+    "15m_PRINT_FIXED_40_TARGET60PT": 0,
+    "15m_PRINT_FIXED_40_TARGET75PT": 0,
+    "15m_PRINT_FIXED_40_TARGET100PT": 0,
+    "15m_PRINT_FIXED_50_TARGET40PT": 0,
+    "15m_PRINT_FIXED_50_TARGET50PT": 0,
+    "15m_PRINT_FIXED_50_TARGET60PT": 0,
+    "15m_PRINT_FIXED_50_TARGET75PT": 0,
+    "15m_PRINT_FIXED_50_TARGET100PT": 0,
+    "20m_PRINT_OR_MIDPOINT_TARGET40PT": 0,
+    "20m_PRINT_OR_MIDPOINT_TARGET50PT": 3,
+    "20m_PRINT_OR_MIDPOINT_TARGET60PT": 4,
+    "20m_PRINT_OR_MIDPOINT_TARGET75PT": 1,
+    "20m_PRINT_OR_MIDPOINT_TARGET100PT": 1,
+    "20m_PRINT_OR_25_RETRACEMENT_TARGET40PT": 0,
+    "20m_PRINT_OR_25_RETRACEMENT_TARGET50PT": 0,
+    "20m_PRINT_OR_25_RETRACEMENT_TARGET60PT": 0,
+    "20m_PRINT_OR_25_RETRACEMENT_TARGET75PT": 0,
+    "20m_PRINT_OR_25_RETRACEMENT_TARGET100PT": 0,
+    "20m_PRINT_FIXED_30_TARGET40PT": 0,
+    "20m_PRINT_FIXED_30_TARGET50PT": 0,
+    "20m_PRINT_FIXED_30_TARGET60PT": 0,
+    "20m_PRINT_FIXED_30_TARGET75PT": 0,
+    "20m_PRINT_FIXED_30_TARGET100PT": 0,
+    "20m_PRINT_FIXED_40_TARGET40PT": 0,
+    "20m_PRINT_FIXED_40_TARGET50PT": 0,
+    "20m_PRINT_FIXED_40_TARGET60PT": 0,
+    "20m_PRINT_FIXED_40_TARGET75PT": 0,
+    "20m_PRINT_FIXED_40_TARGET100PT": 0,
+    "20m_PRINT_FIXED_50_TARGET40PT": 0,
+    "20m_PRINT_FIXED_50_TARGET50PT": 0,
+    "20m_PRINT_FIXED_50_TARGET60PT": 0,
+    "20m_PRINT_FIXED_50_TARGET75PT": 0,
+    "20m_PRINT_FIXED_50_TARGET100PT": 0,
+    "30m_PRINT_OR_MIDPOINT_TARGET40PT": 0,
+    "30m_PRINT_OR_MIDPOINT_TARGET50PT": 1,
+    "30m_PRINT_OR_MIDPOINT_TARGET60PT": 1,
+    "30m_PRINT_OR_MIDPOINT_TARGET75PT": 3,
+    "30m_PRINT_OR_MIDPOINT_TARGET100PT": 2,
+    "30m_PRINT_OR_25_RETRACEMENT_TARGET40PT": 0,
+    "30m_PRINT_OR_25_RETRACEMENT_TARGET50PT": 0,
+    "30m_PRINT_OR_25_RETRACEMENT_TARGET60PT": 0,
+    "30m_PRINT_OR_25_RETRACEMENT_TARGET75PT": 0,
+    "30m_PRINT_OR_25_RETRACEMENT_TARGET100PT": 0,
+    "30m_PRINT_FIXED_30_TARGET40PT": 0,
+    "30m_PRINT_FIXED_30_TARGET50PT": 0,
+    "30m_PRINT_FIXED_30_TARGET60PT": 0,
+    "30m_PRINT_FIXED_30_TARGET75PT": 0,
+    "30m_PRINT_FIXED_30_TARGET100PT": 0,
+    "30m_PRINT_FIXED_40_TARGET40PT": 0,
+    "30m_PRINT_FIXED_40_TARGET50PT": 0,
+    "30m_PRINT_FIXED_40_TARGET60PT": 0,
+    "30m_PRINT_FIXED_40_TARGET75PT": 0,
+    "30m_PRINT_FIXED_40_TARGET100PT": 0,
+    "30m_PRINT_FIXED_50_TARGET40PT": 0,
+    "30m_PRINT_FIXED_50_TARGET50PT": 0,
+    "30m_PRINT_FIXED_50_TARGET60PT": 0,
+    "30m_PRINT_FIXED_50_TARGET75PT": 0,
+    "30m_PRINT_FIXED_50_TARGET100PT": 0
+  },
+  "validated_signal_and_execution_code_modified": false,
+  "experiment_config": {
+    "experiment_id": "orb_gate6b_dev_fixed_target_stop",
+    "project_id": "mnq_orb_v0_1",
+    "status": "READY_TO_RUN_DEVELOPMENT_ONLY",
+    "partition": "DEVELOPMENT",
+    "breakout_type": "PRINT",
+    "or_minutes": [
+      15,
+      20,
+      30
+    ],
+    "stop_modes": [
+      {
+        "name": "OR_MIDPOINT",
+        "kind": "or_fraction",
+        "value": 0.5
+      },
+      {
+        "name": "OR_25_RETRACEMENT",
+        "kind": "or_fraction",
+        "value": 0.25
+      },
+      {
+        "name": "FIXED_30",
+        "kind": "fixed_points",
+        "value": 30.0
+      },
+      {
+        "name": "FIXED_40",
+        "kind": "fixed_points",
+        "value": 40.0
+      },
+      {
+        "name": "FIXED_50",
+        "kind": "fixed_points",
+        "value": 50.0
+      }
+    ],
+    "target_points": [
+      40.0,
+      50.0,
+      60.0,
+      75.0,
+      100.0
+    ],
+    "expected_configuration_count": 75,
+    "tick_size": 0.25,
+    "constraints": {
+      "modify_gate6a_or_gate6a1": false,
+      "inspect_validation": false,
+      "inspect_oos_burned": false,
+      "change_signals": false,
+      "select_winner_automatically": false,
+      "use_or_width_as_filter": false
+    }
+  },
+  "protected_artifact_sha256_before": {
+    "orb_gate6a_DEV_print_static_r_average_r_heatmap.html": "e9b7d572d09d11c5a379e82073e3477399cc3206162bade6507d21e5492c2563",
+    "orb_gate6a_DEV_print_static_r_candidate_audit.csv": "df4e57416e3c62b1ac580e27c722f0ddfb2ad98a5e3a30d34191a8f18f142557",
+    "orb_gate6a_DEV_print_static_r_max_drawdown_heatmap.html": "1a2ffd27c13545e6c0a966272696975ad69754bd1f6856168b04e6de5fa47e32",
+    "orb_gate6a_DEV_print_static_r_metadata.json": "3807d42415043e72304706953173de6591b2c478795f95299d9cabe5613015ab",
+    "orb_gate6a_DEV_print_static_r_positive_month_percentage_heatmap.html": "62aa83ec5d382031ce180c4f01ade6a5aaa5aa63c555895d8f3b1ada2974436b",
+    "orb_gate6a_DEV_print_static_r_profit_factor_heatmap.html": "bded1fbbcae06599cabda1b7bd0a87a8a6aec75de100c5c22a2c999a3b39def7",
+    "orb_gate6a_DEV_print_static_r_rolling100_positive_window_percentage_heatmap.html": "1c9a45d32f36687e7667beeeef868cdf421244a8d4d40c1c171db1077cba5aca",
+    "orb_gate6a_DEV_print_static_r_sweep.csv": "29ff4e0ed50706f518c4a918922021336cc39bd41d75f67d72754260600752be",
+    "orb_gate6a_DEV_print_static_r_trades.csv": "77439f01880ff9df2271f7ef7d5129609dcadfb31f8583f1c6bb12c00a3a1954",
+    "orb_gate6a1_DEV_25pct_ambiguity_average_r_bounds.html": "e525fa4b32725a2d034493e0b100f994d6c308980f1d5a6a47d6a5255fc6aa32",
+    "orb_gate6a1_DEV_25pct_ambiguity_metadata.json": "55845a121c629a499740eb811e682e3f6b1b0ad8ca380eff8dcef7cc88c66aeb",
+    "orb_gate6a1_DEV_25pct_ambiguity_profit_factor_bounds.html": "212674210705595e59915dcd9d8a8ac5d341021b9d647a6203916b60279bccaf",
+    "orb_gate6a1_DEV_25pct_ambiguity_rate_heatmap.html": "a437a98031dc64142f54935a8807454444f9e6c9dc014a24ecc4abad9bef6ee4",
+    "orb_gate6a1_DEV_25pct_ambiguity_README.md": "b1bb6e3b8420fde18f562cf53704cd3d049abc5d70533edbe31c7310592f64c4",
+    "orb_gate6a1_DEV_25pct_ambiguity_sensitivity.csv": "4ebbd681ca0f41d2084c2d13435a519147a53448d8c430d6464e0c8dd1e61098",
+    "orb_gate6a1_DEV_25pct_ambiguity_sensitivity_width_heatmap.html": "bda5a891653579afed89351ccb8c6c4f95680d40f00412d03f91093079066069",
+    "orb_gate6a1_DEV_25pct_ambiguity_trades.csv": "7907cb57abe23b860f22841fcdae33b07671e07d1cf9ccc640a1484400029da7"
+  },
+  "protected_artifact_sha256_after": {
+    "orb_gate6a_DEV_print_static_r_average_r_heatmap.html": "e9b7d572d09d11c5a379e82073e3477399cc3206162bade6507d21e5492c2563",
+    "orb_gate6a_DEV_print_static_r_candidate_audit.csv": "df4e57416e3c62b1ac580e27c722f0ddfb2ad98a5e3a30d34191a8f18f142557",
+    "orb_gate6a_DEV_print_static_r_max_drawdown_heatmap.html": "1a2ffd27c13545e6c0a966272696975ad69754bd1f6856168b04e6de5fa47e32",
+    "orb_gate6a_DEV_print_static_r_metadata.json": "3807d42415043e72304706953173de6591b2c478795f95299d9cabe5613015ab",
+    "orb_gate6a_DEV_print_static_r_positive_month_percentage_heatmap.html": "62aa83ec5d382031ce180c4f01ade6a5aaa5aa63c555895d8f3b1ada2974436b",
+    "orb_gate6a_DEV_print_static_r_profit_factor_heatmap.html": "bded1fbbcae06599cabda1b7bd0a87a8a6aec75de100c5c22a2c999a3b39def7",
+    "orb_gate6a_DEV_print_static_r_rolling100_positive_window_percentage_heatmap.html": "1c9a45d32f36687e7667beeeef868cdf421244a8d4d40c1c171db1077cba5aca",
+    "orb_gate6a_DEV_print_static_r_sweep.csv": "29ff4e0ed50706f518c4a918922021336cc39bd41d75f67d72754260600752be",
+    "orb_gate6a_DEV_print_static_r_trades.csv": "77439f01880ff9df2271f7ef7d5129609dcadfb31f8583f1c6bb12c00a3a1954",
+    "orb_gate6a1_DEV_25pct_ambiguity_average_r_bounds.html": "e525fa4b32725a2d034493e0b100f994d6c308980f1d5a6a47d6a5255fc6aa32",
+    "orb_gate6a1_DEV_25pct_ambiguity_metadata.json": "55845a121c629a499740eb811e682e3f6b1b0ad8ca380eff8dcef7cc88c66aeb",
+    "orb_gate6a1_DEV_25pct_ambiguity_profit_factor_bounds.html": "212674210705595e59915dcd9d8a8ac5d341021b9d647a6203916b60279bccaf",
+    "orb_gate6a1_DEV_25pct_ambiguity_rate_heatmap.html": "a437a98031dc64142f54935a8807454444f9e6c9dc014a24ecc4abad9bef6ee4",
+    "orb_gate6a1_DEV_25pct_ambiguity_README.md": "b1bb6e3b8420fde18f562cf53704cd3d049abc5d70533edbe31c7310592f64c4",
+    "orb_gate6a1_DEV_25pct_ambiguity_sensitivity.csv": "4ebbd681ca0f41d2084c2d13435a519147a53448d8c430d6464e0c8dd1e61098",
+    "orb_gate6a1_DEV_25pct_ambiguity_sensitivity_width_heatmap.html": "bda5a891653579afed89351ccb8c6c4f95680d40f00412d03f91093079066069",
+    "orb_gate6a1_DEV_25pct_ambiguity_trades.csv": "7907cb57abe23b860f22841fcdae33b07671e07d1cf9ccc640a1484400029da7"
+  },
+  "gate6a_and_gate6a1_artifacts_unchanged": true,
+  "artifacts": {
+    "summary": "C:\\Users\\danie\\Desktop\\Tradinig\\vectorbt-lab\\experiments\\projects\\mnq_orb_v0_1\\sweeps\\orb_gate6b_DEV_fixed_target_stop_summary.csv",
+    "trades": "C:\\Users\\danie\\Desktop\\Tradinig\\vectorbt-lab\\experiments\\projects\\mnq_orb_v0_1\\sweeps\\orb_gate6b_DEV_fixed_target_stop_trades.csv",
+    "candidate_audit": "C:\\Users\\danie\\Desktop\\Tradinig\\vectorbt-lab\\experiments\\projects\\mnq_orb_v0_1\\sweeps\\orb_gate6b_DEV_fixed_target_stop_candidate_audit.csv",
+    "or_width_diagnostics": "C:\\Users\\danie\\Desktop\\Tradinig\\vectorbt-lab\\experiments\\projects\\mnq_orb_v0_1\\sweeps\\orb_gate6b_DEV_fixed_target_stop_or_width_diagnostics.csv",
+    "metadata": "C:\\Users\\danie\\Desktop\\Tradinig\\vectorbt-lab\\experiments\\projects\\mnq_orb_v0_1\\sweeps\\orb_gate6b_DEV_fixed_target_stop_metadata.json",
+    "average_r_heatmap": "C:\\Users\\danie\\Desktop\\Tradinig\\vectorbt-lab\\experiments\\projects\\mnq_orb_v0_1\\sweeps\\orb_gate6b_DEV_fixed_target_stop_average_r_heatmap.html",
+    "profit_factor_heatmap": "C:\\Users\\danie\\Desktop\\Tradinig\\vectorbt-lab\\experiments\\projects\\mnq_orb_v0_1\\sweeps\\orb_gate6b_DEV_fixed_target_stop_profit_factor_heatmap.html",
+    "max_drawdown_heatmap": "C:\\Users\\danie\\Desktop\\Tradinig\\vectorbt-lab\\experiments\\projects\\mnq_orb_v0_1\\sweeps\\orb_gate6b_DEV_fixed_target_stop_max_drawdown_heatmap.html",
+    "positive_month_percentage_heatmap": "C:\\Users\\danie\\Desktop\\Tradinig\\vectorbt-lab\\experiments\\projects\\mnq_orb_v0_1\\sweeps\\orb_gate6b_DEV_fixed_target_stop_positive_month_percentage_heatmap.html",
+    "rolling100_positive_window_percentage_heatmap": "C:\\Users\\danie\\Desktop\\Tradinig\\vectorbt-lab\\experiments\\projects\\mnq_orb_v0_1\\sweeps\\orb_gate6b_DEV_fixed_target_stop_rolling100_positive_window_percentage_heatmap.html",
+    "ambiguity_rate_heatmap": "C:\\Users\\danie\\Desktop\\Tradinig\\vectorbt-lab\\experiments\\projects\\mnq_orb_v0_1\\sweeps\\orb_gate6b_DEV_fixed_target_stop_ambiguity_rate_heatmap.html",
+    "session_end_percentage_heatmap": "C:\\Users\\danie\\Desktop\\Tradinig\\vectorbt-lab\\experiments\\projects\\mnq_orb_v0_1\\sweeps\\orb_gate6b_DEV_fixed_target_stop_session_end_percentage_heatmap.html"
+  }
+}

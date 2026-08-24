@@ -12,7 +12,8 @@ from decimal import Decimal, ROUND_HALF_UP
 import pandas as pd
 
 
-TARGET_R = 2.0
+DEFAULT_TARGET_R = 2.0
+DEFAULT_STOP_FRACTION = 0.5
 TICK_SIZE = 0.25
 INVALID_ENTRY_RELATIVE_TO_STOP = "INVALID_ENTRY_RELATIVE_TO_STOP"
 MISSING_IMMEDIATE_NEXT_BAR = "MISSING_IMMEDIATE_NEXT_BAR"
@@ -46,13 +47,20 @@ def build_candidate_entries(
     signals: pd.DataFrame,
     *,
     or_minutes: int,
+    stop_fraction: float = DEFAULT_STOP_FRACTION,
+    target_r: float = DEFAULT_TARGET_R,
 ) -> pd.DataFrame:
     """Build Gate 4 candidates from already-validated ORB signal rows.
 
     PRINT candidates enter at the breached OR boundary on the signal timestamp.
     CLOSE candidates enter at the open of the exact next 1-minute bar. No signal
-    bar high/low value is used when constructing a CLOSE candidate.
+    bar high/low value is used when constructing a CLOSE candidate. The default
+    stop fraction (0.5) and target (2R) exactly preserve ORB V0.1.
     """
+    if not 0.0 < float(stop_fraction) < 1.0:
+        raise ValueError("stop_fraction must be strictly between 0 and 1")
+    if float(target_r) <= 0.0:
+        raise ValueError("target_r must be strictly positive")
     if not isinstance(price_data.index, pd.DatetimeIndex):
         raise TypeError("price_data must use a DatetimeIndex")
     required_signal_columns = {
@@ -91,7 +99,17 @@ def build_candidate_entries(
         signal_time = pd.Timestamp(signal.signal_time)
         signal_bar = _bar_at(price_data, signal_time, session_date)
         contract = _contract_from_bar(signal_bar)
-        initial_stop = round_to_tick(float(signal.or_mid))
+        or_high = float(signal.or_high)
+        or_low = float(signal.or_low)
+        or_width = or_high - or_low
+        if or_width <= 0.0:
+            raise ValueError("Signal OR high must be greater than OR low")
+        raw_stop = (
+            or_high - float(stop_fraction) * or_width
+            if direction == "LONG"
+            else or_low + float(stop_fraction) * or_width
+        )
+        initial_stop = round_to_tick(raw_stop)
         invalid_reason = ""
 
         if breakout_type == "PRINT":
@@ -129,9 +147,9 @@ def build_candidate_entries(
             else:
                 risk_points = round_to_tick(float(directional_risk))
                 raw_target = (
-                    entry_price + TARGET_R * risk_points
+                    entry_price + float(target_r) * risk_points
                     if direction == "LONG"
-                    else entry_price - TARGET_R * risk_points
+                    else entry_price - float(target_r) * risk_points
                 )
                 initial_target = round_to_tick(raw_target)
 

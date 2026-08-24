@@ -1,0 +1,19 @@
+{
+  "experiment_id": "orb_gate6b1_dev_or_width_analysis",
+  "project_id": "mnq_orb_v0_1",
+  "status": "COMPLETED_DEVELOPMENT_ONLY",
+  "partition": "DEVELOPMENT",
+  "source_experiment": "orb_gate6b_dev_fixed_target_stop",
+  "or_minutes": [15, 20, 30],
+  "quintiles": 5,
+  "minimum_executed_sample_warning": 30,
+  "tie_method": "sort by OR width then session date; assign equal-count bins by stable ordinal rank",
+  "constraints": {
+    "rerun_execution": false,
+    "modify_gate6b": false,
+    "inspect_validation": false,
+    "inspect_oos_burned": false,
+    "create_or_width_filter": false,
+    "select_winner_automatically": false
+  }
+}

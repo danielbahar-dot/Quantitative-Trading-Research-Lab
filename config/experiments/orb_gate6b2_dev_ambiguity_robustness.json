@@ -1,0 +1,24 @@
+{
+  "experiment_id": "orb_gate6b2_dev_ambiguity_robustness",
+  "project_id": "mnq_orb_v0_1",
+  "status": "COMPLETED_DEVELOPMENT_ONLY_PENDING_REVIEW",
+  "partition": "DEVELOPMENT",
+  "source_experiment": "orb_gate6b_dev_fixed_target_stop",
+  "or_minutes": [15, 20, 30],
+  "breakout_type": "PRINT",
+  "stop_modes": ["OR_MIDPOINT", "OR_25_RETRACEMENT", "FIXED_30", "FIXED_40", "FIXED_50"],
+  "target_points": [40.0, 50.0, 60.0, 75.0, 100.0],
+  "scenarios": ["EXCLUDED", "ENTRY_FIRST", "ADVERSE_MOVE_FIRST"],
+  "expected_configuration_count": 75,
+  "expected_scenario_rows": 225,
+  "constraints": {
+    "development_only": true,
+    "modify_gate6b_or_gate6b1": false,
+    "rerun_signal_or_candidate_generation": false,
+    "replay_nonambiguous_execution": false,
+    "inspect_validation": false,
+    "inspect_oos_burned": false,
+    "select_winner_automatically": false,
+    "create_or_width_filter": false
+  }
+}

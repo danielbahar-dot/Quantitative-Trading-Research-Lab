@@ -1,0 +1,26 @@
+{
+  "experiment_id": "orb_gate6b_dev_fixed_target_stop",
+  "project_id": "mnq_orb_v0_1",
+  "status": "COMPLETED_DEVELOPMENT_ONLY_PENDING_REVIEW",
+  "partition": "DEVELOPMENT",
+  "breakout_type": "PRINT",
+  "or_minutes": [15, 20, 30],
+  "stop_modes": [
+    {"name": "OR_MIDPOINT", "kind": "or_fraction", "value": 0.5},
+    {"name": "OR_25_RETRACEMENT", "kind": "or_fraction", "value": 0.25},
+    {"name": "FIXED_30", "kind": "fixed_points", "value": 30.0},
+    {"name": "FIXED_40", "kind": "fixed_points", "value": 40.0},
+    {"name": "FIXED_50", "kind": "fixed_points", "value": 50.0}
+  ],
+  "target_points": [40.0, 50.0, 60.0, 75.0, 100.0],
+  "expected_configuration_count": 75,
+  "tick_size": 0.25,
+  "constraints": {
+    "modify_gate6a_or_gate6a1": false,
+    "inspect_validation": false,
+    "inspect_oos_burned": false,
+    "change_signals": false,
+    "select_winner_automatically": false,
+    "use_or_width_as_filter": false
+  }
+}

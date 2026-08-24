@@ -22,10 +22,22 @@ of future profitability.
 - Gate 5B: DEVELOPMENT-only diagnostics for the eight historical variants,
   covering 1,926 trades.
 - Gate 5C: 20-minute PRINT is implemented as a DEVELOPMENT-only supplement.
-  The expanded comparison has 2,172 trades and awaits final manual visual
-  review.
-- Gate 6A: not run. Its approved scope is the DEVELOPMENT-only 50-cell PRINT
-  static-stop x R-target sweep described below.
+  The expanded DEVELOPMENT comparison contains 2,172 trades.
+- Gate 6A: the DEVELOPMENT-only 40-cell PRINT static-stop x R-target sweep has
+  run and all four midpoint/2R controls reproduced the validated baselines.
+  Results await manual interpretation; no configuration has been selected.
+- Gate 6A.1: the separate DEVELOPMENT-only 25%-stop entry-bar ambiguity
+  sensitivity has run across 20 configurations and three chronology scenarios.
+  Gate 6A artifacts remained byte-for-byte unchanged.
+- Gate 6B: the DEVELOPMENT-only 75-cell fixed-point target x stop study has run
+  for 15m/20m/30m PRINT. OR-width diagnostics are preserved for Gate 6B.1;
+  no parameter combination or OR-width rule has been selected.
+- Gate 6B.1: OR width has been mapped as a DEVELOPMENT-only diagnostic using
+  duration-specific quintiles. It remains a candidate state variable, not a
+  strategy filter.
+- Gate 6B.2: all 75 Gate 6B cells have been tested under EXCLUDED, ENTRY_FIRST,
+  and ADVERSE_MOVE_FIRST entry-bar chronology conventions. No candidate has
+  been selected; Gate 6C is the next permitted research gate after human review.
 
 The authoritative handoff and research guardrails are in [MEMORY.md](MEMORY.md).
 Run history belongs in the experiment ledger, not in MEMORY.
@@ -64,20 +76,44 @@ configuration express the distinction.
 ## Research architecture
 
 ```text
-raw market data
-  -> cleaned/canonical bars
-  -> reusable features and state
-  -> strategy signals
-  -> candidate orders/trades
-  -> strategy-aware execution simulation
-  -> completed trades and audit records
-  -> portfolio/statistical analytics
-  -> experiment artifacts and ledger
-  -> formal gate decision
+Raw Data
+   ↓
+Validated / Clean Data
+   ↓
+Features
+   ↓
+State Variables
+   ↓
+Signals
+   ↓
+Strategy Definition
+   ↓
+Execution Engine
+   ↓
+Completed Trades
+   ↓
+Experiment Engine
+   ↓
+Analytics / VectorBT
+   ↓
+Experiment Ledger
+   ↓
+Research Dashboard
 ```
 
 Each layer must be inspectable and testable. Downstream analytics must not
 rewrite upstream signals, entries, exits, exclusions, or partition membership.
+
+- **Features** describe measurable market information without deciding whether
+  to trade.
+- **State variables** are derived states available at the decision timestamp;
+  their construction must be causal and reproducible.
+- **Signals** record market events or conditions and remain auditable even when
+  no trade is accepted.
+- **Strategy rules** decide whether and how eligible signals become candidate
+  trades.
+- **Execution semantics** determine fills, stops, targets, session state, and
+  ambiguity independently from signal generation.
 
 ### Strategy and instrument separation
 
@@ -180,9 +216,37 @@ The current executable MNQ definition is
 | VALIDATION | 2025-07-01 to 2025-12-31 | Reserved for an explicitly approved gate |
 | OOS_BURNED | 2026-01-01 to 2026-08-17 | Supporting learning only; not untouched evidence |
 
-Do not use VALIDATION or OOS_BURNED to select Gate 6A parameters.
+Do not use VALIDATION or OOS_BURNED for DEVELOPMENT parameter selection.
+
+## Reusable research lifecycle
+
+1. **Data preparation** — record provenance, clean deterministically, validate
+   timestamps/sessions, and version the dataset.
+2. **Partition before research** — predeclare DEVELOPMENT, VALIDATION, and OOS.
+3. **Signal validation** — prove no lookahead and perform visual/manual checks
+   where bar semantics or event timing require them.
+4. **Execution validation** — validate entries, stops, targets, session rules,
+   shortened sessions, trade limits, and ambiguity handling.
+5. **DEVELOPMENT research** — baseline diagnostics, response surfaces,
+   robustness analysis, and causal feature discovery.
+6. **DEVELOPMENT freeze** — predeclare a small candidate set and acceptance
+   criteria before opening reserved data.
+7. **VALIDATION** — evaluate only frozen candidates; never rerun broad
+   optimization on Validation.
+8. **Strategy decision** — record `PASS`, `REVISE`, or `REJECT`.
+9. **Strategy specification** — for an accepted strategy, freeze a
+   machine-readable strategy version and execution contract.
+10. **OOS** — perform one final frozen evaluation on untouched data.
+
+The MNQ ORB final partition is labeled `OOS_BURNED` because full-history results
+were viewed before formal partitioning. It remains useful for testing the
+platform workflow, but it is not pristine statistical evidence.
 
 ## Execution engine and VectorBT
+
+> Use VectorBT execution when its assumptions faithfully match the strategy.
+> Use custom execution when session rules, intrabar ordering, order semantics,
+> or ambiguity require greater control.
 
 The custom engine is authoritative when behavior depends on intrabar order,
 entry-bar eligibility, next-bar fills, session cutoffs, forced exits, stateful
@@ -192,7 +256,9 @@ Use VectorBT where vectorized behavior is faithful and for generic aggregation,
 drawdown cross-checks, parameter arrays, and visualization. Do not replace the
 validated ORB simulator with `Portfolio.from_signals()` unless a gate proves
 trade-level equivalence. Completed trades and candidate audits are canonical;
-equity curves and summaries are derived.
+equity curves and summaries are derived. For MNQ ORB, the custom engine is the
+source of truth; VectorBT, pandas, and NumPy support analytics, cross-checks,
+parameter research, and visualization rather than defining the platform.
 
 ## Research gates
 
@@ -269,6 +335,22 @@ Moving ORB code deeper before a second strategy exists would create import churn
 without research benefit. New strategy logic should use
 `src/strategies/<family>/`; keep generic execution/data machinery separate.
 
+## Reusable platform libraries
+
+| Layer | Status | Direction |
+|---|---|---|
+| Data Library | Partially implemented | Generalize provenance, validation, partitions, and dataset registries across asset classes |
+| Feature Library | Partially implemented | Promote causal reusable features and state-variable contracts beyond ORB |
+| Signal Library | Partially implemented | Preserve strategy-independent event records and validation tooling |
+| Execution Library | Implemented for validated ORB semantics; reusable core partial | Extend explicit fill, session, ambiguity, and cost models without weakening auditability |
+| Strategy Library | Partially implemented | Add versioned strategy-family specifications and reusable composition |
+| Experiment Engine | Partially implemented | Standardize configs, deterministic runs, parameter surfaces, and robustness gates |
+| Experiment Ledger | Partially implemented | Make the ledger the authoritative searchable history of individual experiments |
+| Research Dashboard | Planned | Build a cross-project artifact/ledger browser without changing research results |
+
+These labels describe the current repository honestly; planned layers are not
+claimed as completed platform capabilities.
+
 ## Reference project: MNQ ORB V0.1
 
 ### Frozen timing
@@ -284,8 +366,8 @@ without research benefit. New strategy logic should use
 ### Frozen signals and execution
 
 - Historical baseline: 5/10/15/30m PRINT and CLOSE.
-- Current research: 5/10/15/20/30m PRINT. CLOSE is a historical benchmark and
-  is not being optimized.
+- Current Gate 6 research path: 15/20/30m PRINT. Earlier 5m/10m and CLOSE
+  results remain historical benchmarks and are not part of the current surface.
 - Retain at most the first long and first short signal per session.
 - PRINT enters at the breached OR boundary on the signal bar with validated
   conservative same-bar ambiguity rules.
@@ -313,13 +395,13 @@ data/processed/orb_v01_20m_print_DEV_candidate_audit.csv
 These remain ignored by Git. The historical completed-trade table is unchanged;
 20m PRINT is a DEVELOPMENT-only supplement.
 
-### Approved Gate 6A grid (not run)
+### Gate 6A DEVELOPMENT response surface
 
 ```text
-5 OR durations x 2 static stops x 5 R targets = 50 configurations
+4 OR durations x 2 static stops x 5 R targets = 40 configurations
 ```
 
-- OR: 5, 10, 15, 20, 30 minutes.
+- OR: 10, 15, 20, 30 minutes. The 5-minute duration was intentionally excluded.
 - Breakout: PRINT only.
 - Stop retracement: 25% or 50% from the breached boundary.
   - Long: `OR_high - stop_fraction * OR_width`.
@@ -327,10 +409,10 @@ These remain ignored by Git. The historical completed-trade table is unchanged;
   - 50% is the existing midpoint control.
 - Target: 1R, 1.5R, 2R, 2.5R, 3R from each trade's initial risk.
 
-All five midpoint/2R control cells must exactly reproduce DEVELOPMENT baselines
-before interpretation. Produce exactly 50 unique rows and response surfaces;
-do not automatically choose a winner. Prefer broad stable regions to isolated
-maxima.
+All four midpoint/2R control cells exactly reproduce DEVELOPMENT baselines.
+The canonical 40-row table, trade/candidate audit tables, metadata, and five
+interactive heatmaps are under `experiments/projects/mnq_orb_v0_1/sweeps/`.
+No winner is selected; interpret broad stable regions rather than isolated maxima.
 
 ## Setup and commands
 
@@ -347,6 +429,11 @@ maxima.
 .\.venv\Scripts\python.exe notebooks\05_orb_v01_vectorbt_baseline.py
 .\.venv\Scripts\python.exe notebooks\06_orb_v01_development_diagnostics.py
 .\.venv\Scripts\python.exe notebooks\07_orb_v01_20m_print_development.py
+.\.venv\Scripts\python.exe notebooks\08_orb_gate6a_development_sweep.py
+.\.venv\Scripts\python.exe notebooks\09_orb_gate6a1_ambiguity_sensitivity.py
+.\.venv\Scripts\python.exe notebooks\10_orb_gate6b_fixed_target_stop.py
+.\.venv\Scripts\python.exe notebooks\11_orb_gate6b1_or_width_analysis.py
+.\.venv\Scripts\python.exe notebooks\12_orb_gate6b2_ambiguity_robustness.py
 ```
 
 The full-history baseline command is a historical cross-check, never a source

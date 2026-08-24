@@ -190,6 +190,9 @@ Market data, generated trade/audit tables, and local ledgers are ignored by Git.
 - Gate 6C reduces the frozen 75-cell DEVELOPMENT evidence to three proposed
   core candidates plus two separate research hypotheses. Human review approved
   the three core candidates and the package is `FROZEN_FOR_VALIDATION`.
+- Gate 7 evaluated exactly those three candidates on the predefined VALIDATION
+  partition without parameter changes. HYP_001/HYP_002 and OOS_BURNED were not
+  accessed.
 
 ### DEVELOPMENT freeze
 
@@ -198,6 +201,18 @@ Market data, generated trade/audit tables, and local ledgers are ignored by Git.
 - `CAND_003`: 30m PRINT / fixed-40 stop / fixed 75-point target.
 - HYP_001/HYP_002 remain in research history and are not part of V0.1
   Validation.
+
+### Gate 7 result
+
+- `CAND_001`: `REVISE`. A small observed edge remained, but degradation was
+  high, chronology-robust expectancy was marginal, and the second half gave
+  back a material share of first-half gains.
+- `CAND_002`: `REJECT`. Observed and ENTRY_FIRST expectancy reversed sign.
+- `CAND_003`: `REJECT`. Expectancy reversed sign under every chronology
+  scenario.
+- Durable finding: the strongest DEVELOPMENT regions did not broadly persist
+  through VALIDATION; execution observability alone did not explain the
+  degradation.
 
 ## Current methodological findings
 
@@ -215,9 +230,14 @@ Market data, generated trade/audit tables, and local ledgers are ignored by Git.
   observability; chronology robustness must accompany parameter surfaces.
 - Parameter maxima alone are insufficient evidence. Stable neighborhoods,
   sample size, causal availability, and chronology robustness matter.
-- Validation is confirmatory rather than exploratory. Broad parameter search
-  ends at DEVELOPMENT freeze. Validation may generate future hypotheses but
-  must not retune the frozen strategy version.
+
+> Validation is confirmatory rather than exploratory. Broad parameter search
+> ends at DEVELOPMENT freeze. Validation results may generate future
+> hypotheses, but must not be used to retune the frozen strategy version.
+
+> Backtest observability is a first-class research constraint. Performance must
+> be interpreted jointly with ambiguity rate, sample coverage and chronology
+> sensitivity.
 
 ## Parked feature research
 
@@ -237,7 +257,7 @@ future normalization hypothesis to investigate.
 
 ## Immediate project objective
 
-`Gate 6C -> human approval -> DEVELOPMENT FREEZE -> VALIDATION -> PASS/REVISE/REJECT -> strategy specification -> OOS_BURNED workflow -> infrastructure consolidation`
+`Gate 7 complete -> human review -> new DEVELOPMENT version or V0.1 archive -> infrastructure consolidation`
 
 Complete this research cycle before shifting emphasis toward reusable research
 infrastructure: the ledger, dashboard, feature/signal/execution registries, and
@@ -245,8 +265,9 @@ automation.
 
 ## Next gate
 
-**Gate 7 — VALIDATION of frozen candidates.**
+**Human Gate 7 decision review.**
 
-The shortlist is approved, acceptance criteria are predeclared, and the
-DEVELOPMENT freeze is finalized. Gate 7 may evaluate only the three frozen
-candidates; human approval remains required before any OOS_BURNED access.
+If CAND_001 is revised, it must return to DEVELOPMENT as a new strategy/research
+version; CAND_002/CAND_003 should remain rejected for V0.1. Human approval is
+required to open a new DEVELOPMENT cycle or take any later action. Do not access
+OOS_BURNED automatically.

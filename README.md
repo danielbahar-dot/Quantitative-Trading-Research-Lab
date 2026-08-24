@@ -41,6 +41,10 @@ of future profitability.
   package is frozen for Validation; HYP_001/HYP_002 remain research history and
   are excluded. Gate 7's decision protocol is predeclared and locked before
   reserved-period execution.
+- Gate 7: confirmatory VALIDATION is complete for exactly the three frozen
+  candidates. CAND_001 is `REVISE`; CAND_002 and CAND_003 are `REJECT`. No
+  Validation retuning or OOS_BURNED access occurred; the next action requires
+  human review.
 
 The authoritative handoff and research guardrails are in [MEMORY.md](MEMORY.md).
 Run history belongs in the experiment ledger, not in MEMORY.

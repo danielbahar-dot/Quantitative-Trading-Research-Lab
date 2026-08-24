@@ -1,0 +1,90 @@
+{
+  "experiment_id": "orb_gate6c_dev_candidate_reduction",
+  "project_id": "mnq_orb_v0_1",
+  "status": "PENDING_HUMAN_APPROVAL",
+  "partition": "DEVELOPMENT",
+  "source_gates": ["GATE_5B", "GATE_6B", "GATE_6B.1", "GATE_6B.2"],
+  "candidate_universe": {
+    "or_minutes": [15, 20, 30],
+    "breakout_type": "PRINT",
+    "stop_modes": ["OR_MIDPOINT", "OR_25_RETRACEMENT", "FIXED_30", "FIXED_40", "FIXED_50"],
+    "target_points": [40.0, 50.0, 60.0, 75.0, 100.0],
+    "expected_configurations": 75
+  },
+  "transparent_thresholds": {
+    "high_ambiguity_rate": 0.15,
+    "high_chronology_sensitivity_avg_r": 0.15,
+    "low_overall_executed_trades": 200,
+    "width_stable_avg_r_range": 0.35,
+    "width_warning_avg_r_range": 0.50,
+    "width_top_two_positive_r_share_warning": 0.70,
+    "neighbor_avg_r_similarity_tolerance": 0.15
+  },
+  "flag_definitions": {
+    "entry_first_positive": "Gate 6B.2 ENTRY_FIRST average R is greater than zero",
+    "all_scenarios_positive": "average R is greater than zero under EXCLUDED, ENTRY_FIRST, and ADVERSE_MOVE_FIRST",
+    "all_scenarios_pf_above_1": "Profit Factor is greater than one under all three chronology scenarios",
+    "high_ambiguity": "entry_stop_ambiguity_rate is at least 0.15",
+    "high_chronology_sensitivity": "maximum minus minimum scenario average R is at least 0.15R",
+    "low_sample_warning": "overall executed trades are below 200 or any OR-width quintile carries LOW_SAMPLE",
+    "boundary_target": "target_points equals the upper tested boundary of 100 points",
+    "width_dependence_warning": "OR-width average-R range is at least 0.50R, no more than three quintiles are positive, the top two positive quintiles contribute at least 70% of positive total R, or a quintile carries LOW_SAMPLE"
+  },
+  "neighbor_rules": {
+    "target_neighbors": "immediately adjacent tested targets within 40/50/60/75/100",
+    "stop_peers": {
+      "OR_MIDPOINT": ["FIXED_40", "FIXED_50"],
+      "OR_25_RETRACEMENT": ["OR_MIDPOINT"],
+      "FIXED_30": ["FIXED_40"],
+      "FIXED_40": ["FIXED_30", "FIXED_50", "OR_MIDPOINT"],
+      "FIXED_50": ["FIXED_40", "OR_MIDPOINT"]
+    },
+    "supporting_neighbor": "all scenarios positive, all scenario PF values above 1, and ENTRY_FIRST Avg R within 0.15R of the evaluated cell",
+    "STRONG": "evaluated cell is chronology-robust and has at least one supporting target neighbor and one supporting stop peer",
+    "MODERATE": "evaluated cell is chronology-robust and has supporting evidence in either target or stop neighbors",
+    "WEAK": "otherwise"
+  },
+  "proposed_core_candidates": [
+    {
+      "candidate_id": "MNQ_ORB_V01_CAND_001",
+      "configuration_id": "15m_PRINT_FIXED_50_TARGET75PT",
+      "selection_role": "lower-ambiguity 15m fixed-stop representative",
+      "validation_question": "Does the 15m fixed-50/75-point hypothesis retain positive expectancy without the DEVELOPMENT widest-OR weakness becoming dominant?"
+    },
+    {
+      "candidate_id": "MNQ_ORB_V01_CAND_002",
+      "configuration_id": "20m_PRINT_OR_MIDPOINT_TARGET75PT",
+      "selection_role": "structurally adaptive midpoint representative",
+      "validation_question": "Does the 20m midpoint/75-point hypothesis preserve its low-ambiguity, low-chronology-sensitivity profile?"
+    },
+    {
+      "candidate_id": "MNQ_ORB_V01_CAND_003",
+      "configuration_id": "30m_PRINT_FIXED_40_TARGET75PT",
+      "selection_role": "distinct 30m moderate fixed-stop representative",
+      "validation_question": "Does the 30m fixed-40/75-point hypothesis persist despite its U-shaped DEVELOPMENT OR-width behavior?"
+    }
+  ],
+  "proposed_research_hypotheses": [
+    {
+      "candidate_id": "MNQ_ORB_V01_HYP_001",
+      "configuration_id": "20m_PRINT_OR_25_RETRACEMENT_TARGET75PT",
+      "selection_role": "ambiguity-sensitive 25%-stop robust exception",
+      "validation_question": "Is the marginal ENTRY_FIRST edge and Q2 concentration reproducible outside DEVELOPMENT?"
+    },
+    {
+      "candidate_id": "MNQ_ORB_V01_HYP_002",
+      "configuration_id": "20m_PRINT_OR_25_RETRACEMENT_TARGET100PT",
+      "selection_role": "higher-target 25%-stop robust exception",
+      "validation_question": "Does the boundary-target and narrow-OR weakness persist outside DEVELOPMENT?"
+    }
+  ],
+  "freeze_status": "PENDING_HUMAN_APPROVAL",
+  "constraints": {
+    "rerun_execution": false,
+    "create_new_parameters": false,
+    "create_or_width_filter": false,
+    "inspect_validation": false,
+    "inspect_oos_burned": false,
+    "activate_freeze": false
+  }
+}

@@ -1,0 +1,164 @@
+{
+  "project_id": "mnq_orb_v0_1",
+  "strategy_version": "ORB_V0.1",
+  "freeze_status": "PENDING_HUMAN_APPROVAL",
+  "human_approval_required": true,
+  "validation_access_authorized": false,
+  "validation_acceptance_criteria_status": "NOT_YET_APPROVED",
+  "development_partition": {
+    "start": "2024-06-21",
+    "end": "2025-06-30"
+  },
+  "dataset_id": "MNQ_1m_actual_contract_v1",
+  "source_gate_ids": [
+    "GATE_5B",
+    "GATE_6B",
+    "GATE_6B.1",
+    "GATE_6B.2"
+  ],
+  "source_git_commit": "fbfa3a4d2b6a39ce25878815f1ba9c53db3fedb9",
+  "inherited_strategy_semantics": {
+    "timestamp_semantics": "NT8 one-minute timestamp_et is bar_end_time",
+    "breakout_type": "PRINT",
+    "entry": "OR boundary on signal bar",
+    "signal_cutoff": "11:30 ET inclusive",
+    "maximum_trades_per_session": 1,
+    "ambiguity": "validated PRINT ambiguity plus Gate 6B.2 chronology evidence",
+    "session_exit": "validated SESSION_END and shortened-session behavior",
+    "disabled_features": [
+      "break_even",
+      "trailing",
+      "FVG",
+      "EMA",
+      "VWAP",
+      "partial_exits"
+    ]
+  },
+  "candidates": [
+    {
+      "candidate_id": "MNQ_ORB_V01_CAND_001",
+      "candidate_class": "CORE_SHORTLIST",
+      "configuration_id": "15m_PRINT_FIXED_50_TARGET75PT",
+      "parameters": {
+        "or_minutes": 15,
+        "breakout_type": "PRINT",
+        "stop_mode": "FIXED_50",
+        "target_points": 75.0
+      },
+      "selection_role": "lower-ambiguity 15m fixed-stop representative",
+      "validation_question": "Does the 15m fixed-50/75-point hypothesis retain positive expectancy without the DEVELOPMENT widest-OR weakness becoming dominant?",
+      "development_evidence": {
+        "executed_trades": 241,
+        "average_r": 0.1816390041493776,
+        "profit_factor_r": 1.3510143532996552,
+        "entry_stop_ambiguity_rate": 0.054054054054054,
+        "entry_first_average_r": 0.1428137651821862,
+        "adverse_move_first_average_r": 0.1731781376518218,
+        "chronology_range_average_r": 0.0388252389671913,
+        "neighbor_support": "STRONG",
+        "or_width_dependency": "HUMP_SHAPED",
+        "boundary_target": false
+      }
+    },
+    {
+      "candidate_id": "MNQ_ORB_V01_CAND_002",
+      "candidate_class": "CORE_SHORTLIST",
+      "configuration_id": "20m_PRINT_OR_MIDPOINT_TARGET75PT",
+      "parameters": {
+        "or_minutes": 20,
+        "breakout_type": "PRINT",
+        "stop_mode": "OR_MIDPOINT",
+        "target_points": 75.0
+      },
+      "selection_role": "structurally adaptive midpoint representative",
+      "validation_question": "Does the 20m midpoint/75-point hypothesis preserve its low-ambiguity, low-chronology-sensitivity profile?",
+      "development_evidence": {
+        "executed_trades": 246,
+        "average_r": 0.2325623821295044,
+        "profit_factor_r": 1.467901742077845,
+        "entry_stop_ambiguity_rate": 0.0473186119873817,
+        "entry_first_average_r": 0.1917154686034774,
+        "adverse_move_first_average_r": 0.1917154686034774,
+        "chronology_range_average_r": 0.040846913526027,
+        "neighbor_support": "STRONG",
+        "or_width_dependency": "RELATIVELY_STABLE",
+        "boundary_target": false
+      }
+    },
+    {
+      "candidate_id": "MNQ_ORB_V01_CAND_003",
+      "candidate_class": "CORE_SHORTLIST",
+      "configuration_id": "30m_PRINT_FIXED_40_TARGET75PT",
+      "parameters": {
+        "or_minutes": 30,
+        "breakout_type": "PRINT",
+        "stop_mode": "FIXED_40",
+        "target_points": 75.0
+      },
+      "selection_role": "distinct 30m moderate fixed-stop representative",
+      "validation_question": "Does the 30m fixed-40/75-point hypothesis persist despite its U-shaped DEVELOPMENT OR-width behavior?",
+      "development_evidence": {
+        "executed_trades": 219,
+        "average_r": 0.2732020547945206,
+        "profit_factor_r": 1.502704405818411,
+        "entry_stop_ambiguity_rate": 0.1228070175438596,
+        "entry_first_average_r": 0.125859375,
+        "adverse_move_first_average_r": 0.2097135416666666,
+        "chronology_range_average_r": 0.1473426797945206,
+        "neighbor_support": "STRONG",
+        "or_width_dependency": "U_SHAPED_CONCENTRATED",
+        "boundary_target": false
+      }
+    },
+    {
+      "candidate_id": "MNQ_ORB_V01_HYP_001",
+      "candidate_class": "RESEARCH_HYPOTHESIS",
+      "configuration_id": "20m_PRINT_OR_25_RETRACEMENT_TARGET75PT",
+      "parameters": {
+        "or_minutes": 20,
+        "breakout_type": "PRINT",
+        "stop_mode": "OR_25_RETRACEMENT",
+        "target_points": 75.0
+      },
+      "selection_role": "ambiguity-sensitive 25%-stop robust exception",
+      "validation_question": "Is the marginal ENTRY_FIRST edge and Q2 concentration reproducible outside DEVELOPMENT?",
+      "development_evidence": {
+        "executed_trades": 202,
+        "average_r": 0.2972982336744347,
+        "profit_factor_r": 1.4619557169402753,
+        "entry_stop_ambiguity_rate": 0.2649842271293375,
+        "entry_first_average_r": 0.0089203082101212,
+        "adverse_move_first_average_r": 0.2086460486790235,
+        "chronology_range_average_r": 0.2883779254643135,
+        "neighbor_support": "MODERATE",
+        "or_width_dependency": "HUMP_SHAPED",
+        "boundary_target": false
+      }
+    },
+    {
+      "candidate_id": "MNQ_ORB_V01_HYP_002",
+      "candidate_class": "RESEARCH_HYPOTHESIS",
+      "configuration_id": "20m_PRINT_OR_25_RETRACEMENT_TARGET100PT",
+      "parameters": {
+        "or_minutes": 20,
+        "breakout_type": "PRINT",
+        "stop_mode": "OR_25_RETRACEMENT",
+        "target_points": 100.0
+      },
+      "selection_role": "higher-target 25%-stop robust exception",
+      "validation_question": "Does the boundary-target and narrow-OR weakness persist outside DEVELOPMENT?",
+      "development_evidence": {
+        "executed_trades": 202,
+        "average_r": 0.4537448804329684,
+        "profit_factor_r": 1.6739446018195565,
+        "entry_stop_ambiguity_rate": 0.2681388012618296,
+        "entry_first_average_r": 0.1181241673578878,
+        "adverse_move_first_average_r": 0.3758824766393972,
+        "chronology_range_average_r": 0.3356207130750805,
+        "neighbor_support": "MODERATE",
+        "or_width_dependency": "HUMP_SHAPED_CONCENTRATED",
+        "boundary_target": true
+      }
+    }
+  ]
+}

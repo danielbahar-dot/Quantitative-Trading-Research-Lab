@@ -54,6 +54,20 @@ raw -> validated/clean -> features -> causal state -> signals
 New strategy logic belongs in a strategy context. Instrument facts belong in
 instrument/dataset configuration rather than strategy code.
 
+## Backtest observability is a first-class constraint
+
+> A historical strategy result is only as trustworthy as the data's ability to
+> resolve the execution rules being tested.
+
+For intrabar-sensitive execution, report ambiguity/exclusion rate alongside
+performance and test unresolved chronology before parameter selection. Do not
+equate a high-performing censored subset with fully observable strategy
+performance. Data resolution can be insufficient for an otherwise well-defined
+strategy, and observability may itself vary by market state or feature value.
+
+Parameter comparison must jointly consider expectancy, robustness, sample
+coverage, ambiguity rate, and chronology sensitivity.
+
 ## Partition policy
 
 - Define DEVELOPMENT, VALIDATION, and OOS before inspecting results.
@@ -173,13 +187,20 @@ Market data, generated trade/audit tables, and local ledgers are ignored by Git.
 - Gate 6B.2 maps EXCLUDED, ENTRY_FIRST, and ADVERSE_MOVE_FIRST chronology for
   all 75 Gate 6B cells. EXCLUDED reproduces Gate 6B exactly, resolved first
   candidates consume the daily allowance, and Gate 6B/6B.1 remain unchanged.
-- No final parameter candidate has been selected.
+- Gate 6C reduces the frozen 75-cell DEVELOPMENT evidence to three proposed
+  core candidates plus two separate research hypotheses. The package is
+  `PENDING_HUMAN_APPROVAL`; no candidate is finally frozen.
 
 ## Current methodological findings
 
 - PRINT is retained for the current ORB research path; CLOSE is a historical
   benchmark.
 - Current parameter research focuses on 15m/20m/30m OR durations.
+- Midpoint, fixed-40, and fixed-50 stops were chronology-robust across all 15
+  tested Gate 6B cells in each family. Fixed-30 was mostly robust, with several
+  weak chronology-sensitive cells.
+- The 25% retracement family was heavily ambiguity-sensitive; only 20m/75 and
+  20m/100 remained robust under every Gate 6B.2 chronology scenario.
 - OR width has a nonlinear relationship with outcomes and is a candidate future
   feature/state variable, not a current strategy filter.
 - Fixed and relative stops can be materially affected by PRINT entry-bar
@@ -192,28 +213,20 @@ Market data, generated trade/audit tables, and local ledgers are ignored by Git.
 OR-width feature development is intentionally deferred until the first complete
 strategy-development lifecycle is finished. Future hypotheses may examine:
 
+- Absolute OR width.
 - OR width as a percentage of price.
 - OR expansion normalized by the pre-market range.
 - A causal historical OR-width percentile.
-- A causally chosen historical lookback.
 
-Do not freeze formulas or lookbacks yet. Generic ATR normalization is not the
-preferred conceptual normalization for NY-open expansion at this stage.
-Pre-market expansion context remains a future hypothesis, and any percentile or
-lookback must use past information only.
+Percentile/state calculations must use only information available before the
+current session. Lookback length is unresolved and must be researched rather
+than hard-coded. ATR normalization is not currently the preferred conceptual
+normalization for NY-open expansion; pre-market expansion is the preferred
+future normalization hypothesis to investigate.
 
 ## Immediate project objective
 
-```text
-DEVELOPMENT research
--> ambiguity robustness
--> candidate reduction
--> DEVELOPMENT freeze
--> VALIDATION
--> PASS / REVISE / REJECT
--> strategy specification
--> OOS_BURNED workflow
-```
+`Gate 6C -> human approval -> DEVELOPMENT FREEZE -> VALIDATION -> PASS/REVISE/REJECT -> strategy specification -> OOS_BURNED workflow -> infrastructure consolidation`
 
 Complete this research cycle before shifting emphasis toward reusable research
 infrastructure: the ledger, dashboard, feature/signal/execution registries, and
@@ -221,7 +234,7 @@ automation.
 
 ## Next gate
 
-**Gate 6C — robust candidate reduction / DEVELOPMENT freeze preparation.**
+**Gate 7 — VALIDATION of frozen candidates.**
 
-Gate 6C must not claim candidates are selected until human review approves the
-reduction and predeclared Validation criteria.
+Gate 7 must not start until a human approves the Gate 6C shortlist, Validation
+acceptance criteria are predeclared, and the DEVELOPMENT freeze is finalized.

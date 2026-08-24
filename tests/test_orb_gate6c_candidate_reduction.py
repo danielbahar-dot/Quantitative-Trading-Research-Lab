@@ -49,7 +49,7 @@ class Gate6CCandidateReductionTests(unittest.TestCase):
         self.assertEqual(universe["target_points"], [40.0, 50.0, 60.0, 75.0, 100.0])
         self.assertEqual(len(config["proposed_core_candidates"]), 3)
         self.assertEqual(len(config["proposed_research_hypotheses"]), 2)
-        self.assertEqual(config["freeze_status"], "PENDING_HUMAN_APPROVAL")
+        self.assertEqual(config["freeze_status"], "FROZEN_FOR_VALIDATION")
         self.assertFalse(config["constraints"]["inspect_validation"])
         self.assertFalse(config["constraints"]["inspect_oos_burned"])
 

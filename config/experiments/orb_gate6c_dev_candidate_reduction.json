@@ -1,7 +1,7 @@
 {
   "experiment_id": "orb_gate6c_dev_candidate_reduction",
   "project_id": "mnq_orb_v0_1",
-  "status": "PENDING_HUMAN_APPROVAL",
+  "status": "HUMAN_APPROVED",
   "partition": "DEVELOPMENT",
   "source_gates": ["GATE_5B", "GATE_6B", "GATE_6B.1", "GATE_6B.2"],
   "candidate_universe": {
@@ -78,7 +78,7 @@
       "validation_question": "Does the boundary-target and narrow-OR weakness persist outside DEVELOPMENT?"
     }
   ],
-  "freeze_status": "PENDING_HUMAN_APPROVAL",
+  "freeze_status": "FROZEN_FOR_VALIDATION",
   "constraints": {
     "rerun_execution": false,
     "create_new_parameters": false,

@@ -1,164 +1,175 @@
 {
   "project_id": "mnq_orb_v0_1",
-  "strategy_version": "ORB_V0.1",
-  "freeze_status": "PENDING_HUMAN_APPROVAL",
-  "human_approval_required": true,
-  "validation_access_authorized": false,
-  "validation_acceptance_criteria_status": "NOT_YET_APPROVED",
-  "development_partition": {
-    "start": "2024-06-21",
-    "end": "2025-06-30"
+  "strategy_version": "MNQ_ORB_V0.1",
+  "freeze_status": "FROZEN_FOR_VALIDATION",
+  "human_approval_recorded": true,
+  "freeze_timestamp_utc": "2026-08-24T12:23:11.772990Z",
+  "freeze_git_tag": "mnq-orb-v0.1-dev-freeze",
+  "implementation_source_git_commit": "8198f197a239e75074140ce4b2344520deff99ec",
+  "instrument": {
+    "instrument_id": "MNQ",
+    "name": "Micro E-mini Nasdaq-100 Futures",
+    "asset_class": "futures",
+    "exchange": "CME",
+    "currency": "USD",
+    "tick_size_points": 0.25,
+    "tick_value_usd": 0.5,
+    "point_value_usd": 2.0,
+    "research_timezone": "America/New_York",
+    "regular_session": {
+      "start": "09:30",
+      "end_bar_timestamp": "16:00",
+      "timestamp_semantics": "bar_end_time"
+    },
+    "contract_policy": "actual contract column supplied by the dataset",
+    "notes": "Instrument metadata only. Strategy rules do not belong here."
   },
-  "dataset_id": "MNQ_1m_actual_contract_v1",
-  "source_gate_ids": [
-    "GATE_5B",
-    "GATE_6B",
-    "GATE_6B.1",
-    "GATE_6B.2"
-  ],
-  "source_git_commit": "fbfa3a4d2b6a39ce25878815f1ba9c53db3fedb9",
-  "inherited_strategy_semantics": {
-    "timestamp_semantics": "NT8 one-minute timestamp_et is bar_end_time",
-    "breakout_type": "PRINT",
-    "entry": "OR boundary on signal bar",
-    "signal_cutoff": "11:30 ET inclusive",
-    "maximum_trades_per_session": 1,
-    "ambiguity": "validated PRINT ambiguity plus Gate 6B.2 chronology evidence",
-    "session_exit": "validated SESSION_END and shortened-session behavior",
-    "disabled_features": [
+  "dataset": {
+    "dataset_id": "MNQ_1m_actual_contract_v1",
+    "canonical_source_sha256": "7da48b3b69b549c4ef7e31a1052ac61e25d6220d5d9c95770e2e79fc634f32f5",
+    "development_partition_sha256": "6c60be7885d5307694b94c8bd64376fc32fea1b04e1521d4100c859d4219b550",
+    "validation_partition_sha256": "c7d6d8f8a021f693458e262ba814c75eecbad8a2e235104f7a559bbe9ab3ee34"
+  },
+  "partitions": {
+    "DEVELOPMENT": {
+      "start": "2024-06-21",
+      "end": "2025-06-30"
+    },
+    "VALIDATION": {
+      "start": "2025-07-01",
+      "end": "2025-12-31"
+    },
+    "OOS_BURNED": {
+      "start": "2026-01-01",
+      "end": "2026-08-17",
+      "access_authorized": false
+    }
+  },
+  "shared_strategy_semantics": {
+    "instrument": "MNQ",
+    "timeframe": "1 minute",
+    "timezone": "America/New_York",
+    "timestamp_semantics": "timestamp_et is NinjaTrader bar_end_time; bar_start_time is timestamp_et minus one minute",
+    "opening_range": "09:30 ET market open represented by bar-end stamps beginning 09:31; first eligible bar is one minute after the final OR stamp",
+    "signal": "retain first LONG when intrabar high strictly exceeds OR high and first SHORT when intrabar low strictly crosses below OR low; same-bar two-sided PRINT crossing is retained as signal ambiguity; signal cutoff is 11:30 ET inclusive",
+    "entry": "PRINT candidate enters at the breached OR boundary on the signal/bar timestamp",
+    "signal_retention": "retain at most first long and first short signal per session",
+    "daily_trade_rule": "accept the earliest valid executable non-excluded candidate; maximum one accepted trade per session per frozen candidate; ambiguous/invalid candidates do not consume allowance; later candidates remain audited as SESSION_TRADE_LIMIT",
+    "exit": "evaluate stop/target from the PRINT entry bar; force SESSION_END at the 16:00 ET bar close",
+    "shortened_session": "when 16:00 is absent, force SESSION_END at the last observed same-session bar whose bar-end timestamp is no later than 16:00 ET",
+    "tick_handling": "MNQ tick size is 0.25 points; calculated prices use Decimal ROUND_HALF_UP to the nearest tick",
+    "ambiguity": "same-bar stop-and-target is AMBIGUOUS_STOP_TARGET; PRINT entry-bar stop touch is AMBIGUOUS_ENTRY_STOP because OHLC cannot order entry versus stop; ambiguous outcomes are excluded under canonical EXCLUDED performance; invalid candidates are audited",
+    "disabled": [
+      "CLOSE",
       "break_even",
-      "trailing",
+      "trailing_stop",
       "FVG",
       "EMA",
       "VWAP",
-      "partial_exits"
+      "partial_exits",
+      "commissions",
+      "slippage"
     ]
   },
   "candidates": [
     {
       "candidate_id": "MNQ_ORB_V01_CAND_001",
-      "candidate_class": "CORE_SHORTLIST",
       "configuration_id": "15m_PRINT_FIXED_50_TARGET75PT",
-      "parameters": {
-        "or_minutes": 15,
-        "breakout_type": "PRINT",
-        "stop_mode": "FIXED_50",
-        "target_points": 75.0
+      "or_minutes": 15,
+      "breakout_type": "PRINT",
+      "stop": {
+        "mode": "FIXED_50",
+        "points": 50.0,
+        "long_formula": "round_to_tick(entry_price - 50)",
+        "short_formula": "round_to_tick(entry_price + 50)"
       },
-      "selection_role": "lower-ambiguity 15m fixed-stop representative",
-      "validation_question": "Does the 15m fixed-50/75-point hypothesis retain positive expectancy without the DEVELOPMENT widest-OR weakness becoming dominant?",
-      "development_evidence": {
+      "target": {
+        "mode": "FIXED_POINTS",
+        "points": 75.0,
+        "long_formula": "round_to_tick(entry_price + 75.0)",
+        "short_formula": "round_to_tick(entry_price - 75.0)"
+      },
+      "development_reference": {
         "executed_trades": 241,
         "average_r": 0.1816390041493776,
         "profit_factor_r": 1.3510143532996552,
+        "max_drawdown_r": 9.5,
         "entry_stop_ambiguity_rate": 0.054054054054054,
         "entry_first_average_r": 0.1428137651821862,
-        "adverse_move_first_average_r": 0.1731781376518218,
         "chronology_range_average_r": 0.0388252389671913,
-        "neighbor_support": "STRONG",
-        "or_width_dependency": "HUMP_SHAPED",
-        "boundary_target": false
+        "or_width_dependency": "HUMP_SHAPED"
       }
     },
     {
       "candidate_id": "MNQ_ORB_V01_CAND_002",
-      "candidate_class": "CORE_SHORTLIST",
       "configuration_id": "20m_PRINT_OR_MIDPOINT_TARGET75PT",
-      "parameters": {
-        "or_minutes": 20,
-        "breakout_type": "PRINT",
-        "stop_mode": "OR_MIDPOINT",
-        "target_points": 75.0
+      "or_minutes": 20,
+      "breakout_type": "PRINT",
+      "stop": {
+        "mode": "OR_MIDPOINT",
+        "long_formula": "round_to_tick(OR_high - 0.50 * (OR_high - OR_low))",
+        "short_formula": "round_to_tick(OR_low + 0.50 * (OR_high - OR_low))"
       },
-      "selection_role": "structurally adaptive midpoint representative",
-      "validation_question": "Does the 20m midpoint/75-point hypothesis preserve its low-ambiguity, low-chronology-sensitivity profile?",
-      "development_evidence": {
+      "target": {
+        "mode": "FIXED_POINTS",
+        "points": 75.0,
+        "long_formula": "round_to_tick(entry_price + 75.0)",
+        "short_formula": "round_to_tick(entry_price - 75.0)"
+      },
+      "development_reference": {
         "executed_trades": 246,
         "average_r": 0.2325623821295044,
         "profit_factor_r": 1.467901742077845,
+        "max_drawdown_r": 8.854708520179372,
         "entry_stop_ambiguity_rate": 0.0473186119873817,
         "entry_first_average_r": 0.1917154686034774,
-        "adverse_move_first_average_r": 0.1917154686034774,
         "chronology_range_average_r": 0.040846913526027,
-        "neighbor_support": "STRONG",
-        "or_width_dependency": "RELATIVELY_STABLE",
-        "boundary_target": false
+        "or_width_dependency": "RELATIVELY_STABLE"
       }
     },
     {
       "candidate_id": "MNQ_ORB_V01_CAND_003",
-      "candidate_class": "CORE_SHORTLIST",
       "configuration_id": "30m_PRINT_FIXED_40_TARGET75PT",
-      "parameters": {
-        "or_minutes": 30,
-        "breakout_type": "PRINT",
-        "stop_mode": "FIXED_40",
-        "target_points": 75.0
+      "or_minutes": 30,
+      "breakout_type": "PRINT",
+      "stop": {
+        "mode": "FIXED_40",
+        "points": 40.0,
+        "long_formula": "round_to_tick(entry_price - 40)",
+        "short_formula": "round_to_tick(entry_price + 40)"
       },
-      "selection_role": "distinct 30m moderate fixed-stop representative",
-      "validation_question": "Does the 30m fixed-40/75-point hypothesis persist despite its U-shaped DEVELOPMENT OR-width behavior?",
-      "development_evidence": {
+      "target": {
+        "mode": "FIXED_POINTS",
+        "points": 75.0,
+        "long_formula": "round_to_tick(entry_price + 75.0)",
+        "short_formula": "round_to_tick(entry_price - 75.0)"
+      },
+      "development_reference": {
         "executed_trades": 219,
         "average_r": 0.2732020547945206,
         "profit_factor_r": 1.502704405818411,
+        "max_drawdown_r": 12.375,
         "entry_stop_ambiguity_rate": 0.1228070175438596,
         "entry_first_average_r": 0.125859375,
-        "adverse_move_first_average_r": 0.2097135416666666,
         "chronology_range_average_r": 0.1473426797945206,
-        "neighbor_support": "STRONG",
-        "or_width_dependency": "U_SHAPED_CONCENTRATED",
-        "boundary_target": false
+        "or_width_dependency": "U_SHAPED_CONCENTRATED"
       }
-    },
+    }
+  ],
+  "excluded_research_hypotheses": [
     {
       "candidate_id": "MNQ_ORB_V01_HYP_001",
-      "candidate_class": "RESEARCH_HYPOTHESIS",
       "configuration_id": "20m_PRINT_OR_25_RETRACEMENT_TARGET75PT",
-      "parameters": {
-        "or_minutes": 20,
-        "breakout_type": "PRINT",
-        "stop_mode": "OR_25_RETRACEMENT",
-        "target_points": 75.0
-      },
-      "selection_role": "ambiguity-sensitive 25%-stop robust exception",
-      "validation_question": "Is the marginal ENTRY_FIRST edge and Q2 concentration reproducible outside DEVELOPMENT?",
-      "development_evidence": {
-        "executed_trades": 202,
-        "average_r": 0.2972982336744347,
-        "profit_factor_r": 1.4619557169402753,
-        "entry_stop_ambiguity_rate": 0.2649842271293375,
-        "entry_first_average_r": 0.0089203082101212,
-        "adverse_move_first_average_r": 0.2086460486790235,
-        "chronology_range_average_r": 0.2883779254643135,
-        "neighbor_support": "MODERATE",
-        "or_width_dependency": "HUMP_SHAPED",
-        "boundary_target": false
-      }
+      "retained_in_research_history": true,
+      "validation_authorized": false
     },
     {
       "candidate_id": "MNQ_ORB_V01_HYP_002",
-      "candidate_class": "RESEARCH_HYPOTHESIS",
       "configuration_id": "20m_PRINT_OR_25_RETRACEMENT_TARGET100PT",
-      "parameters": {
-        "or_minutes": 20,
-        "breakout_type": "PRINT",
-        "stop_mode": "OR_25_RETRACEMENT",
-        "target_points": 100.0
-      },
-      "selection_role": "higher-target 25%-stop robust exception",
-      "validation_question": "Does the boundary-target and narrow-OR weakness persist outside DEVELOPMENT?",
-      "development_evidence": {
-        "executed_trades": 202,
-        "average_r": 0.4537448804329684,
-        "profit_factor_r": 1.6739446018195565,
-        "entry_stop_ambiguity_rate": 0.2681388012618296,
-        "entry_first_average_r": 0.1181241673578878,
-        "adverse_move_first_average_r": 0.3758824766393972,
-        "chronology_range_average_r": 0.3356207130750805,
-        "neighbor_support": "MODERATE",
-        "or_width_dependency": "HUMP_SHAPED_CONCENTRATED",
-        "boundary_target": true
-      }
+      "retained_in_research_history": true,
+      "validation_authorized": false
     }
-  ]
+  ],
+  "validation_protocol": "experiments\\projects\\mnq_orb_v0_1\\validation\\gate7_validation_protocol.json",
+  "post_validation_retuning_authorized": false
 }

@@ -1,0 +1,65 @@
+{
+  "protocol_id": "mnq_orb_v0_1_gate7_validation",
+  "strategy_version": "MNQ_ORB_V0.1",
+  "status": "PREDECLARED_LOCKED",
+  "protocol_created_at_utc": "2026-08-24T12:23:11.772990Z",
+  "created_before_validation_access": true,
+  "validation_access_authorized": true,
+  "research_question": "Does the positive edge and execution robustness observed during DEVELOPMENT survive on the reserved VALIDATION period without changing the strategy?",
+  "confirmatory_not_exploratory": true,
+  "partition": {"name": "VALIDATION", "start": "2025-07-01", "end": "2025-12-31", "inclusive": true},
+  "frozen_candidate_ids": ["MNQ_ORB_V01_CAND_001", "MNQ_ORB_V01_CAND_002", "MNQ_ORB_V01_CAND_003"],
+  "explicitly_excluded_ids": ["MNQ_ORB_V01_HYP_001", "MNQ_ORB_V01_HYP_002"],
+  "chronology_scenarios": ["EXCLUDED", "ENTRY_FIRST", "ADVERSE_MOVE_FIRST"],
+  "primary_metrics": ["sessions_available", "eligible_candidates", "executed_trades", "wins", "losses", "session_end_exits", "win_rate", "average_r", "median_r", "total_r", "profit_factor_r", "max_drawdown_r", "max_consecutive_losses", "average_holding_minutes", "positive_month_percentage", "monthly_r", "target_hit_percentage", "stop_hit_percentage", "session_end_percentage", "ambiguity_exclusion_count", "ambiguity_rate"],
+  "degradation_metrics": {
+    "avg_r_delta": "validation_average_r - development_average_r",
+    "avg_r_relative_change": "(validation_average_r - development_average_r) / development_average_r when development_average_r is positive and numerically stable",
+    "pf_delta": "validation_profit_factor_r - development_profit_factor_r",
+    "win_rate_delta": "validation_win_rate - development_win_rate",
+    "ambiguity_delta": "validation_ambiguity_rate - development_ambiguity_rate"
+  },
+  "borderline_rules": {
+    "average_r_absolute_threshold": 0.025,
+    "profit_factor_distance_from_one": 0.05,
+    "description": "Positive chronology-robust values inside these margins are flagged as marginal rather than treated as precise evidence of a durable edge."
+  },
+  "decision_framework": {
+    "edge_survival": {
+      "STRONG": "EXCLUDED and ENTRY_FIRST average R are positive, both Profit Factors exceed 1, and neither chronology-robust result is inside the predeclared borderline margin.",
+      "MIXED": "Observed edge remains positive but ENTRY_FIRST fails, or chronology-robust edge survives only inside the predeclared borderline margin.",
+      "FAILED": "EXCLUDED average R is non-positive or Profit Factor is at most 1 and evidence does not support survival."
+    },
+    "degradation": {
+      "LOW": "Validation average R retains at least 75% of positive DEVELOPMENT average R.",
+      "MODERATE": "Validation retains at least 50% but less than 75%.",
+      "HIGH": "Validation retains more than 0% but less than 50%.",
+      "SIGN_REVERSAL": "Validation average R is non-positive."
+    },
+    "temporal_consistency": {
+      "positive_month_concentration": "best positive month R divided by the sum of positive monthly R; undefined when no month is positive",
+      "first_half": "first three observed VALIDATION calendar months",
+      "second_half": "last three observed VALIDATION calendar months",
+      "BROAD": "Total R is positive, at least 50% of observed months are positive, the best positive month contributes at most 60% of positive monthly R, and the UNSTABLE condition is false.",
+      "CONCENTRATED": "Total R is positive but monthly breadth or the predeclared 60% concentration condition fails, while the UNSTABLE condition is false.",
+      "UNSTABLE": "Total R is non-positive, or the second half is negative and gives back at least 50% of a positive first-half Total R."
+    },
+    "observability": {
+      "material_ambiguity_increase_points": 0.05,
+      "high_validation_ambiguity_rate": 0.15,
+      "material_chronology_range_absolute_r": 0.15,
+      "material_chronology_range_multiple_of_development": 1.5,
+      "STRONG": "All scenario average R values and Profit Factors remain above their survival thresholds, ambiguity is below 15% and less than 5 percentage points above DEVELOPMENT, and chronology range is not materially larger than DEVELOPMENT.",
+      "CAUTION": "Positive edge survives but ambiguity or chronology range breaches a predeclared material-increase condition.",
+      "FAILED": "ENTRY_FIRST average R is non-positive or ENTRY_FIRST Profit Factor is at most 1."
+    },
+    "overall": {
+      "PASS": "Edge survival is STRONG, degradation is LOW or MODERATE, temporal consistency is BROAD, and observability is STRONG.",
+      "REVISE": "The candidate is not REJECTED but any PASS condition is not met. Any revision must return to DEVELOPMENT as a new strategy version.",
+      "REJECT": "Edge survival is FAILED or observability is FAILED."
+    }
+  },
+  "prohibited_actions": ["parameter_sweep", "evaluate_research_hypotheses", "change_target", "change_stop", "change_or_duration", "add_or_width_filter", "add_indicator_or_feature", "change_ambiguity_policy", "change_entry_cutoff", "optimize_candidate_weights", "access_oos_burned"],
+  "portfolio_role": "Candidate comparison only; no combined portfolio or weight optimization.",
+  "human_review_required_after_gate7": true
+}

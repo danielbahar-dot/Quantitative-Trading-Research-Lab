@@ -36,8 +36,11 @@ of future profitability.
   duration-specific quintiles. It remains a candidate state variable, not a
   strategy filter.
 - Gate 6B.2: all 75 Gate 6B cells have been tested under EXCLUDED, ENTRY_FIRST,
-  and ADVERSE_MOVE_FIRST entry-bar chronology conventions. No candidate has
-  been selected; Gate 6C is the next permitted research gate after human review.
+  and ADVERSE_MOVE_FIRST entry-bar chronology conventions.
+- Gate 6C: human review approved three distinct candidates. The DEVELOPMENT
+  package is frozen for Validation; HYP_001/HYP_002 remain research history and
+  are excluded. Gate 7's decision protocol is predeclared and locked before
+  reserved-period execution.
 
 The authoritative handoff and research guardrails are in [MEMORY.md](MEMORY.md).
 Run history belongs in the experiment ledger, not in MEMORY.
@@ -434,6 +437,9 @@ No winner is selected; interpret broad stable regions rather than isolated maxim
 .\.venv\Scripts\python.exe notebooks\10_orb_gate6b_fixed_target_stop.py
 .\.venv\Scripts\python.exe notebooks\11_orb_gate6b1_or_width_analysis.py
 .\.venv\Scripts\python.exe notebooks\12_orb_gate6b2_ambiguity_robustness.py
+.\.venv\Scripts\python.exe notebooks\13_orb_gate6c_candidate_reduction.py
+.\.venv\Scripts\python.exe notebooks\14_finalize_orb_v01_development_freeze.py
+.\.venv\Scripts\python.exe notebooks\15_orb_gate7_validation.py
 ```
 
 The full-history baseline command is a historical cross-check, never a source

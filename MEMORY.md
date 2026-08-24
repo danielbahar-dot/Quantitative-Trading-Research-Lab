@@ -188,8 +188,16 @@ Market data, generated trade/audit tables, and local ledgers are ignored by Git.
   all 75 Gate 6B cells. EXCLUDED reproduces Gate 6B exactly, resolved first
   candidates consume the daily allowance, and Gate 6B/6B.1 remain unchanged.
 - Gate 6C reduces the frozen 75-cell DEVELOPMENT evidence to three proposed
-  core candidates plus two separate research hypotheses. The package is
-  `PENDING_HUMAN_APPROVAL`; no candidate is finally frozen.
+  core candidates plus two separate research hypotheses. Human review approved
+  the three core candidates and the package is `FROZEN_FOR_VALIDATION`.
+
+### DEVELOPMENT freeze
+
+- `CAND_001`: 15m PRINT / fixed-50 stop / fixed 75-point target.
+- `CAND_002`: 20m PRINT / OR-midpoint stop / fixed 75-point target.
+- `CAND_003`: 30m PRINT / fixed-40 stop / fixed 75-point target.
+- HYP_001/HYP_002 remain in research history and are not part of V0.1
+  Validation.
 
 ## Current methodological findings
 
@@ -207,6 +215,9 @@ Market data, generated trade/audit tables, and local ledgers are ignored by Git.
   observability; chronology robustness must accompany parameter surfaces.
 - Parameter maxima alone are insufficient evidence. Stable neighborhoods,
   sample size, causal availability, and chronology robustness matter.
+- Validation is confirmatory rather than exploratory. Broad parameter search
+  ends at DEVELOPMENT freeze. Validation may generate future hypotheses but
+  must not retune the frozen strategy version.
 
 ## Parked feature research
 
@@ -236,5 +247,6 @@ automation.
 
 **Gate 7 — VALIDATION of frozen candidates.**
 
-Gate 7 must not start until a human approves the Gate 6C shortlist, Validation
-acceptance criteria are predeclared, and the DEVELOPMENT freeze is finalized.
+The shortlist is approved, acceptance criteria are predeclared, and the
+DEVELOPMENT freeze is finalized. Gate 7 may evaluate only the three frozen
+candidates; human approval remains required before any OOS_BURNED access.

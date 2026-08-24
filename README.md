@@ -48,6 +48,9 @@ of future profitability.
 - Gate 8A: the full frozen 75-cell surface has been replayed on VALIDATION for
   retrospective failure diagnosis only. The outputs compare DEVELOPMENT with
   VALIDATION, create no new candidate, and leave OOS_BURNED unopened.
+- Research Dashboard V0.1: a read-only Streamlit experiment ledger and artifact
+  explorer indexes the reviewed MNQ ORB lifecycle without changing research
+  results or duplicating canonical artifacts.
 
 The authoritative handoff and research guardrails are in [MEMORY.md](MEMORY.md).
 Run history belongs in the experiment ledger, not in MEMORY.
@@ -197,7 +200,10 @@ Stable IDs identify reusable objects; `run_id` identifies one execution. A
 rerun creates a new record instead of overwriting history. The local SQLite
 ledger is the operational store and `experiments/ledger.csv` its readable
 mirror. Generated ledgers and run folders remain local; reviewed compact
-summaries may be committed under the project artifact directory.
+summaries may be committed under the project artifact directory. Reviewed
+project indexes at `experiments/projects/<project_id>/experiment_index.json`
+provide the portable dashboard catalog and preserve explicit unknown values for
+historical experiments that predate the final run-ledger contract.
 
 ## Partition methodology
 
@@ -355,8 +361,8 @@ without research benefit. New strategy logic should use
 | Execution Library | Implemented for validated ORB semantics; reusable core partial | Extend explicit fill, session, ambiguity, and cost models without weakening auditability |
 | Strategy Library | Partially implemented | Add versioned strategy-family specifications and reusable composition |
 | Experiment Engine | Partially implemented | Standardize configs, deterministic runs, parameter surfaces, and robustness gates |
-| Experiment Ledger | Partially implemented | Make the ledger the authoritative searchable history of individual experiments |
-| Research Dashboard | Planned | Build a cross-project artifact/ledger browser without changing research results |
+| Experiment Ledger | Implemented for reviewed project indexing; operational run capture remains partial | Standardize automatic record emission for every future experiment |
+| Research Dashboard | V0.1 implemented | Extend the read-only cross-project explorer as new strategy families are registered |
 
 These labels describe the current repository honestly; planned layers are not
 claimed as completed platform capabilities.
@@ -447,10 +453,34 @@ No winner is selected; interpret broad stable regions rather than isolated maxim
 .\.venv\Scripts\python.exe notebooks\13_orb_gate6c_candidate_reduction.py
 .\.venv\Scripts\python.exe notebooks\14_finalize_orb_v01_development_freeze.py
 .\.venv\Scripts\python.exe notebooks\15_orb_gate7_validation.py
+
+# Read-only experiment ledger and artifact explorer
+.\.venv\Scripts\python.exe -m streamlit run notebooks\17_research_dashboard.py
 ```
 
 The full-history baseline command is a historical cross-check, never a source
 for parameter selection.
+
+## Research Dashboard
+
+Research Dashboard V0.1 is the read-only interface for navigating projects,
+strategy versions, experiments, lineage, decisions, dataset provenance, and
+their canonical artifacts. It is distinct from the Research Viewer:
+
+- **Research Dashboard:** experiment ledger, charts, reports, metadata, bounded
+  CSV previews, lineage, and compatible-metric comparison.
+- **Research Viewer:** candle-level visual validation of OR ranges, signals,
+  entries, stops, targets, and completed trades.
+
+The dashboard loads reviewed experiment records through the reusable
+`load_experiment_index()`, `get_experiment()`, and `list_artifacts()` APIs.
+Explicit metadata artifact declarations take priority; historical records may
+use controlled project-relative discovery patterns. HTML charts can be embedded
+on demand or opened from their canonical local path. CSV previews are bounded,
+and large audit files are never preloaded at dashboard startup.
+
+V0.1 cannot run experiments, edit parameters or strategies, mutate partitions,
+delete artifacts, or perform Git actions.
 
 ## Testing guardrails
 
@@ -467,13 +497,11 @@ for parameter selection.
 
 ## Visualization direction
 
-The current viewer audits bars, OR shading, signals, candidates, stops/targets,
-and exits. A future cross-project dashboard should read ledger/artifact metadata
-and filter by project, strategy, instrument/universe, dataset, partition,
-parameters, and code version. It should emphasize drawdown/equity paths,
-rolling expectancy, distributions, monthly/regime behavior, parameter surfaces,
-and trade audits, while clearly labeling DEVELOPMENT, VALIDATION, OOS, and
-burned evidence. It must never silently combine incompatible experiments.
+The Research Viewer audits bars, OR shading, signals, candidates, stops/targets,
+and exits. The Research Dashboard indexes cross-project experiment metadata and
+artifacts while clearly labeling DEVELOPMENT, VALIDATION, OOS, and burned
+evidence. Comparison is intentionally limited to matching metric keys; the UI
+must never silently combine incompatible experiments.
 
 ## Documentation ownership
 

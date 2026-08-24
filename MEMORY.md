@@ -92,6 +92,9 @@ coverage, ambiguity rate, and chronology sensitivity.
 - Local runs: `experiments/runs/<run_id>/`.
 - SQLite ledger/CSV mirror are generated local state; schema/templates are
   versioned.
+- The reviewed project experiment index is the authoritative dashboard catalog.
+  Experiment outputs remain in canonical project folders; the dashboard
+  discovers and presents them rather than duplicating them.
 - Preserve Python import paths during this housekeeping gate; do not move ORB
   modules solely for cosmetic abstraction.
 - No `PROJECT_STATUS.md`; MEMORY owns current state.

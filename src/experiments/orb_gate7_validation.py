@@ -270,6 +270,10 @@ def run_validation(
 def _chronology_for_config(config, *, candidates, completed, diagnostics, frozen_trades, sessions, signal_ambiguity_count) -> pd.DataFrame:
     candidate_frame = _candidate_frame(candidates)
     selection = _selection_records(diagnostics)
+    chronology_diagnostics = diagnostics.copy()
+    chronology_diagnostics["session_date"] = pd.to_datetime(
+        chronology_diagnostics["session_date"]
+    ).dt.normalize()
     ambiguous_mask = selection["exit_reason"].eq(AMBIGUOUS_ENTRY_STOP)
     ambiguous_keys = {_key(row) for row in selection.loc[ambiguous_mask].itertuples(index=False)}
     candidate_lookup = {_key(row): row for row in candidate_frame.itertuples(index=False)}
@@ -293,7 +297,7 @@ def _chronology_for_config(config, *, candidates, completed, diagnostics, frozen
             selected_keys, scenario, candidate_lookup, frozen_lookup, adverse_lookup
         )
         scenario_trades = _enrich_scenario_trades(
-            scenario_trades, diagnostics, config.config_id, scenario, ambiguous_keys
+            scenario_trades, chronology_diagnostics, config.config_id, scenario, ambiguous_keys
         )
         scenario_trades["research_scope"] = "VALIDATION_ONLY"
         if scenario in {"ENTRY_FIRST", "ADVERSE_MOVE_FIRST"}:

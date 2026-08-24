@@ -17,6 +17,7 @@ from src.experiments.orb_gate7_validation import (
     temporal_consistency,
     validate_frozen_contract,
 )
+from src.experiments.orb_gate6b2_ambiguity_robustness import _enrich_scenario_trades
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -98,6 +99,33 @@ class Gate7ValidationTests(unittest.TestCase):
         self.assertEqual(levels.loc[15, "or_high"], 114)
         self.assertEqual(levels.loc[20, "or_high"], 119)
         self.assertEqual(levels.loc[30, "or_high"], 129)
+
+    def test_chronology_merge_accepts_normalized_validation_session_dates(self):
+        timestamp = pd.Timestamp("2025-07-01 09:46", tz="America/New_York")
+        trades = pd.DataFrame([{
+            "trade_id": "one", "session_date": pd.Timestamp("2025-07-01"),
+            "contract": "MNQ TEST", "or_minutes": 15, "breakout_type": "PRINT",
+            "direction": "LONG", "signal_time": timestamp, "entry_time": timestamp,
+            "entry_price": 100.0, "initial_stop": 50.0, "initial_target": 175.0,
+            "risk_points": 50.0, "exit_time": timestamp, "exit_price": 50.0,
+            "exit_reason": "STOP", "exit_bar_close": 90.0, "ambiguous": False,
+            "ambiguity_reason": "", "holding_bars": 1, "holding_minutes": 0,
+            "pnl_points": -50.0, "result_r": -1.0, "mfe_points": 0.0,
+            "mae_points": 50.0, "mfe_r": 0.0, "mae_r": 1.0,
+            "excluded_from_performance": False,
+        }])
+        diagnostics = pd.DataFrame([{
+            "session_date": pd.Timestamp("2025-07-01"), "or_minutes": 15,
+            "breakout_type": "PRINT", "direction": "LONG", "signal_time": timestamp,
+            "or_high": 100.0, "or_low": 90.0, "or_mid": 95.0,
+            "or_width_points": 10.0, "stop_mode": "FIXED_50",
+            "stop_definition_kind": "FIXED_POINTS", "configured_stop_value": 50.0,
+            "stop_points": 50.0, "stop_to_or_ratio": 5.0, "target_points": 75.0,
+            "target_to_or_ratio": 7.5, "initial_risk_points": 50.0,
+            "initial_reward_risk": 1.5,
+        }])
+        enriched = _enrich_scenario_trades(trades, diagnostics, "cfg", "ENTRY_FIRST", set())
+        self.assertEqual(len(enriched), 1)
 
 
 if __name__ == "__main__":

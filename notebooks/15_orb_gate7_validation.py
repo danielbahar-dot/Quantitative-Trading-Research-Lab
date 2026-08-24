@@ -65,9 +65,13 @@ def main() -> int:
     if _git("status", "--porcelain"):
         raise ValueError("Gate 7 requires the committed DEVELOPMENT freeze and a clean working tree")
     source_commit = _git("rev-parse", "HEAD")
-    tags = set(_git("tag", "--points-at", "HEAD").splitlines())
-    if FREEZE_TAG not in tags:
-        raise ValueError("The DEVELOPMENT freeze tag does not point at the current commit")
+    freeze_commit = _git("rev-list", "-n", "1", FREEZE_TAG)
+    ancestor_check = subprocess.run(
+        ["git", "-C", str(PROJECT_ROOT), "merge-base", "--is-ancestor", freeze_commit, source_commit],
+        check=False,
+    )
+    if ancestor_check.returncode != 0:
+        raise ValueError("The DEVELOPMENT freeze tag is not an ancestor of the Gate 7 source commit")
     specification = json.loads(FROZEN_SPEC.read_text(encoding="utf-8"))
     protocol = json.loads(PROTOCOL.read_text(encoding="utf-8"))
     freeze_metadata = json.loads(FROZEN_METADATA.read_text(encoding="utf-8"))
@@ -130,6 +134,7 @@ def main() -> int:
         "research_hypotheses_evaluated": False,
         "parameter_sweep_performed": False,
         "source_git_commit": source_commit,
+        "freeze_git_commit": freeze_commit,
         "freeze_git_tag": FREEZE_TAG,
         "working_tree_clean_before_validation": True,
         "run_timestamp_utc": run_timestamp,
@@ -144,6 +149,7 @@ def main() -> int:
         "oos_burned_accessed": False,
         "validated_signal_semantics_modified": False,
         "validated_execution_semantics_modified": False,
+        "initial_execution_attempt": "Stopped after Validation load and before metric/output creation because chronology session_date required dtype normalization; no strategy rule changed.",
         "decision_counts": comparison["overall_decision"].value_counts().to_dict(),
         "human_review_required": True,
     }

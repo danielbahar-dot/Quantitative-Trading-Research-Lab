@@ -55,6 +55,9 @@ of future profitability.
   evidence lifecycle, V1.0 experiment-package schema, and reusable component
   registry. MNQ ORB V0.1 is mapped as a 19-record reference history rather than
   used as the architectural definition.
+- Research Infrastructure V1.0: future experiment runners can create records,
+  register canonical artifacts, preserve failures, finalize metadata, and
+  refresh the existing dashboard index programmatically.
 
 The authoritative handoff and research guardrails are in [MEMORY.md](MEMORY.md).
 Run history belongs in the experiment ledger, not in MEMORY.
@@ -216,6 +219,32 @@ historical experiments that predate the final run-ledger contract.
 The reviewed package standard is V1.0 and is documented in
 `experiments/README.md`; project-specific gates never replace the canonical
 `research_stage`.
+
+### Automatic Experiment Registration
+
+New experiment runners use the strategy-independent API in
+`src/experiments/experiment_registration.py`:
+
+```text
+create experiment -> write canonical artifacts -> register artifacts
+-> update metrics/notes -> finalize -> refresh experiment_index.json
+-> dashboard discovers the run
+```
+
+`create_experiment()` records identity, lifecycle stage, lineage, partition
+exposure, configuration, dataset references, Git state, and start time.
+`register_artifact()` references the canonical file without copying it.
+`update_experiment()` permits only declared mutable run metadata, while
+identity and provenance remain protected. `finalize_experiment()` validates
+required artifacts and atomically updates the existing project index. The
+optional `ExperimentRun` context manager records failures and re-raises the
+original exception.
+
+The dashboard remains read-only: it discovers registered records but cannot
+create, run, finalize, or edit experiments. Historical hand-written index
+records remain supported as backfill; manual index editing is not the intended
+workflow for future experiments. See
+[`docs/AUTOMATIC_EXPERIMENT_REGISTRATION.md`](docs/AUTOMATIC_EXPERIMENT_REGISTRATION.md).
 
 ## Partition methodology
 
@@ -396,7 +425,7 @@ without research benefit. New strategy logic should use
 | Execution Library | Implemented for validated ORB semantics; reusable core partial | Extend explicit fill, session, ambiguity, and cost models without weakening auditability |
 | Strategy Library | Partially implemented | Add versioned strategy-family specifications and reusable composition |
 | Experiment Engine | Partially implemented | Standardize configs, deterministic runs, parameter surfaces, and robustness gates |
-| Experiment Ledger | Implemented for reviewed project indexing; operational run capture remains partial | Standardize automatic record emission for every future experiment |
+| Experiment Ledger | Reviewed indexing and prospective automatic registration implemented; SQLite mirroring remains partial | Adopt the registration API in future experiment runners |
 | Research Dashboard | V0.1 implemented | Extend the read-only cross-project explorer as new strategy families are registered |
 
 These labels describe the current repository honestly; planned layers are not
@@ -547,8 +576,8 @@ delete artifacts, or perform Git actions.
 ## Current automation boundaries
 
 The platform currently automates deterministic research calculations, artifact
-generation, operational run capture, reviewed-index loading, bounded previews,
-tests, and read-only navigation. Human authorization remains required for
+generation, prospective experiment registration/finalization, reviewed-index
+refresh, bounded previews, tests, and read-only navigation. Human authorization remains required for
 candidate selection, partition opening, strategy decisions, new-version scope,
 and progression beyond research. There is no experiment runner in the
 dashboard, broker connection, live execution, deployment approval, strategy

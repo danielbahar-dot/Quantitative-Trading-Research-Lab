@@ -116,6 +116,11 @@ coverage, ambiguity rate, and chronology sensitivity.
 - The experiment package records canonical lifecycle stage separately from a
   project-specific gate. The ledger/dashboard remain read-only research
   navigation; operational runs remain local.
+- New research experiments register themselves through the canonical
+  programmatic experiment-registration API. Manual index editing is legacy
+  backfill behavior, not the intended future workflow.
+- Dashboard remains read-only; experiment execution and automation are future
+  layers.
 - Reusable feature/signal/state/strategy components are registered independently
   from experiments. ORB is the first reference composition, not a platform
   special case.

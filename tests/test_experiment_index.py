@@ -9,6 +9,7 @@ from src.experiments.experiment_index import (
     get_experiment,
     list_artifacts,
     load_component_registry,
+    load_dataset_catalog,
     load_experiment_index,
     load_experiment_records,
     load_research_lifecycle,
@@ -145,6 +146,11 @@ class ExperimentIndexTests(unittest.TestCase):
         self.assertIn("strategy", {component["component_type"] for component in components})
         width = next(item for item in components if item["component_id"] == "feature.opening_range.width.v1")
         self.assertIn("not an established regime variable", width["notes"])
+
+    def test_dataset_loader_normalizes_legacy_status_before_dashboard_use(self):
+        datasets = load_dataset_catalog(PROJECT_ROOT)
+        mnq = next(item for item in datasets if item.get("dataset_id") == "MNQ_1m_actual_contract_v1")
+        self.assertEqual(mnq["current_oos_status"], "BURNED")
 
     def test_historical_mapping_preserves_unknowns_and_final_decision(self):
         idea = get_experiment("mnq_orb_v0_1_research_idea", PROJECT_ROOT)

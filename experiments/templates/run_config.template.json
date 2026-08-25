@@ -33,11 +33,16 @@
   "costs_slippage": {"model": "replace_with_model_or_explicitly_none"},
   "confirmatory": false,
   "reserved_data_exposed": false,
-  "status": "PLANNED",
+  "status": "planned",
   "results_summary": {},
   "decision": "none",
   "conclusion": "",
   "known_limitations": [],
   "notes": "Replace every placeholder with the assumptions actually tested.",
-  "artifact_paths": {}
+  "artifact_paths": {},
+  "registration": {
+    "api": "src.experiments.create_experiment",
+    "record_lifecycle": "create -> register artifacts -> update metrics -> finalize",
+    "dashboard_is_read_only": true
+  }
 }

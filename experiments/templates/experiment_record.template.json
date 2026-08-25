@@ -11,7 +11,7 @@
   "description": "Replace with scope and purpose",
   "scope": {"instrument_id": null, "universe_id": null, "asset_class": null, "timeframe": null, "partition": "DEVELOPMENT"},
   "lineage": {"parent_experiment_ids": [], "source_gates": []},
-  "reproducibility": {"dataset_id": null, "data_hash": null, "config_path": null, "git_sha": null, "run_timestamp": null},
+  "reproducibility": {"dataset_id": null, "dataset_version": null, "data_hash": null, "config_path": null, "git_sha": null, "working_tree_dirty": null, "final_git_sha": null, "final_working_tree_dirty": null, "run_timestamp": null},
   "data_references": [],
   "configuration": {"path": null, "parameters": {}},
   "status": "planned",
@@ -20,6 +20,13 @@
   "reserved_data_exposed": false,
   "summary_metrics": {},
   "artifacts": [],
+  "started_at": null,
+  "updated_at": null,
+  "completed_at": null,
+  "failed_at": null,
+  "failure": null,
+  "runtime_metadata": {},
+  "registration": {"api_version": "1.0", "record_path": null},
   "notes": null,
   "known_limitations": []
 }

@@ -77,6 +77,17 @@ def validate_experiment_record(
         raise ValueError("parent_experiment_ids must be a list")
     if not isinstance(record["lineage"]["source_gates"], list):
         raise ValueError("source_gates must be a list")
+    partition = record["scope"]["partition"]
+    if not isinstance(partition, str) and not (
+        isinstance(partition, list)
+        and partition
+        and all(isinstance(value, str) and value.strip() for value in partition)
+    ):
+        raise ValueError("scope.partition must be a string or non-empty list of strings")
+    for name in ("parent_experiment_ids", "source_gates"):
+        values = record["lineage"][name]
+        if not all(isinstance(value, str) and value.strip() for value in values):
+            raise ValueError(f"lineage.{name} must contain non-empty strings")
     if not isinstance(record["summary_metrics"], dict):
         raise ValueError("summary_metrics must be an object")
     if "data_references" in record and not isinstance(record["data_references"], list):
@@ -90,9 +101,23 @@ def validate_experiment_record(
     artifact_ids = set()
     for artifact in record["artifacts"]:
         _require_mapping_fields(artifact, REQUIRED_ARTIFACT_FIELDS, "artifact")
+        for name in REQUIRED_ARTIFACT_FIELDS:
+            if not isinstance(artifact[name], str) or not artifact[name].strip():
+                raise ValueError(f"artifact.{name} must be a non-empty string")
+        if "required" in artifact and not isinstance(artifact["required"], bool):
+            raise ValueError("artifact.required must be boolean")
+        if "metadata" in artifact and not isinstance(artifact["metadata"], dict):
+            raise ValueError("artifact.metadata must be an object")
         if artifact["artifact_id"] in artifact_ids:
             raise ValueError(f"Duplicate artifact ID in {record['experiment_id']}: {artifact['artifact_id']}")
         artifact_ids.add(artifact["artifact_id"])
+    for name in ("started_at", "updated_at", "completed_at", "failed_at"):
+        if name in record and record[name] is not None and not isinstance(record[name], str):
+            raise ValueError(f"{name} must be a string or null")
+    if "runtime_metadata" in record and not isinstance(record["runtime_metadata"], dict):
+        raise ValueError("runtime_metadata must be an object")
+    if "failure" in record and record["failure"] is not None and not isinstance(record["failure"], dict):
+        raise ValueError("failure must be an object or null")
     return record
 
 
@@ -465,6 +490,11 @@ def load_dataset_catalog(project_root: str | Path | None = None) -> list[dict[st
     datasets = []
     for path in sorted((root / "config" / "datasets").glob("*.json")):
         payload = json.loads(path.read_text(encoding="utf-8"))
+        # Normalize the one historical project-specific field at the ingestion
+        # boundary so generic dashboard code never depends on an ORB name.
+        payload["current_oos_status"] = payload.get(
+            "current_oos_status", payload.get("current_orb_v01_oos_status")
+        )
         payload["instrument"] = instruments.get(payload.get("instrument_id"), {})
         payload["config_path"] = path.relative_to(root).as_posix()
         datasets.append(payload)

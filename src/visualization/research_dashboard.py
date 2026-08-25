@@ -519,6 +519,10 @@ def _notes_tab(record: dict[str, Any]) -> None:
     st.write(record["decision"].upper())
     st.markdown("**Notes**")
     st.write(record.get("notes") or "No additional notes recorded.")
+    if record.get("failure"):
+        failure = record["failure"]
+        st.markdown("**Failure**")
+        st.error(f"{failure.get('type', 'ExperimentFailure')}: {failure.get('message', 'No message recorded')}")
     if record.get("warnings"):
         st.markdown("**Warnings / limitations**")
         for warning in record["warnings"]:
@@ -617,8 +621,8 @@ def _datasets_view(project_id: str, index: pd.DataFrame, root: Path) -> None:
         partitions = []
         for partition in dataset.get("partitions", []):
             evidence_status = partition.get("evidence_status")
-            legacy_burned = partition["name"] == "OOS" and dataset.get("current_orb_v01_oos_status") == "BURNED"
-            burned = evidence_status == "BURNED" or legacy_burned
+            configured_burned = partition["name"] == "OOS" and dataset.get("current_oos_status") == "BURNED"
+            burned = evidence_status == "BURNED" or configured_burned
             displayed_name = f'{partition["name"]}_BURNED' if burned and not partition["name"].endswith("_BURNED") else partition["name"]
             exposed = bool(index.loc[index["partition"].str.contains(partition["name"], regex=False), "reserved_data_exposed"].any())
             partitions.append({

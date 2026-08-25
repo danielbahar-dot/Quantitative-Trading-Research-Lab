@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://quant-research.local/schemas/research-component-v1.0.json",
+  "title": "Reusable Research Component V1.0",
+  "type": "object",
+  "required": ["component_id", "component_type", "name", "version", "status", "definition", "dependencies", "timing", "validation"],
+  "properties": {
+    "component_id": {"type": "string", "minLength": 1},
+    "component_type": {"enum": ["feature", "signal", "state_variable", "strategy"]},
+    "name": {"type": "string", "minLength": 1},
+    "version": {"type": "string", "minLength": 1},
+    "status": {"enum": ["proposed", "implemented", "validated", "reference", "deprecated"]},
+    "definition": {
+      "type": "object",
+      "required": ["summary", "source_paths"],
+      "properties": {
+        "summary": {"type": "string"},
+        "source_paths": {"type": "array", "items": {"type": "string"}},
+        "inputs": {"type": "array", "items": {"type": "string"}},
+        "outputs": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": true
+    },
+    "dependencies": {"type": "array", "items": {"type": "string"}},
+    "timing": {
+      "type": "object",
+      "required": ["causal", "availability"],
+      "properties": {"causal": {"type": "boolean"}, "availability": {"type": ["string", "null"]}},
+      "additionalProperties": true
+    },
+    "validation": {
+      "type": "object",
+      "required": ["status", "evidence_paths"],
+      "properties": {"status": {"enum": ["not_started", "partial", "validated"]}, "evidence_paths": {"type": "array", "items": {"type": "string"}}},
+      "additionalProperties": true
+    },
+    "notes": {"type": ["string", "null"]}
+  },
+  "additionalProperties": true
+}

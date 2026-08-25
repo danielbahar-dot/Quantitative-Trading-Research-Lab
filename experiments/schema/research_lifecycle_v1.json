@@ -1,0 +1,122 @@
+{
+  "lifecycle_id": "research_lifecycle_v1",
+  "version": "1.0",
+  "title": "Research Lifecycle V1.0",
+  "scope": "Strategy-independent trading research from hypothesis through research decision",
+  "approved_is_terminal": false,
+  "stages": [
+    {
+      "stage_id": "STAGE_0_IDEA",
+      "ordinal": 0,
+      "short_label": "Idea",
+      "title": "Research Idea / Hypothesis",
+      "purpose": "Declare the proposed market mechanism and falsifiable research question before implementation.",
+      "required_evidence": ["hypothesis", "market rationale", "instrument or universe", "timeframe and session", "proposed features and signals", "required data", "bias risks", "falsification criteria"],
+      "allowed_partition_roles": ["NONE"]
+    },
+    {
+      "stage_id": "STAGE_1_DATA",
+      "ordinal": 1,
+      "short_label": "Data",
+      "title": "Data Qualification",
+      "purpose": "Establish that the dataset, timestamps, mappings, sessions, adjustments, and partitions are fit for purpose.",
+      "required_evidence": ["source and provenance", "instrument or universe mapping", "timestamp and timezone semantics", "session definition", "missing and duplicate checks", "adjustment or roll policy", "bias and look-ahead review", "predeclared partition boundaries"],
+      "allowed_partition_roles": ["DEVELOPMENT_METADATA", "VALIDATION_METADATA", "RESERVED_METADATA"]
+    },
+    {
+      "stage_id": "STAGE_2_FEATURES",
+      "ordinal": 2,
+      "short_label": "Features",
+      "title": "Feature Validation",
+      "purpose": "Prove that derived market information is mathematically correct, causal, and available at the claimed timestamp.",
+      "required_evidence": ["formal definition", "timing and information availability", "no forward-looking data", "automated invariants", "representative visual or manual checks"],
+      "allowed_partition_roles": ["DEVELOPMENT"]
+    },
+    {
+      "stage_id": "STAGE_3_SIGNALS",
+      "ordinal": 3,
+      "short_label": "Signals",
+      "title": "Signal Validation",
+      "purpose": "Verify that each implemented signal corresponds exactly to the intended market event before performance research.",
+      "required_evidence": ["formal event definition", "timestamp semantics", "direction and eligibility", "first executable time", "no look-ahead", "edge-case tests", "representative-session review", "signal-level audit output"],
+      "allowed_partition_roles": ["DEVELOPMENT"]
+    },
+    {
+      "stage_id": "STAGE_4_EXECUTION",
+      "ordinal": 4,
+      "short_label": "Execution",
+      "title": "Execution Model Validation",
+      "purpose": "Validate deterministic and auditable entry, risk, exit, ambiguity, chronology, and session behavior separately from signal generation.",
+      "required_evidence": ["entry rule and timing", "stop and target", "session close handling", "trade limits", "tick rounding", "fill and cost assumptions", "same-bar ambiguity", "missing-bar and invalid-entry behavior", "execution audit"],
+      "allowed_partition_roles": ["DEVELOPMENT"]
+    },
+    {
+      "stage_id": "STAGE_5_BASELINE",
+      "ordinal": 5,
+      "short_label": "DEV Baseline",
+      "title": "Development Baseline",
+      "purpose": "Describe the simplest meaningful baseline on DEVELOPMENT and decide whether further research is warranted.",
+      "required_evidence": ["trade count", "expectancy", "profit factor", "drawdown", "win rate", "holding time", "direction and temporal breakdown", "equity curve", "outcome distribution"],
+      "allowed_partition_roles": ["DEVELOPMENT"]
+    },
+    {
+      "stage_id": "STAGE_6_EXPLORATION",
+      "ordinal": 6,
+      "short_label": "Exploration",
+      "title": "Development Exploration",
+      "purpose": "Map parameter response surfaces, interactions, boundaries, trade-offs, sample size, and observability without selecting an isolated maximum.",
+      "required_evidence": ["predeclared parameter space", "response surfaces", "boundary and interaction review", "sample-size context", "baseline controls", "no reserved-data exposure"],
+      "allowed_partition_roles": ["DEVELOPMENT"]
+    },
+    {
+      "stage_id": "STAGE_7_ROBUSTNESS",
+      "ordinal": 7,
+      "short_label": "Robustness",
+      "title": "Robustness / Sensitivity",
+      "purpose": "Distinguish observed performance from robust evidence through perturbation, chronology, temporal, and state sensitivity checks.",
+      "required_evidence": ["nearby-parameter behavior", "execution and chronology sensitivity", "temporal stability", "rolling expectancy", "state or distribution sensitivity", "known observability limits"],
+      "allowed_partition_roles": ["DEVELOPMENT"]
+    },
+    {
+      "stage_id": "STAGE_8_FREEZE",
+      "ordinal": 8,
+      "short_label": "Freeze",
+      "title": "Candidate Reduction & Freeze",
+      "purpose": "Select a small candidate set using predeclared criteria and freeze code, configuration, data boundary, and Validation protocol.",
+      "required_evidence": ["candidate IDs", "exact configurations", "selection rationale", "known weaknesses", "expected behavior", "acceptance and rejection criteria", "code and data hashes", "frozen protocol"],
+      "allowed_partition_roles": ["DEVELOPMENT"]
+    },
+    {
+      "stage_id": "STAGE_9_VALIDATION",
+      "ordinal": 9,
+      "short_label": "Validation",
+      "title": "Confirmatory Validation",
+      "purpose": "Evaluate only frozen candidates on VALIDATION against predeclared criteria without tuning.",
+      "required_evidence": ["freeze verification", "candidate-level results", "acceptance-criteria evaluation", "PASS, REVISE, or REJECT decision", "no tuning"],
+      "allowed_partition_roles": ["VALIDATION"]
+    },
+    {
+      "stage_id": "STAGE_10_DIAGNOSIS",
+      "ordinal": 10,
+      "short_label": "Diagnosis",
+      "title": "Post-Validation Diagnosis",
+      "purpose": "Retrospectively explain Validation behavior without changing the frozen result or creating confirmatory evidence.",
+      "required_evidence": ["retrospective label", "unchanged Validation decision", "failure hypotheses", "diagnostic artifacts", "reserved exposure warning", "new-version boundary"],
+      "allowed_partition_roles": ["DEVELOPMENT", "VALIDATION_EXPOSED"]
+    },
+    {
+      "stage_id": "STAGE_11_DECISION",
+      "ordinal": 11,
+      "short_label": "Decision",
+      "title": "Research Decision",
+      "purpose": "Record REJECTED, REVISE / NEW VERSION, or APPROVED FOR NEXT PHASE without treating approval as live-deployment authority.",
+      "required_evidence": ["research decision", "supporting lineage", "known limitations", "next permitted action", "version disposition"],
+      "allowed_partition_roles": ["GOVERNANCE"]
+    }
+  ],
+  "future_strategy_lifecycle": {
+    "status": "RESERVED_NOT_IMPLEMENTED",
+    "purpose": "A later lifecycle begins only after research approval; approval is not a terminal strategy state or deployment authorization.",
+    "stages": ["research approved", "implementation verification", "simulation or paper trading", "deployment approval", "live deployment", "monitoring", "periodic review", "revalidation", "version migration", "suspension", "retirement"]
+  }
+}

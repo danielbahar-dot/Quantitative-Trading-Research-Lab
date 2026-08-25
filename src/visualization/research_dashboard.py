@@ -12,16 +12,18 @@ import streamlit as st
 from src.experiments.experiment_index import (
     get_experiment,
     list_artifacts,
+    load_component_registry,
     load_dataset_catalog,
     load_experiment_index,
     load_project_manifests,
+    load_research_lifecycle,
     preview_csv,
     preview_text,
     repository_root,
 )
 
 
-VIEW_OPTIONS = ("Overview", "Experiments", "Strategy Versions", "Datasets / Partitions")
+VIEW_OPTIONS = ("Overview", "Experiments", "Strategy Versions", "Datasets / Partitions", "Components")
 CSV_PREVIEW_ROWS = 100
 CSV_PREVIEW_COLUMNS = 40
 TEXT_PREVIEW_CHARACTERS = 200_000
@@ -39,6 +41,8 @@ def run_dashboard(project_root: str | Path | None = None) -> None:
     _styles()
     manifests = _cached_manifests(str(root), _registry_signature(root))
     index = _cached_index(str(root), _registry_signature(root))
+    lifecycle = _cached_lifecycle(str(root), _registry_signature(root))
+    components = _cached_components(str(root), _registry_signature(root))
     if not manifests or index.empty:
         st.error("No reviewed project experiment index was found.")
         return
@@ -61,13 +65,15 @@ def run_dashboard(project_root: str | Path | None = None) -> None:
     st.sidebar.info("This dashboard cannot run, edit, or delete experiments or artifacts.")
 
     if view == "Overview":
-        _overview(manifest, version, selected, root)
+        _overview(manifest, version, selected, lifecycle, root)
     elif view == "Experiments":
-        _experiments_view(manifest, version, selected, root)
+        _experiments_view(manifest, version, selected, lifecycle, root)
     elif view == "Strategy Versions":
-        _strategy_versions(manifest, version, selected)
-    else:
+        _strategy_versions(manifest, version, selected, lifecycle, root)
+    elif view == "Datasets / Partitions":
         _datasets_view(project_id, selected, root)
+    else:
+        _components_view(components, root)
 
 
 @st.cache_data(show_spinner=False)
@@ -82,9 +88,23 @@ def _cached_manifests(root: str, signature: str) -> list[dict[str, Any]]:
     return load_project_manifests(root)
 
 
+@st.cache_data(show_spinner=False)
+def _cached_lifecycle(root: str, signature: str) -> dict[str, Any]:
+    del signature
+    return load_research_lifecycle(root)
+
+
+@st.cache_data(show_spinner=False)
+def _cached_components(root: str, signature: str) -> dict[str, Any]:
+    del signature
+    return load_component_registry(root)
+
+
 def _registry_signature(root: Path) -> str:
     paths = list((root / "experiments" / "projects").glob("*/experiment_index.json"))
     paths += list((root / "experiments" / "projects").glob("*/project.json"))
+    paths += [root / "experiments" / "schema" / "research_lifecycle_v1.json"]
+    paths += [root / "config" / "components" / "research_components.json"]
     return "|".join(f"{path}:{path.stat().st_mtime_ns}" for path in sorted(paths))
 
 
@@ -95,6 +115,15 @@ def _styles() -> None:
           .block-container {padding-top: 1.4rem; padding-bottom: 3rem;}
           .read-only-banner {padding:.7rem 1rem;border:1px solid #bfd2ea;background:#eef6ff;border-radius:.6rem;color:#254b73;margin-bottom:1rem;}
           .lifecycle {font-weight:650;letter-spacing:.01em;padding:.7rem 0 1rem;color:#28415d;}
+          .stage-card {border:1px solid #d7e0ea;border-radius:.6rem;padding:.6rem .7rem;margin-bottom:.55rem;min-height:5.4rem;}
+          .stage-complete {border-left:5px solid #2f855a;background:#f2fbf6;}
+          .stage-current {border-left:5px solid #2563eb;background:#eff6ff;}
+          .stage-progress {border-left:5px solid #d97706;background:#fff8eb;}
+          .stage-not-started {border-left:5px solid #94a3b8;background:#f8fafc;}
+          .stage-number {font-size:.72rem;color:#64748b;text-transform:uppercase;letter-spacing:.04em;}
+          .stage-title {font-weight:700;margin:.15rem 0;}
+          .stage-status {font-size:.76rem;color:#475569;}
+          .partition-burned {padding:.25rem .5rem;border-radius:.35rem;background:#fee2e2;color:#991b1b;font-weight:700;}
           .artifact-path {font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.8rem;color:#596878;overflow-wrap:anywhere;}
           .muted {color:#65758b;}
         </style>
@@ -114,7 +143,13 @@ def _header(title: str, subtitle: str | None = None) -> None:
         st.caption(subtitle)
 
 
-def _overview(manifest: dict[str, Any], version: str, index: pd.DataFrame, root: Path) -> None:
+def _overview(
+    manifest: dict[str, Any],
+    version: str,
+    index: pd.DataFrame,
+    lifecycle: dict[str, Any],
+    root: Path,
+) -> None:
     version_record = _version_record(manifest, version)
     _header(f"{manifest['project_name']} · {version}", "Project overview and lifecycle handoff")
     cols = st.columns(4)
@@ -122,9 +157,12 @@ def _overview(manifest: dict[str, Any], version: str, index: pd.DataFrame, root:
     cols[1].metric("Strategy family", manifest.get("strategy_family") or "Unknown")
     cols[2].metric("Indexed experiments", len(index))
     cols[3].metric("Indexed artifacts", int(index["artifact_count"].sum()))
-    lifecycle = version_record.get("lifecycle", [])
-    if lifecycle:
-        st.markdown(f'<div class="lifecycle">{" → ".join(lifecycle)}</div>', unsafe_allow_html=True)
+    st.subheader("Research Lifecycle V1.0")
+    _render_lifecycle_progress(
+        index,
+        lifecycle,
+        current_stage=version_record.get("current_research_stage"),
+    )
     left, right = st.columns(2)
     with left:
         st.subheader("Current state")
@@ -152,17 +190,77 @@ def _overview(manifest: dict[str, Any], version: str, index: pd.DataFrame, root:
         st.dataframe(counts, width="stretch", hide_index=True)
 
 
-def _experiments_view(manifest: dict[str, Any], version: str, index: pd.DataFrame, root: Path) -> None:
+def build_lifecycle_progress(
+    index: pd.DataFrame,
+    lifecycle: dict[str, Any],
+    *,
+    current_stage: str | None = None,
+) -> list[dict[str, Any]]:
+    """Return display-ready lifecycle state without loading any artifact content."""
+    rows = []
+    for stage in lifecycle["stages"]:
+        stage_rows = index.loc[index["research_stage"].eq(stage["stage_id"])]
+        if stage["stage_id"] == current_stage:
+            status = "CURRENT / COMPLETE" if not stage_rows.empty and stage_rows["status"].eq("complete").all() else "CURRENT"
+            css_status = "current"
+        elif not stage_rows.empty and stage_rows["status"].eq("complete").all():
+            status, css_status = "COMPLETE", "complete"
+        elif not stage_rows.empty:
+            status, css_status = "IN PROGRESS", "progress"
+        else:
+            status, css_status = "NOT STARTED", "not-started"
+        rows.append({
+            **stage,
+            "status": status,
+            "css_status": css_status,
+            "experiment_count": int(len(stage_rows)),
+        })
+    return rows
+
+
+def _render_lifecycle_progress(
+    index: pd.DataFrame,
+    lifecycle: dict[str, Any],
+    *,
+    current_stage: str | None,
+) -> None:
+    progress = build_lifecycle_progress(index, lifecycle, current_stage=current_stage)
+    for offset in range(0, len(progress), 6):
+        columns = st.columns(6)
+        for column, stage in zip(columns, progress[offset:offset + 6]):
+            column.markdown(
+                f'<div class="stage-card stage-{stage["css_status"]}">'
+                f'<div class="stage-number">Stage {stage["ordinal"]}</div>'
+                f'<div class="stage-title">{stage["short_label"]}</div>'
+                f'<div class="stage-status">{stage["status"]} · {stage["experiment_count"]} record(s)</div>'
+                "</div>",
+                unsafe_allow_html=True,
+            )
+
+
+def _experiments_view(
+    manifest: dict[str, Any],
+    version: str,
+    index: pd.DataFrame,
+    lifecycle: dict[str, Any],
+    root: Path,
+) -> None:
     _header(f"Experiment Ledger · {manifest['project_name']} {version}", "Search, compare, and inspect registered research artifacts")
-    filters = st.columns([2.2, 1.2, 1.2, 1.2, 1.4])
-    search = filters[0].text_input("Search", placeholder="Gate, title, ID, type…")
-    partition = filters[1].selectbox("Partition", ["All", *sorted(index["partition"].unique())])
-    status = filters[2].selectbox("Status", ["All", *sorted(index["status"].unique())])
-    decision = filters[3].selectbox("Decision", ["All", *sorted(index["decision"].unique())])
-    experiment_type = filters[4].selectbox("Type", ["All", *sorted(index["experiment_type"].unique())])
+    filters = st.columns([2.0, 1.4, 1.15, 1.05, 1.05, 1.3])
+    search = filters[0].text_input("Search", placeholder="Gate, stage, title, ID, type…")
+    stage_labels = {stage["stage_id"]: f'{stage["ordinal"]} · {stage["short_label"]}' for stage in lifecycle["stages"]}
+    lifecycle_stage = filters[1].selectbox(
+        "Lifecycle stage", ["All", *stage_labels],
+        format_func=lambda value: value if value == "All" else stage_labels[value],
+    )
+    partition = filters[2].selectbox("Partition", ["All", *sorted(index["partition"].unique())])
+    status = filters[3].selectbox("Status", ["All", *sorted(index["status"].unique())])
+    decision = filters[4].selectbox("Decision", ["All", *sorted(index["decision"].unique())])
+    experiment_type = filters[5].selectbox("Type", ["All", *sorted(index["experiment_type"].unique())])
     filtered = filter_experiment_index(
         index, search=search, partition=partition, status=status,
         decision=decision, experiment_type=experiment_type,
+        lifecycle_stage=lifecycle_stage,
     )
     if filtered.empty:
         st.warning("No experiments match the current filters.")
@@ -182,7 +280,7 @@ def _experiments_view(manifest: dict[str, Any], version: str, index: pd.DataFram
     if current not in options:
         current = options[0]
     label_map = {
-        row.experiment_id: f"Gate {row.gate} · {row.title}"
+        row.experiment_id: f"{row.stage_label} · {_gate_label(row.gate)} · {row.title}"
         for row in filtered.itertuples(index=False)
     }
     experiment_id = st.selectbox(
@@ -212,13 +310,20 @@ def filter_experiment_index(
     status: str = "All",
     decision: str = "All",
     experiment_type: str = "All",
+    lifecycle_stage: str = "All",
 ) -> pd.DataFrame:
     output = index.copy()
     if search.strip():
         needle = search.strip().lower()
-        haystack = output[["experiment_id", "gate", "title", "experiment_type"]].astype(str).agg(" ".join, axis=1).str.lower()
+        search_columns = output[["experiment_id", "gate", "stage_label", "research_stage", "title", "experiment_type"]]
+        haystack = search_columns.fillna("").apply(
+            lambda row: " ".join(str(value) for value in row), axis=1,
+        ).str.lower()
         output = output.loc[haystack.str.contains(needle, regex=False)]
-    for column, value in (("partition", partition), ("status", status), ("decision", decision), ("experiment_type", experiment_type)):
+    for column, value in (
+        ("partition", partition), ("status", status), ("decision", decision),
+        ("experiment_type", experiment_type), ("research_stage", lifecycle_stage),
+    ):
         if value != "All":
             output = output.loc[output[column].eq(value)]
     return output.reset_index(drop=True)
@@ -235,7 +340,8 @@ def compare_experiments(experiment_ids: list[str], root: Path) -> pd.DataFrame:
     for record in records:
         partition = record["scope"]["partition"]
         rows.append({
-            "Experiment": record["experiment_id"], "Gate": record["gate"],
+            "Experiment": record["experiment_id"],
+            "Lifecycle stage": record["research_stage"], "Gate": record["gate"],
             "Partition": " + ".join(partition) if isinstance(partition, list) else partition,
             "Decision": record["decision"], "Status": record["status"],
             **{key: record["summary_metrics"].get(key) for key in sorted(common)},
@@ -245,7 +351,9 @@ def compare_experiments(experiment_ids: list[str], root: Path) -> pd.DataFrame:
 
 def _experiment_detail(record: dict[str, Any], root: Path) -> None:
     st.divider()
-    st.subheader(f"Gate {record['gate']} · {record['title']}")
+    stage = record["research_stage"]
+    stage_order = int(stage.split("_")[1])
+    st.subheader(f"Stage {stage_order} · {_gate_label(record['gate'])} · {record['title']}")
     if record.get("warnings"):
         for warning in record["warnings"]:
             st.warning(warning)
@@ -267,6 +375,10 @@ def _experiment_detail(record: dict[str, Any], root: Path) -> None:
 def _summary_tab(record: dict[str, Any]) -> None:
     left, right = st.columns(2)
     with left:
+        st.markdown("**Canonical lifecycle stage**")
+        st.write(record["research_stage"])
+        st.markdown("**Project-specific gate**")
+        st.write(record.get("gate") or "None / historical governance record")
         st.markdown("**Purpose / hypothesis**")
         st.write(record.get("hypothesis") or "Unknown")
         st.markdown("**Description**")
@@ -293,6 +405,10 @@ def _summary_tab(record: dict[str, Any]) -> None:
          "Config": repro.get("config_path"), "Git SHA": repro.get("git_sha"),
          "Run timestamp": repro.get("run_timestamp")}
     ]), width="stretch", hide_index=True)
+    if record.get("known_limitations"):
+        st.markdown("**Known limitations**")
+        for limitation in record["known_limitations"]:
+            st.write(f"- {limitation}")
 
 
 def _charts_tab(artifacts: list[dict[str, Any]], root: Path) -> None:
@@ -390,7 +506,11 @@ def _lineage_tab(record: dict[str, Any], root: Path) -> None:
         rows = []
         for experiment_id in ids:
             linked = get_experiment(experiment_id, root)
-            rows.append({"Experiment ID": experiment_id, "Gate": linked["gate"], "Title": linked["title"]})
+            rows.append({
+                "Experiment ID": experiment_id,
+                "Lifecycle stage": linked["research_stage"],
+                "Gate": linked["gate"], "Title": linked["title"],
+            })
         st.dataframe(pd.DataFrame(rows), width="stretch", hide_index=True)
 
 
@@ -409,11 +529,17 @@ def _notes_tab(record: dict[str, Any]) -> None:
             st.write(f"- {item}")
 
 
-def _strategy_versions(manifest: dict[str, Any], version: str, index: pd.DataFrame) -> None:
+def _strategy_versions(
+    manifest: dict[str, Any],
+    version: str,
+    index: pd.DataFrame,
+    lifecycle: dict[str, Any],
+    root: Path,
+) -> None:
     record = _version_record(manifest, version)
     _header(f"Strategy Version · {manifest['project_name']} {version}", "Version-scoped lifecycle and decisions")
     st.markdown(f"### {record.get('title', version)}")
-    st.markdown(f'<div class="lifecycle">{" → ".join(record.get("lifecycle", []))}</div>', unsafe_allow_html=True)
+    _render_lifecycle_progress(index, lifecycle, current_stage=record.get("current_research_stage"))
     left, right = st.columns(2)
     left.markdown("**Lifecycle status**")
     left.write(record.get("lifecycle_status") or "Unknown")
@@ -421,7 +547,55 @@ def _strategy_versions(manifest: dict[str, Any], version: str, index: pd.DataFra
     right.write(record.get("decision") or "Unknown")
     st.markdown("**Handoff**")
     st.write(record.get("handoff") or "Not recorded")
+    st.markdown("### Research history timeline")
+    st.caption("Canonical lifecycle stages and project gates are separate. Select a record below to inspect its outputs.")
     st.dataframe(_ledger_display(index), width="stretch", hide_index=True)
+    options = index["experiment_id"].tolist()
+    label_map = {
+        row.experiment_id: f"Stage {row.stage_order} · {row.stage_label} · {_gate_label(row.gate)} · {row.title}"
+        for row in index.itertuples(index=False)
+    }
+    selected_id = st.selectbox(
+        "Inspect timeline experiment and outputs",
+        options,
+        format_func=lambda value: label_map[value],
+        key="strategy_timeline_experiment",
+    )
+    _experiment_detail(get_experiment(selected_id, root), root)
+
+
+def _components_view(registry: dict[str, Any], root: Path) -> None:
+    _header("Reusable Components", "Feature, signal, state-variable, and strategy definitions are independent of experiments")
+    components = registry.get("components", [])
+    if not components:
+        st.info("No reusable research components are registered.")
+        return
+    table = pd.DataFrame([{
+        "Component ID": item["component_id"], "Type": item["component_type"],
+        "Name": item["name"], "Version": item["version"], "Status": item["status"],
+        "Validation": item["validation"]["status"],
+    } for item in components])
+    st.dataframe(table, width="stretch", hide_index=True)
+    by_id = {item["component_id"]: item for item in components}
+    selected_id = st.selectbox("Inspect component", list(by_id))
+    component = by_id[selected_id]
+    st.markdown(f"### {component['name']}")
+    st.write(component["definition"]["summary"])
+    left, right = st.columns(2)
+    left.markdown("**Dependencies**")
+    left.write(", ".join(component.get("dependencies", [])) or "None")
+    right.markdown("**Timing / availability**")
+    right.write(component["timing"].get("availability") or "Not recorded")
+    st.markdown("**Definition sources**")
+    for path in component["definition"].get("source_paths", []):
+        resolved = root / path
+        st.markdown(f"- [{path}]({resolved.as_uri()})" if resolved.is_file() else f"- `{path}` (missing)")
+    st.markdown("**Validation evidence**")
+    for path in component["validation"].get("evidence_paths", []):
+        resolved = root / path
+        st.markdown(f"- [{path}]({resolved.as_uri()})" if resolved.is_file() else f"- `{path}` (missing)")
+    if component.get("notes"):
+        st.info(component["notes"])
 
 
 def _datasets_view(project_id: str, index: pd.DataFrame, root: Path) -> None:
@@ -442,12 +616,16 @@ def _datasets_view(project_id: str, index: pd.DataFrame, root: Path) -> None:
         st.write(f"Configuration: `{dataset.get('config_path')}`")
         partitions = []
         for partition in dataset.get("partitions", []):
-            displayed_name = "OOS_BURNED" if partition["name"] == "OOS" and dataset.get("current_orb_v01_oos_status") == "BURNED" else partition["name"]
+            evidence_status = partition.get("evidence_status")
+            legacy_burned = partition["name"] == "OOS" and dataset.get("current_orb_v01_oos_status") == "BURNED"
+            burned = evidence_status == "BURNED" or legacy_burned
+            displayed_name = f'{partition["name"]}_BURNED' if burned and not partition["name"].endswith("_BURNED") else partition["name"]
             exposed = bool(index.loc[index["partition"].str.contains(partition["name"], regex=False), "reserved_data_exposed"].any())
             partitions.append({
-                "Partition": displayed_name, "Start": partition.get("start"), "End": partition.get("end"),
+                "Partition": displayed_name, "Role": partition.get("partition_role") or partition["name"],
+                "Start": partition.get("start"), "End": partition.get("end"),
                 "Configured output": partition.get("output_file"),
-                "Exposure status": "EXPOSED / BURNED" if displayed_name == "OOS_BURNED" or exposed else "NOT EXPOSED BY INDEXED EXPERIMENTS",
+                "Evidence status": "BURNED — NOT UNTOUCHED EVIDENCE" if burned else ("EXPOSED BY INDEXED EXPERIMENT" if exposed else "NOT EXPOSED BY INDEXED EXPERIMENTS"),
             })
         st.dataframe(pd.DataFrame(partitions), width="stretch", hide_index=True)
         if dataset.get("research_notes"):
@@ -466,11 +644,12 @@ def _artifact_inventory(index: pd.DataFrame, root: Path) -> pd.DataFrame:
 
 def _ledger_display(index: pd.DataFrame) -> pd.DataFrame:
     return index[[
-        "experiment_id", "gate", "title", "partition", "configurations",
+        "experiment_id", "stage_order", "stage_label", "gate", "title", "partition", "configurations",
         "status", "decision", "confirmatory", "reserved_data_exposed",
         "run_timestamp", "artifact_count",
     ]].rename(columns={
-        "experiment_id": "Experiment ID", "gate": "Gate", "title": "Title",
+        "experiment_id": "Experiment ID", "stage_order": "Stage #",
+        "stage_label": "Lifecycle stage", "gate": "Project gate", "title": "Title",
         "partition": "Partition", "configurations": "Configurations / runs",
         "status": "Status", "decision": "Decision", "confirmatory": "Confirmatory",
         "reserved_data_exposed": "Reserved data exposed", "run_timestamp": "Run date",
@@ -487,6 +666,12 @@ def _version_record(manifest: dict[str, Any], version: str) -> dict[str, Any]:
 
 def _partition_label(value: str | list[str]) -> str:
     return " + ".join(value) if isinstance(value, list) else str(value)
+
+
+def _gate_label(value: Any) -> str:
+    if value is None or (isinstance(value, float) and pd.isna(value)):
+        return "No local gate"
+    return f"Gate {value}"
 
 
 def _format_bytes(value: int | None) -> str:

@@ -51,6 +51,10 @@ of future profitability.
 - Research Dashboard V0.1: a read-only Streamlit experiment ledger and artifact
   explorer indexes the reviewed MNQ ORB lifecycle without changing research
   results or duplicating canonical artifacts.
+- Research Lifecycle V1.0: the platform now has a strategy-independent 12-stage
+  evidence lifecycle, V1.0 experiment-package schema, and reusable component
+  registry. MNQ ORB V0.1 is mapped as a 19-record reference history rather than
+  used as the architectural definition.
 
 The authoritative handoff and research guardrails are in [MEMORY.md](MEMORY.md).
 Run history belongs in the experiment ledger, not in MEMORY.
@@ -127,6 +131,15 @@ rewrite upstream signals, entries, exits, exclusions, or partition membership.
   trades.
 - **Execution semantics** determine fills, stops, targets, session state, and
   ambiguity independently from signal generation.
+- **Experiments** test a declared hypothesis at one canonical lifecycle stage
+  using explicit data, partition, configuration, code, and evidence lineage.
+
+Features measure; state variables describe current conditions; signals identify
+events; strategies combine components with eligibility, execution, and risk
+rules; experiments test those versioned definitions. The reusable component
+contract is defined in `experiments/schema/research_component.schema.json` and
+the first reference components are registered in
+`config/components/research_components.json`.
 
 ### Strategy and instrument separation
 
@@ -171,28 +184,24 @@ record. A complete object contains:
 {
   "experiment_id": "orb_gate6a_dev_print_static_r",
   "project_id": "mnq_orb_v0_1",
-  "strategy_family": "ORB",
-  "strategy_version": "0.1.0",
-  "asset_class": "futures",
-  "instrument_id": "MNQ",
-  "universe_id": null,
-  "dataset_id": "MNQ_1m_actual_contract_v1",
-  "dataset_path": "data/MNQ_raw_cleaned_ET.csv",
-  "dataset_hash": "<sha256>",
-  "partition": "DEVELOPMENT",
-  "timeframe": "1 minute",
+  "strategy_id": "opening_range_breakout",
+  "strategy_version": "V0.1",
+  "research_stage": "STAGE_6_EXPLORATION",
+  "gate": "6A",
   "hypothesis": "<falsifiable statement>",
-  "parameters": {},
-  "execution_model": {},
-  "costs_slippage": {},
-  "code_version": "<git commit>",
-  "code_hash": "<source hash>",
-  "environment": {},
-  "status": "PLANNED|RUNNING|COMPLETED|REJECTED|INVALIDATED",
-  "results_summary": {},
-  "artifact_paths": {},
-  "conclusion": "<decision tied to the hypothesis>",
-  "notes": "<limitations and anomalies>"
+  "scope": {"instrument_id": "MNQ", "asset_class": "futures", "timeframe": "1 minute", "partition": "DEVELOPMENT"},
+  "lineage": {"parent_experiment_ids": [], "source_gates": []},
+  "reproducibility": {"dataset_id": "MNQ_1m_actual_contract_v1", "data_hash": "<sha256>", "config_path": "<path>", "git_sha": "<commit>", "run_timestamp": "<UTC time>"},
+  "data_references": [],
+  "configuration": {"path": "<path>", "parameters": {}},
+  "status": "planned|running|complete|failed",
+  "decision": "continue|freeze|pass|revise|reject|diagnostic|none",
+  "confirmatory": false,
+  "reserved_data_exposed": false,
+  "summary_metrics": {},
+  "artifacts": [],
+  "known_limitations": [],
+  "notes": null
 }
 ```
 
@@ -204,6 +213,9 @@ summaries may be committed under the project artifact directory. Reviewed
 project indexes at `experiments/projects/<project_id>/experiment_index.json`
 provide the portable dashboard catalog and preserve explicit unknown values for
 historical experiments that predate the final run-ledger contract.
+The reviewed package standard is V1.0 and is documented in
+`experiments/README.md`; project-specific gates never replace the canonical
+`research_stage`.
 
 ## Partition methodology
 
@@ -234,25 +246,45 @@ The current executable MNQ definition is
 
 Do not use VALIDATION or OOS_BURNED for DEVELOPMENT parameter selection.
 
-## Reusable research lifecycle
+## Research Lifecycle V1.0
 
-1. **Data preparation** — record provenance, clean deterministically, validate
-   timestamps/sessions, and version the dataset.
-2. **Partition before research** — predeclare DEVELOPMENT, VALIDATION, and OOS.
-3. **Signal validation** — prove no lookahead and perform visual/manual checks
-   where bar semantics or event timing require them.
-4. **Execution validation** — validate entries, stops, targets, session rules,
-   shortened sessions, trade limits, and ambiguity handling.
-5. **DEVELOPMENT research** — baseline diagnostics, response surfaces,
-   robustness analysis, and causal feature discovery.
-6. **DEVELOPMENT freeze** — predeclare a small candidate set and acceptance
-   criteria before opening reserved data.
-7. **VALIDATION** — evaluate only frozen candidates; never rerun broad
-   optimization on Validation.
-8. **Strategy decision** — record `PASS`, `REVISE`, or `REJECT`.
-9. **Strategy specification** — for an accepted strategy, freeze a
-   machine-readable strategy version and execution contract.
-10. **OOS** — perform one final frozen evaluation on untouched data.
+Research Lifecycle V1.0 is canonical across every strategy, instrument, and
+asset class. Local gates may divide work more finely, but every experiment maps
+to exactly one lifecycle stage.
+
+| Stage | Name | Evidence objective |
+|---:|---|---|
+| 0 | Research Idea / Hypothesis | Declare mechanism, scope, data needs, bias risks, and falsification criteria before implementation. |
+| 1 | Data Qualification | Qualify provenance, mappings, timestamps, sessions, quality, adjustments/rolls, biases, and partitions. |
+| 2 | Feature Validation | Prove mathematical definition, causal timing, information availability, invariants, and representative observations. |
+| 3 | Signal Validation | Verify the exact intended event, direction, eligibility, first executable time, edge cases, and signal audit before performance testing. |
+| 4 | Execution Model Validation | Validate fills, timing, stops, targets, limits, tick rounding, costs, session behavior, chronology, and ambiguity separately from signals. |
+| 5 | Development Baseline | Describe the simplest meaningful DEVELOPMENT baseline and its temporal/distribution behavior. |
+| 6 | Development Exploration | Map response surfaces, interactions, boundaries, trade-offs, sample size, and observability without selecting a maximum cell. |
+| 7 | Robustness / Sensitivity | Distinguish observed performance from robust evidence through perturbation, chronology, temporal, and state sensitivity. |
+| 8 | Candidate Reduction & Freeze | Predeclare candidates and criteria; freeze configuration, code, data boundary, hash, and protocol before VALIDATION. |
+| 9 | Confirmatory Validation | Run frozen candidates on VALIDATION without tuning and record `PASS`, `REVISE`, or `REJECT`. |
+| 10 | Post-Validation Diagnosis | Explain Validation retrospectively without changing its decision or manufacturing confirmatory evidence. |
+| 11 | Research Decision | Record `REJECTED`, `REVISE / NEW VERSION`, or `APPROVED FOR NEXT PHASE` and the next permitted action. |
+
+The formal definition and stage evidence requirements are in
+[`docs/RESEARCH_LIFECYCLE_V1.md`](docs/RESEARCH_LIFECYCLE_V1.md) and
+`experiments/schema/research_lifecycle_v1.json`.
+
+Signal validation is a hard prerequisite for performance testing. DEVELOPMENT
+is the only exploration/tuning partition. A revision creates a new strategy
+version and research cycle rather than silently changing a frozen candidate.
+Post-validation diagnostics retain their retrospective label and never rewrite
+the confirmatory decision.
+
+### Future strategy lifecycle — reserved, not implemented
+
+`APPROVED FOR NEXT PHASE` is not a live-trading authorization and is not the end
+of a strategy's lifetime. A future lifecycle is reserved for implementation
+verification, simulation/paper trading, deployment approval, live deployment,
+monitoring, periodic review, revalidation, version migration, suspension, and
+retirement. Detailed monitoring thresholds, broker connectivity, and live
+operations are deliberately outside Research Lifecycle V1.0.
 
 The MNQ ORB final partition is labeled `OOS_BURNED` because full-history results
 were viewed before formal partitioning. It remains useful for testing the
@@ -317,6 +349,7 @@ frozen baseline or use unscoped durable names such as `results.csv`.
 ```text
 Quantitative-Trading-Research-Lab/
 |-- config/
+|   |-- components/         # Reusable feature/signal/state/strategy registry
 |   |-- datasets/           # Dataset partitions/provenance
 |   |-- experiments/        # Approved or planned experiment grids
 |   `-- instruments/        # Instrument/universe metadata
@@ -325,11 +358,13 @@ Quantitative-Trading-Research-Lab/
 |   |-- cleaned/            # Canonical local data for new datasets
 |   `-- processed/          # Local features, trades, and audits
 |-- experiments/
+|   |-- README.md           # Experiment package and folder conventions
 |   |-- projects/           # Reviewed artifacts by project
 |   |-- runs/               # Local run snapshots/large artifacts
 |   |-- schema/             # Ledger schema
 |   `-- templates/          # Experiment config templates
 |-- notebooks/              # Existing executable research entry points
+|-- docs/                   # Canonical lifecycle and platform documents
 |-- reports/                # Curated cross-project reports
 |-- src/
 |   |-- backtesting/        # Candidate/execution/state machinery
@@ -368,6 +403,28 @@ These labels describe the current repository honestly; planned layers are not
 claimed as completed platform capabilities.
 
 ## Reference project: MNQ ORB V0.1
+
+MNQ ORB V0.1 is a completed reference research cycle and infrastructure test
+case. Its project gates are preserved and mapped rather than renumbered:
+
+| Canonical stage | MNQ ORB V0.1 evidence |
+|---|---|
+| 0 Idea | Historical ORB research specification |
+| 1 Data | Gate 1 data qualification and partition contract |
+| 2 Features | Gate 2 OR feature/timing validation |
+| 3 Signals | Gate 3 PRINT/CLOSE signal validation and visual review tooling |
+| 4 Execution | Gates 4A/4B candidates, 4C exits, and 4D one-trade/session completion |
+| 5 DEV Baseline | Gates 5, 5B, and 5C |
+| 6 Exploration | Gates 6A and 6B response surfaces |
+| 7 Robustness | Gates 6A.1, 6B.1, and 6B.2 |
+| 8 Freeze | Gate 6C |
+| 9 Validation | Gate 7 |
+| 10 Diagnosis | Gate 8A |
+| 11 Decision | V0.1 `REVISE / NEW VERSION`; no OOS or production progression |
+
+Historical manual-validation records link only to surviving source, tests,
+notebooks, configurations, and local audits. They contain no manufactured
+metrics or timestamps.
 
 ### Frozen timing
 
@@ -474,6 +531,11 @@ their canonical artifacts. It is distinct from the Research Viewer:
 
 The dashboard loads reviewed experiment records through the reusable
 `load_experiment_index()`, `get_experiment()`, and `list_artifacts()` APIs.
+It also loads the canonical lifecycle and reusable component registry. The
+overview shows complete/current/not-started lifecycle states; experiment tables
+display canonical stages separately from project gates; strategy versions show
+a chronological research history with direct output inspection; and the
+partition view labels burned evidence without loading its performance.
 Explicit metadata artifact declarations take priority; historical records may
 use controlled project-relative discovery patterns. HTML charts can be embedded
 on demand or opened from their canonical local path. CSV previews are bounded,
@@ -481,6 +543,16 @@ and large audit files are never preloaded at dashboard startup.
 
 V0.1 cannot run experiments, edit parameters or strategies, mutate partitions,
 delete artifacts, or perform Git actions.
+
+## Current automation boundaries
+
+The platform currently automates deterministic research calculations, artifact
+generation, operational run capture, reviewed-index loading, bounded previews,
+tests, and read-only navigation. Human authorization remains required for
+candidate selection, partition opening, strategy decisions, new-version scope,
+and progression beyond research. There is no experiment runner in the
+dashboard, broker connection, live execution, deployment approval, strategy
+monitoring, automatic revalidation, or retirement workflow.
 
 ## Testing guardrails
 

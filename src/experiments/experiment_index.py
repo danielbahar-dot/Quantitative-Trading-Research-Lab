@@ -18,19 +18,23 @@ import re
 import pandas as pd
 
 
-SCHEMA_VERSION = "0.1"
+SCHEMA_VERSION = "1.0"
 VALID_STATUSES = {"planned", "running", "complete", "failed"}
 VALID_DECISIONS = {"continue", "freeze", "pass", "revise", "reject", "diagnostic", "none"}
+VALID_COMPONENT_TYPES = {"feature", "signal", "state_variable", "strategy"}
 REQUIRED_RECORD_FIELDS = {
-    "experiment_id", "project_id", "strategy_version", "title", "gate",
+    "experiment_id", "project_id", "strategy_id", "strategy_version",
+    "research_stage", "title", "gate",
     "experiment_type", "hypothesis", "description", "scope", "lineage",
-    "reproducibility", "status", "decision", "confirmatory",
-    "reserved_data_exposed", "summary_metrics", "artifacts",
+    "reproducibility", "status",
+    "decision", "confirmatory", "reserved_data_exposed", "summary_metrics",
+    "artifacts",
 }
 REQUIRED_SCOPE_FIELDS = {"instrument_id", "universe_id", "asset_class", "timeframe", "partition"}
 REQUIRED_LINEAGE_FIELDS = {"parent_experiment_ids", "source_gates"}
 REQUIRED_REPRO_FIELDS = {"dataset_id", "data_hash", "config_path", "git_sha", "run_timestamp"}
 REQUIRED_ARTIFACT_FIELDS = {"artifact_id", "type", "title", "path"}
+REQUIRED_CONFIGURATION_FIELDS = {"path", "parameters"}
 IGNORED_PARTS = {"__pycache__", ".pytest_cache", ".git", ".venv", "tmp", "temp"}
 
 
@@ -38,14 +42,23 @@ def repository_root(project_root: str | Path | None = None) -> Path:
     return Path(project_root).resolve() if project_root else Path(__file__).resolve().parents[2]
 
 
-def validate_experiment_record(record: dict[str, Any]) -> dict[str, Any]:
-    """Validate the lightweight V0.1 contract without another dependency."""
+def validate_experiment_record(
+    record: dict[str, Any],
+    *,
+    valid_stages: set[str] | None = None,
+) -> dict[str, Any]:
+    """Validate the lightweight V1.0 contract without another dependency."""
     missing = sorted(REQUIRED_RECORD_FIELDS - set(record))
     if missing:
         raise ValueError(f"Experiment record missing fields: {', '.join(missing)}")
-    for name in ("experiment_id", "project_id", "title", "experiment_type"):
+    for name in (
+        "experiment_id", "project_id", "strategy_id", "research_stage",
+        "title", "experiment_type",
+    ):
         if not isinstance(record[name], str) or not record[name].strip():
             raise ValueError(f"Experiment field {name} must be a non-empty string")
+    if valid_stages is not None and record["research_stage"] not in valid_stages:
+        raise ValueError(f"Unsupported research stage: {record['research_stage']}")
     if record["strategy_version"] is not None and not isinstance(record["strategy_version"], str):
         raise ValueError("strategy_version must be a string or null")
     if record["status"] not in VALID_STATUSES:
@@ -58,12 +71,20 @@ def validate_experiment_record(record: dict[str, Any]) -> dict[str, Any]:
     _require_mapping_fields(record["scope"], REQUIRED_SCOPE_FIELDS, "scope")
     _require_mapping_fields(record["lineage"], REQUIRED_LINEAGE_FIELDS, "lineage")
     _require_mapping_fields(record["reproducibility"], REQUIRED_REPRO_FIELDS, "reproducibility")
+    if "configuration" in record:
+        _require_mapping_fields(record["configuration"], REQUIRED_CONFIGURATION_FIELDS, "configuration")
     if not isinstance(record["lineage"]["parent_experiment_ids"], list):
         raise ValueError("parent_experiment_ids must be a list")
     if not isinstance(record["lineage"]["source_gates"], list):
         raise ValueError("source_gates must be a list")
     if not isinstance(record["summary_metrics"], dict):
         raise ValueError("summary_metrics must be an object")
+    if "data_references" in record and not isinstance(record["data_references"], list):
+        raise ValueError("data_references must be a list")
+    if "configuration" in record and not isinstance(record["configuration"]["parameters"], dict):
+        raise ValueError("configuration.parameters must be an object")
+    if "known_limitations" in record and not isinstance(record["known_limitations"], list):
+        raise ValueError("known_limitations must be a list")
     if not isinstance(record["artifacts"], list):
         raise ValueError("artifacts must be a list")
     artifact_ids = set()
@@ -96,15 +117,56 @@ def load_project_manifests(project_root: str | Path | None = None) -> list[dict[
     return manifests
 
 
+def load_research_lifecycle(project_root: str | Path | None = None) -> dict[str, Any]:
+    root = repository_root(project_root)
+    path = root / "experiments" / "schema" / "research_lifecycle_v1.json"
+    lifecycle = json.loads(path.read_text(encoding="utf-8"))
+    stages = lifecycle.get("stages", [])
+    stage_ids = [stage.get("stage_id") for stage in stages]
+    ordinals = [stage.get("ordinal") for stage in stages]
+    if len(stages) != 12 or len(stage_ids) != len(set(stage_ids)):
+        raise ValueError("Research Lifecycle V1.0 must contain 12 unique stages")
+    if sorted(ordinals) != list(range(12)):
+        raise ValueError("Research Lifecycle V1.0 stage ordinals must be 0 through 11")
+    return lifecycle
+
+
+def load_component_registry(project_root: str | Path | None = None) -> dict[str, Any]:
+    root = repository_root(project_root)
+    path = root / "config" / "components" / "research_components.json"
+    registry = json.loads(path.read_text(encoding="utf-8"))
+    if str(registry.get("schema_version")) != "1.0":
+        raise ValueError("Unsupported research component registry version")
+    components = registry.get("components", [])
+    ids = [component.get("component_id") for component in components]
+    if len(ids) != len(set(ids)):
+        raise ValueError("Duplicate research component IDs")
+    known = set(ids)
+    for component in components:
+        missing = {
+            "component_id", "component_type", "name", "version", "status",
+            "definition", "dependencies", "timing", "validation",
+        } - set(component)
+        if missing:
+            raise ValueError(f"Research component missing fields: {', '.join(sorted(missing))}")
+        if component["component_type"] not in VALID_COMPONENT_TYPES:
+            raise ValueError(f"Unsupported research component type: {component['component_type']}")
+        unknown = set(component["dependencies"]) - known
+        if unknown:
+            raise ValueError(f"Unknown component dependencies: {', '.join(sorted(unknown))}")
+    return registry
+
+
 def load_experiment_records(project_root: str | Path | None = None) -> list[dict[str, Any]]:
     root = repository_root(project_root)
+    valid_stages = {stage["stage_id"] for stage in load_research_lifecycle(root)["stages"]}
     records: list[dict[str, Any]] = []
     for path in sorted((root / "experiments" / "projects").glob("*/experiment_index.json")):
         payload = json.loads(path.read_text(encoding="utf-8"))
         if str(payload.get("schema_version")) != SCHEMA_VERSION:
             raise ValueError(f"Unsupported experiment index version in {path}")
         for source in payload.get("records", []):
-            record = validate_experiment_record(deepcopy(source))
+            record = validate_experiment_record(deepcopy(source), valid_stages=valid_stages)
             record["_index_path"] = path.relative_to(root).as_posix()
             records.append(record)
     ids = [record["experiment_id"] for record in records]
@@ -128,14 +190,22 @@ def load_experiment_index(
     """Return a lightweight, filterable table without loading artifact content."""
     records = load_experiment_records(project_root)
     children = _child_map(records)
+    stages = {
+        stage["stage_id"]: stage
+        for stage in load_research_lifecycle(project_root)["stages"]
+    }
     rows = []
     for record in records:
         partition = record["scope"]["partition"]
         partition_label = " + ".join(partition) if isinstance(partition, list) else str(partition)
         artifacts = _list_artifacts_for_record(record, repository_root(project_root))
+        stage = stages[record["research_stage"]]
         rows.append({
             "experiment_id": record["experiment_id"], "project_id": record["project_id"],
+            "strategy_id": record["strategy_id"],
             "strategy_version": record["strategy_version"], "gate": record["gate"],
+            "research_stage": record["research_stage"],
+            "stage_order": stage["ordinal"], "stage_label": stage["short_label"],
             "title": record["title"], "experiment_type": record["experiment_type"],
             "partition": partition_label, "status": record["status"],
             "decision": record["decision"], "confirmatory": record["confirmatory"],
@@ -154,7 +224,10 @@ def load_experiment_index(
         frame = frame.loc[frame["project_id"].eq(project_id)]
     if strategy_version is not None:
         frame = frame.loc[frame["strategy_version"].eq(strategy_version)]
-    return frame.sort_values(["project_id", "strategy_version", "gate"], kind="stable").reset_index(drop=True)
+    return frame.sort_values(
+        ["project_id", "strategy_version", "stage_order", "gate"],
+        kind="stable", na_position="first",
+    ).reset_index(drop=True)
 
 
 def _configuration_count(metrics: dict[str, Any]) -> int | None:
@@ -304,6 +377,12 @@ def _artifact_type(path: Path) -> str:
     name = path.name.lower()
     if path.suffix.lower() == ".html":
         return "chart"
+    if "signal" in name and ("audit" in name or path.suffix.lower() == ".csv"):
+        return "signal_audit"
+    if "feature" in name and ("audit" in name or path.suffix.lower() == ".csv"):
+        return "feature_audit"
+    if "execution" in name and ("audit" in name or path.suffix.lower() == ".csv"):
+        return "execution_audit"
     if "candidate" in name and ("audit" in name or path.suffix.lower() == ".csv"):
         return "candidate_audit"
     if "trade" in name and path.suffix.lower() == ".csv":
@@ -330,7 +409,7 @@ def _artifact_category(artifact_type: str) -> str:
         return "charts"
     if artifact_type in {"config", "metadata", "freeze"}:
         return "governance"
-    if artifact_type == "report":
+    if artifact_type in {"report", "source", "test"}:
         return "reports"
     return "data"
 

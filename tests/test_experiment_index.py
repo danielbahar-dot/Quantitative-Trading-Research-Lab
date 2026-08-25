@@ -8,8 +8,10 @@ import pandas as pd
 from src.experiments.experiment_index import (
     get_experiment,
     list_artifacts,
+    load_component_registry,
     load_experiment_index,
     load_experiment_records,
+    load_research_lifecycle,
     preview_csv,
     resolve_artifact_path,
     validate_experiment_record,
@@ -23,7 +25,9 @@ def _record(experiment_id="test_experiment"):
     return {
         "experiment_id": experiment_id,
         "project_id": "test_project",
+        "strategy_id": "test_strategy",
         "strategy_version": None,
+        "research_stage": "STAGE_0_IDEA",
         "title": "Test experiment",
         "gate": None,
         "experiment_type": "TEST",
@@ -56,8 +60,14 @@ def _record(experiment_id="test_experiment"):
 def _write_index(root: Path, records):
     folder = root / "experiments" / "projects" / "test_project"
     folder.mkdir(parents=True)
+    schema_folder = root / "experiments" / "schema"
+    schema_folder.mkdir(parents=True)
+    (schema_folder / "research_lifecycle_v1.json").write_text(
+        (PROJECT_ROOT / "experiments" / "schema" / "research_lifecycle_v1.json").read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
     (folder / "experiment_index.json").write_text(
-        json.dumps({"schema_version": "0.1", "project_id": "test_project", "records": records}),
+        json.dumps({"schema_version": "1.0", "project_id": "test_project", "records": records}),
         encoding="utf-8",
     )
 
@@ -74,7 +84,7 @@ class ExperimentIndexTests(unittest.TestCase):
     def test_real_index_loads_unique_backfilled_experiments(self):
         records = load_experiment_records(PROJECT_ROOT)
         ids = [record["experiment_id"] for record in records]
-        self.assertEqual(len(records), 12)
+        self.assertEqual(len(records), 19)
         self.assertEqual(len(ids), len(set(ids)))
         self.assertIn("mnq_orb_v0_1_gate8a_post_validation_diagnostic", ids)
 
@@ -83,7 +93,7 @@ class ExperimentIndexTests(unittest.TestCase):
         filtered = load_experiment_index(
             PROJECT_ROOT, project_id="mnq_orb_v0_1", strategy_version="V0.1"
         )
-        self.assertEqual(len(filtered), 12)
+        self.assertEqual(len(filtered), 19)
         self.assertEqual(len(filtered), len(all_records))
         self.assertTrue(filtered["project_id"].eq("mnq_orb_v0_1").all())
 
@@ -115,6 +125,40 @@ class ExperimentIndexTests(unittest.TestCase):
         record = get_experiment("orb_gate6b_dev_fixed_target_stop", PROJECT_ROOT)
         self.assertIn("orb_gate6b1_dev_or_width_analysis", record["child_experiment_ids"])
         self.assertIn("orb_gate6b2_dev_ambiguity_robustness", record["child_experiment_ids"])
+
+    def test_canonical_lifecycle_contains_all_ordered_stages(self):
+        lifecycle = load_research_lifecycle(PROJECT_ROOT)
+        self.assertEqual(len(lifecycle["stages"]), 12)
+        self.assertEqual([stage["ordinal"] for stage in lifecycle["stages"]], list(range(12)))
+        records = load_experiment_records(PROJECT_ROOT)
+        self.assertEqual(
+            {record["research_stage"] for record in records},
+            {stage["stage_id"] for stage in lifecycle["stages"]},
+        )
+
+    def test_component_registry_separates_reusable_component_types(self):
+        components = load_component_registry(PROJECT_ROOT)["components"]
+        ids = [component["component_id"] for component in components]
+        self.assertEqual(len(ids), len(set(ids)))
+        self.assertIn("feature", {component["component_type"] for component in components})
+        self.assertIn("signal", {component["component_type"] for component in components})
+        self.assertIn("strategy", {component["component_type"] for component in components})
+        width = next(item for item in components if item["component_id"] == "feature.opening_range.width.v1")
+        self.assertIn("not an established regime variable", width["notes"])
+
+    def test_historical_mapping_preserves_unknowns_and_final_decision(self):
+        idea = get_experiment("mnq_orb_v0_1_research_idea", PROJECT_ROOT)
+        self.assertIsNone(idea["reproducibility"]["git_sha"])
+        self.assertEqual(idea["summary_metrics"], {})
+        decision = get_experiment("mnq_orb_v0_1_research_decision", PROJECT_ROOT)
+        self.assertEqual(decision["research_stage"], "STAGE_11_DECISION")
+        self.assertEqual(decision["decision"], "revise")
+
+    def test_stage_order_precedes_project_gate_sorting(self):
+        index = load_experiment_index(PROJECT_ROOT)
+        self.assertEqual(index["stage_order"].tolist(), sorted(index["stage_order"].tolist()))
+        self.assertEqual(index.iloc[0]["research_stage"], "STAGE_0_IDEA")
+        self.assertEqual(index.iloc[-1]["research_stage"], "STAGE_11_DECISION")
 
     def test_duplicate_experiment_records_are_rejected(self):
         with TemporaryDirectory() as temporary:

@@ -1,6 +1,7 @@
 {
   "project_id": "mnq_orb_v0_1",
   "project_name": "MNQ ORB",
+  "strategy_id": "opening_range_breakout",
   "strategy_family": "Opening Range Breakout",
   "instrument_id": "MNQ",
   "asset_class": "futures",
@@ -8,14 +9,19 @@
     {
       "strategy_version": "V0.1",
       "title": "MNQ ORB V0.1",
-      "lifecycle_status": "POST_VALIDATION_DIAGNOSTIC_COMPLETE",
+      "research_lifecycle_version": "1.0",
+      "current_research_stage": "STAGE_11_DECISION",
+      "lifecycle_status": "REVISE_NEW_VERSION",
       "decision": "No frozen candidate passed Validation; V0.1 is not approved for OOS or production progression.",
-      "handoff": "Gate 8A post-mortem -> human interpretation -> infrastructure consolidation -> V0.2 hypothesis definition",
-      "lifecycle": ["DEVELOPMENT", "FREEZE", "VALIDATION", "POST-MORTEM"]
+      "handoff": "Research Lifecycle V1.0 complete -> human interpretation -> V0.2 hypothesis definition",
+      "future_strategy_lifecycle_status": "NOT_STARTED",
+      "approved_for_next_phase": false
     }
   ],
   "dataset_config_path": "config/datasets/mnq_1m_actual_contract_v1.partitions.json",
   "instrument_config_path": "config/instruments/mnq.json",
+  "research_lifecycle_path": "experiments/schema/research_lifecycle_v1.json",
+  "component_registry_path": "config/components/research_components.json",
   "experiment_index_path": "experiments/projects/mnq_orb_v0_1/experiment_index.json",
   "read_only": true
 }

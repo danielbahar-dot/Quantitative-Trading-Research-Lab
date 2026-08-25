@@ -17,6 +17,24 @@ extensible future asset classes.
 MNQ ORB V0.1 is the first reference project. It must remain reproducible, but
 ORB timing, MNQ tick rules, and intraday limits are not platform-wide defaults.
 
+## Research Lifecycle V1.0
+
+The canonical strategy-independent lifecycle is:
+
+`Idea -> Data -> Features -> Signals -> Execution -> DEV Baseline -> Exploration -> Robustness -> Freeze -> Validation -> Diagnosis -> Decision`.
+
+- Signal validation precedes all performance testing.
+- Feature, signal, state, strategy, and execution contracts remain separate.
+- DEVELOPMENT is the only exploration and tuning partition.
+- Candidate configuration, code/data boundary, and criteria freeze before
+  VALIDATION is opened.
+- VALIDATION is confirmatory and permits `PASS`, `REVISE`, or `REJECT`; it is
+  never a second optimization set.
+- Post-validation diagnosis is retrospective and cannot rewrite Validation.
+- A failed or revised strategy becomes a new strategy version/research cycle.
+- Research approval means eligible for a future controlled phase, not approved
+  for deployment and not at the end of the strategy lifetime.
+
 ## Durable platform guardrails
 
 - Keep strategy, instrument/universe, dataset, partition, parameter, execution,
@@ -95,6 +113,12 @@ coverage, ambiguity rate, and chronology sensitivity.
 - The reviewed project experiment index is the authoritative dashboard catalog.
   Experiment outputs remain in canonical project folders; the dashboard
   discovers and presents them rather than duplicating them.
+- The experiment package records canonical lifecycle stage separately from a
+  project-specific gate. The ledger/dashboard remain read-only research
+  navigation; operational runs remain local.
+- Reusable feature/signal/state/strategy components are registered independently
+  from experiments. ORB is the first reference composition, not a platform
+  special case.
 - Preserve Python import paths during this housekeeping gate; do not move ORB
   modules solely for cosmetic abstraction.
 - No `PROJECT_STATUS.md`; MEMORY owns current state.
@@ -270,6 +294,7 @@ strategy-development lifecycle is finished. Future hypotheses may examine:
 
 - Absolute OR width.
 - OR width as a percentage of price.
+- Percentage-normalized target and stop distances.
 - OR expansion normalized by the pre-market range.
 - A causal historical OR-width percentile.
 
@@ -279,18 +304,24 @@ than hard-coded. ATR normalization is not currently the preferred conceptual
 normalization for NY-open expansion; pre-market expansion is the preferred
 future normalization hypothesis to investigate.
 
+OR width is a potential state feature, not an established regime variable.
+Percentage-normalized risk/targets and pre-market expansion remain parked V0.2
+directions. Any rolling or historical percentile must use past information only.
+These ideas remain parked until the lifecycle/infrastructure work is reviewed
+and a new version is explicitly authorized.
+
 ## Immediate project objective
 
-`Gate 8A post-mortem -> human interpretation -> infrastructure consolidation -> V0.2 hypothesis definition`
+`Research Lifecycle V1.0 infrastructure -> human review -> V0.2 hypothesis definition`
 
-Complete this research cycle before shifting emphasis toward reusable research
-infrastructure: the ledger, dashboard, feature/signal/execution registries, and
-automation.
+Research infrastructure now includes the V1.0 lifecycle, reviewed ledger,
+dashboard, and initial reusable component registry. Future strategy/production
+lifecycle management is planned but not implemented.
 
 ## Next gate
 
 **Human Gate 8A interpretation.**
 
-Review the post-mortem evidence before consolidating infrastructure and defining
-any V0.2 hypotheses. Do not automatically define the next experiment, retune
-V0.1, or access OOS_BURNED.
+Review the completed V0.1 evidence and lifecycle mapping before defining any
+V0.2 hypotheses. Do not automatically define the next experiment, retune V0.1,
+or access OOS_BURNED.

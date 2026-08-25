@@ -1,0 +1,74 @@
+{
+  "schema_version": "1.0",
+  "registry_id": "research_components",
+  "components": [
+    {
+      "component_id": "feature.opening_range.levels.v1",
+      "component_type": "feature",
+      "name": "Opening-range levels",
+      "version": "1.0",
+      "status": "reference",
+      "definition": {
+        "summary": "Causal high, low, midpoint, and width of a complete opening interval under an explicit bar-timestamp convention.",
+        "source_paths": ["src/features/opening_range.py"],
+        "inputs": ["timestamped OHLC bars", "session definition", "opening-range duration"],
+        "outputs": ["or_high", "or_low", "or_mid", "or_width", "range start/end timestamps"]
+      },
+      "dependencies": [],
+      "timing": {"causal": true, "availability": "After the final configured opening-range bar is complete"},
+      "validation": {"status": "validated", "evidence_paths": ["notebooks/02_orb_features.py", "tests/test_orb_v01.py"]},
+      "notes": "The reusable definition is independent of MNQ; timestamp/session configuration is supplied by the dataset and instrument binding."
+    },
+    {
+      "component_id": "feature.opening_range.width.v1",
+      "component_type": "feature",
+      "name": "Opening-range width",
+      "version": "1.0",
+      "status": "reference",
+      "definition": {
+        "summary": "Absolute distance between opening-range high and low.",
+        "source_paths": ["src/features/opening_range.py"],
+        "inputs": ["feature.opening_range.levels.v1"],
+        "outputs": ["or_width"]
+      },
+      "dependencies": ["feature.opening_range.levels.v1"],
+      "timing": {"causal": true, "availability": "At opening-range completion"},
+      "validation": {"status": "validated", "evidence_paths": ["tests/test_orb_v01.py"]},
+      "notes": "OR width is a validated feature and a potential future state feature; it is not an established regime variable or approved strategy filter."
+    },
+    {
+      "component_id": "signal.opening_range.breakout.v1",
+      "component_type": "signal",
+      "name": "Opening-range breakout event",
+      "version": "1.0",
+      "status": "reference",
+      "definition": {
+        "summary": "Directional event emitted when configured PRINT or CLOSE conditions cross a complete opening-range boundary.",
+        "source_paths": ["src/visualization/research_viewer.py", "src/backtesting/orb_v01.py"],
+        "inputs": ["OHLC bars", "feature.opening_range.levels.v1", "breakout definition", "eligibility window"],
+        "outputs": ["direction", "signal timestamp", "breakout type", "ambiguity status"]
+      },
+      "dependencies": ["feature.opening_range.levels.v1"],
+      "timing": {"causal": true, "availability": "At or after the first eligible post-range bar under the configured event definition"},
+      "validation": {"status": "validated", "evidence_paths": ["notebooks/03_orb_signal_visual.py", "tests/test_research_viewer.py", "tests/test_research_viewer_app.py"]},
+      "notes": "Signal records remain independent from whether execution accepts a candidate trade."
+    },
+    {
+      "component_id": "strategy.opening_range_breakout.v0_1",
+      "component_type": "strategy",
+      "name": "Opening Range Breakout V0.1 reference strategy",
+      "version": "0.1",
+      "status": "reference",
+      "definition": {
+        "summary": "Reference composition of opening-range features and breakout signals with versioned eligibility, execution, and risk rules.",
+        "source_paths": ["strategies/orb/README.md", "src/backtesting/candidate_entries.py", "src/backtesting/completed_trades.py", "src/backtesting/session_trade_limit.py"],
+        "inputs": ["feature.opening_range.levels.v1", "signal.opening_range.breakout.v1", "instrument and dataset binding", "execution configuration"],
+        "outputs": ["candidate trades", "completed trades", "execution audits"]
+      },
+      "dependencies": ["feature.opening_range.levels.v1", "signal.opening_range.breakout.v1"],
+      "timing": {"causal": true, "availability": "Defined by the bound signal and execution contracts"},
+      "validation": {"status": "validated", "evidence_paths": ["tests/test_candidate_entries.py", "tests/test_completed_trades.py", "tests/test_session_trade_limit.py"]},
+      "notes": "MNQ ORB V0.1 is the first project binding and reference implementation, not the architectural definition of the platform."
+    }
+  ]
+}

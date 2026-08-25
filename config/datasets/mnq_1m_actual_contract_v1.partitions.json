@@ -18,18 +18,22 @@
   "partitions": [
     {
       "name": "DEVELOPMENT",
+      "partition_role": "DEVELOPMENT",
       "start": "2024-06-21",
       "end": "2025-06-30",
       "output_file": "data/processed/MNQ_raw_cleaned_ET_DEVELOPMENT.csv"
     },
     {
       "name": "VALIDATION",
+      "partition_role": "VALIDATION",
       "start": "2025-07-01",
       "end": "2025-12-31",
       "output_file": "data/processed/MNQ_raw_cleaned_ET_VALIDATION.csv"
     },
     {
       "name": "OOS",
+      "partition_role": "RESERVED",
+      "evidence_status": "BURNED",
       "start": "2026-01-01",
       "end": "2026-08-17",
       "output_file": "data/processed/MNQ_raw_cleaned_ET_OOS.csv"

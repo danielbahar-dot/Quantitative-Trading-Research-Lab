@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "partition": "DEVELOPMENT",
+  "reviewed_at": "2026-09-02",
+  "human_review_completion_date": "2026-09-02",
+  "validation_or_oos_accessed": false,
+  "review_source": "Human visual review supplied in the Codex task",
+  "decisions": [
+    {
+      "review_case": "NARROW_OR",
+      "session_date": "2024-07-04",
+      "or_minutes": 15,
+      "human_review_status": "PASS",
+      "human_notes": "Human visual review: narrow OR passed.",
+      "human_reviewer": "project_owner",
+      "human_reviewed_at": "2026-09-01"
+    },
+    {
+      "review_case": "WIDE_OR",
+      "session_date": "2025-04-07",
+      "or_minutes": 30,
+      "human_review_status": "PASS",
+      "human_notes": "Human visual review: wide OR passed.",
+      "human_reviewer": "project_owner",
+      "human_reviewed_at": "2026-09-01"
+    },
+    {
+      "review_case": "PREVIOUS_DAY_LEVEL_TOUCH",
+      "session_date": "2024-06-26",
+      "or_minutes": 20,
+      "human_review_status": "PASS",
+      "human_notes": "Previous Day High 19981.00: TOUCH=true, TRADE_THROUGH=true, CLOSE_THROUGH=false, REJECT=true, SWEEP=true; OR high 19981.50 and OR close 19978.00.",
+      "human_reviewer": "project_owner",
+      "human_reviewed_at": "2026-09-01"
+    },
+    {
+      "review_case": "CLEAN_TRADE_THROUGH",
+      "session_date": "2024-06-27",
+      "or_minutes": 15,
+      "human_review_status": "PASS",
+      "human_notes": "Previous Day High 20070.50: TOUCH=true, TRADE_THROUGH=true, CLOSE_THROUGH=true, REJECT=false, SWEEP=false; OR high 20101.25 and OR close 20074.75.",
+      "human_reviewer": "project_owner",
+      "human_reviewed_at": "2026-09-01"
+    },
+    {
+      "review_case": "SWEEP",
+      "session_date": "2024-06-26",
+      "or_minutes": 20,
+      "human_review_status": "PASS",
+      "human_notes": "Same verified Previous Day High event as PREVIOUS_DAY_LEVEL_TOUCH: traded beyond and closed back on the original side.",
+      "human_reviewer": "project_owner",
+      "human_reviewed_at": "2026-09-01"
+    },
+    {
+      "review_case": "CLOSE_THROUGH",
+      "session_date": "2024-06-27",
+      "or_minutes": 15,
+      "human_review_status": "PASS",
+      "human_notes": "Same verified Previous Day High event as CLEAN_TRADE_THROUGH: OR closed above the level after starting below it.",
+      "human_reviewer": "project_owner",
+      "human_reviewed_at": "2026-09-01"
+    },
+    {
+      "review_case": "ASIA_INTERACTION",
+      "session_date": "2024-06-24",
+      "or_minutes": 15,
+      "human_review_status": "PASS",
+      "human_notes": "Asia Low is 19917.00 in the canonical feature row (the supplied note cited 19924.75). OR opened 19922.00 above it, traded below it, and closed 19904.00 below it: TOUCH/TRADE_THROUGH/CLOSE_THROUGH=true; REJECT/SWEEP=false.",
+      "human_reviewer": "project_owner",
+      "human_reviewed_at": "2026-09-01"
+    },
+    {
+      "review_case": "LONDON_INTERACTION",
+      "session_date": "2024-06-21",
+      "or_minutes": 30,
+      "human_review_status": "PASS",
+      "human_notes": "Trigger is London Low 19947.50 (not Asia Low). OR opened 20017.00 above it, traded below it, and closed 19952.75 back above it: TOUCH/TRADE_THROUGH/REJECT/SWEEP=true; CLOSE_THROUGH=false.",
+      "human_reviewer": "project_owner",
+      "human_reviewed_at": "2026-09-01"
+    },
+    {
+      "review_case": "NY_PREMARKET_INTERACTION",
+      "session_date": "2024-06-21",
+      "or_minutes": 15,
+      "human_review_status": "PASS",
+      "human_notes": "NY pre-market Low 19978.25: OR opened above, traded below, and closed 19988.75 back above it; TOUCH/TRADE_THROUGH/REJECT/SWEEP=true and CLOSE_THROUGH=false.",
+      "human_reviewer": "project_owner",
+      "human_reviewed_at": "2026-09-01"
+    },
+    {
+      "review_case": "LIQUIDITY_PATH_SEQUENCE",
+      "session_date": "2024-06-24",
+      "or_minutes": 15,
+      "human_review_status": "PASS",
+      "human_notes": "Human confirmed the explicit completed-window sequence: London took the Asia high only; NY pre-market took the London low only; NY pre-market took neither Asia extreme.",
+      "human_reviewer": "project_owner",
+      "human_reviewed_at": "2026-09-02"
+    },
+    {
+      "review_case": "GLOBEX_GAP_FILLED",
+      "session_date": "2024-06-25",
+      "or_minutes": 15,
+      "human_review_status": "PASS",
+      "human_notes": "Human visual review: Globex reopen gap FILLED classification passed.",
+      "human_reviewer": "project_owner",
+      "human_reviewed_at": "2026-09-02"
+    },
+    {
+      "review_case": "GLOBEX_GAP_PARTIAL",
+      "session_date": "2024-07-18",
+      "or_minutes": 15,
+      "human_review_status": "PASS",
+      "human_notes": "Human visual review: Globex reopen gap PARTIAL classification passed.",
+      "human_reviewer": "project_owner",
+      "human_reviewed_at": "2026-09-02"
+    },
+    {
+      "review_case": "GLOBEX_GAP_OPEN",
+      "session_date": "2024-07-24",
+      "or_minutes": 15,
+      "human_review_status": "PASS",
+      "human_notes": "Human visual review: Globex reopen gap OPEN classification passed.",
+      "human_reviewer": "project_owner",
+      "human_reviewed_at": "2026-09-02"
+    },
+    {
+      "review_case": "INCOMPLETE_SOURCE_WINDOW",
+      "session_date": "2024-06-21",
+      "or_minutes": 15,
+      "human_review_status": "PASS",
+      "human_notes": "Human visual review: unavailable overnight source window at the DEVELOPMENT dataset boundary was correctly retained as unavailable and passed.",
+      "human_reviewer": "project_owner",
+      "human_reviewed_at": "2026-09-02"
+    }
+  ]
+}

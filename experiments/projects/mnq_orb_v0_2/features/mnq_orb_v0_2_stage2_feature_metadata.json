@@ -1,0 +1,120 @@
+{
+  "experiment_id": "mnq_orb_v0_2_stage2_feature_validation",
+  "research_stage": "STAGE_2_FEATURES",
+  "partition": "DEVELOPMENT",
+  "development_range": [
+    "2024-06-21",
+    "2025-06-30"
+  ],
+  "maximum_session_date_analyzed": "2025-06-30",
+  "validation_or_oos_loaded": false,
+  "timestamp_semantics": "timestamp_et = bar_end_time",
+  "ny_pm_meaning": "New York pre-market",
+  "window_configuration": {
+    "schema_version": "1.0",
+    "timezone": "America/New_York",
+    "timestamp_semantics": "bar_end_time",
+    "session_date_ownership": "CME trading date; bars from the prior-calendar-day 18:01 reopen belong to the following trading session_date",
+    "bar_membership_rule": "A conceptual [start, end) market-time window uses one-minute bar-end labels start+1 minute through end, inclusive.",
+    "windows": [
+      {
+        "window_id": "asia_kill_zone",
+        "display_name": "Asia Kill Zone",
+        "start_time_et": "20:00",
+        "end_time_et": "00:00",
+        "start_day_offset": -1,
+        "expected_one_minute_bars": 240,
+        "approval_status": "PROPOSED_REQUIRES_HUMAN_APPROVAL",
+        "rationale": "Common New York-time ICT convention; no previously validated repository definition exists."
+      },
+      {
+        "window_id": "london_kill_zone",
+        "display_name": "London Kill Zone",
+        "start_time_et": "02:00",
+        "end_time_et": "05:00",
+        "start_day_offset": 0,
+        "expected_one_minute_bars": 180,
+        "approval_status": "PROPOSED_REQUIRES_HUMAN_APPROVAL",
+        "rationale": "Common New York-time ICT convention; no previously validated repository definition exists."
+      },
+      {
+        "window_id": "ny_premarket",
+        "display_name": "New York Pre-Market",
+        "legacy_aliases": [
+          "NY PM"
+        ],
+        "start_time_et": "07:00",
+        "end_time_et": "09:00",
+        "start_day_offset": 0,
+        "expected_one_minute_bars": 120,
+        "approval_status": "USER_SPECIFIED",
+        "rationale": "NY PM means pre-market. The user explicitly specified 07:00-09:00 ET and prohibited extension to 09:30."
+      },
+      {
+        "window_id": "overnight",
+        "display_name": "Globex Overnight",
+        "start_time_et": "18:00",
+        "end_time_et": "09:30",
+        "start_day_offset": -1,
+        "expected_one_minute_bars": 930,
+        "approval_status": "DATASET_VERIFIED",
+        "rationale": "Uses the first usable 18:01 bar-end through the 09:30 bar-end for the same CME session_date."
+      },
+      {
+        "window_id": "combined_preopen",
+        "display_name": "Combined Pre-Open",
+        "start_time_et": "20:00",
+        "end_time_et": "09:00",
+        "start_day_offset": -1,
+        "expected_one_minute_bars": 780,
+        "approval_status": "PROPOSED_REQUIRES_HUMAN_APPROVAL",
+        "rationale": "Continuous context from the proposed Asia-window start through the user-specified pre-market end."
+      }
+    ]
+  },
+  "historical_width": {
+    "lookbacks": [
+      20,
+      40,
+      60
+    ],
+    "percentile_method": "midrank_empirical_cdf: (prior_less + 0.5 * prior_equal) / prior_sample_count",
+    "warmup": {
+      "20": {
+        "available_rows": 579,
+        "unavailable_rows": 165
+      },
+      "40": {
+        "available_rows": 439,
+        "unavailable_rows": 305
+      },
+      "60": {
+        "available_rows": 307,
+        "unavailable_rows": 437
+      }
+    }
+  },
+  "gap_definition": {
+    "prior_close": "close of prior trading session bar stamped 17:00 ET",
+    "reopen": "open of current session first bar stamped 18:01 ET on prior calendar day",
+    "filled": "price touched/crossed the prior close at or before the 09:30 bar-end",
+    "partial": "price moved from reopen toward prior close without touching it",
+    "open": "no fill; includes partial and untouched through 09:30"
+  },
+  "key_level_definitions": {
+    "touch": "OR low <= level <= OR high",
+    "trade_through": "strict move beyond the level from the OR-open side",
+    "sweep": "strict trade-through followed by OR close on the original side",
+    "close_through": "OR close on the opposite side from OR open",
+    "reject": "touch or beyond followed by OR close on the original side; sweep is a strict subset"
+  },
+  "feature_rows": 744,
+  "feature_columns": 371,
+  "outcome_events_by_or_minutes": {
+    "15": 333,
+    "20": 317,
+    "30": 285
+  },
+  "outcome_columns_are_future_labels": true,
+  "strategy_performance_calculated": false
+}

@@ -1,0 +1,3 @@
+session_date,direction,breakout_type,signal_time,or_high,or_low,or_mid,ambiguity_status,or_minutes
+2024-08-21,AMBIGUOUS (LONG+SHORT),PRINT,2024-08-21 10:53:00-04:00,19860.5,19813.25,19836.875,True,15
+2024-09-04,AMBIGUOUS (LONG+SHORT),PRINT,2024-09-04 10:01:00-04:00,18965.75,18860.0,18912.875,True,15

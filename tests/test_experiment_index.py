@@ -85,9 +85,12 @@ class ExperimentIndexTests(unittest.TestCase):
     def test_real_index_loads_unique_backfilled_experiments(self):
         records = load_experiment_records(PROJECT_ROOT)
         ids = [record["experiment_id"] for record in records]
-        self.assertEqual(len(records), 19)
+        self.assertEqual(len(records), 22)
         self.assertEqual(len(ids), len(set(ids)))
         self.assertIn("mnq_orb_v0_1_gate8a_post_validation_diagnostic", ids)
+        self.assertIn("mnq_orb_v0_2_stage2_feature_validation", ids)
+        self.assertIn("mnq_orb_v0_2_stage2_feature_validation_completion", ids)
+        self.assertIn("mnq_orb_v0_2_stage2_feature_freeze_approval", ids)
 
     def test_project_and_version_filters_are_independent(self):
         all_records = load_experiment_index(PROJECT_ROOT)
@@ -95,8 +98,19 @@ class ExperimentIndexTests(unittest.TestCase):
             PROJECT_ROOT, project_id="mnq_orb_v0_1", strategy_version="V0.1"
         )
         self.assertEqual(len(filtered), 19)
-        self.assertEqual(len(filtered), len(all_records))
+        self.assertEqual(len(all_records), 22)
         self.assertTrue(filtered["project_id"].eq("mnq_orb_v0_1").all())
+        v02 = load_experiment_index(
+            PROJECT_ROOT, project_id="mnq_orb_v0_2", strategy_version="V0.2"
+        )
+        self.assertEqual(
+            v02["experiment_id"].tolist(),
+            [
+                "mnq_orb_v0_2_stage2_feature_validation",
+                "mnq_orb_v0_2_stage2_feature_validation_completion",
+                "mnq_orb_v0_2_stage2_feature_freeze_approval",
+            ],
+        )
 
     def test_artifact_paths_are_repository_relative_and_resolvable(self):
         artifacts = list_artifacts("orb_gate6b_dev_fixed_target_stop", PROJECT_ROOT)
@@ -146,6 +160,8 @@ class ExperimentIndexTests(unittest.TestCase):
         self.assertIn("strategy", {component["component_type"] for component in components})
         width = next(item for item in components if item["component_id"] == "feature.opening_range.width.v1")
         self.assertIn("not an established regime variable", width["notes"])
+        premarket = next(item for item in components if item["component_id"] == "feature.preopen.context_windows.v1")
+        self.assertIn("NY PM means New York pre-market", premarket["notes"])
 
     def test_dataset_loader_normalizes_legacy_status_before_dashboard_use(self):
         datasets = load_dataset_catalog(PROJECT_ROOT)

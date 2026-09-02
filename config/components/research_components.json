@@ -69,6 +69,159 @@
       "timing": {"causal": true, "availability": "Defined by the bound signal and execution contracts"},
       "validation": {"status": "validated", "evidence_paths": ["tests/test_candidate_entries.py", "tests/test_completed_trades.py", "tests/test_session_trade_limit.py"]},
       "notes": "MNQ ORB V0.1 is the first project binding and reference implementation, not the architectural definition of the platform."
+    },
+    {
+      "component_id": "feature.price_normalization.percentage.v1",
+      "component_type": "feature",
+      "name": "Price-normalized distance",
+      "version": "1.0",
+      "status": "validated",
+      "definition": {
+        "summary": "Decimal representation of a raw point distance divided by an explicitly recorded causal reference price.",
+        "source_paths": ["src/features/market_context.py"],
+        "inputs": ["distance_points", "reference_price known by feature availability"],
+        "outputs": ["normalized distance decimal", "reference price"]
+      },
+      "dependencies": [],
+      "timing": {"causal": true, "availability": "No earlier than both numerator and denominator"},
+      "validation": {"status": "validated", "evidence_paths": ["tests/test_mnq_orb_v02_features.py"]},
+      "notes": "0.0035 means 0.35%. Session/window ranges use window open; OR features use OR open; key-level distances use OR midpoint."
+    },
+    {
+      "component_id": "feature.opening_range.context.v2",
+      "component_type": "feature",
+      "name": "Opening-range context",
+      "version": "2.0",
+      "status": "validated",
+      "definition": {
+        "summary": "Causal OR OHLC, width, normalized width, net move, efficiency, CLV, direction, and extrema timestamps.",
+        "source_paths": ["src/features/market_context.py"],
+        "inputs": ["timestamped OHLC bars", "session_date", "15/20/30-minute OR duration"],
+        "outputs": ["OR OHLC", "or_width_points", "or_width_pct", "or_efficiency", "or_clv", "or_direction"]
+      },
+      "dependencies": ["feature.opening_range.levels.v1", "feature.price_normalization.percentage.v1"],
+      "timing": {"causal": true, "availability": "At the configured OR completion bar-end"},
+      "validation": {"status": "validated", "evidence_paths": ["tests/test_mnq_orb_v02_features.py"]},
+      "notes": "timestamp_et is bar_end_time. OR bars begin at 09:31 ET."
+    },
+    {
+      "component_id": "feature.opening_range.causal_width_history.v1",
+      "component_type": "feature",
+      "name": "Causal historical OR-width context",
+      "version": "1.0",
+      "status": "validated",
+      "definition": {
+        "summary": "Same-duration trailing OR-width midrank percentile and population z-score using prior sessions only.",
+        "source_paths": ["src/features/market_context.py"],
+        "inputs": ["prior valid or_width_points", "lookback 5/10/15/20"],
+        "outputs": ["sample count", "midrank percentile", "z-score", "availability flag"]
+      },
+      "dependencies": ["feature.opening_range.context.v2"],
+      "timing": {"causal": true, "availability": "At current OR completion after full prior-session warm-up"},
+      "validation": {"status": "validated", "evidence_paths": ["tests/test_mnq_orb_v02_features.py"]},
+      "notes": "The current session never enters its own historical distribution; the 5/10/15/20 family is a feature representation and no lookback is selected as best."
+    },
+    {
+      "component_id": "feature.preopen.context_windows.v1",
+      "component_type": "feature",
+      "name": "Pre-open context windows",
+      "version": "1.0",
+      "status": "validated",
+      "definition": {
+        "summary": "Raw and normalized OHLC/range/movement context for approved Asia, London, New York pre-market, Globex overnight, and continuous 20:00-09:00 overnight-context windows.",
+        "source_paths": ["src/features/market_context.py", "config/features/mnq_orb_v0_2_preopen_windows.json"],
+        "inputs": ["session-owned Eastern Time OHLC bars", "explicit window configuration"],
+        "outputs": ["window OHLC", "range points/pct", "net move points/pct", "direction", "efficiency", "extrema timestamps", "availability"]
+      },
+      "dependencies": ["feature.price_normalization.percentage.v1"],
+      "timing": {"causal": true, "availability": "At each configured window end; New York pre-market is available at 09:00 ET"},
+      "validation": {"status": "validated", "evidence_paths": ["tests/test_mnq_orb_v02_features.py", "notebooks/19_mnq_orb_v02_feature_viewer.py", "config/features/mnq_orb_v0_2_stage2_human_reviews.json"]},
+      "notes": "NY PM means New York pre-market. Human-validated and Stage-2 frozen on 2026-09-02: Asia 20:00-00:00, London 02:00-05:00, and New York pre-market 07:00-09:00 ET. combined_preopen migrated to OVERNIGHT_CONTEXT_2000_0900."
+    },
+    {
+      "component_id": "feature.globex.reopen_gap.v1",
+      "component_type": "feature",
+      "name": "Globex reopen gap",
+      "version": "1.0",
+      "status": "validated",
+      "definition": {
+        "summary": "Gap from prior trading-session 17:00 bar close to the following session's 18:01 bar open, with fill state observed causally through 09:30.",
+        "source_paths": ["src/features/market_context.py"],
+        "inputs": ["prior 17:00 close", "18:01 reopen bar open", "bars through 09:30"],
+        "outputs": ["gap points/pct", "direction", "FILLED/PARTIAL/OPEN/NO_GAP state"]
+      },
+      "dependencies": ["feature.price_normalization.percentage.v1"],
+      "timing": {"causal": true, "availability": "09:30 ET for the fill-state fields"},
+      "validation": {"status": "validated", "evidence_paths": ["tests/test_mnq_orb_v02_features.py"]},
+      "notes": "No information after the 09:30 bar-end is used."
+    },
+    {
+      "component_id": "feature.previous_trading_day.levels.v1",
+      "component_type": "feature",
+      "name": "Previous full futures trading-day levels",
+      "version": "1.0",
+      "status": "validated",
+      "definition": {
+        "summary": "High, low, and close of the complete prior futures trading day under the dataset's CME session_date ownership convention.",
+        "source_paths": ["src/experiments/mnq_orb_v02_features.py"],
+        "inputs": ["prior session-owned OHLC bars stamped prior-calendar-day 18:01 through trading-date 17:00"],
+        "outputs": ["previous_day_high", "previous_day_low", "previous_day_close", "availability audit"]
+      },
+      "dependencies": [],
+      "timing": {"causal": true, "availability": "After the prior trading day's 17:00 bar-end"},
+      "validation": {"status": "validated", "evidence_paths": ["tests/test_mnq_orb_v02_features.py", "notebooks/19_mnq_orb_v02_feature_viewer.py", "config/features/mnq_orb_v0_2_stage2_human_reviews.json"]},
+      "notes": "These are the primary generic prior-day references. Previous RTH levels remain separately available and optional. Incomplete prior trading days remain unavailable."
+    },
+    {
+      "component_id": "feature.ny_open.gap.v1",
+      "component_type": "feature",
+      "name": "New York open gap",
+      "version": "1.0",
+      "status": "validated",
+      "definition": {
+        "summary": "Difference between the prior trading day's 16:14 bar close and the current 09:31 bar open, which is the 09:30 New York opening price under NT8 bar-end labels.",
+        "source_paths": ["src/features/market_context.py"],
+        "inputs": ["prior 16:14 bar close", "current 09:31 bar open"],
+        "outputs": ["ny_open_gap_prior_1614_close", "ny_open_reference_price", "ny_open_gap_points", "ny_open_gap_pct", "ny_open_gap_direction"]
+      },
+      "dependencies": ["feature.price_normalization.percentage.v1"],
+      "timing": {"causal": true, "availability": "09:31 ET bar-end; the opening price itself refers to 09:30:00"},
+      "validation": {"status": "validated", "evidence_paths": ["tests/test_mnq_orb_v02_features.py", "notebooks/19_mnq_orb_v02_feature_viewer.py", "config/features/mnq_orb_v0_2_stage2_human_reviews.json"]},
+      "notes": "A missing 16:14 or 09:31 bar makes the feature unavailable; no alternate close or open is substituted. This is distinct from GLOBEX_REOPEN_GAP."
+    },
+    {
+      "component_id": "feature.key_level.opening_range_interaction.v1",
+      "component_type": "feature",
+      "name": "Opening-range key-level interaction",
+      "version": "1.0",
+      "status": "validated",
+      "definition": {
+        "summary": "Signed OR-to-level distances plus deterministic touch, trade-through, sweep, close-through, and rejection states.",
+        "source_paths": ["src/features/market_context.py"],
+        "inputs": ["causal prior/current-session level", "OR open/high/low/close/mid"],
+        "outputs": ["signed point/pct distances", "start side", "interaction flags"]
+      },
+      "dependencies": ["feature.opening_range.context.v2", "feature.preopen.context_windows.v1", "feature.globex.reopen_gap.v1", "feature.previous_trading_day.levels.v1", "feature.ny_open.gap.v1"],
+      "timing": {"causal": true, "availability": "At OR completion"},
+      "validation": {"status": "validated", "evidence_paths": ["tests/test_mnq_orb_v02_features.py"]},
+      "notes": "A sweep is a strict trade beyond a level followed by an OR close on the OR-open side; rejection includes a touch and close on that side."
+    },
+    {
+      "component_id": "feature.preopen.liquidity_path.v1",
+      "component_type": "feature",
+      "name": "Pre-open liquidity path events",
+      "version": "1.0",
+      "status": "validated",
+      "definition": {
+        "summary": "Boolean and categorical records of later pre-open windows trading beyond earlier-window highs or lows.",
+        "source_paths": ["src/features/market_context.py"],
+        "inputs": ["Asia high/low", "London high/low", "New York pre-market high/low"],
+        "outputs": ["took-high", "took-low", "HIGH_ONLY/LOW_ONLY/BOTH/NEITHER"]
+      },
+      "dependencies": ["feature.preopen.context_windows.v1"],
+      "timing": {"causal": true, "availability": "09:00 ET after New York pre-market completion"},
+      "validation": {"status": "validated", "evidence_paths": ["tests/test_mnq_orb_v02_features.py", "notebooks/19_mnq_orb_v02_feature_viewer.py", "config/features/mnq_orb_v0_2_stage2_human_reviews.json"]},
+      "notes": "Event/state features only; no bullish/bearish or strategy interpretation. Human visual review passed and the feature is Stage-2 frozen as of 2026-09-02. Signal-bar excursion remains documented separately in the registered outcome contract because it is an outcome label, not a reusable causal component."
     }
   ]
 }

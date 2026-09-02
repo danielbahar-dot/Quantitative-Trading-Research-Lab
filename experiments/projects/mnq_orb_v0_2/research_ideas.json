@@ -1,0 +1,24 @@
+{
+  "project_id": "mnq_orb_v0_2",
+  "research_stage": "STAGE_2_FEATURES",
+  "ideas": [
+    {
+      "idea_id": "ny_premarket_opposite_side_liquidity",
+      "title": "NY pre-market opposite-side liquidity",
+      "observation": "After one side of the 07:00-09:00 New York pre-market range is taken during or around the opening process, subsequent movement may target liquidity at the opposite side.",
+      "status": "HYPOTHESIS_CANDIDATE",
+      "test_status": "NOT_TESTED",
+      "performance_analysis_run": false,
+      "notes": "Recorded from visual feature validation only; this is not a V0.2 strategy rule."
+    },
+    {
+      "idea_id": "london_orb",
+      "title": "LONDON_ORB",
+      "observation": "Evaluate a London-session opening-range-breakout concept as a separate future research project.",
+      "status": "FUTURE_RESEARCH_IDEA",
+      "test_status": "NOT_TESTED",
+      "performance_analysis_run": false,
+      "notes": "Parked separately and not mixed into MNQ New York ORB V0.2."
+    }
+  ]
+}

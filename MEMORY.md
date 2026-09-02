@@ -292,32 +292,41 @@ Market data, generated trade/audit tables, and local ledgers are ignored by Git.
 > untouched Validation evidence. OOS_BURNED remains unopened in the formal
 > lifecycle and must not be accessed without human approval.
 
-## Parked feature research
+## MNQ ORB V0.2 Stage 2 feature decisions
 
-OR-width feature development is intentionally deferred until the first complete
-strategy-development lifecycle is finished. Future hypotheses may examine:
-
-- Absolute OR width.
-- OR width as a percentage of price.
-- Percentage-normalized target and stop distances.
-- OR expansion normalized by the pre-market range.
-- A causal historical OR-width percentile.
-
-Percentile/state calculations must use only information available before the
-current session. Lookback length is unresolved and must be researched rather
-than hard-coded. ATR normalization is not currently the preferred conceptual
-normalization for NY-open expansion; pre-market expansion is the preferred
-future normalization hypothesis to investigate.
-
-OR width is a potential state feature, not an established regime variable.
-Percentage-normalized risk/targets and pre-market expansion remain parked V0.2
-directions. Any rolling or historical percentile must use past information only.
-These ideas remain parked until the lifecycle/infrastructure work is reviewed
-and a new version is explicitly authorized.
+- Fixed execution distances should be represented in price-normalized terms
+  for future research where the intent is economic comparability over changing
+  price levels. This does not change any current strategy stop or target.
+- OR-width percentile is not a validated trading state. Its research
+  implementation uses 5/10/15/20 prior completed sessions of the same OR
+  duration, with explicit warm-up and no future backfill.
+- Human-approved windows are Asia 20:00-00:00 ET, London 02:00-05:00 ET, and
+  New York pre-market 07:00-09:00 ET. `NY PM` means New York pre-market.
+- The broad continuous 20:00-09:00 context is
+  `OVERNIGHT_CONTEXT_2000_0900`; `combined_preopen` is a migration alias only.
+- Previous full futures trading-day high/low are the primary generic prior-day
+  key-level references. Previous RTH high/low/close remain available.
+- `GLOBEX_REOPEN_GAP` and `NY_OPEN_GAP` are separate concepts. The latter uses
+  the prior trading day's 16:14 bar close and current 09:31 bar open under NT8
+  bar-end semantics; missing bars are not substituted.
+- Signal-bar favorable/adverse excursion is descriptive only and always marked
+  chronology-unknown. Clean MFE/MAE begins with the next complete bar.
+- TOUCH, TRADE_THROUGH, CLOSE_THROUGH, REJECT, and SWEEP are primitive neutral
+  key-level events, not trading rules. SWEEP implies TRADE_THROUGH and REJECT.
+- Stage-2 human review completed on 2026-09-02 with 14/14 representative cases
+  passing. Every case retains a machine-stable `trigger_id`; multi-predicate
+  cases such as CLEAN_TRADE_THROUGH must reconcile every predicate on the same
+  exact reference level.
+- The Stage-2 feature package is validated and frozen. Validation and
+  OOS_BURNED were not accessed during feature validation or approval.
+- The NY pre-market opposite-side liquidity observation is an untested
+  hypothesis candidate. London ORB is a parked, separate future research idea.
+- V0.2 strategy hypotheses remain intentionally undefined; Stage 3 may now
+  define and validate signals without changing the frozen feature semantics.
 
 ## Immediate project objective
 
-`Research Lifecycle V1.0 infrastructure -> human review -> V0.2 hypothesis definition`
+`V0.2 Stage 2 features frozen -> Stage 3 signal hypothesis and validation`
 
 Research infrastructure now includes the V1.0 lifecycle, reviewed ledger,
 dashboard, and initial reusable component registry. Future strategy/production
@@ -325,8 +334,8 @@ lifecycle management is planned but not implemented.
 
 ## Next gate
 
-**Human Gate 8A interpretation.**
+**V0.2 Stage 3 signal hypothesis and signal validation.**
 
-Review the completed V0.1 evidence and lifecycle mapping before defining any
-V0.2 hypotheses. Do not automatically define the next experiment, retune V0.1,
-or access OOS_BURNED.
+Preserve the frozen Stage-2 feature definitions while defining causal signal
+hypotheses and validating event timestamps and eligibility. Do not begin
+performance optimization or access OOS_BURNED.

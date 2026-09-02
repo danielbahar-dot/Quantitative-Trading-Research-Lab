@@ -1,0 +1,284 @@
+{
+  "experiment_id": "mnq_orb_v0_2_stage2_feature_validation",
+  "project_id": "mnq_orb_v0_2",
+  "strategy_id": "opening_range_breakout",
+  "strategy_version": "V0.2",
+  "research_stage": "STAGE_2_FEATURES",
+  "title": "Pre-open and opening-auction feature validation",
+  "gate": "V0.2-S2",
+  "experiment_type": "FEATURE_VALIDATION",
+  "hypothesis": "Causal pre-open and opening-auction features can be defined, timed, and audited without using future information or strategy performance.",
+  "description": "DEVELOPMENT-only construction, validation, and descriptive characterization of reusable MNQ context features plus a separately labelled PRINT breakout outcome layer.",
+  "scope": {
+    "instrument_id": "MNQ",
+    "universe_id": null,
+    "asset_class": "futures",
+    "timeframe": "1 minute",
+    "partition": "DEVELOPMENT"
+  },
+  "lineage": {
+    "parent_experiment_ids": [
+      "mnq_orb_v0_1_research_decision"
+    ],
+    "source_gates": [
+      "V0.1 decision",
+      "V0.2 Stage 2"
+    ]
+  },
+  "reproducibility": {
+    "dataset_id": "MNQ_1m_actual_contract_v1",
+    "dataset_version": "qualified_actual_contract_v1",
+    "data_hash": "6c60be7885d5307694b94c8bd64376fc32fea1b04e1521d4100c859d4219b550",
+    "config_path": "config/experiments/mnq_orb_v0_2_stage2_feature_validation.json",
+    "git_sha": "82f4247ce5527e9fadd338558c131dde27324607",
+    "working_tree_dirty": true,
+    "run_timestamp": "2026-08-26T09:34:48.773137Z",
+    "final_git_sha": "82f4247ce5527e9fadd338558c131dde27324607",
+    "final_working_tree_dirty": true
+  },
+  "data_references": [],
+  "configuration": {
+    "path": "config/experiments/mnq_orb_v0_2_stage2_feature_validation.json",
+    "parameters": {
+      "or_durations": [
+        15,
+        20,
+        30
+      ],
+      "historical_width_lookbacks": [
+        20,
+        40,
+        60
+      ],
+      "outcome_horizons_minutes": [
+        5,
+        15,
+        30,
+        60
+      ],
+      "window_config_path": "config/features/mnq_orb_v0_2_preopen_windows.json"
+    }
+  },
+  "status": "complete",
+  "decision": "continue",
+  "confirmatory": false,
+  "reserved_data_exposed": false,
+  "summary_metrics": {
+    "feature_rows": 744,
+    "sessions": 248,
+    "or_durations": [
+      15,
+      20,
+      30
+    ],
+    "minimum_session_date": "2024-06-21",
+    "maximum_session_date": "2025-06-30",
+    "complete_or_rows": 739,
+    "complete_ny_premarket_rows": 744,
+    "outcome_events": 935,
+    "ambiguous_print_bars": 2,
+    "validation_or_oos_loaded": false
+  },
+  "artifacts": [
+    {
+      "artifact_id": "ambiguity_audit",
+      "type": "audit",
+      "title": "PRINT ambiguity audit",
+      "path": "experiments/projects/mnq_orb_v0_2/features/mnq_orb_v0_2_DEV_print_ambiguity_audit.csv",
+      "description": null,
+      "mime_type": "application/vnd.ms-excel",
+      "category": "data",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "performance_metrics": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "component_registry",
+      "type": "component_definitions",
+      "title": "Reusable research component registry",
+      "path": "config/components/research_components.json",
+      "description": null,
+      "mime_type": "application/json",
+      "category": "metadata",
+      "metadata": {},
+      "required": true
+    },
+    {
+      "artifact_id": "correlation_chart",
+      "type": "chart",
+      "title": "DEVELOPMENT feature correlation heatmaps",
+      "path": "experiments/projects/mnq_orb_v0_2/features/mnq_orb_v0_2_DEV_feature_correlations.html",
+      "description": null,
+      "mime_type": "text/html",
+      "category": "chart",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "performance_metrics": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "distribution_chart",
+      "type": "chart",
+      "title": "DEVELOPMENT feature distributions",
+      "path": "experiments/projects/mnq_orb_v0_2/features/mnq_orb_v0_2_DEV_feature_distributions.html",
+      "description": null,
+      "mime_type": "text/html",
+      "category": "chart",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "performance_metrics": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "feature_audit",
+      "type": "feature_table",
+      "title": "Canonical DEVELOPMENT feature audit",
+      "path": "experiments/projects/mnq_orb_v0_2/features/mnq_orb_v0_2_DEV_feature_audit.csv",
+      "description": null,
+      "mime_type": "application/vnd.ms-excel",
+      "category": "data",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "performance_metrics": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "feature_contract",
+      "type": "feature_contract",
+      "title": "Feature timing and causality contract",
+      "path": "experiments/projects/mnq_orb_v0_2/features/mnq_orb_v0_2_feature_timing_contract.csv",
+      "description": null,
+      "mime_type": "application/vnd.ms-excel",
+      "category": "metadata",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "performance_metrics": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "feature_correlation",
+      "type": "descriptive_summary",
+      "title": "DEVELOPMENT feature correlations",
+      "path": "experiments/projects/mnq_orb_v0_2/features/mnq_orb_v0_2_DEV_feature_correlations.csv",
+      "description": null,
+      "mime_type": "application/vnd.ms-excel",
+      "category": "data",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "performance_metrics": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "feature_distribution",
+      "type": "descriptive_summary",
+      "title": "DEVELOPMENT feature distributions",
+      "path": "experiments/projects/mnq_orb_v0_2/features/mnq_orb_v0_2_DEV_feature_distributions.csv",
+      "description": null,
+      "mime_type": "application/vnd.ms-excel",
+      "category": "data",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "performance_metrics": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "metadata",
+      "type": "metadata",
+      "title": "Stage 2 feature metadata",
+      "path": "experiments/projects/mnq_orb_v0_2/features/mnq_orb_v0_2_stage2_feature_metadata.json",
+      "description": null,
+      "mime_type": "application/json",
+      "category": "metadata",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "performance_metrics": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "outcomes",
+      "type": "outcome_table",
+      "title": "PRINT breakout excursion outcomes",
+      "path": "experiments/projects/mnq_orb_v0_2/features/mnq_orb_v0_2_DEV_print_breakout_outcomes.csv",
+      "description": null,
+      "mime_type": "application/vnd.ms-excel",
+      "category": "data",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "performance_metrics": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "report",
+      "type": "report",
+      "title": "Stage 2 feature validation report",
+      "path": "experiments/projects/mnq_orb_v0_2/features/mnq_orb_v0_2_stage2_feature_report.md",
+      "description": null,
+      "mime_type": "text/markdown",
+      "category": "documentation",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "performance_metrics": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "viewer_guide",
+      "type": "viewer_guide",
+      "title": "Feature-validation viewer guide",
+      "path": "experiments/projects/mnq_orb_v0_2/features/mnq_orb_v0_2_feature_viewer_guide.md",
+      "description": null,
+      "mime_type": "text/markdown",
+      "category": "documentation",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "performance_metrics": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "window_configuration",
+      "type": "configuration",
+      "title": "Pre-open window definitions",
+      "path": "config/features/mnq_orb_v0_2_preopen_windows.json",
+      "description": null,
+      "mime_type": "application/json",
+      "category": "configuration",
+      "metadata": {},
+      "required": true
+    }
+  ],
+  "notes": "Feature construction is complete for manual review. No V0.2 signal, filter, strategy rule, or performance conclusion was created.",
+  "known_limitations": [
+    "Asia 20:00-00:00 ET and London 02:00-05:00 ET definitions are proposed and require human approval.",
+    "Combined pre-open begins at the proposed Asia-window start and therefore inherits that approval dependency.",
+    "PRINT outcomes start with the first full bar after the signal bar because intrabar post-break chronology is unobservable in one-minute OHLC."
+  ],
+  "started_at": "2026-08-26T09:34:48.773137Z",
+  "updated_at": "2026-08-26T09:35:53.076204Z",
+  "completed_at": "2026-08-26T09:35:53.076204Z",
+  "failed_at": null,
+  "failure": null,
+  "runtime_metadata": {
+    "python_version": "3.13.10",
+    "platform": "Windows-11-10.0.26200-SP0"
+  },
+  "registration": {
+    "api_version": "1.0",
+    "record_path": "experiments/projects/mnq_orb_v0_2/records/mnq_orb_v0_2_stage2_feature_validation.json"
+  },
+  "warnings": [
+    "NY PM is interpreted exclusively as New York pre-market (07:00-09:00 ET).",
+    "Outcome columns are future labels and are not causal features.",
+    "No Validation or OOS_BURNED file was loaded."
+  ]
+}

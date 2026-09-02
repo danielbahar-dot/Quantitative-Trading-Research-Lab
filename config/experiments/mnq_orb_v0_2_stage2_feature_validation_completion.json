@@ -1,0 +1,31 @@
+{
+  "experiment_id": "mnq_orb_v0_2_stage2_feature_validation_completion",
+  "project_id": "mnq_orb_v0_2",
+  "strategy_id": "opening_range_breakout",
+  "strategy_version": "V0.2",
+  "research_stage": "STAGE_2_FEATURES",
+  "partition": "DEVELOPMENT",
+  "development_start": "2024-06-21",
+  "development_end": "2025-06-30",
+  "dataset_id": "MNQ_1m_actual_contract_v1",
+  "dataset_path": "data/processed/MNQ_raw_cleaned_ET_DEVELOPMENT.csv",
+  "dataset_sha256": "6c60be7885d5307694b94c8bd64376fc32fea1b04e1521d4100c859d4219b550",
+  "timezone": "America/New_York",
+  "timestamp_semantics": "bar_end_time",
+  "or_durations": [15, 20, 30],
+  "historical_width_lookbacks": [5, 10, 15, 20],
+  "historical_percentile_method": "midrank_empirical_cdf: (prior_less + 0.5 * prior_equal) / prior_sample_count",
+  "normalization": {
+    "session_and_window_ranges": "raw_points / window_open_price",
+    "opening_range": "raw_points / OR_open_price",
+    "key_level_distance": "signed(level_price - OR_anchor_price) / OR_mid_price",
+    "breakout_outcome": "excursion_points / breakout_price",
+    "percentage_storage": "decimal; 0.0035 means 0.35 percent"
+  },
+  "window_config_path": "config/features/mnq_orb_v0_2_preopen_windows.json",
+  "outcome_horizons_minutes": [5, 15, 30, 60],
+  "outcome_session_end_bar": "16:00 ET",
+  "outcome_first_bar_rule": "First full bar after the PRINT signal bar; signal-bar excursion is separate and chronology-unknown",
+  "performance_testing": false,
+  "validation_or_oos_loaded": false
+}

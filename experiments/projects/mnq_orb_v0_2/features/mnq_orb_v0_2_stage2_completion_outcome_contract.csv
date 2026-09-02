@@ -1,0 +1,50 @@
+field_id,outcome_family,calculation_window,first_included_bar,chronology_unknown,strategy_execution_input,future_label_not_causal_feature
+session_date,outcome_identity,event identity or linkage,not applicable,False,False,True
+contract,outcome_identity,event identity or linkage,not applicable,False,False,True
+or_minutes,outcome_identity,event identity or linkage,not applicable,False,False,True
+breakout_type,outcome_identity,event identity or linkage,not applicable,False,False,True
+breakout_direction,outcome_identity,event identity or linkage,not applicable,False,False,True
+breakout_timestamp,outcome_identity,event identity or linkage,not applicable,False,False,True
+breakout_price,outcome_identity,event identity or linkage,not applicable,False,False,True
+feature_row_key,outcome_identity,event identity or linkage,not applicable,False,False,True
+outcome_definition,outcome_identity,event identity or linkage,not applicable,False,False,True
+signal_bar_favorable_excursion_points,signal_bar_descriptive_excursion,OHLC extremes of the PRINT signal bar relative to the breakout reference,PRINT signal bar,True,False,True
+signal_bar_adverse_excursion_points,signal_bar_descriptive_excursion,OHLC extremes of the PRINT signal bar relative to the breakout reference,PRINT signal bar,True,False,True
+signal_bar_favorable_excursion_pct,signal_bar_descriptive_excursion,OHLC extremes of the PRINT signal bar relative to the breakout reference,PRINT signal bar,True,False,True
+signal_bar_adverse_excursion_pct,signal_bar_descriptive_excursion,OHLC extremes of the PRINT signal bar relative to the breakout reference,PRINT signal bar,True,False,True
+signal_bar_chronology_unknown,signal_bar_descriptive_excursion,OHLC extremes of the PRINT signal bar relative to the breakout reference,PRINT signal bar,True,False,True
+post_signal_bar_5m_complete,clean_post_signal_bar_excursion,complete one-minute bars strictly after the PRINT signal bar,signal timestamp + 1 minute,False,False,True
+post_signal_bar_5m_bars,clean_post_signal_bar_excursion,complete one-minute bars strictly after the PRINT signal bar,signal timestamp + 1 minute,False,False,True
+post_signal_bar_5m_end_timestamp,clean_post_signal_bar_excursion,complete one-minute bars strictly after the PRINT signal bar,signal timestamp + 1 minute,False,False,True
+post_signal_bar_5m_mfe_points,clean_post_signal_bar_excursion,complete one-minute bars strictly after the PRINT signal bar,signal timestamp + 1 minute,False,False,True
+post_signal_bar_5m_mae_points,clean_post_signal_bar_excursion,complete one-minute bars strictly after the PRINT signal bar,signal timestamp + 1 minute,False,False,True
+post_signal_bar_5m_mfe_pct,clean_post_signal_bar_excursion,complete one-minute bars strictly after the PRINT signal bar,signal timestamp + 1 minute,False,False,True
+post_signal_bar_5m_mae_pct,clean_post_signal_bar_excursion,complete one-minute bars strictly after the PRINT signal bar,signal timestamp + 1 minute,False,False,True
+post_signal_bar_15m_complete,clean_post_signal_bar_excursion,complete one-minute bars strictly after the PRINT signal bar,signal timestamp + 1 minute,False,False,True
+post_signal_bar_15m_bars,clean_post_signal_bar_excursion,complete one-minute bars strictly after the PRINT signal bar,signal timestamp + 1 minute,False,False,True
+post_signal_bar_15m_end_timestamp,clean_post_signal_bar_excursion,complete one-minute bars strictly after the PRINT signal bar,signal timestamp + 1 minute,False,False,True
+post_signal_bar_15m_mfe_points,clean_post_signal_bar_excursion,complete one-minute bars strictly after the PRINT signal bar,signal timestamp + 1 minute,False,False,True
+post_signal_bar_15m_mae_points,clean_post_signal_bar_excursion,complete one-minute bars strictly after the PRINT signal bar,signal timestamp + 1 minute,False,False,True
+post_signal_bar_15m_mfe_pct,clean_post_signal_bar_excursion,complete one-minute bars strictly after the PRINT signal bar,signal timestamp + 1 minute,False,False,True
+post_signal_bar_15m_mae_pct,clean_post_signal_bar_excursion,complete one-minute bars strictly after the PRINT signal bar,signal timestamp + 1 minute,False,False,True
+post_signal_bar_30m_complete,clean_post_signal_bar_excursion,complete one-minute bars strictly after the PRINT signal bar,signal timestamp + 1 minute,False,False,True
+post_signal_bar_30m_bars,clean_post_signal_bar_excursion,complete one-minute bars strictly after the PRINT signal bar,signal timestamp + 1 minute,False,False,True
+post_signal_bar_30m_end_timestamp,clean_post_signal_bar_excursion,complete one-minute bars strictly after the PRINT signal bar,signal timestamp + 1 minute,False,False,True
+post_signal_bar_30m_mfe_points,clean_post_signal_bar_excursion,complete one-minute bars strictly after the PRINT signal bar,signal timestamp + 1 minute,False,False,True
+post_signal_bar_30m_mae_points,clean_post_signal_bar_excursion,complete one-minute bars strictly after the PRINT signal bar,signal timestamp + 1 minute,False,False,True
+post_signal_bar_30m_mfe_pct,clean_post_signal_bar_excursion,complete one-minute bars strictly after the PRINT signal bar,signal timestamp + 1 minute,False,False,True
+post_signal_bar_30m_mae_pct,clean_post_signal_bar_excursion,complete one-minute bars strictly after the PRINT signal bar,signal timestamp + 1 minute,False,False,True
+post_signal_bar_60m_complete,clean_post_signal_bar_excursion,complete one-minute bars strictly after the PRINT signal bar,signal timestamp + 1 minute,False,False,True
+post_signal_bar_60m_bars,clean_post_signal_bar_excursion,complete one-minute bars strictly after the PRINT signal bar,signal timestamp + 1 minute,False,False,True
+post_signal_bar_60m_end_timestamp,clean_post_signal_bar_excursion,complete one-minute bars strictly after the PRINT signal bar,signal timestamp + 1 minute,False,False,True
+post_signal_bar_60m_mfe_points,clean_post_signal_bar_excursion,complete one-minute bars strictly after the PRINT signal bar,signal timestamp + 1 minute,False,False,True
+post_signal_bar_60m_mae_points,clean_post_signal_bar_excursion,complete one-minute bars strictly after the PRINT signal bar,signal timestamp + 1 minute,False,False,True
+post_signal_bar_60m_mfe_pct,clean_post_signal_bar_excursion,complete one-minute bars strictly after the PRINT signal bar,signal timestamp + 1 minute,False,False,True
+post_signal_bar_60m_mae_pct,clean_post_signal_bar_excursion,complete one-minute bars strictly after the PRINT signal bar,signal timestamp + 1 minute,False,False,True
+post_signal_bar_session_end_complete,clean_post_signal_bar_excursion,complete one-minute bars strictly after the PRINT signal bar,signal timestamp + 1 minute,False,False,True
+post_signal_bar_session_end_bars,clean_post_signal_bar_excursion,complete one-minute bars strictly after the PRINT signal bar,signal timestamp + 1 minute,False,False,True
+post_signal_bar_session_end_end_timestamp,clean_post_signal_bar_excursion,complete one-minute bars strictly after the PRINT signal bar,signal timestamp + 1 minute,False,False,True
+post_signal_bar_session_end_mfe_points,clean_post_signal_bar_excursion,complete one-minute bars strictly after the PRINT signal bar,signal timestamp + 1 minute,False,False,True
+post_signal_bar_session_end_mae_points,clean_post_signal_bar_excursion,complete one-minute bars strictly after the PRINT signal bar,signal timestamp + 1 minute,False,False,True
+post_signal_bar_session_end_mfe_pct,clean_post_signal_bar_excursion,complete one-minute bars strictly after the PRINT signal bar,signal timestamp + 1 minute,False,False,True
+post_signal_bar_session_end_mae_pct,clean_post_signal_bar_excursion,complete one-minute bars strictly after the PRINT signal bar,signal timestamp + 1 minute,False,False,True

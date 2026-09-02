@@ -1,0 +1,65 @@
+{
+  "schema_version": "1.1",
+  "timezone": "America/New_York",
+  "timestamp_semantics": "bar_end_time",
+  "session_date_ownership": "CME trading date; bars from the prior-calendar-day 18:01 reopen belong to the following trading session_date",
+  "bar_membership_rule": "A conceptual [start, end) market-time window uses one-minute bar-end labels start+1 minute through end, inclusive.",
+  "migration": {
+    "combined_preopen": "overnight_context_2000_0900",
+    "reason": "The 20:00-09:00 feature is a continuous contextual range, not the union of named session windows."
+  },
+  "windows": [
+    {
+      "window_id": "asia_kill_zone",
+      "display_name": "Asia Kill Zone",
+      "start_time_et": "20:00",
+      "end_time_et": "00:00",
+      "start_day_offset": -1,
+      "expected_one_minute_bars": 240,
+      "approval_status": "HUMAN_VALIDATED_AND_FROZEN",
+      "rationale": "Human-reviewed and frozen at Stage 2 on 2026-09-02."
+    },
+    {
+      "window_id": "london_kill_zone",
+      "display_name": "London Kill Zone",
+      "start_time_et": "02:00",
+      "end_time_et": "05:00",
+      "start_day_offset": 0,
+      "expected_one_minute_bars": 180,
+      "approval_status": "HUMAN_VALIDATED_AND_FROZEN",
+      "rationale": "Human-reviewed and frozen at Stage 2 on 2026-09-02."
+    },
+    {
+      "window_id": "ny_premarket",
+      "display_name": "New York Pre-Market",
+      "legacy_aliases": ["NY PM"],
+      "start_time_et": "07:00",
+      "end_time_et": "09:00",
+      "start_day_offset": 0,
+      "expected_one_minute_bars": 120,
+      "approval_status": "HUMAN_VALIDATED_AND_FROZEN",
+      "rationale": "Human-reviewed and frozen at Stage 2 on 2026-09-02. NY PM means pre-market; the definition is 07:00-09:00 ET and does not extend to 09:30."
+    },
+    {
+      "window_id": "overnight",
+      "display_name": "Globex Overnight",
+      "start_time_et": "18:00",
+      "end_time_et": "09:30",
+      "start_day_offset": -1,
+      "expected_one_minute_bars": 930,
+      "approval_status": "DATASET_VERIFIED",
+      "rationale": "Uses the first usable 18:01 bar-end through the 09:30 bar-end for the same CME session_date."
+    },
+    {
+      "window_id": "overnight_context_2000_0900",
+      "display_name": "Overnight Context 20:00-09:00",
+      "legacy_window_ids": ["combined_preopen"],
+      "start_time_et": "20:00",
+      "end_time_et": "09:00",
+      "start_day_offset": -1,
+      "expected_one_minute_bars": 780,
+      "approval_status": "HUMAN_VALIDATED_AND_FROZEN",
+      "rationale": "Human-reviewed and frozen at Stage 2 on 2026-09-02. This continuous contextual range is broader than, and is not defined as, the union of the three named session windows."
+    }
+  ]
+}

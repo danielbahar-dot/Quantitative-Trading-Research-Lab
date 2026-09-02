@@ -58,6 +58,15 @@ of future profitability.
 - Research Infrastructure V1.0: future experiment runners can create records,
   register canonical artifacts, preserve failures, finalize metadata, and
   refresh the existing dashboard index programmatically.
+- MNQ ORB V0.2 Stage 2 freeze: Asia 20:00-00:00, London 02:00-05:00,
+  and New York pre-market 07:00-09:00 ET definitions are human-validated.
+  The completion evidence adds full previous-trading-day levels, a distinct
+  NY-open gap, 5/10/15/20-session causal width history, signal-bar descriptive
+  excursion, missing-data diagnosis, and expanded viewer validation support.
+  All 14 representative reviews passed on 2026-09-02. The final review queue
+  stores an exact machine-stable `trigger_id`, and multi-predicate review cases
+  must reconcile on that same reference level. Stage-2 features are frozen;
+  no V0.2 strategy rule or performance result exists.
 
 The authoritative handoff and research guardrails are in [MEMORY.md](MEMORY.md).
 Run history belongs in the experiment ledger, not in MEMORY.
@@ -158,6 +167,43 @@ expectations.
 An experiment combines the two. Instrument facts must not become general
 strategy facts, and ORB-specific behavior must not leak into platform-wide
 execution or analytics APIs.
+
+### Feature causality and normalization
+
+Every reusable feature records its calculation window, Eastern Time
+availability, warm-up, causal status, source columns, normalization, and
+missing-data behavior. NinjaTrader one-minute timestamps are bar-end labels;
+for example, the conceptual 07:00-09:00 New York pre-market window uses bars
+stamped 07:01 through 09:00. In this project, `NY PM` means **New York
+pre-market**, never the afternoon session.
+
+Price-normalized values are stored as decimal ratios (`0.0035 = 0.35%`) while
+raw point values remain separate. Window and session ranges use the relevant
+window open as their reference price, OR values use OR open, and signed
+key-level distances use OR midpoint. Denominators are never silently mixed.
+
+Causal OR-width percentiles use only prior valid sessions of the same OR
+duration. The 5/10/15/20-session alternatives use deterministic midrank empirical
+percentiles, remain null until their full warm-up exists, and are feature
+lookbacks rather than selected strategy parameters.
+
+For V0.2, the primary generic prior-day key levels are the high, low, and close
+of the complete prior futures trading day (18:01 prior-calendar-day through
+17:00 trading-date bar ends). Previous RTH references remain optional. The
+20:00-09:00 continuous range is named `OVERNIGHT_CONTEXT_2000_0900`;
+`combined_preopen` is retained only as migration metadata. `GLOBEX_REOPEN_GAP`
+uses the prior 17:00 close and 18:01 reopen, while `NY_OPEN_GAP` uses the prior
+16:14 bar close and current 09:31 bar open (the 09:30 market open).
+
+Launch the DEVELOPMENT-only validation viewer with:
+
+```powershell
+.\.venv\Scripts\python.exe -m streamlit run notebooks\19_mnq_orb_v02_feature_viewer.py
+```
+
+The viewer provides selectable presets, independent X/Y navigation, an
+interactive legend, prior-session context, end times through 16:00, and a
+strategy-neutral key-level classification panel.
 
 ## Data architecture
 
@@ -539,6 +585,10 @@ No winner is selected; interpret broad stable regions rather than isolated maxim
 .\.venv\Scripts\python.exe notebooks\13_orb_gate6c_candidate_reduction.py
 .\.venv\Scripts\python.exe notebooks\14_finalize_orb_v01_development_freeze.py
 .\.venv\Scripts\python.exe notebooks\15_orb_gate7_validation.py
+.\.venv\Scripts\python.exe notebooks\18_mnq_orb_v02_feature_validation.py
+
+# Separate DEVELOPMENT-only feature-validation viewer
+.\.venv\Scripts\python.exe -m streamlit run notebooks\19_mnq_orb_v02_feature_viewer.py
 
 # Read-only experiment ledger and artifact explorer
 .\.venv\Scripts\python.exe -m streamlit run notebooks\17_research_dashboard.py

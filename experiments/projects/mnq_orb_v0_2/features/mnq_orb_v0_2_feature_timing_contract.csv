@@ -1,0 +1,372 @@
+feature_id,feature_family,calculation_window,timezone,earliest_availability_timestamp,causal,required_warmup,normalization_method,source_columns,missing_data_behavior
+session_date,audit_identity,not applicable,America/New_York,row identity,True,none,none,derived identity,required
+contract,audit_identity,not applicable,America/New_York,row identity,True,none,none,derived identity,required
+timezone,audit_identity,not applicable,America/New_York,row identity,True,none,none,derived identity,required
+timestamp_semantics,audit_identity,not applicable,America/New_York,row identity,True,none,none,derived identity,required
+asia_feature_available,preopen_asia,asia,America/New_York,00:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+asia_expected_bars,preopen_asia,asia,America/New_York,00:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+asia_observed_bars,preopen_asia,asia,America/New_York,00:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+asia_available_at,preopen_asia,asia,America/New_York,00:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+asia_missing_reason,preopen_asia,asia,America/New_York,00:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+asia_first_bar_end,preopen_asia,asia,America/New_York,00:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+asia_last_bar_end,preopen_asia,asia,America/New_York,00:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+asia_open,preopen_asia,asia,America/New_York,00:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+asia_high,preopen_asia,asia,America/New_York,00:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+asia_low,preopen_asia,asia,America/New_York,00:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+asia_close,preopen_asia,asia,America/New_York,00:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+asia_range_points,preopen_asia,asia,America/New_York,00:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+asia_reference_price,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+asia_range_pct,preopen_asia,asia,America/New_York,00:00 ET,True,none,decimal ratio using the explicitly recorded reference price,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+asia_net_move_points,preopen_asia,asia,America/New_York,00:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+asia_net_move_pct,preopen_asia,asia,America/New_York,00:00 ET,True,none,decimal ratio using the explicitly recorded reference price,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+asia_direction,preopen_asia,asia,America/New_York,00:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+asia_efficiency,preopen_asia,asia,America/New_York,00:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+asia_high_timestamp,preopen_asia,asia,America/New_York,00:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+asia_low_timestamp,preopen_asia,asia,America/New_York,00:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+london_feature_available,preopen_london,london,America/New_York,05:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+london_expected_bars,preopen_london,london,America/New_York,05:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+london_observed_bars,preopen_london,london,America/New_York,05:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+london_available_at,preopen_london,london,America/New_York,05:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+london_missing_reason,preopen_london,london,America/New_York,05:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+london_first_bar_end,preopen_london,london,America/New_York,05:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+london_last_bar_end,preopen_london,london,America/New_York,05:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+london_open,preopen_london,london,America/New_York,05:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+london_high,preopen_london,london,America/New_York,05:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+london_low,preopen_london,london,America/New_York,05:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+london_close,preopen_london,london,America/New_York,05:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+london_range_points,preopen_london,london,America/New_York,05:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+london_reference_price,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+london_range_pct,preopen_london,london,America/New_York,05:00 ET,True,none,decimal ratio using the explicitly recorded reference price,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+london_net_move_points,preopen_london,london,America/New_York,05:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+london_net_move_pct,preopen_london,london,America/New_York,05:00 ET,True,none,decimal ratio using the explicitly recorded reference price,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+london_direction,preopen_london,london,America/New_York,05:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+london_efficiency,preopen_london,london,America/New_York,05:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+london_high_timestamp,preopen_london,london,America/New_York,05:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+london_low_timestamp,preopen_london,london,America/New_York,05:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+ny_premarket_feature_available,preopen_new_york,ny_premarket,America/New_York,09:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+ny_premarket_expected_bars,preopen_new_york,ny_premarket,America/New_York,09:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+ny_premarket_observed_bars,preopen_new_york,ny_premarket,America/New_York,09:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+ny_premarket_available_at,preopen_new_york,ny_premarket,America/New_York,09:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+ny_premarket_missing_reason,preopen_new_york,ny_premarket,America/New_York,09:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+ny_premarket_first_bar_end,preopen_new_york,ny_premarket,America/New_York,09:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+ny_premarket_last_bar_end,preopen_new_york,ny_premarket,America/New_York,09:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+ny_premarket_open,preopen_new_york,ny_premarket,America/New_York,09:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+ny_premarket_high,preopen_new_york,ny_premarket,America/New_York,09:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+ny_premarket_low,preopen_new_york,ny_premarket,America/New_York,09:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+ny_premarket_close,preopen_new_york,ny_premarket,America/New_York,09:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+ny_premarket_range_points,preopen_new_york,ny_premarket,America/New_York,09:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+ny_premarket_reference_price,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+ny_premarket_range_pct,preopen_new_york,ny_premarket,America/New_York,09:00 ET,True,none,decimal ratio using the explicitly recorded reference price,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+ny_premarket_net_move_points,preopen_new_york,ny_premarket,America/New_York,09:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+ny_premarket_net_move_pct,preopen_new_york,ny_premarket,America/New_York,09:00 ET,True,none,decimal ratio using the explicitly recorded reference price,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+ny_premarket_direction,preopen_new_york,ny_premarket,America/New_York,09:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+ny_premarket_efficiency,preopen_new_york,ny_premarket,America/New_York,09:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+ny_premarket_high_timestamp,preopen_new_york,ny_premarket,America/New_York,09:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+ny_premarket_low_timestamp,preopen_new_york,ny_premarket,America/New_York,09:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+overnight_feature_available,preopen_overnight,overnight,America/New_York,09:30 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+overnight_expected_bars,preopen_overnight,overnight,America/New_York,09:30 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+overnight_observed_bars,preopen_overnight,overnight,America/New_York,09:30 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+overnight_available_at,preopen_overnight,overnight,America/New_York,09:30 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+overnight_missing_reason,preopen_overnight,overnight,America/New_York,09:30 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+overnight_first_bar_end,preopen_overnight,overnight,America/New_York,09:30 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+overnight_last_bar_end,preopen_overnight,overnight,America/New_York,09:30 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+overnight_open,preopen_overnight,overnight,America/New_York,09:30 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+overnight_high,preopen_overnight,overnight,America/New_York,09:30 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+overnight_low,preopen_overnight,overnight,America/New_York,09:30 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+overnight_close,preopen_overnight,overnight,America/New_York,09:30 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+overnight_range_points,preopen_overnight,overnight,America/New_York,09:30 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+overnight_reference_price,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+overnight_range_pct,preopen_overnight,overnight,America/New_York,09:30 ET,True,none,decimal ratio using the explicitly recorded reference price,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+overnight_net_move_points,preopen_overnight,overnight,America/New_York,09:30 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+overnight_net_move_pct,preopen_overnight,overnight,America/New_York,09:30 ET,True,none,decimal ratio using the explicitly recorded reference price,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+overnight_direction,preopen_overnight,overnight,America/New_York,09:30 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+overnight_efficiency,preopen_overnight,overnight,America/New_York,09:30 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+overnight_high_timestamp,preopen_overnight,overnight,America/New_York,09:30 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+overnight_low_timestamp,preopen_overnight,overnight,America/New_York,09:30 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+combined_preopen_feature_available,preopen_combined,combined_preopen,America/New_York,09:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+combined_preopen_expected_bars,preopen_combined,combined_preopen,America/New_York,09:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+combined_preopen_observed_bars,preopen_combined,combined_preopen,America/New_York,09:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+combined_preopen_available_at,preopen_combined,combined_preopen,America/New_York,09:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+combined_preopen_missing_reason,preopen_combined,combined_preopen,America/New_York,09:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+combined_preopen_first_bar_end,preopen_combined,combined_preopen,America/New_York,09:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+combined_preopen_last_bar_end,preopen_combined,combined_preopen,America/New_York,09:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+combined_preopen_open,preopen_combined,combined_preopen,America/New_York,09:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+combined_preopen_high,preopen_combined,combined_preopen,America/New_York,09:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+combined_preopen_low,preopen_combined,combined_preopen,America/New_York,09:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+combined_preopen_close,preopen_combined,combined_preopen,America/New_York,09:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+combined_preopen_range_points,preopen_combined,combined_preopen,America/New_York,09:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+combined_preopen_reference_price,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+combined_preopen_range_pct,preopen_combined,combined_preopen,America/New_York,09:00 ET,True,none,decimal ratio using the explicitly recorded reference price,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+combined_preopen_net_move_points,preopen_combined,combined_preopen,America/New_York,09:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+combined_preopen_net_move_pct,preopen_combined,combined_preopen,America/New_York,09:00 ET,True,none,decimal ratio using the explicitly recorded reference price,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+combined_preopen_direction,preopen_combined,combined_preopen,America/New_York,09:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+combined_preopen_efficiency,preopen_combined,combined_preopen,America/New_York,09:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+combined_preopen_high_timestamp,preopen_combined,combined_preopen,America/New_York,09:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+combined_preopen_low_timestamp,preopen_combined,combined_preopen,America/New_York,09:00 ET,True,none,none,timestamp_et; OHLC,null/unavailable unless every expected bar exists
+previous_rth_feature_available,previous_rth_levels,prior trading session 09:30-16:00 market time,America/New_York,prior session 16:00 ET,True,none,none,prior session_date; OHLC,null/unavailable without complete prior RTH
+previous_rth_expected_bars,previous_rth_levels,prior trading session 09:30-16:00 market time,America/New_York,prior session 16:00 ET,True,none,none,prior session_date; OHLC,null/unavailable without complete prior RTH
+previous_rth_observed_bars,previous_rth_levels,prior trading session 09:30-16:00 market time,America/New_York,prior session 16:00 ET,True,none,none,prior session_date; OHLC,null/unavailable without complete prior RTH
+previous_rth_available_at,previous_rth_levels,prior trading session 09:30-16:00 market time,America/New_York,prior session 16:00 ET,True,none,none,prior session_date; OHLC,null/unavailable without complete prior RTH
+previous_rth_missing_reason,previous_rth_levels,prior trading session 09:30-16:00 market time,America/New_York,prior session 16:00 ET,True,none,none,prior session_date; OHLC,null/unavailable without complete prior RTH
+previous_rth_first_bar_end,previous_rth_levels,prior trading session 09:30-16:00 market time,America/New_York,prior session 16:00 ET,True,none,none,prior session_date; OHLC,null/unavailable without complete prior RTH
+previous_rth_last_bar_end,previous_rth_levels,prior trading session 09:30-16:00 market time,America/New_York,prior session 16:00 ET,True,none,none,prior session_date; OHLC,null/unavailable without complete prior RTH
+previous_rth_open,previous_rth_levels,prior trading session 09:30-16:00 market time,America/New_York,prior session 16:00 ET,True,none,none,prior session_date; OHLC,null/unavailable without complete prior RTH
+previous_rth_high,previous_rth_levels,prior trading session 09:30-16:00 market time,America/New_York,prior session 16:00 ET,True,none,none,prior session_date; OHLC,null/unavailable without complete prior RTH
+previous_rth_low,previous_rth_levels,prior trading session 09:30-16:00 market time,America/New_York,prior session 16:00 ET,True,none,none,prior session_date; OHLC,null/unavailable without complete prior RTH
+previous_rth_close,previous_rth_levels,prior trading session 09:30-16:00 market time,America/New_York,prior session 16:00 ET,True,none,none,prior session_date; OHLC,null/unavailable without complete prior RTH
+previous_rth_range_points,previous_rth_levels,prior trading session 09:30-16:00 market time,America/New_York,prior session 16:00 ET,True,none,none,prior session_date; OHLC,null/unavailable without complete prior RTH
+previous_rth_reference_price,previous_rth_levels,prior trading session 09:30-16:00 market time,America/New_York,prior session 16:00 ET,True,none,none,prior session_date; OHLC,null/unavailable without complete prior RTH
+previous_rth_range_pct,previous_rth_levels,prior trading session 09:30-16:00 market time,America/New_York,prior session 16:00 ET,True,none,decimal ratio using the explicitly recorded reference price,prior session_date; OHLC,null/unavailable without complete prior RTH
+previous_rth_net_move_points,previous_rth_levels,prior trading session 09:30-16:00 market time,America/New_York,prior session 16:00 ET,True,none,none,prior session_date; OHLC,null/unavailable without complete prior RTH
+previous_rth_net_move_pct,previous_rth_levels,prior trading session 09:30-16:00 market time,America/New_York,prior session 16:00 ET,True,none,decimal ratio using the explicitly recorded reference price,prior session_date; OHLC,null/unavailable without complete prior RTH
+previous_rth_direction,previous_rth_levels,prior trading session 09:30-16:00 market time,America/New_York,prior session 16:00 ET,True,none,none,prior session_date; OHLC,null/unavailable without complete prior RTH
+previous_rth_efficiency,previous_rth_levels,prior trading session 09:30-16:00 market time,America/New_York,prior session 16:00 ET,True,none,none,prior session_date; OHLC,null/unavailable without complete prior RTH
+previous_rth_high_timestamp,previous_rth_levels,prior trading session 09:30-16:00 market time,America/New_York,prior session 16:00 ET,True,none,none,prior session_date; OHLC,null/unavailable without complete prior RTH
+previous_rth_low_timestamp,previous_rth_levels,prior trading session 09:30-16:00 market time,America/New_York,prior session 16:00 ET,True,none,none,prior session_date; OHLC,null/unavailable without complete prior RTH
+gap_feature_available,globex_reopen_gap,prior 17:00 close to current 09:30 ET,America/New_York,09:30 ET,True,none,none,prior close; 18:01 reopen bar open; pre-open high/low,"null/unavailable if close, reopen, or pre-open rows missing"
+prior_session_close,globex_reopen_gap,prior 17:00 close to current 09:30 ET,America/New_York,09:30 ET,True,none,none,prior close; 18:01 reopen bar open; pre-open high/low,"null/unavailable if close, reopen, or pre-open rows missing"
+globex_reopen_price,globex_reopen_gap,prior 17:00 close to current 09:30 ET,America/New_York,09:30 ET,True,none,none,prior close; 18:01 reopen bar open; pre-open high/low,"null/unavailable if close, reopen, or pre-open rows missing"
+reopen_gap_points,globex_reopen_gap,prior 17:00 close to current 09:30 ET,America/New_York,09:30 ET,True,none,none,prior close; 18:01 reopen bar open; pre-open high/low,"null/unavailable if close, reopen, or pre-open rows missing"
+reopen_gap_pct,globex_reopen_gap,prior 17:00 close to current 09:30 ET,America/New_York,09:30 ET,True,none,decimal ratio using the explicitly recorded reference price,prior close; 18:01 reopen bar open; pre-open high/low,"null/unavailable if close, reopen, or pre-open rows missing"
+gap_direction,globex_reopen_gap,prior 17:00 close to current 09:30 ET,America/New_York,09:30 ET,True,none,none,prior close; 18:01 reopen bar open; pre-open high/low,"null/unavailable if close, reopen, or pre-open rows missing"
+gap_fill_state_at_0930,globex_reopen_gap,prior 17:00 close to current 09:30 ET,America/New_York,09:30 ET,True,none,none,prior close; 18:01 reopen bar open; pre-open high/low,"null/unavailable if close, reopen, or pre-open rows missing"
+gap_filled_before_0930,globex_reopen_gap,prior 17:00 close to current 09:30 ET,America/New_York,09:30 ET,True,none,none,prior close; 18:01 reopen bar open; pre-open high/low,"null/unavailable if close, reopen, or pre-open rows missing"
+gap_partially_filled_before_0930,globex_reopen_gap,prior 17:00 close to current 09:30 ET,America/New_York,09:30 ET,True,none,none,prior close; 18:01 reopen bar open; pre-open high/low,"null/unavailable if close, reopen, or pre-open rows missing"
+gap_still_open_at_0930,globex_reopen_gap,prior 17:00 close to current 09:30 ET,America/New_York,09:30 ET,True,none,none,prior close; 18:01 reopen bar open; pre-open high/low,"null/unavailable if close, reopen, or pre-open rows missing"
+gap_available_at,globex_reopen_gap,prior 17:00 close to current 09:30 ET,America/New_York,09:30 ET,True,none,none,prior close; 18:01 reopen bar open; pre-open high/low,"null/unavailable if close, reopen, or pre-open rows missing"
+gap_expected_bars,globex_reopen_gap,prior 17:00 close to current 09:30 ET,America/New_York,09:30 ET,True,none,none,prior close; 18:01 reopen bar open; pre-open high/low,"null/unavailable if close, reopen, or pre-open rows missing"
+gap_observed_bars,globex_reopen_gap,prior 17:00 close to current 09:30 ET,America/New_York,09:30 ET,True,none,none,prior close; 18:01 reopen bar open; pre-open high/low,"null/unavailable if close, reopen, or pre-open rows missing"
+gap_missing_reason,globex_reopen_gap,prior 17:00 close to current 09:30 ET,America/New_York,09:30 ET,True,none,none,prior close; 18:01 reopen bar open; pre-open high/low,"null/unavailable if close, reopen, or pre-open rows missing"
+london_took_asia_available,session_liquidity_path,"Asia, London, and New York pre-market windows",America/New_York,09:00 ET,True,none,none,window high/low,null state when either source window incomplete
+london_took_asia_high,session_liquidity_path,"Asia, London, and New York pre-market windows",America/New_York,09:00 ET,True,none,none,window high/low,null state when either source window incomplete
+london_took_asia_low,session_liquidity_path,"Asia, London, and New York pre-market windows",America/New_York,09:00 ET,True,none,none,window high/low,null state when either source window incomplete
+london_took_asia_state,session_liquidity_path,"Asia, London, and New York pre-market windows",America/New_York,09:00 ET,True,none,none,window high/low,null state when either source window incomplete
+ny_premarket_took_london_available,session_liquidity_path,"Asia, London, and New York pre-market windows",America/New_York,09:00 ET,True,none,none,window high/low,null state when either source window incomplete
+ny_premarket_took_london_high,session_liquidity_path,"Asia, London, and New York pre-market windows",America/New_York,09:00 ET,True,none,none,window high/low,null state when either source window incomplete
+ny_premarket_took_london_low,session_liquidity_path,"Asia, London, and New York pre-market windows",America/New_York,09:00 ET,True,none,none,window high/low,null state when either source window incomplete
+ny_premarket_took_london_state,session_liquidity_path,"Asia, London, and New York pre-market windows",America/New_York,09:00 ET,True,none,none,window high/low,null state when either source window incomplete
+ny_premarket_took_asia_available,session_liquidity_path,"Asia, London, and New York pre-market windows",America/New_York,09:00 ET,True,none,none,window high/low,null state when either source window incomplete
+ny_premarket_took_asia_high,session_liquidity_path,"Asia, London, and New York pre-market windows",America/New_York,09:00 ET,True,none,none,window high/low,null state when either source window incomplete
+ny_premarket_took_asia_low,session_liquidity_path,"Asia, London, and New York pre-market windows",America/New_York,09:00 ET,True,none,none,window high/low,null state when either source window incomplete
+ny_premarket_took_asia_state,session_liquidity_path,"Asia, London, and New York pre-market windows",America/New_York,09:00 ET,True,none,none,window high/low,null state when either source window incomplete
+or_feature_available,opening_range,09:30 market time through configured OR completion,America/New_York,configured OR completion,True,none,none,timestamp_et; open; high; low; close,null/unavailable unless every expected bar exists
+or_expected_bars,opening_range,09:30 market time through configured OR completion,America/New_York,configured OR completion,True,none,none,timestamp_et; open; high; low; close,null/unavailable unless every expected bar exists
+or_observed_bars,opening_range,09:30 market time through configured OR completion,America/New_York,configured OR completion,True,none,none,timestamp_et; open; high; low; close,null/unavailable unless every expected bar exists
+or_available_at,opening_range,09:30 market time through configured OR completion,America/New_York,configured OR completion,True,none,none,timestamp_et; open; high; low; close,null/unavailable unless every expected bar exists
+or_missing_reason,opening_range,09:30 market time through configured OR completion,America/New_York,configured OR completion,True,none,none,timestamp_et; open; high; low; close,null/unavailable unless every expected bar exists
+or_first_bar_end,opening_range,09:30 market time through configured OR completion,America/New_York,configured OR completion,True,none,none,timestamp_et; open; high; low; close,null/unavailable unless every expected bar exists
+or_last_bar_end,opening_range,09:30 market time through configured OR completion,America/New_York,configured OR completion,True,none,none,timestamp_et; open; high; low; close,null/unavailable unless every expected bar exists
+or_minutes,opening_range,09:30 market time through configured OR completion,America/New_York,configured OR completion,True,none,none,timestamp_et; open; high; low; close,null/unavailable unless every expected bar exists
+or_high,opening_range,09:30 market time through configured OR completion,America/New_York,configured OR completion,True,none,none,timestamp_et; open; high; low; close,null/unavailable unless every expected bar exists
+or_low,opening_range,09:30 market time through configured OR completion,America/New_York,configured OR completion,True,none,none,timestamp_et; open; high; low; close,null/unavailable unless every expected bar exists
+or_open,opening_range,09:30 market time through configured OR completion,America/New_York,configured OR completion,True,none,none,timestamp_et; open; high; low; close,null/unavailable unless every expected bar exists
+or_close,opening_range,09:30 market time through configured OR completion,America/New_York,configured OR completion,True,none,none,timestamp_et; open; high; low; close,null/unavailable unless every expected bar exists
+or_mid,opening_range,09:30 market time through configured OR completion,America/New_York,configured OR completion,True,none,none,timestamp_et; open; high; low; close,null/unavailable unless every expected bar exists
+or_width_points,opening_range,09:30 market time through configured OR completion,America/New_York,configured OR completion,True,none,none,timestamp_et; open; high; low; close,null/unavailable unless every expected bar exists
+or_width_pct,opening_range,09:30 market time through configured OR completion,America/New_York,configured OR completion,True,none,decimal ratio using the explicitly recorded reference price,timestamp_et; open; high; low; close,null/unavailable unless every expected bar exists
+or_reference_price,opening_range,09:30 market time through configured OR completion,America/New_York,configured OR completion,True,none,none,timestamp_et; open; high; low; close,null/unavailable unless every expected bar exists
+or_net_move_points,opening_range,09:30 market time through configured OR completion,America/New_York,configured OR completion,True,none,none,timestamp_et; open; high; low; close,null/unavailable unless every expected bar exists
+or_net_move_pct,opening_range,09:30 market time through configured OR completion,America/New_York,configured OR completion,True,none,decimal ratio using the explicitly recorded reference price,timestamp_et; open; high; low; close,null/unavailable unless every expected bar exists
+or_direction,opening_range,09:30 market time through configured OR completion,America/New_York,configured OR completion,True,none,none,timestamp_et; open; high; low; close,null/unavailable unless every expected bar exists
+or_efficiency,opening_range,09:30 market time through configured OR completion,America/New_York,configured OR completion,True,none,none,timestamp_et; open; high; low; close,null/unavailable unless every expected bar exists
+or_clv,opening_range,09:30 market time through configured OR completion,America/New_York,configured OR completion,True,none,none,timestamp_et; open; high; low; close,null/unavailable unless every expected bar exists
+or_high_timestamp,opening_range,09:30 market time through configured OR completion,America/New_York,configured OR completion,True,none,none,timestamp_et; open; high; low; close,null/unavailable unless every expected bar exists
+or_low_timestamp,opening_range,09:30 market time through configured OR completion,America/New_York,configured OR completion,True,none,none,timestamp_et; open; high; low; close,null/unavailable unless every expected bar exists
+previous_rth_high_price,previous_rth_levels,prior trading session 09:30-16:00 market time,America/New_York,prior session 16:00 ET,True,none,none,prior session_date; OHLC,null/unavailable without complete prior RTH
+level_previous_rth_high_available,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_previous_rth_high_start_side,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_previous_rth_high_distance_from_or_high_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_previous_rth_high_distance_from_or_low_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_previous_rth_high_distance_from_or_mid_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_previous_rth_high_distance_from_or_high_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_previous_rth_high_distance_from_or_low_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_previous_rth_high_distance_from_or_mid_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_previous_rth_high_touched,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_previous_rth_high_traded_through,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_previous_rth_high_swept,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_previous_rth_high_closed_through,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_previous_rth_high_rejected,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+previous_rth_low_price,previous_rth_levels,prior trading session 09:30-16:00 market time,America/New_York,prior session 16:00 ET,True,none,none,prior session_date; OHLC,null/unavailable without complete prior RTH
+level_previous_rth_low_available,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_previous_rth_low_start_side,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_previous_rth_low_distance_from_or_high_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_previous_rth_low_distance_from_or_low_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_previous_rth_low_distance_from_or_mid_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_previous_rth_low_distance_from_or_high_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_previous_rth_low_distance_from_or_low_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_previous_rth_low_distance_from_or_mid_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_previous_rth_low_touched,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_previous_rth_low_traded_through,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_previous_rth_low_swept,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_previous_rth_low_closed_through,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_previous_rth_low_rejected,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+previous_rth_close_price,previous_rth_levels,prior trading session 09:30-16:00 market time,America/New_York,prior session 16:00 ET,True,none,none,prior session_date; OHLC,null/unavailable without complete prior RTH
+level_previous_rth_close_available,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_previous_rth_close_start_side,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_previous_rth_close_distance_from_or_high_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_previous_rth_close_distance_from_or_low_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_previous_rth_close_distance_from_or_mid_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_previous_rth_close_distance_from_or_high_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_previous_rth_close_distance_from_or_low_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_previous_rth_close_distance_from_or_mid_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_previous_rth_close_touched,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_previous_rth_close_traded_through,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_previous_rth_close_swept,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_previous_rth_close_closed_through,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_previous_rth_close_rejected,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+overnight_high_price,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_overnight_high_available,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_overnight_high_start_side,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_overnight_high_distance_from_or_high_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_overnight_high_distance_from_or_low_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_overnight_high_distance_from_or_mid_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_overnight_high_distance_from_or_high_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_overnight_high_distance_from_or_low_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_overnight_high_distance_from_or_mid_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_overnight_high_touched,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_overnight_high_traded_through,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_overnight_high_swept,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_overnight_high_closed_through,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_overnight_high_rejected,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+overnight_low_price,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_overnight_low_available,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_overnight_low_start_side,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_overnight_low_distance_from_or_high_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_overnight_low_distance_from_or_low_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_overnight_low_distance_from_or_mid_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_overnight_low_distance_from_or_high_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_overnight_low_distance_from_or_low_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_overnight_low_distance_from_or_mid_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_overnight_low_touched,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_overnight_low_traded_through,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_overnight_low_swept,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_overnight_low_closed_through,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_overnight_low_rejected,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+asia_high_price,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_asia_high_available,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_asia_high_start_side,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_asia_high_distance_from_or_high_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_asia_high_distance_from_or_low_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_asia_high_distance_from_or_mid_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_asia_high_distance_from_or_high_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_asia_high_distance_from_or_low_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_asia_high_distance_from_or_mid_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_asia_high_touched,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_asia_high_traded_through,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_asia_high_swept,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_asia_high_closed_through,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_asia_high_rejected,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+asia_low_price,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_asia_low_available,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_asia_low_start_side,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_asia_low_distance_from_or_high_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_asia_low_distance_from_or_low_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_asia_low_distance_from_or_mid_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_asia_low_distance_from_or_high_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_asia_low_distance_from_or_low_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_asia_low_distance_from_or_mid_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_asia_low_touched,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_asia_low_traded_through,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_asia_low_swept,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_asia_low_closed_through,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_asia_low_rejected,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+london_high_price,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_london_high_available,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_london_high_start_side,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_london_high_distance_from_or_high_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_london_high_distance_from_or_low_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_london_high_distance_from_or_mid_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_london_high_distance_from_or_high_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_london_high_distance_from_or_low_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_london_high_distance_from_or_mid_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_london_high_touched,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_london_high_traded_through,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_london_high_swept,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_london_high_closed_through,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_london_high_rejected,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+london_low_price,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_london_low_available,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_london_low_start_side,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_london_low_distance_from_or_high_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_london_low_distance_from_or_low_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_london_low_distance_from_or_mid_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_london_low_distance_from_or_high_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_london_low_distance_from_or_low_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_london_low_distance_from_or_mid_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_london_low_touched,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_london_low_traded_through,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_london_low_swept,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_london_low_closed_through,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_london_low_rejected,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+ny_premarket_high_price,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_ny_premarket_high_available,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_ny_premarket_high_start_side,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_ny_premarket_high_distance_from_or_high_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_ny_premarket_high_distance_from_or_low_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_ny_premarket_high_distance_from_or_mid_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_ny_premarket_high_distance_from_or_high_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_ny_premarket_high_distance_from_or_low_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_ny_premarket_high_distance_from_or_mid_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_ny_premarket_high_touched,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_ny_premarket_high_traded_through,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_ny_premarket_high_swept,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_ny_premarket_high_closed_through,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_ny_premarket_high_rejected,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+ny_premarket_low_price,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_ny_premarket_low_available,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_ny_premarket_low_start_side,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_ny_premarket_low_distance_from_or_high_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_ny_premarket_low_distance_from_or_low_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_ny_premarket_low_distance_from_or_mid_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_ny_premarket_low_distance_from_or_high_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_ny_premarket_low_distance_from_or_low_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_ny_premarket_low_distance_from_or_mid_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_ny_premarket_low_touched,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_ny_premarket_low_traded_through,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_ny_premarket_low_swept,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_ny_premarket_low_closed_through,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_ny_premarket_low_rejected,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_globex_reopen_available,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_globex_reopen_start_side,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_globex_reopen_distance_from_or_high_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_globex_reopen_distance_from_or_low_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_globex_reopen_distance_from_or_mid_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_globex_reopen_distance_from_or_high_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_globex_reopen_distance_from_or_low_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_globex_reopen_distance_from_or_mid_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_globex_reopen_touched,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_globex_reopen_traded_through,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_globex_reopen_swept,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_globex_reopen_closed_through,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_globex_reopen_rejected,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+prior_session_close_price,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_prior_session_close_available,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_prior_session_close_start_side,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_prior_session_close_distance_from_or_high_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_prior_session_close_distance_from_or_low_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_prior_session_close_distance_from_or_mid_points,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_prior_session_close_distance_from_or_high_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_prior_session_close_distance_from_or_low_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_prior_session_close_distance_from_or_mid_pct,key_level_interaction,configured OR,America/New_York,OR completion,True,none,decimal ratio using the explicitly recorded reference price,OR OHLC; causal key-level price,unavailable flags and null distances
+level_prior_session_close_touched,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_prior_session_close_traded_through,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_prior_session_close_swept,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_prior_session_close_closed_through,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+level_prior_session_close_rejected,key_level_interaction,configured OR,America/New_York,OR completion,True,none,none,OR OHLC; causal key-level price,unavailable flags and null distances
+or_to_asia_range_ratio,opening_range,09:30 market time through configured OR completion,America/New_York,configured OR completion,True,none,none,timestamp_et; open; high; low; close,null/unavailable unless every expected bar exists
+or_to_london_range_ratio,opening_range,09:30 market time through configured OR completion,America/New_York,configured OR completion,True,none,none,timestamp_et; open; high; low; close,null/unavailable unless every expected bar exists
+or_to_ny_premarket_range_ratio,opening_range,09:30 market time through configured OR completion,America/New_York,configured OR completion,True,none,none,timestamp_et; open; high; low; close,null/unavailable unless every expected bar exists
+or_to_combined_preopen_range_ratio,opening_range,09:30 market time through configured OR completion,America/New_York,configured OR completion,True,none,none,timestamp_et; open; high; low; close,null/unavailable unless every expected bar exists
+row_feature_complete,audit_identity,not applicable,America/New_York,row identity,True,none,none,derived identity,required
+or_width_hist_20_sample_count,causal_historical_or_width,"20 prior completed sessions, same OR duration",America/New_York,OR completion,True,20 prior valid OR widths,none,or_width_points; prior session_date only,null/unavailable before full warm-up
+or_width_hist_20_percentile,causal_historical_or_width,"20 prior completed sessions, same OR duration",America/New_York,OR completion,True,20 prior valid OR widths,none,or_width_points; prior session_date only,null/unavailable before full warm-up
+or_width_hist_20_zscore,causal_historical_or_width,"20 prior completed sessions, same OR duration",America/New_York,OR completion,True,20 prior valid OR widths,none,or_width_points; prior session_date only,null/unavailable before full warm-up
+or_width_hist_20_available,causal_historical_or_width,"20 prior completed sessions, same OR duration",America/New_York,OR completion,True,20 prior valid OR widths,none,or_width_points; prior session_date only,null/unavailable before full warm-up
+or_width_hist_40_sample_count,causal_historical_or_width,"40 prior completed sessions, same OR duration",America/New_York,OR completion,True,40 prior valid OR widths,none,or_width_points; prior session_date only,null/unavailable before full warm-up
+or_width_hist_40_percentile,causal_historical_or_width,"40 prior completed sessions, same OR duration",America/New_York,OR completion,True,40 prior valid OR widths,none,or_width_points; prior session_date only,null/unavailable before full warm-up
+or_width_hist_40_zscore,causal_historical_or_width,"40 prior completed sessions, same OR duration",America/New_York,OR completion,True,40 prior valid OR widths,none,or_width_points; prior session_date only,null/unavailable before full warm-up
+or_width_hist_40_available,causal_historical_or_width,"40 prior completed sessions, same OR duration",America/New_York,OR completion,True,40 prior valid OR widths,none,or_width_points; prior session_date only,null/unavailable before full warm-up
+or_width_hist_60_sample_count,causal_historical_or_width,"60 prior completed sessions, same OR duration",America/New_York,OR completion,True,60 prior valid OR widths,none,or_width_points; prior session_date only,null/unavailable before full warm-up
+or_width_hist_60_percentile,causal_historical_or_width,"60 prior completed sessions, same OR duration",America/New_York,OR completion,True,60 prior valid OR widths,none,or_width_points; prior session_date only,null/unavailable before full warm-up
+or_width_hist_60_zscore,causal_historical_or_width,"60 prior completed sessions, same OR duration",America/New_York,OR completion,True,60 prior valid OR widths,none,or_width_points; prior session_date only,null/unavailable before full warm-up
+or_width_hist_60_available,causal_historical_or_width,"60 prior completed sessions, same OR duration",America/New_York,OR completion,True,60 prior valid OR widths,none,or_width_points; prior session_date only,null/unavailable before full warm-up

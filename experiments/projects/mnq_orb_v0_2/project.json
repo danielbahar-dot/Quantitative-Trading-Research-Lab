@@ -1,0 +1,27 @@
+{
+  "project_id": "mnq_orb_v0_2",
+  "project_name": "MNQ ORB V0.2 Feature Research",
+  "strategy_id": "opening_range_breakout",
+  "strategy_family": "Opening Range Breakout",
+  "instrument_id": "MNQ",
+  "asset_class": "futures",
+  "strategy_versions": [
+    {
+      "strategy_version": "V0.2",
+      "title": "MNQ ORB V0.2",
+      "research_lifecycle_version": "1.0",
+      "current_research_stage": "STAGE_2_FEATURES",
+      "lifecycle_status": "FEATURES_VALIDATED_AND_FROZEN",
+      "decision": "Stage-2 causal features passed automated validation and 14/14 representative human reviews and are frozen as of 2026-09-02. No V0.2 signal or strategy rule has been approved.",
+      "handoff": "Stage 2 feature freeze complete -> Stage 3 signal hypothesis and signal validation",
+      "future_strategy_lifecycle_status": "NOT_STARTED",
+      "approved_for_next_phase": true
+    }
+  ],
+  "dataset_config_path": "config/datasets/mnq_1m_actual_contract_v1.partitions.json",
+  "instrument_config_path": "config/instruments/mnq.json",
+  "research_lifecycle_path": "experiments/schema/research_lifecycle_v1.json",
+  "component_registry_path": "config/components/research_components.json",
+  "experiment_index_path": "experiments/projects/mnq_orb_v0_2/experiment_index.json",
+  "read_only": true
+}

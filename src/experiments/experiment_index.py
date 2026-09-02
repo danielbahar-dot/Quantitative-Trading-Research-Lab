@@ -250,7 +250,7 @@ def load_experiment_index(
     if strategy_version is not None:
         frame = frame.loc[frame["strategy_version"].eq(strategy_version)]
     return frame.sort_values(
-        ["project_id", "strategy_version", "stage_order", "gate"],
+        ["stage_order", "project_id", "strategy_version", "gate"],
         kind="stable", na_position="first",
     ).reset_index(drop=True)
 

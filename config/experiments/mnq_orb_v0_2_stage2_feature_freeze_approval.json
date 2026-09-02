@@ -1,0 +1,22 @@
+{
+  "experiment_id": "mnq_orb_v0_2_stage2_feature_freeze_approval",
+  "project_id": "mnq_orb_v0_2",
+  "strategy_id": "opening_range_breakout",
+  "strategy_version": "V0.2",
+  "research_stage": "STAGE_2_FEATURES",
+  "partition": "DEVELOPMENT",
+  "development_start": "2024-06-21",
+  "development_end": "2025-06-30",
+  "dataset_id": "MNQ_1m_actual_contract_v1",
+  "dataset_version": "qualified_actual_contract_v1",
+  "dataset_sha256": "6c60be7885d5307694b94c8bd64376fc32fea1b04e1521d4100c859d4219b550",
+  "human_review_completion_date": "2026-09-02",
+  "human_review_decisions_path": "config/features/mnq_orb_v0_2_stage2_human_reviews.json",
+  "feature_audit_path": "experiments/projects/mnq_orb_v0_2/features/mnq_orb_v0_2_stage2_completion_DEV_feature_audit.csv",
+  "availability_audit_path": "experiments/projects/mnq_orb_v0_2/features/mnq_orb_v0_2_stage2_completion_DEV_overnight_availability_audit.csv",
+  "feature_contract_path": "experiments/projects/mnq_orb_v0_2/features/mnq_orb_v0_2_stage2_completion_feature_timing_contract.csv",
+  "window_config_path": "config/features/mnq_orb_v0_2_preopen_windows.json",
+  "validation_or_oos_loaded": false,
+  "strategy_performance_calculated": false,
+  "decision": "freeze"
+}

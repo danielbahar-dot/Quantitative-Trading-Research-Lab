@@ -1,0 +1,246 @@
+{
+  "experiment_id": "mnq_orb_v0_2_stage2_feature_freeze_approval",
+  "project_id": "mnq_orb_v0_2",
+  "strategy_id": "opening_range_breakout",
+  "strategy_version": "V0.2",
+  "research_stage": "STAGE_2_FEATURES",
+  "title": "Stage 2 feature validation human approval and freeze",
+  "gate": "V0.2-S2-FREEZE",
+  "experiment_type": "FEATURE_FREEZE_APPROVAL",
+  "hypothesis": "The completed causal feature package satisfies automated invariants and all representative human visual checks and can be frozen before signal research.",
+  "description": "Append-only DEVELOPMENT-only governance record for 14/14 human review PASS, exact trigger_id evidence, and Stage-2 feature freeze.",
+  "scope": {
+    "instrument_id": "MNQ",
+    "universe_id": null,
+    "asset_class": "futures",
+    "timeframe": "1 minute",
+    "partition": "DEVELOPMENT"
+  },
+  "lineage": {
+    "parent_experiment_ids": [
+      "mnq_orb_v0_2_stage2_feature_validation_completion"
+    ],
+    "source_gates": [
+      "V0.2 Stage 2 completion",
+      "V0.2 Stage 2 human visual review"
+    ]
+  },
+  "reproducibility": {
+    "dataset_id": "MNQ_1m_actual_contract_v1",
+    "dataset_version": "qualified_actual_contract_v1",
+    "data_hash": "6c60be7885d5307694b94c8bd64376fc32fea1b04e1521d4100c859d4219b550",
+    "config_path": "config/experiments/mnq_orb_v0_2_stage2_feature_freeze_approval.json",
+    "git_sha": "82f4247ce5527e9fadd338558c131dde27324607",
+    "working_tree_dirty": true,
+    "run_timestamp": "2026-09-02T04:24:30.553167Z",
+    "final_git_sha": "82f4247ce5527e9fadd338558c131dde27324607",
+    "final_working_tree_dirty": true
+  },
+  "data_references": [],
+  "configuration": {
+    "path": "config/experiments/mnq_orb_v0_2_stage2_feature_freeze_approval.json",
+    "parameters": {
+      "human_review_completion_date": "2026-09-02",
+      "required_passes": 14,
+      "validation_or_oos_loaded": false
+    }
+  },
+  "status": "complete",
+  "decision": "freeze",
+  "confirmatory": false,
+  "reserved_data_exposed": false,
+  "summary_metrics": {
+    "representative_review_cases": 14,
+    "representative_review_passed": 14,
+    "representative_review_pending": 0,
+    "feature_rows": 744,
+    "feature_columns": 474,
+    "maximum_session_date": "2025-06-30",
+    "validation_or_oos_accessed": false
+  },
+  "artifacts": [
+    {
+      "artifact_id": "availability_audit",
+      "type": "audit",
+      "title": "Frozen missing-source availability audit",
+      "path": "experiments/projects/mnq_orb_v0_2/features/mnq_orb_v0_2_stage2_completion_DEV_overnight_availability_audit.csv",
+      "description": null,
+      "mime_type": "application/vnd.ms-excel",
+      "category": "data",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "performance_metrics": false,
+        "human_review_completion_date": "2026-09-02",
+        "validation_or_oos_accessed": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "component_registry",
+      "type": "component_definitions",
+      "title": "Validated Stage-2 component registry",
+      "path": "config/components/research_components.json",
+      "description": null,
+      "mime_type": "application/json",
+      "category": "metadata",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "performance_metrics": false,
+        "human_review_completion_date": "2026-09-02",
+        "validation_or_oos_accessed": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "feature_audit",
+      "type": "feature_table",
+      "title": "Frozen DEVELOPMENT feature audit",
+      "path": "experiments/projects/mnq_orb_v0_2/features/mnq_orb_v0_2_stage2_completion_DEV_feature_audit.csv",
+      "description": null,
+      "mime_type": "application/vnd.ms-excel",
+      "category": "data",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "performance_metrics": false,
+        "human_review_completion_date": "2026-09-02",
+        "validation_or_oos_accessed": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "feature_contract",
+      "type": "feature_contract",
+      "title": "Frozen feature timing contract",
+      "path": "experiments/projects/mnq_orb_v0_2/features/mnq_orb_v0_2_stage2_completion_feature_timing_contract.csv",
+      "description": null,
+      "mime_type": "application/vnd.ms-excel",
+      "category": "metadata",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "performance_metrics": false,
+        "human_review_completion_date": "2026-09-02",
+        "validation_or_oos_accessed": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "final_review_queue",
+      "type": "human_review_queue",
+      "title": "Final 14-of-14 Stage-2 human review queue",
+      "path": "experiments/projects/mnq_orb_v0_2/features/mnq_orb_v0_2_stage2_final_human_review_queue.csv",
+      "description": null,
+      "mime_type": "application/vnd.ms-excel",
+      "category": "data",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "performance_metrics": false,
+        "human_review_completion_date": "2026-09-02",
+        "validation_or_oos_accessed": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "freeze_configuration",
+      "type": "configuration",
+      "title": "Stage-2 feature freeze configuration",
+      "path": "config/experiments/mnq_orb_v0_2_stage2_feature_freeze_approval.json",
+      "description": null,
+      "mime_type": "application/json",
+      "category": "configuration",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "performance_metrics": false,
+        "human_review_completion_date": "2026-09-02",
+        "validation_or_oos_accessed": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "freeze_metadata",
+      "type": "freeze",
+      "title": "Stage-2 feature freeze metadata",
+      "path": "experiments/projects/mnq_orb_v0_2/features/mnq_orb_v0_2_stage2_feature_freeze_metadata.json",
+      "description": null,
+      "mime_type": "application/json",
+      "category": "metadata",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "performance_metrics": false,
+        "human_review_completion_date": "2026-09-02",
+        "validation_or_oos_accessed": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "freeze_report",
+      "type": "report",
+      "title": "Final Stage-2 feature freeze report",
+      "path": "experiments/projects/mnq_orb_v0_2/features/mnq_orb_v0_2_stage2_feature_freeze_report.md",
+      "description": null,
+      "mime_type": "text/markdown",
+      "category": "documentation",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "performance_metrics": false,
+        "human_review_completion_date": "2026-09-02",
+        "validation_or_oos_accessed": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "human_decisions",
+      "type": "human_review_decisions",
+      "title": "Versioned human review decisions",
+      "path": "config/features/mnq_orb_v0_2_stage2_human_reviews.json",
+      "description": null,
+      "mime_type": "application/json",
+      "category": "governance",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "performance_metrics": false,
+        "human_review_completion_date": "2026-09-02",
+        "validation_or_oos_accessed": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "window_configuration",
+      "type": "configuration",
+      "title": "Frozen pre-open window definitions",
+      "path": "config/features/mnq_orb_v0_2_preopen_windows.json",
+      "description": null,
+      "mime_type": "application/json",
+      "category": "configuration",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "performance_metrics": false,
+        "human_review_completion_date": "2026-09-02",
+        "validation_or_oos_accessed": false
+      },
+      "required": true
+    }
+  ],
+  "notes": "Human review completed 2026-09-02: all 14 representative Stage-2 cases passed. Features are validated and frozen for the next research stage; this is not strategy or deployment approval.",
+  "known_limitations": [
+    "Incomplete source windows remain explicitly unavailable; completeness rules were not weakened.",
+    "Liquidity-path states compare completed window extremes and do not encode intrawindow chronology.",
+    "Signal-bar excursion remains unordered OHLC evidence and is not an execution input."
+  ],
+  "started_at": "2026-09-02T04:24:30.553167Z",
+  "updated_at": "2026-09-02T04:24:31.036462Z",
+  "completed_at": "2026-09-02T04:24:31.036462Z",
+  "failed_at": null,
+  "failure": null,
+  "runtime_metadata": {
+    "python_version": "3.13.10",
+    "platform": "Windows-11-10.0.26200-SP0"
+  },
+  "registration": {
+    "api_version": "1.0",
+    "record_path": "experiments/projects/mnq_orb_v0_2/records/mnq_orb_v0_2_stage2_feature_freeze_approval.json"
+  },
+  "warnings": [
+    "No Validation or OOS_BURNED data was accessed.",
+    "No strategy performance was calculated and no V0.2 signal or trading rule was defined."
+  ]
+}

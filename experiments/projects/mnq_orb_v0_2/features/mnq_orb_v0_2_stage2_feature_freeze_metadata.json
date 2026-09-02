@@ -1,0 +1,21 @@
+{
+  "experiment_id": "mnq_orb_v0_2_stage2_feature_freeze_approval",
+  "research_stage": "STAGE_2_FEATURES",
+  "lifecycle_status": "FEATURES_VALIDATED_AND_FROZEN",
+  "decision": "freeze",
+  "human_review_completion_date": "2026-09-02",
+  "representative_review_cases": 14,
+  "representative_review_passed": 14,
+  "representative_review_pending": 0,
+  "feature_rows": 744,
+  "feature_columns": 474,
+  "minimum_session_date": "2024-06-21",
+  "maximum_session_date": "2025-06-30",
+  "partition": "DEVELOPMENT",
+  "validation_or_oos_accessed": false,
+  "strategy_performance_calculated": false,
+  "trigger_identifier_field": "trigger_id",
+  "same_level_multi_predicate_enforced": true,
+  "next_phase_authorized": "STAGE_3_SIGNALS",
+  "next_phase_started": false
+}

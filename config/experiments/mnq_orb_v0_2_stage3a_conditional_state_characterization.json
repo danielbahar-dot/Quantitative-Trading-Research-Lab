@@ -30,6 +30,8 @@
     "parent_experiment_id": "mnq_orb_v0_2_stage2_feature_freeze_approval",
     "stage3a_step1a_dataset": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3a_step1a_DEV_breakout_events.csv",
     "stage3a_step1a_audit": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3a_step1a_audit.md",
+    "stage3a_step1b_dataset": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3a_step1b_DEV_directional_states.csv",
+    "stage3a_step1b_audit": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3a_step1b_audit.md",
     "frozen_stage2_feature_audit": "experiments/projects/mnq_orb_v0_2/features/mnq_orb_v0_2_stage2_completion_DEV_feature_audit.csv",
     "frozen_stage2_print_outcomes": "experiments/projects/mnq_orb_v0_2/features/mnq_orb_v0_2_stage2_completion_DEV_print_breakout_outcomes.csv"
   },
@@ -209,6 +211,10 @@
     "access_oos_burned": false
   },
   "execution": {
+    "dataset_preparation": {
+      "step1a_room_to_next_key_level": "complete",
+      "step1b_or_breakout_directional_state": "complete"
+    },
     "analysis_started": false,
     "analysis_execution_authorized": false,
     "results_artifacts_created": false

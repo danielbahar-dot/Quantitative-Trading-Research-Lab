@@ -53,7 +53,17 @@
   "decision": "none",
   "confirmatory": false,
   "reserved_data_exposed": false,
-  "summary_metrics": {},
+  "summary_metrics": {
+    "dataset_preparation_step1b_complete": true,
+    "step1b_rows": 935,
+    "step1b_aligned": 598,
+    "step1b_opposed": 334,
+    "step1b_flat": 3,
+    "step1b_missing_alignment": 0,
+    "step1a_equal_price_tie_events": 71,
+    "characterization_analysis_started": false,
+    "validation_or_oos_accessed": false
+  },
   "artifacts": [
     {
       "artifact_id": "phase_specification",
@@ -104,6 +114,40 @@
       "required": true
     },
     {
+      "artifact_id": "stage3a_step1b_audit",
+      "type": "audit",
+      "title": "Stage 3A Step 1B directional-state construction audit",
+      "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3a_step1b_audit.md",
+      "description": null,
+      "mime_type": "text/markdown",
+      "category": "documentation",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "dataset_preparation_step": "STAGE_3A_STEP_1B",
+        "analysis_executed": false,
+        "performance_metrics": false,
+        "validation_or_oos_accessed": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "stage3a_step1b_events",
+      "type": "working_dataset",
+      "title": "Stage 3A Step 1B DEVELOPMENT directional states",
+      "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3a_step1b_DEV_directional_states.csv",
+      "description": null,
+      "mime_type": "application/vnd.ms-excel",
+      "category": "data",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "dataset_preparation_step": "STAGE_3A_STEP_1B",
+        "analysis_executed": false,
+        "performance_metrics": false,
+        "validation_or_oos_accessed": false
+      },
+      "required": true
+    },
+    {
       "artifact_id": "transition_note",
       "type": "research_transition_note",
       "title": "Research conclusions after Stage 2 and Stage 3A Step 1A",
@@ -120,10 +164,10 @@
       "required": true
     }
   ],
-  "notes": "Research conclusion / transition note recorded after the Stage-2 freeze and Stage-3A Step 1A. Features remain descriptive states, not filters; characterization has not started.",
+  "notes": "Stage 3A Step 1B dataset preparation is complete on DEVELOPMENT: OR/breakout alignment, directional OR net move, and directional CLV were added while preserving Step 1A. Characterization analysis remains planned and has not started.",
   "known_limitations": [],
   "started_at": "2026-09-06T20:39:34.370699Z",
-  "updated_at": "2026-09-06T20:39:34.542237Z",
+  "updated_at": "2026-09-06T21:07:31.543803Z",
   "completed_at": null,
   "failed_at": null,
   "failure": null,
@@ -138,7 +182,8 @@
   "warnings": [
     "Planned record only; conditional-state characterization has not run.",
     "No Validation or OOS_BURNED access is authorized.",
-    "No state may be labeled a validated filter from this phase."
+    "No state may be labeled a validated filter from this phase.",
+    "Step 1B is dataset preparation only; conditional-state characterization remains not started."
   ],
   "future_hypotheses": [
     "Promote a conditional state only under the predeclared stability, sample-size, outlier, cross-duration, and market-structure criteria in the phase specification."

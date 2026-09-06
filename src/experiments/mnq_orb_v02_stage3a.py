@@ -1,4 +1,4 @@
-"""Build the DEVELOPMENT-only MNQ ORB V0.2 Stage-3A event table.
+"""Build DEVELOPMENT-only MNQ ORB V0.2 Stage-3A preparation tables.
 
 This module joins frozen Stage-2 causal features onto frozen PRINT breakout
 events and derives only room to the next already-known key level.  It does not
@@ -41,6 +41,13 @@ ROOM_FIELDS = (
     "room_to_next_level_pct",
     "room_to_next_level_or_widths",
     "no_level_ahead",
+)
+
+DIRECTIONAL_FIELDS = (
+    "or_breakout_alignment",
+    "directional_or_net_move_points",
+    "directional_or_net_move_pct",
+    "directional_clv",
 )
 
 
@@ -133,6 +140,162 @@ def room_to_next_level(row: Mapping[str, Any]) -> dict[str, Any]:
     }
 
 
+def build_directional_state_events(
+    step1a_events: pd.DataFrame,
+) -> tuple[pd.DataFrame, dict[str, Any]]:
+    """Add only the predeclared Step-1B directional OR state fields."""
+
+    _validate_step1b_input(step1a_events)
+    existing = set(DIRECTIONAL_FIELDS) & set(step1a_events.columns)
+    if existing:
+        raise ValueError(
+            "Step-1A input already contains Step-1B fields: "
+            + ", ".join(sorted(existing))
+        )
+
+    output = step1a_events.copy()
+    breakout_direction = output["breakout_direction"].astype(str).str.upper()
+    or_direction = output["or_direction"].astype(str).str.upper()
+    long_mask = breakout_direction.eq("LONG")
+    short_mask = breakout_direction.eq("SHORT")
+
+    alignment = pd.Series(pd.NA, index=output.index, dtype="object")
+    alignment.loc[or_direction.eq("FLAT") & (long_mask | short_mask)] = "FLAT"
+    alignment.loc[
+        (long_mask & or_direction.eq("UP"))
+        | (short_mask & or_direction.eq("DOWN"))
+    ] = "ALIGNED"
+    alignment.loc[
+        (long_mask & or_direction.eq("DOWN"))
+        | (short_mask & or_direction.eq("UP"))
+    ] = "OPPOSED"
+
+    or_open = pd.to_numeric(output["or_open"], errors="coerce")
+    or_close = pd.to_numeric(output["or_close"], errors="coerce")
+    signed_points = or_close - or_open
+    directional_points = signed_points.where(long_mask, -signed_points).where(
+        long_mask | short_mask
+    )
+
+    frozen_net_points = pd.to_numeric(output["or_net_move_points"], errors="coerce")
+    comparable = signed_points.notna() & frozen_net_points.notna()
+    if not np.allclose(
+        signed_points.loc[comparable], frozen_net_points.loc[comparable]
+    ):
+        raise ValueError("Frozen OR net-move points do not reconcile to OR close - OR open")
+
+    frozen_net_pct = pd.to_numeric(output["or_net_move_pct"], errors="coerce")
+    directional_pct = frozen_net_pct.where(long_mask, -frozen_net_pct).where(
+        long_mask | short_mask
+    )
+    or_clv = pd.to_numeric(output["or_clv"], errors="coerce")
+    directional_clv = or_clv.where(long_mask, 1.0 - or_clv).where(
+        long_mask | short_mask
+    )
+
+    output["or_breakout_alignment"] = alignment
+    output["directional_or_net_move_points"] = directional_points
+    output["directional_or_net_move_pct"] = directional_pct
+    output["directional_clv"] = directional_clv
+
+    alignment_counts = {
+        state: int(output["or_breakout_alignment"].eq(state).sum())
+        for state in ("ALIGNED", "OPPOSED", "FLAT")
+    }
+    audit = {
+        "input_rows": int(len(step1a_events)),
+        "output_rows": int(len(output)),
+        "alignment_counts": alignment_counts,
+        "missing_alignment_count": int(output["or_breakout_alignment"].isna().sum()),
+        "directional_clv": _series_stats(output["directional_clv"]),
+        "directional_or_net_move_points": _series_stats(
+            output["directional_or_net_move_points"]
+        ),
+        "directional_or_net_move_pct": _series_stats(
+            output["directional_or_net_move_pct"]
+        ),
+        "step1a_equal_price_tie_count": count_step1a_nearest_level_ties(output),
+    }
+    return output, audit
+
+
+def count_step1a_nearest_level_ties(events: pd.DataFrame) -> int:
+    """Count events with multiple eligible nearest levels at one exact price."""
+
+    ties = 0
+    for _, row in events.iterrows():
+        direction = str(row.get("breakout_direction", "")).upper()
+        if direction not in {"LONG", "SHORT"}:
+            continue
+        boundary_name = "or_high" if direction == "LONG" else "or_low"
+        boundary = _finite_number(row.get(boundary_name))
+        if boundary is None:
+            continue
+        distances = []
+        for level_name in ROOM_LEVEL_ORDER:
+            level = _valid_level(row, level_name)
+            if level is None:
+                continue
+            distance = level - boundary if direction == "LONG" else boundary - level
+            if distance > 0:
+                distances.append(float(distance))
+        if distances:
+            nearest = min(distances)
+            ties += sum(distance == nearest for distance in distances) > 1
+    return int(ties)
+
+
+def render_step1b_audit_report(
+    output: pd.DataFrame,
+    audit: Mapping[str, Any],
+) -> str:
+    """Render the requested non-performance Step-1B audit."""
+
+    alignment = audit["alignment_counts"]
+    clv = audit["directional_clv"]
+    points = audit["directional_or_net_move_points"]
+    pct = audit["directional_or_net_move_pct"]
+    return f"""# MNQ ORB V0.2 Stage 3A Step 1B audit
+
+DEVELOPMENT-only dataset preparation audit. No outcome characterization,
+state bucketing, strategy performance, filters, or optimization were run.
+
+## Counts
+
+- Input Step-1A rows: {audit['input_rows']}
+- Output Step-1B rows: {audit['output_rows']}
+- ALIGNED: {alignment['ALIGNED']}
+- OPPOSED: {alignment['OPPOSED']}
+- FLAT: {alignment['FLAT']}
+- Missing alignment: {audit['missing_alignment_count']}
+- Step-1A equal-price nearest-level ties: {audit['step1a_equal_price_tie_count']}
+
+The tie count is the number of event rows with two or more eligible candidate
+levels at the exact nearest price. Step-1A selection order and values are
+unchanged.
+
+## Directional-state ranges
+
+| field | min | median | max |
+| --- | ---: | ---: | ---: |
+| directional_clv | {_stat_value(clv['min'])} | {_stat_value(clv['median'])} | {_stat_value(clv['max'])} |
+| directional_or_net_move_points | {_stat_value(points['min'])} | {_stat_value(points['median'])} | {_stat_value(points['max'])} |
+| directional_or_net_move_pct | {_stat_value(pct['min'])} | {_stat_value(pct['median'])} | {_stat_value(pct['max'])} |
+
+`directional_or_net_move_pct` carries forward the frozen Stage-2 OR-open
+normalization: LONG uses `or_net_move_pct`, while SHORT uses its sign inverse.
+Existing `or_efficiency` values are carried forward unchanged.
+
+## LONG examples
+
+{_directional_example_table(output, 'LONG')}
+
+## SHORT examples
+
+{_directional_example_table(output, 'SHORT')}
+"""
+
+
 def render_audit_report(output: pd.DataFrame, audit: Mapping[str, Any]) -> str:
     """Render the requested non-performance Step-1A audit."""
 
@@ -201,6 +364,36 @@ def _validate_inputs(features: pd.DataFrame, outcomes: pd.DataFrame) -> None:
         raise ValueError("Stage-3A Step 1A accepts PRINT outcomes only")
 
 
+def _validate_step1b_input(events: pd.DataFrame) -> None:
+    required = {
+        "session_date",
+        "breakout_type",
+        "breakout_direction",
+        "or_direction",
+        "or_open",
+        "or_close",
+        "or_high",
+        "or_low",
+        "or_net_move_points",
+        "or_net_move_pct",
+        "or_clv",
+        "or_efficiency",
+        "next_level_type",
+        "next_level_price",
+        *ROOM_LEVEL_ORDER,
+    }
+    missing = required - set(events.columns)
+    if missing:
+        raise ValueError(
+            "Step-1A input missing required columns: " + ", ".join(sorted(missing))
+        )
+    dates = pd.to_datetime(events["session_date"], errors="raise")
+    if not dates.between(DEVELOPMENT_START, DEVELOPMENT_END).all():
+        raise ValueError("Step-1A input contains rows outside DEVELOPMENT")
+    if not events["breakout_type"].astype(str).str.upper().eq("PRINT").all():
+        raise ValueError("Stage-3A Step 1B accepts PRINT outcomes only")
+
+
 def _valid_level(row: Mapping[str, Any], level_name: str) -> float | None:
     level = _finite_number(row.get(level_name))
     if level is None:
@@ -239,6 +432,34 @@ def _example_table(output: pd.DataFrame, direction: str) -> str:
     ].head(5)
     if examples.empty:
         return "No examples available."
+    header = "| " + " | ".join(columns) + " |"
+    separator = "| " + " | ".join("---" for _ in columns) + " |"
+    rows = [
+        "| " + " | ".join(_markdown_value(value) for value in row) + " |"
+        for row in examples.itertuples(index=False, name=None)
+    ]
+    return "\n".join([header, separator, *rows])
+
+
+def _directional_example_table(output: pd.DataFrame, direction: str) -> str:
+    columns = [
+        "session_date",
+        "contract",
+        "or_minutes",
+        "breakout_timestamp",
+        "breakout_direction",
+        "or_direction",
+        "or_open",
+        "or_close",
+        "or_breakout_alignment",
+        "directional_or_net_move_points",
+        "directional_or_net_move_pct",
+        "directional_clv",
+        "or_efficiency",
+    ]
+    examples = output.loc[
+        output["breakout_direction"].astype(str).str.upper().eq(direction), columns
+    ].head(5)
     header = "| " + " | ".join(columns) + " |"
     separator = "| " + " | ".join("---" for _ in columns) + " |"
     rows = [
@@ -287,3 +508,16 @@ def _markdown_value(value: Any) -> str:
     if isinstance(value, (float, np.floating)):
         return f"{float(value):.8g}"
     return str(value).replace("|", "\\|")
+
+
+def _series_stats(series: pd.Series) -> dict[str, float]:
+    numeric = pd.to_numeric(series, errors="coerce")
+    return {
+        "min": float(numeric.min()),
+        "median": float(numeric.median()),
+        "max": float(numeric.max()),
+    }
+
+
+def _stat_value(value: float) -> str:
+    return f"{value:.10g}"

@@ -168,7 +168,7 @@
       "development_first_half",
       "development_second_half"
     ],
-    "development_half_definition": "Sort the 248 frozen DEVELOPMENT session dates chronologically; first 124 sessions are DEV_FIRST_HALF and final 124 are DEV_SECOND_HALF.",
+    "development_half_definition": "For Step 2, sort the 247 event-bearing dates in the authorized Step-1B DEVELOPMENT input chronologically; first 123 dates are DEV_FIRST_HALF and final 124 are DEV_SECOND_HALF. The earlier 248-session planning assumption included one date with no breakout event and is not used to backfill the event analysis.",
     "bucketing": {
       "causal_percentiles": "Fixed quintile edges: [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]; unavailable observations are a separate state.",
       "other_continuous_states": "Ordinary DEVELOPMENT quantiles calculated separately within each OR duration; record boundaries and collapse duplicate edges deterministically.",
@@ -215,8 +215,12 @@
       "step1a_room_to_next_key_level": "complete",
       "step1b_or_breakout_directional_state": "complete"
     },
-    "analysis_started": false,
-    "analysis_execution_authorized": false,
-    "results_artifacts_created": false
+    "analysis_started": true,
+    "analysis_execution_authorized": true,
+    "results_artifacts_created": true,
+    "step2_causal_or_width_characterization": "complete",
+    "overall_stage3a_complete": false,
+    "validation_accessed": false,
+    "oos_burned_accessed": false
   }
 }

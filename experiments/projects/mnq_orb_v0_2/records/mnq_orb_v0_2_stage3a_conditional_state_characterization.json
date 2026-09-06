@@ -61,8 +61,37 @@
     "step1b_flat": 3,
     "step1b_missing_alignment": 0,
     "step1a_equal_price_tie_events": 71,
-    "characterization_analysis_started": false,
-    "validation_or_oos_accessed": false
+    "characterization_analysis_started": true,
+    "validation_or_oos_accessed": false,
+    "stage3a_step2_or_width_characterization_complete": true,
+    "overall_stage3a_complete": false,
+    "step2_input_rows": 935,
+    "step2_eligible_n_by_lookback": {
+      "5": 880,
+      "10": 837,
+      "15": 779,
+      "20": 731
+    },
+    "step2_unavailable_n_by_lookback": {
+      "5": 55,
+      "10": 98,
+      "15": 156,
+      "20": 204
+    },
+    "step2_development_split": {
+      "unique_event_dates": 247,
+      "first_half_dates": 123,
+      "second_half_dates": 124,
+      "first_half_start": "2024-06-21",
+      "first_half_end": "2024-12-20",
+      "second_half_start": "2024-12-23",
+      "second_half_end": "2025-06-30"
+    },
+    "step2_relationship_label_counts": {
+      "WEAK_OR_UNSTABLE": 5,
+      "CONSISTENT_CANDIDATE_STATE": 5,
+      "POTENTIALLY_INFORMATIVE": 2
+    }
   },
   "artifacts": [
     {
@@ -148,6 +177,108 @@
       "required": true
     },
     {
+      "artifact_id": "stage3a_step2_or_width_direction",
+      "type": "direction_breakdown",
+      "title": "Step 2 OR-width LONG/SHORT breakdown",
+      "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3a_step2_DEV_or_width_direction_breakdown.csv",
+      "description": null,
+      "mime_type": "text/csv",
+      "category": "analysis",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "analysis_step": "STAGE_3A_STEP_2",
+        "state_family": "CAUSAL_OR_WIDTH_STATE",
+        "strategy_performance": false,
+        "validation_or_oos_accessed": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "stage3a_step2_or_width_mae_plot",
+      "type": "plot",
+      "title": "Step 2 median MAE by causal OR-width band",
+      "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3a_step2_DEV_median_mae_30m.png",
+      "description": null,
+      "mime_type": "image/png",
+      "category": "visualization",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "analysis_step": "STAGE_3A_STEP_2",
+        "state_family": "CAUSAL_OR_WIDTH_STATE",
+        "strategy_performance": false,
+        "validation_or_oos_accessed": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "stage3a_step2_or_width_master",
+      "type": "analysis_table",
+      "title": "Step 2 OR-width master characterization",
+      "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3a_step2_DEV_or_width_characterization.csv",
+      "description": null,
+      "mime_type": "text/csv",
+      "category": "analysis",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "analysis_step": "STAGE_3A_STEP_2",
+        "state_family": "CAUSAL_OR_WIDTH_STATE",
+        "strategy_performance": false,
+        "validation_or_oos_accessed": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "stage3a_step2_or_width_mfe_plot",
+      "type": "plot",
+      "title": "Step 2 median MFE by causal OR-width band",
+      "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3a_step2_DEV_median_mfe_30m.png",
+      "description": null,
+      "mime_type": "image/png",
+      "category": "visualization",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "analysis_step": "STAGE_3A_STEP_2",
+        "state_family": "CAUSAL_OR_WIDTH_STATE",
+        "strategy_performance": false,
+        "validation_or_oos_accessed": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "stage3a_step2_or_width_report",
+      "type": "research_report",
+      "title": "Step 2 causal OR-width characterization report",
+      "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3a_step2_DEV_or_width_report.md",
+      "description": null,
+      "mime_type": "text/markdown",
+      "category": "documentation",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "analysis_step": "STAGE_3A_STEP_2",
+        "state_family": "CAUSAL_OR_WIDTH_STATE",
+        "strategy_performance": false,
+        "validation_or_oos_accessed": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "stage3a_step2_or_width_stability",
+      "type": "stability_table",
+      "title": "Step 2 OR-width DEVELOPMENT-half stability",
+      "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3a_step2_DEV_or_width_stability.csv",
+      "description": null,
+      "mime_type": "text/csv",
+      "category": "analysis",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "analysis_step": "STAGE_3A_STEP_2",
+        "state_family": "CAUSAL_OR_WIDTH_STATE",
+        "strategy_performance": false,
+        "validation_or_oos_accessed": false
+      },
+      "required": true
+    },
+    {
       "artifact_id": "transition_note",
       "type": "research_transition_note",
       "title": "Research conclusions after Stage 2 and Stage 3A Step 1A",
@@ -164,10 +295,10 @@
       "required": true
     }
   ],
-  "notes": "Stage 3A Step 1B dataset preparation is complete on DEVELOPMENT: OR/breakout alignment, directional OR net move, and directional CLV were added while preserving Step 1A. Characterization analysis remains planned and has not started.",
+  "notes": "Stage 3A Step 2 causal OR-width characterization is complete on DEVELOPMENT. The overall Stage 3A experiment remains planned; no filter, preferred lookback, strategy performance, Validation, or OOS_BURNED result was produced.",
   "known_limitations": [],
   "started_at": "2026-09-06T20:39:34.370699Z",
-  "updated_at": "2026-09-06T21:07:31.543803Z",
+  "updated_at": "2026-09-06T22:17:40.276600Z",
   "completed_at": null,
   "failed_at": null,
   "failure": null,
@@ -180,10 +311,10 @@
     "record_path": "experiments/projects/mnq_orb_v0_2/records/mnq_orb_v0_2_stage3a_conditional_state_characterization.json"
   },
   "warnings": [
-    "Planned record only; conditional-state characterization has not run.",
-    "No Validation or OOS_BURNED access is authorized.",
-    "No state may be labeled a validated filter from this phase.",
-    "Step 1B is dataset preparation only; conditional-state characterization remains not started."
+    "Overall Stage 3A remains incomplete after the OR-width family analysis.",
+    "No Validation or OOS_BURNED access is authorized or recorded.",
+    "Descriptive candidate-state labels are not validated trading filters.",
+    "Signal-bar excursion remains chronology_unknown and is excluded from clean results."
   ],
   "future_hypotheses": [
     "Promote a conditional state only under the predeclared stability, sample-size, outlier, cross-duration, and market-structure criteria in the phase specification."

@@ -1,0 +1,216 @@
+{
+  "experiment_id": "mnq_orb_v0_2_stage3a_conditional_state_characterization",
+  "project_id": "mnq_orb_v0_2",
+  "strategy_id": "opening_range_breakout",
+  "strategy_version": "V0.2",
+  "research_stage": "STAGE_3_SIGNALS",
+  "gate": "V0.2-S3A-CHARACTERIZATION",
+  "title": "MNQ ORB V0.2 — Stage 3A Conditional-State Characterization",
+  "experiment_type": "CONDITIONAL_STATE_CHARACTERIZATION",
+  "status": "planned",
+  "purpose": "Build explicit V0.2 hypotheses by measuring whether the same frozen PRINT ORB behaves differently under predeclared causal states. This is a hypothesis-building diagnostic, not a strategy backtest.",
+  "research_question": "Which causal states observable by the time of the OR breakout materially change the behavior and expectancy of the same validated PRINT ORB signal?",
+  "scope": {
+    "instrument_id": "MNQ",
+    "asset_class": "futures",
+    "timeframe": "1 minute",
+    "partition": "DEVELOPMENT",
+    "development_start": "2024-06-21",
+    "development_end": "2025-06-30",
+    "or_minutes": [
+      15,
+      20,
+      30
+    ],
+    "breakout_type": "PRINT",
+    "validation_access_authorized": false,
+    "oos_burned_access_authorized": false
+  },
+  "lineage": {
+    "parent_experiment_id": "mnq_orb_v0_2_stage2_feature_freeze_approval",
+    "stage3a_step1a_dataset": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3a_step1a_DEV_breakout_events.csv",
+    "stage3a_step1a_audit": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3a_step1a_audit.md",
+    "frozen_stage2_feature_audit": "experiments/projects/mnq_orb_v0_2/features/mnq_orb_v0_2_stage2_completion_DEV_feature_audit.csv",
+    "frozen_stage2_print_outcomes": "experiments/projects/mnq_orb_v0_2/features/mnq_orb_v0_2_stage2_completion_DEV_print_breakout_outcomes.csv"
+  },
+  "state_families": [
+    {
+      "state_family": "CAUSAL_OR_WIDTH_STATE",
+      "fields": [
+        "or_width_hist_5_percentile",
+        "or_width_hist_10_percentile",
+        "or_width_hist_15_percentile",
+        "or_width_hist_20_percentile"
+      ],
+      "characterization": "Use fixed percentile quintiles with unavailable warm-up observations reported separately."
+    },
+    {
+      "state_family": "OR_INTERNAL_STRUCTURE",
+      "fields": [
+        "or_efficiency",
+        "or_clv",
+        "directional_or_clv",
+        "or_direction",
+        "or_breakout_alignment",
+        "or_net_move_points",
+        "or_net_move_pct"
+      ],
+      "derived_state_contract": {
+        "directional_or_clv": "LONG uses or_clv; SHORT uses 1 - or_clv.",
+        "or_breakout_alignment": "ALIGNED when OR direction agrees with breakout direction, OPPOSED when it disagrees, and NEUTRAL when the OR direction is neutral."
+      }
+    },
+    {
+      "state_family": "ROOM_TO_NEXT_KEY_LEVEL",
+      "fields": [
+        "room_to_next_level_points",
+        "room_to_next_level_pct",
+        "room_to_next_level_or_widths",
+        "no_level_ahead",
+        "next_level_type"
+      ]
+    },
+    {
+      "state_family": "KEY_LEVEL_INTERACTION_AT_OR",
+      "reference_families": [
+        "previous_day",
+        "ny_premarket",
+        "london",
+        "asia"
+      ],
+      "exclusive_states": [
+        "NO_INTERACTION",
+        "TOUCH",
+        "ACCEPTANCE_CLOSE_THROUGH",
+        "REJECTION",
+        "SWEEP"
+      ],
+      "classification_precedence": [
+        "SWEEP",
+        "REJECTION",
+        "ACCEPTANCE_CLOSE_THROUGH",
+        "TOUCH",
+        "NO_INTERACTION"
+      ],
+      "note": "Primitive Stage-2 flags remain unchanged. Precedence is used only to create mutually exclusive descriptive groups."
+    },
+    {
+      "state_family": "PREOPEN_EXPANSION_AS_ORB_CONTEXT",
+      "fields": [
+        "asia_range_pct",
+        "london_range_pct",
+        "ny_premarket_range_pct",
+        "overnight_context_2000_0900_range_pct"
+      ]
+    },
+    {
+      "state_family": "GAP_CONTEXT",
+      "fields": [
+        "ny_open_gap_points",
+        "ny_open_gap_pct",
+        "ny_open_gap_direction",
+        "globex_reopen_gap_points",
+        "globex_reopen_gap_pct",
+        "globex_reopen_gap_direction",
+        "globex_reopen_gap_fill_state_at_0930",
+        "globex_reopen_gap_filled_before_0930",
+        "globex_reopen_gap_partially_filled_before_0930",
+        "globex_reopen_gap_still_open_at_0930"
+      ],
+      "note": "Use the current frozen gap definitions and states without reinterpretation."
+    }
+  ],
+  "outcomes": {
+    "primary_layer": "Existing descriptive breakout excursion outcomes",
+    "signal_bar": {
+      "fields": [
+        "signal_bar_favorable_excursion_pct",
+        "signal_bar_adverse_excursion_pct",
+        "signal_bar_favorable_excursion_points",
+        "signal_bar_adverse_excursion_points"
+      ],
+      "chronology_unknown": true
+    },
+    "post_signal_bar_horizons": [
+      "5m",
+      "15m",
+      "30m",
+      "60m",
+      "session_end"
+    ],
+    "measures": [
+      "mfe",
+      "mae"
+    ],
+    "primary_normalization": "percentage",
+    "secondary_normalizations": [
+      "points",
+      "or_width_units_where_defined"
+    ],
+    "strategy_returns_or_pnl": false,
+    "stop_or_target_optimization": false
+  },
+  "analysis_plan": {
+    "required_breakdowns": [
+      "sample_size",
+      "long_count",
+      "short_count",
+      "or_minutes_15",
+      "or_minutes_20",
+      "or_minutes_30",
+      "mean_mfe",
+      "median_mfe",
+      "mean_mae",
+      "median_mae",
+      "distribution_quartiles",
+      "development_first_half",
+      "development_second_half"
+    ],
+    "development_half_definition": "Sort the 248 frozen DEVELOPMENT session dates chronologically; first 124 sessions are DEV_FIRST_HALF and final 124 are DEV_SECOND_HALF.",
+    "bucketing": {
+      "causal_percentiles": "Fixed quintile edges: [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]; unavailable observations are a separate state.",
+      "other_continuous_states": "Ordinary DEVELOPMENT quantiles calculated separately within each OR duration; record boundaries and collapse duplicate edges deterministically.",
+      "categorical_states": "Use declared categories as stored; do not combine categories based on outcomes."
+    },
+    "threshold_search": false,
+    "best_bucket_selection": false,
+    "multiple_filter_stacking": false
+  },
+  "hypothesis_promotion_rule": {
+    "requirements": [
+      "Meaningful shift in ORB outcome behavior",
+      "Adequate sample size",
+      "Effect not driven by a few outliers",
+      "Reasonable stability across DEVELOPMENT halves",
+      "Understandable directionality",
+      "Behavior not completely contradictory across OR durations",
+      "Plausible market-structure logic"
+    ],
+    "classification_labels": [
+      "NO_CLEAR_RELATIONSHIP",
+      "WEAK_OR_UNSTABLE",
+      "POTENTIALLY_INFORMATIVE",
+      "CONSISTENT_CANDIDATE_STATE"
+    ],
+    "validated_filter_label_allowed": false
+  },
+  "guardrails": {
+    "features_are_descriptive_states_not_rules": true,
+    "additional_feature_families_allowed": false,
+    "modify_frozen_stage2_artifacts": false,
+    "modify_orb_signal_logic": false,
+    "modify_execution_logic": false,
+    "run_strategy_performance": false,
+    "optimize_stops_or_targets": false,
+    "broad_feature_mining": false,
+    "machine_learning": false,
+    "arbitrary_threshold_optimization": false,
+    "access_validation": false,
+    "access_oos_burned": false
+  },
+  "execution": {
+    "analysis_started": false,
+    "analysis_execution_authorized": false,
+    "results_artifacts_created": false
+  }
+}

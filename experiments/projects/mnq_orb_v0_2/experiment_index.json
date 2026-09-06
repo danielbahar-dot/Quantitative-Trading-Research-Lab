@@ -891,6 +891,152 @@
         "No Validation or OOS_BURNED data was accessed.",
         "No strategy performance was calculated and no V0.2 signal or trading rule was defined."
       ]
+    },
+    {
+      "experiment_id": "mnq_orb_v0_2_stage3a_conditional_state_characterization",
+      "project_id": "mnq_orb_v0_2",
+      "strategy_id": "opening_range_breakout",
+      "strategy_version": "V0.2",
+      "research_stage": "STAGE_3_SIGNALS",
+      "title": "MNQ ORB V0.2 — Stage 3A Conditional-State Characterization",
+      "gate": "V0.2-S3A-CHARACTERIZATION",
+      "experiment_type": "CONDITIONAL_STATE_CHARACTERIZATION",
+      "hypothesis": "The same frozen PRINT ORB may exhibit materially different excursion behavior under predeclared causal market states observable by breakout time.",
+      "description": "Planned DEVELOPMENT-only hypothesis-building diagnostic; no strategy backtest, optimization, Validation, or OOS_BURNED access.",
+      "scope": {
+        "instrument_id": "MNQ",
+        "universe_id": null,
+        "asset_class": "futures",
+        "timeframe": "1 minute",
+        "partition": "DEVELOPMENT"
+      },
+      "lineage": {
+        "parent_experiment_ids": [
+          "mnq_orb_v0_2_stage2_feature_freeze_approval"
+        ],
+        "source_gates": [
+          "V0.2-S2-FREEZE",
+          "V0.2-S3A-STEP1A"
+        ]
+      },
+      "reproducibility": {
+        "dataset_id": "MNQ_1m_actual_contract_v1",
+        "dataset_version": "qualified_actual_contract_v1",
+        "data_hash": "6c60be7885d5307694b94c8bd64376fc32fea1b04e1521d4100c859d4219b550",
+        "config_path": "config/experiments/mnq_orb_v0_2_stage3a_conditional_state_characterization.json",
+        "git_sha": "d542dd6f63857a1d5bb92359b35929e06b7fd6b8",
+        "working_tree_dirty": true,
+        "run_timestamp": "2026-09-06T20:39:34.370699Z"
+      },
+      "data_references": [],
+      "configuration": {
+        "path": "config/experiments/mnq_orb_v0_2_stage3a_conditional_state_characterization.json",
+        "parameters": {
+          "breakout_type": "PRINT",
+          "or_minutes": [
+            15,
+            20,
+            30
+          ],
+          "analysis_started": false,
+          "validation_access_authorized": false,
+          "oos_burned_access_authorized": false
+        }
+      },
+      "status": "planned",
+      "decision": "none",
+      "confirmatory": false,
+      "reserved_data_exposed": false,
+      "summary_metrics": {},
+      "artifacts": [
+        {
+          "artifact_id": "phase_specification",
+          "type": "prospective_phase_specification",
+          "title": "Stage 3A conditional-state characterization specification",
+          "path": "config/experiments/mnq_orb_v0_2_stage3a_conditional_state_characterization.json",
+          "description": null,
+          "mime_type": "application/json",
+          "category": "configuration",
+          "metadata": {
+            "partition": "DEVELOPMENT",
+            "analysis_executed": false,
+            "performance_metrics": false,
+            "validation_or_oos_accessed": false
+          },
+          "required": true
+        },
+        {
+          "artifact_id": "stage3a_step1a_audit",
+          "type": "audit",
+          "title": "Stage 3A Step 1A construction audit",
+          "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3a_step1a_audit.md",
+          "description": null,
+          "mime_type": "text/markdown",
+          "category": "documentation",
+          "metadata": {
+            "partition": "DEVELOPMENT",
+            "analysis_executed": false,
+            "performance_metrics": false,
+            "validation_or_oos_accessed": false
+          },
+          "required": true
+        },
+        {
+          "artifact_id": "stage3a_step1a_events",
+          "type": "working_dataset",
+          "title": "Stage 3A Step 1A DEVELOPMENT breakout events",
+          "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3a_step1a_DEV_breakout_events.csv",
+          "description": null,
+          "mime_type": "application/vnd.ms-excel",
+          "category": "data",
+          "metadata": {
+            "partition": "DEVELOPMENT",
+            "analysis_executed": false,
+            "performance_metrics": false,
+            "validation_or_oos_accessed": false
+          },
+          "required": true
+        },
+        {
+          "artifact_id": "transition_note",
+          "type": "research_transition_note",
+          "title": "Research conclusions after Stage 2 and Stage 3A Step 1A",
+          "path": "experiments/projects/mnq_orb_v0_2/notes/mnq_orb_v0_2_stage2_to_stage3a_transition_note.md",
+          "description": null,
+          "mime_type": "text/markdown",
+          "category": "documentation",
+          "metadata": {
+            "partition": "DEVELOPMENT",
+            "analysis_executed": false,
+            "performance_metrics": false,
+            "validation_or_oos_accessed": false
+          },
+          "required": true
+        }
+      ],
+      "notes": "Research conclusion / transition note recorded after the Stage-2 freeze and Stage-3A Step 1A. Features remain descriptive states, not filters; characterization has not started.",
+      "known_limitations": [],
+      "started_at": "2026-09-06T20:39:34.370699Z",
+      "updated_at": "2026-09-06T20:39:34.542237Z",
+      "completed_at": null,
+      "failed_at": null,
+      "failure": null,
+      "runtime_metadata": {
+        "python_version": "3.13.10",
+        "platform": "Windows-11-10.0.26200-SP0"
+      },
+      "registration": {
+        "api_version": "1.0",
+        "record_path": "experiments/projects/mnq_orb_v0_2/records/mnq_orb_v0_2_stage3a_conditional_state_characterization.json"
+      },
+      "warnings": [
+        "Planned record only; conditional-state characterization has not run.",
+        "No Validation or OOS_BURNED access is authorized.",
+        "No state may be labeled a validated filter from this phase."
+      ],
+      "future_hypotheses": [
+        "Promote a conditional state only under the predeclared stability, sample-size, outlier, cross-duration, and market-structure criteria in the phase specification."
+      ]
     }
   ]
 }

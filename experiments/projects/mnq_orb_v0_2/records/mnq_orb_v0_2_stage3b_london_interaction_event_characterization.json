@@ -1,0 +1,348 @@
+{
+  "experiment_id": "mnq_orb_v0_2_stage3b_london_interaction_event_characterization",
+  "project_id": "mnq_orb_v0_2",
+  "strategy_id": "opening_range_breakout",
+  "strategy_version": "V0.2",
+  "research_stage": "STAGE_3_SIGNALS",
+  "title": "Stage 3B London 30m interaction event characterization",
+  "gate": "V0.2-STAGE3B-LONDON-30M",
+  "experiment_type": "EVENT_ANCHORED_SIGNAL_CHARACTERIZATION",
+  "hypothesis": "When the 30-minute NY opening range establishes acceptance through a London-session high or low, subsequent directional continuation in the direction of the accepted level is stronger than after a London-level sweep/rejection.",
+  "description": "DEVELOPMENT-only event study separating retrospective first-trade-through, causal OR-close confirmation, and unchanged later PRINT ORB anchors.",
+  "scope": {
+    "instrument_id": "MNQ",
+    "universe_id": null,
+    "asset_class": "futures",
+    "timeframe": "1 minute",
+    "partition": "DEVELOPMENT"
+  },
+  "lineage": {
+    "parent_experiment_ids": [
+      "mnq_orb_v0_2_stage2_feature_freeze_approval",
+      "mnq_orb_v0_2_stage3a_conditional_state_characterization"
+    ],
+    "source_gates": [
+      "Frozen Stage-2 feature layer",
+      "Stage 3A Step 5 London 30m finding"
+    ]
+  },
+  "reproducibility": {
+    "dataset_id": "MNQ_1m_actual_contract_v1",
+    "dataset_version": "v1",
+    "data_hash": "6c60be7885d5307694b94c8bd64376fc32fea1b04e1521d4100c859d4219b550",
+    "config_path": "config/experiments/mnq_orb_v0_2_stage3b_london_interaction_event_characterization.json",
+    "git_sha": "2f0fcd6e8b271cb5114e5e7836b7c97fab310996",
+    "working_tree_dirty": true,
+    "run_timestamp": "2026-09-07T10:54:23.391349Z"
+  },
+  "data_references": [],
+  "configuration": {
+    "path": "config/experiments/mnq_orb_v0_2_stage3b_london_interaction_event_characterization.json",
+    "parameters": {
+      "hypothesis_id": "HYP-LONDON-ACCEPTANCE-01",
+      "hypothesis_status": "HYPOTHESIS_CANDIDATE",
+      "evidence_scope": "DEVELOPMENT_ONLY",
+      "or_minutes": 30,
+      "primary_states": [
+        "CLOSE_THROUGH",
+        "SWEEP"
+      ],
+      "human_review_complete": false
+    }
+  },
+  "status": "running",
+  "decision": "continue",
+  "confirmatory": false,
+  "reserved_data_exposed": false,
+  "summary_metrics": {
+    "analysis_status": "analysis_complete_human_review_pending",
+    "hypothesis_id": "HYP-LONDON-ACCEPTANCE-01",
+    "hypothesis_status": "HYPOTHESIS_CANDIDATE_DEVELOPMENT_ONLY",
+    "hypothesis_classification": "WEAK_OR_UNSTABLE",
+    "hypothesis_validated": false,
+    "total_london_interaction_events": 187,
+    "state_counts": {
+      "CLOSE_THROUGH": 95,
+      "SWEEP": 92
+    },
+    "hypothesis_directional_events": 113,
+    "hypothesis_state_counts": {
+      "CLOSE_THROUGH": 61,
+      "SWEEP": 52
+    },
+    "orb_group_counts_by_state": {
+      "CLOSE_THROUGH": {
+        "SAME_DIRECTION_ORB": 48,
+        "OPPOSITE_DIRECTION_ORB": 11,
+        "NO_ORB": 2
+      },
+      "SWEEP": {
+        "SAME_DIRECTION_ORB": 32,
+        "OPPOSITE_DIRECTION_ORB": 19,
+        "NO_ORB": 1
+      }
+    },
+    "chronology_failures": 0,
+    "human_review_queue_n": 12,
+    "human_review_complete": false,
+    "reserved_data_exposed": false
+  },
+  "artifacts": [
+    {
+      "artifact_id": "stage3b_london_configuration",
+      "type": "configuration",
+      "title": "Stage 3B London interaction configuration",
+      "path": "config/experiments/mnq_orb_v0_2_stage3b_london_interaction_event_characterization.json",
+      "description": null,
+      "mime_type": "application/json",
+      "category": "configuration",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "analysis_step": "STAGE_3B_LONDON_30M",
+        "hypothesis_id": "HYP-LONDON-ACCEPTANCE-01",
+        "hypothesis_validated": false,
+        "strategy_performance": false,
+        "new_strategy_simulated": false,
+        "validation_or_oos_accessed": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "stage3b_london_event_dataset",
+      "type": "event_table",
+      "title": "London 30m interaction event dataset",
+      "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3b_DEV_london_30m_interaction_events.csv",
+      "description": null,
+      "mime_type": "application/vnd.ms-excel",
+      "category": "data",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "analysis_step": "STAGE_3B_LONDON_30M",
+        "hypothesis_id": "HYP-LONDON-ACCEPTANCE-01",
+        "hypothesis_validated": false,
+        "strategy_performance": false,
+        "new_strategy_simulated": false,
+        "validation_or_oos_accessed": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "stage3b_london_human_review_queue",
+      "type": "human_review_queue",
+      "title": "Stage 3B London representative review queue",
+      "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3b_DEV_london_30m_human_review_queue.csv",
+      "description": null,
+      "mime_type": "application/vnd.ms-excel",
+      "category": "governance",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "analysis_step": "STAGE_3B_LONDON_30M",
+        "hypothesis_id": "HYP-LONDON-ACCEPTANCE-01",
+        "hypothesis_validated": false,
+        "strategy_performance": false,
+        "new_strategy_simulated": false,
+        "validation_or_oos_accessed": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "stage3b_london_or_close_characterization",
+      "type": "analysis_table",
+      "title": "OR-close anchored characterization",
+      "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3b_DEV_london_30m_or_close_characterization.csv",
+      "description": null,
+      "mime_type": "application/vnd.ms-excel",
+      "category": "analysis",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "analysis_step": "STAGE_3B_LONDON_30M",
+        "hypothesis_id": "HYP-LONDON-ACCEPTANCE-01",
+        "hypothesis_validated": false,
+        "strategy_performance": false,
+        "new_strategy_simulated": false,
+        "validation_or_oos_accessed": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "stage3b_london_or_close_plot",
+      "type": "plot",
+      "title": "OR-close anchored MFE and MAE",
+      "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3b_DEV_london_30m_or_close_excursion.png",
+      "description": null,
+      "mime_type": "image/png",
+      "category": "visualization",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "analysis_step": "STAGE_3B_LONDON_30M",
+        "hypothesis_id": "HYP-LONDON-ACCEPTANCE-01",
+        "hypothesis_validated": false,
+        "strategy_performance": false,
+        "new_strategy_simulated": false,
+        "validation_or_oos_accessed": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "stage3b_london_orb_confirmation_comparison",
+      "type": "analysis_table",
+      "title": "ORB confirmation comparison",
+      "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3b_DEV_london_30m_orb_confirmation_comparison.csv",
+      "description": null,
+      "mime_type": "application/vnd.ms-excel",
+      "category": "analysis",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "analysis_step": "STAGE_3B_LONDON_30M",
+        "hypothesis_id": "HYP-LONDON-ACCEPTANCE-01",
+        "hypothesis_validated": false,
+        "strategy_performance": false,
+        "new_strategy_simulated": false,
+        "validation_or_oos_accessed": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "stage3b_london_orb_group_plot",
+      "type": "plot",
+      "title": "London interaction ORB groups",
+      "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3b_DEV_london_30m_orb_groups.png",
+      "description": null,
+      "mime_type": "image/png",
+      "category": "visualization",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "analysis_step": "STAGE_3B_LONDON_30M",
+        "hypothesis_id": "HYP-LONDON-ACCEPTANCE-01",
+        "hypothesis_validated": false,
+        "strategy_performance": false,
+        "new_strategy_simulated": false,
+        "validation_or_oos_accessed": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "stage3b_london_report",
+      "type": "research_report",
+      "title": "Stage 3B London interaction report",
+      "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3b_DEV_london_30m_report.md",
+      "description": null,
+      "mime_type": "text/markdown",
+      "category": "documentation",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "analysis_step": "STAGE_3B_LONDON_30M",
+        "hypothesis_id": "HYP-LONDON-ACCEPTANCE-01",
+        "hypothesis_validated": false,
+        "strategy_performance": false,
+        "new_strategy_simulated": false,
+        "validation_or_oos_accessed": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "stage3b_london_stability",
+      "type": "stability_table",
+      "title": "Stage 3B DEVELOPMENT-half stability",
+      "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3b_DEV_london_30m_stability.csv",
+      "description": null,
+      "mime_type": "application/vnd.ms-excel",
+      "category": "analysis",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "analysis_step": "STAGE_3B_LONDON_30M",
+        "hypothesis_id": "HYP-LONDON-ACCEPTANCE-01",
+        "hypothesis_validated": false,
+        "strategy_performance": false,
+        "new_strategy_simulated": false,
+        "validation_or_oos_accessed": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "stage3b_london_timestamp_audit",
+      "type": "timestamp_audit",
+      "title": "London event timestamp audit",
+      "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3b_DEV_london_30m_event_timestamp_audit.csv",
+      "description": null,
+      "mime_type": "application/vnd.ms-excel",
+      "category": "analysis",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "analysis_step": "STAGE_3B_LONDON_30M",
+        "hypothesis_id": "HYP-LONDON-ACCEPTANCE-01",
+        "hypothesis_validated": false,
+        "strategy_performance": false,
+        "new_strategy_simulated": false,
+        "validation_or_oos_accessed": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "stage3b_london_timing_plot",
+      "type": "plot",
+      "title": "London interaction timing and displacement",
+      "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3b_DEV_london_30m_timing_displacement.png",
+      "description": null,
+      "mime_type": "image/png",
+      "category": "visualization",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "analysis_step": "STAGE_3B_LONDON_30M",
+        "hypothesis_id": "HYP-LONDON-ACCEPTANCE-01",
+        "hypothesis_validated": false,
+        "strategy_performance": false,
+        "new_strategy_simulated": false,
+        "validation_or_oos_accessed": false
+      },
+      "required": true
+    },
+    {
+      "artifact_id": "stage3b_london_trade_through_characterization",
+      "type": "descriptive_table",
+      "title": "Trade-through anchored retrospective characterization",
+      "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3b_DEV_london_30m_trade_through_descriptive.csv",
+      "description": null,
+      "mime_type": "application/vnd.ms-excel",
+      "category": "analysis",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "analysis_step": "STAGE_3B_LONDON_30M",
+        "hypothesis_id": "HYP-LONDON-ACCEPTANCE-01",
+        "hypothesis_validated": false,
+        "strategy_performance": false,
+        "new_strategy_simulated": false,
+        "validation_or_oos_accessed": false
+      },
+      "required": true
+    }
+  ],
+  "notes": "Stage 3B event analysis is complete on DEVELOPMENT. The experiment remains running because representative human review is pending. The hypothesis is a candidate only and is not validated or a strategy rule.",
+  "known_limitations": [
+    "Eventual CLOSE_THROUGH/SWEEP conditioning at first trade-through is retrospective.",
+    "One-minute OHLC bars do not expose intrabar event ordering.",
+    "The first later validated PRINT is selected deterministically when both directions occur.",
+    "Sparse opposite-direction and no-ORB groups are labelled INSUFFICIENT_SAMPLE."
+  ],
+  "started_at": "2026-09-07T10:54:23.391349Z",
+  "updated_at": "2026-09-07T10:57:30.040707Z",
+  "completed_at": null,
+  "failed_at": null,
+  "failure": null,
+  "runtime_metadata": {
+    "python_version": "3.13.10",
+    "platform": "Windows-11-10.0.26200-SP0"
+  },
+  "registration": {
+    "api_version": "1.0",
+    "record_path": "experiments/projects/mnq_orb_v0_2/records/mnq_orb_v0_2_stage3b_london_interaction_event_characterization.json"
+  },
+  "warnings": [
+    "Human review remains pending.",
+    "No Validation or OOS_BURNED data was accessed.",
+    "No new entry, strategy, P&L, stop, target, or optimization was produced."
+  ],
+  "future_hypotheses": [
+    "HYP-LONDON-ACCEPTANCE-01 may advance only after human review and a separately authorized validation protocol."
+  ]
+}

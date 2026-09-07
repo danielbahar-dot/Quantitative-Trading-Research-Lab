@@ -1,0 +1,74 @@
+{
+  "experiment_id": "mnq_orb_v0_2_stage3b_london_interaction_event_characterization",
+  "project_id": "mnq_orb_v0_2",
+  "strategy_id": "opening_range_breakout",
+  "strategy_version": "V0.2",
+  "research_stage": "STAGE_3_SIGNALS",
+  "partition": "DEVELOPMENT",
+  "development_start": "2024-06-21",
+  "development_end": "2025-06-30",
+  "dataset_id": "MNQ_1m_actual_contract_v1",
+  "dataset_version": "v1",
+  "dataset_sha256": "6c60be7885d5307694b94c8bd64376fc32fea1b04e1521d4100c859d4219b550",
+  "source_git_sha": "2f0fcd6e8b271cb5114e5e7836b7c97fab310996",
+  "hypothesis": {
+    "hypothesis_id": "HYP-LONDON-ACCEPTANCE-01",
+    "statement": "When the 30-minute NY opening range establishes acceptance through a London-session high or low, subsequent directional continuation in the direction of the accepted level is stronger than after a London-level sweep/rejection.",
+    "status": "HYPOTHESIS_CANDIDATE",
+    "evidence_scope": "DEVELOPMENT_ONLY",
+    "validated": false
+  },
+  "inputs": {
+    "development_prices": "data/processed/MNQ_raw_cleaned_ET_DEVELOPMENT.csv",
+    "frozen_stage2_features": "experiments/projects/mnq_orb_v0_2/features/mnq_orb_v0_2_stage2_completion_DEV_feature_audit.csv",
+    "frozen_stage2_print_outcomes": "experiments/projects/mnq_orb_v0_2/features/mnq_orb_v0_2_stage2_completion_DEV_print_breakout_outcomes.csv",
+    "stage3a_step5_report": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3a_step5_DEV_key_level_interaction_report.md"
+  },
+  "scope": {
+    "or_minutes": 30,
+    "level_types": [
+      "LONDON_HIGH",
+      "LONDON_LOW"
+    ],
+    "primary_states": [
+      "CLOSE_THROUGH",
+      "SWEEP"
+    ],
+    "minimum_inference_n": 10,
+    "timestamp_semantics": "one-minute bar-end labels",
+    "or_close_timestamp": "10:00 ET",
+    "first_outcome_bar": "anchor timestamp + 1 minute",
+    "orb_selection": "first later validated 30m PRINT by timestamp",
+    "development_split": {
+      "first_half_end": "2024-12-20",
+      "second_half_start": "2024-12-23",
+      "source": "same fixed boundary as Stage 3A"
+    }
+  },
+  "outputs": {
+    "event_dataset": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3b_DEV_london_30m_interaction_events.csv",
+    "timestamp_audit": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3b_DEV_london_30m_event_timestamp_audit.csv",
+    "or_close_characterization": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3b_DEV_london_30m_or_close_characterization.csv",
+    "trade_through_characterization": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3b_DEV_london_30m_trade_through_descriptive.csv",
+    "orb_confirmation_comparison": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3b_DEV_london_30m_orb_confirmation_comparison.csv",
+    "stability": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3b_DEV_london_30m_stability.csv",
+    "human_review_queue": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3b_DEV_london_30m_human_review_queue.csv",
+    "report": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3b_DEV_london_30m_report.md",
+    "or_close_plot": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3b_DEV_london_30m_or_close_excursion.png",
+    "timing_plot": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3b_DEV_london_30m_timing_displacement.png",
+    "orb_group_plot": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3b_DEV_london_30m_orb_groups.png"
+  },
+  "guardrails": {
+    "modify_frozen_stage2_features": false,
+    "modify_print_orb_logic": false,
+    "modify_execution_logic": false,
+    "simulate_new_strategy": false,
+    "calculate_pnl": false,
+    "optimize_entries_stops_targets": false,
+    "machine_learning": false,
+    "broad_feature_mining": false,
+    "access_validation": false,
+    "access_oos_burned": false,
+    "reserved_data_exposed": false
+  }
+}

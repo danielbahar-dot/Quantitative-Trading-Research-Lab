@@ -1035,7 +1035,67 @@
           "NO_CLEAR_RELATIONSHIP": 5,
           "WEAK_OR_UNSTABLE": 4
         },
-        "step4_other_state_families_combined": false
+        "step4_other_state_families_combined": false,
+        "stage3a_step5_key_level_interaction_characterization_complete": true,
+        "step5_input_rows": 935,
+        "step5_family_event_rows": 3740,
+        "step5_eligible_n_by_family": {
+          "previous_day": 830,
+          "ny_premarket": 935,
+          "london": 927,
+          "asia": 916
+        },
+        "step5_unavailable_n_by_family": {
+          "previous_day": 105,
+          "ny_premarket": 0,
+          "london": 8,
+          "asia": 19
+        },
+        "step5_category_counts_by_family": {
+          "previous_day": {
+            "NO_INTERACTION": 588,
+            "TOUCH_ONLY": 0,
+            "CLOSE_THROUGH": 142,
+            "REJECTION": 0,
+            "SWEEP": 100
+          },
+          "ny_premarket": {
+            "NO_INTERACTION": 126,
+            "TOUCH_ONLY": 0,
+            "CLOSE_THROUGH": 464,
+            "REJECTION": 3,
+            "SWEEP": 342
+          },
+          "london": {
+            "NO_INTERACTION": 349,
+            "TOUCH_ONLY": 0,
+            "CLOSE_THROUGH": 255,
+            "REJECTION": 1,
+            "SWEEP": 322
+          },
+          "asia": {
+            "NO_INTERACTION": 410,
+            "TOUCH_ONLY": 6,
+            "CLOSE_THROUGH": 221,
+            "REJECTION": 2,
+            "SWEEP": 277
+          }
+        },
+        "step5_development_split": {
+          "unique_event_dates": 247,
+          "first_half_dates": 123,
+          "second_half_dates": 124,
+          "first_half_start": "2024-06-21",
+          "first_half_end": "2024-12-20",
+          "second_half_start": "2024-12-23",
+          "second_half_end": "2025-06-30"
+        },
+        "step5_relationship_label_counts": {
+          "WEAK_OR_UNSTABLE": 7,
+          "NO_CLEAR_RELATIONSHIP": 4,
+          "CONSISTENT_CANDIDATE_STATE": 1
+        },
+        "step5_other_state_families_combined": false
       },
       "artifacts": [
         {
@@ -1511,6 +1571,114 @@
           "required": true
         },
         {
+          "artifact_id": "stage3a_step5_key_level_interaction_direction",
+          "type": "direction_breakdown",
+          "title": "Step 5 key-level interaction LONG/SHORT breakdown",
+          "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3a_step5_DEV_key_level_interaction_direction_breakdown.csv",
+          "description": null,
+          "mime_type": "text/csv",
+          "category": "analysis",
+          "metadata": {
+            "partition": "DEVELOPMENT",
+            "analysis_step": "STAGE_3A_STEP_5",
+            "state_family": "KEY_LEVEL_INTERACTION_AT_OR",
+            "strategy_performance": false,
+            "combined_with_other_state_families": false,
+            "validation_or_oos_accessed": false
+          },
+          "required": true
+        },
+        {
+          "artifact_id": "stage3a_step5_key_level_interaction_mae_plot",
+          "type": "plot",
+          "title": "Step 5 key-level interaction clean 30m MAE plot",
+          "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3a_step5_DEV_key_level_interaction_mae_30m.png",
+          "description": null,
+          "mime_type": "image/png",
+          "category": "visualization",
+          "metadata": {
+            "partition": "DEVELOPMENT",
+            "analysis_step": "STAGE_3A_STEP_5",
+            "state_family": "KEY_LEVEL_INTERACTION_AT_OR",
+            "strategy_performance": false,
+            "combined_with_other_state_families": false,
+            "validation_or_oos_accessed": false
+          },
+          "required": true
+        },
+        {
+          "artifact_id": "stage3a_step5_key_level_interaction_master",
+          "type": "analysis_table",
+          "title": "Step 5 key-level interaction master characterization",
+          "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3a_step5_DEV_key_level_interaction_characterization.csv",
+          "description": null,
+          "mime_type": "text/csv",
+          "category": "analysis",
+          "metadata": {
+            "partition": "DEVELOPMENT",
+            "analysis_step": "STAGE_3A_STEP_5",
+            "state_family": "KEY_LEVEL_INTERACTION_AT_OR",
+            "strategy_performance": false,
+            "combined_with_other_state_families": false,
+            "validation_or_oos_accessed": false
+          },
+          "required": true
+        },
+        {
+          "artifact_id": "stage3a_step5_key_level_interaction_mfe_plot",
+          "type": "plot",
+          "title": "Step 5 key-level interaction clean 30m MFE plot",
+          "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3a_step5_DEV_key_level_interaction_mfe_30m.png",
+          "description": null,
+          "mime_type": "image/png",
+          "category": "visualization",
+          "metadata": {
+            "partition": "DEVELOPMENT",
+            "analysis_step": "STAGE_3A_STEP_5",
+            "state_family": "KEY_LEVEL_INTERACTION_AT_OR",
+            "strategy_performance": false,
+            "combined_with_other_state_families": false,
+            "validation_or_oos_accessed": false
+          },
+          "required": true
+        },
+        {
+          "artifact_id": "stage3a_step5_key_level_interaction_report",
+          "type": "research_report",
+          "title": "Step 5 key-level interaction report",
+          "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3a_step5_DEV_key_level_interaction_report.md",
+          "description": null,
+          "mime_type": "text/markdown",
+          "category": "documentation",
+          "metadata": {
+            "partition": "DEVELOPMENT",
+            "analysis_step": "STAGE_3A_STEP_5",
+            "state_family": "KEY_LEVEL_INTERACTION_AT_OR",
+            "strategy_performance": false,
+            "combined_with_other_state_families": false,
+            "validation_or_oos_accessed": false
+          },
+          "required": true
+        },
+        {
+          "artifact_id": "stage3a_step5_key_level_interaction_stability",
+          "type": "stability_table",
+          "title": "Step 5 key-level interaction DEVELOPMENT-half stability",
+          "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3a_step5_DEV_key_level_interaction_stability.csv",
+          "description": null,
+          "mime_type": "text/csv",
+          "category": "analysis",
+          "metadata": {
+            "partition": "DEVELOPMENT",
+            "analysis_step": "STAGE_3A_STEP_5",
+            "state_family": "KEY_LEVEL_INTERACTION_AT_OR",
+            "strategy_performance": false,
+            "combined_with_other_state_families": false,
+            "validation_or_oos_accessed": false
+          },
+          "required": true
+        },
+        {
           "artifact_id": "transition_note",
           "type": "research_transition_note",
           "title": "Research conclusions after Stage 2 and Stage 3A Step 1A",
@@ -1527,10 +1695,10 @@
           "required": true
         }
       ],
-      "notes": "Stage 3A Step 4 room-to-next-key-level characterization is complete on DEVELOPMENT. The overall Stage 3A experiment remains planned. Equal-price ties retain frozen Step-1A type selection and are flagged only for descriptive sensitivity. No state-family combination, strategy filter, strategy performance, Validation, or OOS_BURNED result was produced.",
+      "notes": "Stage 3A Step 5 key-level interaction characterization is complete on DEVELOPMENT. The overall Stage 3A experiment remains planned. Frozen primitives are preserved beneath a deterministic analysis-only state hierarchy. No state-family combination, strategy filter, strategy performance, Validation, or OOS_BURNED result was produced.",
       "known_limitations": [],
       "started_at": "2026-09-06T20:39:34.370699Z",
-      "updated_at": "2026-09-07T07:13:38.981019Z",
+      "updated_at": "2026-09-07T08:01:59.824817Z",
       "completed_at": null,
       "failed_at": null,
       "failure": null,
@@ -1543,12 +1711,11 @@
         "record_path": "experiments/projects/mnq_orb_v0_2/records/mnq_orb_v0_2_stage3a_conditional_state_characterization.json"
       },
       "warnings": [
-        "Overall Stage 3A remains incomplete after room-to-next-key-level characterization.",
+        "Overall Stage 3A remains incomplete after key-level interaction characterization.",
         "No Validation or OOS_BURNED access is authorized or recorded.",
         "Descriptive candidate-state labels are not validated trading filters.",
-        "The 71 exact equal-price ties retain frozen Step-1A deterministic type selection.",
-        "Next-level-type results are descriptive and include an untied-only sensitivity view.",
-        "Step 4 does not combine room-to-level state with any other state family."
+        "Non-sweep REJECTION and TOUCH_ONLY states are sparse and remain descriptive.",
+        "Step 5 does not combine key-level interaction with any other state family."
       ],
       "future_hypotheses": [
         "Promote a conditional state only under the predeclared stability, sample-size, outlier, cross-duration, and market-structure criteria in the phase specification."

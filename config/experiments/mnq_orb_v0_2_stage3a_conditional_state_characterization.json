@@ -221,6 +221,7 @@
     "step2_causal_or_width_characterization": "complete",
     "step3_or_internal_structure_characterization": "complete",
     "step4_room_to_next_key_level_characterization": "complete",
+    "step5_key_level_interaction_characterization": "complete",
     "overall_stage3a_complete": false,
     "validation_accessed": false,
     "oos_burned_accessed": false

@@ -5,7 +5,7 @@
   "strategy_version": "V0.2",
   "research_stage": "STAGE_3_SIGNALS",
   "gate": "V0.2-S3A-CHARACTERIZATION",
-  "title": "MNQ ORB V0.2 — Stage 3A Conditional-State Characterization",
+  "title": "MNQ ORB V0.2 \u2014 Stage 3A Conditional-State Characterization",
   "experiment_type": "CONDITIONAL_STATE_CHARACTERIZATION",
   "status": "planned",
   "purpose": "Build explicit V0.2 hypotheses by measuring whether the same frozen PRINT ORB behaves differently under predeclared causal states. This is a hypothesis-building diagnostic, not a strategy backtest.",
@@ -220,6 +220,7 @@
     "results_artifacts_created": true,
     "step2_causal_or_width_characterization": "complete",
     "step3_or_internal_structure_characterization": "complete",
+    "step4_room_to_next_key_level_characterization": "complete",
     "overall_stage3a_complete": false,
     "validation_accessed": false,
     "oos_burned_accessed": false

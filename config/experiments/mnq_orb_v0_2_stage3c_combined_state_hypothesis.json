@@ -1,0 +1,60 @@
+{
+  "experiment_id": "mnq_orb_v0_2_stage3c_combined_state_hypothesis",
+  "project_id": "mnq_orb_v0_2",
+  "strategy_id": "opening_range_breakout",
+  "strategy_version": "V0.2",
+  "research_stage": "STAGE_3_SIGNALS",
+  "partition": "DEVELOPMENT",
+  "development_start": "2024-06-21",
+  "development_end": "2025-06-30",
+  "dataset_id": "MNQ_1m_actual_contract_v1",
+  "dataset_version": "v1",
+  "dataset_sha256": "6c60be7885d5307694b94c8bd64376fc32fea1b04e1521d4100c859d4219b550",
+  "source_git_sha": "a0cb90b35c500592f50550d9ff6a013c49e64ace",
+  "hypothesis": {
+    "hypothesis_id": "HYP-ORB-STATE-01",
+    "statement": "20-minute PRINT ORB continuation is stronger when the current OR is relatively wide versus recent history, but the OR is not in the highest-efficiency state.",
+    "status": "DEVELOPMENT_ONLY",
+    "validated": false
+  },
+  "inputs": {
+    "canonical_stage3a_events": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3a_step1b_DEV_directional_states.csv",
+    "stage3a_step3_efficiency_source": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3a_step3_DEV_or_structure_characterization.csv"
+  },
+  "lineage": {
+    "frozen_stage2": "mnq_orb_v0_2_stage2_feature_freeze_approval",
+    "stage3a": "mnq_orb_v0_2_stage3a_conditional_state_characterization",
+    "stage3b": "mnq_orb_v0_2_stage3b_london_interaction_event_characterization",
+    "stage3b_result": "WEAK_OR_UNSTABLE_NOT_PROMOTED"
+  },
+  "state_definition": {
+    "or_minutes": 20,
+    "width_lookbacks": [5, 10, 15, 20],
+    "width_elevated_bands": ["0.60-0.80", "0.80-1.00"],
+    "width_not_elevated_bands": ["0.00-0.20", "0.20-0.40", "0.40-0.60"],
+    "efficiency_max_quintile": "Q5",
+    "boundaries_optimized": false
+  },
+  "outputs": {
+    "master": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3c_DEV_combined_state_master.csv",
+    "stability": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3c_DEV_combined_state_stability.csv",
+    "direction": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3c_DEV_combined_state_direction_breakdown.csv",
+    "report": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3c_DEV_combined_state_report.md",
+    "mfe_plot": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3c_DEV_combined_state_median_mfe_30m.png",
+    "mae_plot": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3c_DEV_combined_state_median_mae_30m.png",
+    "half_plot": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3c_DEV_combined_state_dev_half_mfe_contrast.png"
+  },
+  "guardrails": {
+    "modify_frozen_stage2": false,
+    "modify_print_signal_logic": false,
+    "modify_execution_logic": false,
+    "optimize_thresholds": false,
+    "broad_combination_search": false,
+    "machine_learning": false,
+    "create_final_strategy": false,
+    "access_validation": false,
+    "access_oos_burned": false,
+    "reserved_data_exposed": false,
+    "optional_frozen_strategy_diagnostic": "SKIPPED_NO_REUSABLE_EVENT_LEVEL_FROZEN_ARTIFACT"
+  }
+}

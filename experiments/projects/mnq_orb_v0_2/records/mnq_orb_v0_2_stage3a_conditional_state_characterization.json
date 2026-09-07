@@ -32,7 +32,9 @@
     "config_path": "config/experiments/mnq_orb_v0_2_stage3a_conditional_state_characterization.json",
     "git_sha": "d542dd6f63857a1d5bb92359b35929e06b7fd6b8",
     "working_tree_dirty": true,
-    "run_timestamp": "2026-09-06T20:39:34.370699Z"
+    "run_timestamp": "2026-09-06T20:39:34.370699Z",
+    "final_git_sha": "a0cb90b35c500592f50550d9ff6a013c49e64ace",
+    "final_working_tree_dirty": true
   },
   "data_references": [],
   "configuration": {
@@ -49,8 +51,8 @@
       "oos_burned_access_authorized": false
     }
   },
-  "status": "planned",
-  "decision": "none",
+  "status": "complete",
+  "decision": "revise",
   "confirmatory": false,
   "reserved_data_exposed": false,
   "summary_metrics": {
@@ -64,7 +66,7 @@
     "characterization_analysis_started": true,
     "validation_or_oos_accessed": false,
     "stage3a_step2_or_width_characterization_complete": true,
-    "overall_stage3a_complete": false,
+    "overall_stage3a_complete": true,
     "step2_input_rows": 935,
     "step2_eligible_n_by_lookback": {
       "5": 880,
@@ -201,9 +203,38 @@
       "NO_CLEAR_RELATIONSHIP": 4,
       "CONSISTENT_CANDIDATE_STATE": 1
     },
-    "step5_other_state_families_combined": false
+    "step5_other_state_families_combined": false,
+    "research_cycle_closed": true,
+    "final_research_disposition": "PARKED_AS_RESEARCH_CANDIDATE",
+    "final_hypothesis_id": "HYP-ORB-STATE-01",
+    "final_hypothesis_classification": "POTENTIALLY_INFORMATIVE",
+    "final_hypothesis_validated": false,
+    "stage3c_experiment_id": "mnq_orb_v0_2_stage3c_combined_state_hypothesis",
+    "five_session_result_status": "POST_HOC_OBSERVATION_NOT_SELECTED",
+    "another_orb_cycle_authorized": false,
+    "reserved_data_exposed": false,
+    "analysis_status": "COMPLETE_RESEARCH_CYCLE_PARKED"
   },
   "artifacts": [
+    {
+      "artifact_id": "final_development_research_conclusion",
+      "type": "research_conclusion_note",
+      "title": "MNQ ORB V0.2 — Final DEVELOPMENT Research Conclusion",
+      "path": "experiments/projects/mnq_orb_v0_2/notes/mnq_orb_v0_2_final_development_research_conclusion.md",
+      "description": null,
+      "mime_type": "text/markdown",
+      "category": "documentation",
+      "metadata": {
+        "partition": "DEVELOPMENT",
+        "research_cycle_status": "PARKED_AS_RESEARCH_CANDIDATE",
+        "hypothesis_id": "HYP-ORB-STATE-01",
+        "hypothesis_classification": "POTENTIALLY_INFORMATIVE",
+        "hypothesis_validated": false,
+        "analysis_executed": false,
+        "validation_or_oos_accessed": false
+      },
+      "required": true
+    },
     {
       "artifact_id": "phase_specification",
       "type": "prospective_phase_specification",
@@ -801,11 +832,11 @@
       "required": true
     }
   ],
-  "notes": "Stage 3A Step 5 key-level interaction characterization is complete on DEVELOPMENT. The overall Stage 3A experiment remains planned. Frozen primitives are preserved beneath a deterministic analysis-only state hierarchy. No state-family combination, strategy filter, strategy performance, Validation, or OOS_BURNED result was produced.",
+  "notes": "MNQ ORB V0.2 DEVELOPMENT research is complete and parked. The current PRINT ORB formulation lacks a sufficiently stable causal participation state to justify another strategy version.",
   "known_limitations": [],
   "started_at": "2026-09-06T20:39:34.370699Z",
-  "updated_at": "2026-09-07T08:01:59.824817Z",
-  "completed_at": null,
+  "updated_at": "2026-09-07T12:50:44.972090Z",
+  "completed_at": "2026-09-07T12:50:44.972090Z",
   "failed_at": null,
   "failure": null,
   "runtime_metadata": {
@@ -817,13 +848,11 @@
     "record_path": "experiments/projects/mnq_orb_v0_2/records/mnq_orb_v0_2_stage3a_conditional_state_characterization.json"
   },
   "warnings": [
-    "Overall Stage 3A remains incomplete after key-level interaction characterization.",
-    "No Validation or OOS_BURNED access is authorized or recorded.",
-    "Descriptive candidate-state labels are not validated trading filters.",
-    "Non-sweep REJECTION and TOUCH_ONLY states are sparse and remain descriptive.",
-    "Step 5 does not combine key-level interaction with any other state family."
+    "No Validation or OOS_BURNED data was accessed during research closure.",
+    "The 5-session lookback must not be selected post hoc as a strategy rule.",
+    "No V0.2 participation state, filter, or strategy version is approved."
   ],
   "future_hypotheses": [
-    "Promote a conditional state only under the predeclared stability, sample-size, outlier, cross-duration, and market-structure criteria in the phase specification."
+    "The 5-session observation may be revisited only in a separately authorized future research cycle without treating it as a preselected rule."
   ]
 }

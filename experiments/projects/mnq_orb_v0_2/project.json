@@ -10,12 +10,12 @@
       "strategy_version": "V0.2",
       "title": "MNQ ORB V0.2",
       "research_lifecycle_version": "1.0",
-      "current_research_stage": "STAGE_2_FEATURES",
-      "lifecycle_status": "FEATURES_VALIDATED_AND_FROZEN",
-      "decision": "Stage-2 causal features passed automated validation and 14/14 representative human reviews and are frozen as of 2026-09-02. No V0.2 signal or strategy rule has been approved.",
-      "handoff": "Stage 2 feature freeze complete -> Stage 3 signal hypothesis and signal validation",
-      "future_strategy_lifecycle_status": "NOT_STARTED",
-      "approved_for_next_phase": true
+      "current_research_stage": "STAGE_3_SIGNALS",
+      "lifecycle_status": "RESEARCH_PARKED",
+      "decision": "PARKED_AS_RESEARCH_CANDIDATE. HYP-ORB-STATE-01 is POTENTIALLY_INFORMATIVE but UNVALIDATED. No V0.2 participation rule or strategy version is approved.",
+      "handoff": "Research cycle closed after Stage 3C. Preserve the 5-session result only as a post-hoc observation under HYP-ORB-STATE-01; do not begin another ORB optimization cycle automatically.",
+      "future_strategy_lifecycle_status": "PARKED_UNVALIDATED",
+      "approved_for_next_phase": false
     }
   ],
   "dataset_config_path": "config/datasets/mnq_1m_actual_contract_v1.partitions.json",

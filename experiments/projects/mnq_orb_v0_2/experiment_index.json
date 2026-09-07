@@ -926,7 +926,9 @@
         "config_path": "config/experiments/mnq_orb_v0_2_stage3a_conditional_state_characterization.json",
         "git_sha": "d542dd6f63857a1d5bb92359b35929e06b7fd6b8",
         "working_tree_dirty": true,
-        "run_timestamp": "2026-09-06T20:39:34.370699Z"
+        "run_timestamp": "2026-09-06T20:39:34.370699Z",
+        "final_git_sha": "a0cb90b35c500592f50550d9ff6a013c49e64ace",
+        "final_working_tree_dirty": true
       },
       "data_references": [],
       "configuration": {
@@ -943,8 +945,8 @@
           "oos_burned_access_authorized": false
         }
       },
-      "status": "planned",
-      "decision": "none",
+      "status": "complete",
+      "decision": "revise",
       "confirmatory": false,
       "reserved_data_exposed": false,
       "summary_metrics": {
@@ -958,7 +960,7 @@
         "characterization_analysis_started": true,
         "validation_or_oos_accessed": false,
         "stage3a_step2_or_width_characterization_complete": true,
-        "overall_stage3a_complete": false,
+        "overall_stage3a_complete": true,
         "step2_input_rows": 935,
         "step2_eligible_n_by_lookback": {
           "5": 880,
@@ -1095,9 +1097,38 @@
           "NO_CLEAR_RELATIONSHIP": 4,
           "CONSISTENT_CANDIDATE_STATE": 1
         },
-        "step5_other_state_families_combined": false
+        "step5_other_state_families_combined": false,
+        "research_cycle_closed": true,
+        "final_research_disposition": "PARKED_AS_RESEARCH_CANDIDATE",
+        "final_hypothesis_id": "HYP-ORB-STATE-01",
+        "final_hypothesis_classification": "POTENTIALLY_INFORMATIVE",
+        "final_hypothesis_validated": false,
+        "stage3c_experiment_id": "mnq_orb_v0_2_stage3c_combined_state_hypothesis",
+        "five_session_result_status": "POST_HOC_OBSERVATION_NOT_SELECTED",
+        "another_orb_cycle_authorized": false,
+        "reserved_data_exposed": false,
+        "analysis_status": "COMPLETE_RESEARCH_CYCLE_PARKED"
       },
       "artifacts": [
+        {
+          "artifact_id": "final_development_research_conclusion",
+          "type": "research_conclusion_note",
+          "title": "MNQ ORB V0.2 — Final DEVELOPMENT Research Conclusion",
+          "path": "experiments/projects/mnq_orb_v0_2/notes/mnq_orb_v0_2_final_development_research_conclusion.md",
+          "description": null,
+          "mime_type": "text/markdown",
+          "category": "documentation",
+          "metadata": {
+            "partition": "DEVELOPMENT",
+            "research_cycle_status": "PARKED_AS_RESEARCH_CANDIDATE",
+            "hypothesis_id": "HYP-ORB-STATE-01",
+            "hypothesis_classification": "POTENTIALLY_INFORMATIVE",
+            "hypothesis_validated": false,
+            "analysis_executed": false,
+            "validation_or_oos_accessed": false
+          },
+          "required": true
+        },
         {
           "artifact_id": "phase_specification",
           "type": "prospective_phase_specification",
@@ -1695,11 +1726,11 @@
           "required": true
         }
       ],
-      "notes": "Stage 3A Step 5 key-level interaction characterization is complete on DEVELOPMENT. The overall Stage 3A experiment remains planned. Frozen primitives are preserved beneath a deterministic analysis-only state hierarchy. No state-family combination, strategy filter, strategy performance, Validation, or OOS_BURNED result was produced.",
+      "notes": "MNQ ORB V0.2 DEVELOPMENT research is complete and parked. The current PRINT ORB formulation lacks a sufficiently stable causal participation state to justify another strategy version.",
       "known_limitations": [],
       "started_at": "2026-09-06T20:39:34.370699Z",
-      "updated_at": "2026-09-07T08:01:59.824817Z",
-      "completed_at": null,
+      "updated_at": "2026-09-07T12:50:44.972090Z",
+      "completed_at": "2026-09-07T12:50:44.972090Z",
       "failed_at": null,
       "failure": null,
       "runtime_metadata": {
@@ -1711,14 +1742,12 @@
         "record_path": "experiments/projects/mnq_orb_v0_2/records/mnq_orb_v0_2_stage3a_conditional_state_characterization.json"
       },
       "warnings": [
-        "Overall Stage 3A remains incomplete after key-level interaction characterization.",
-        "No Validation or OOS_BURNED access is authorized or recorded.",
-        "Descriptive candidate-state labels are not validated trading filters.",
-        "Non-sweep REJECTION and TOUCH_ONLY states are sparse and remain descriptive.",
-        "Step 5 does not combine key-level interaction with any other state family."
+        "No Validation or OOS_BURNED data was accessed during research closure.",
+        "The 5-session lookback must not be selected post hoc as a strategy rule.",
+        "No V0.2 participation state, filter, or strategy version is approved."
       ],
       "future_hypotheses": [
-        "Promote a conditional state only under the predeclared stability, sample-size, outlier, cross-duration, and market-structure criteria in the phase specification."
+        "The 5-session observation may be revisited only in a separately authorized future research cycle without treating it as a preselected rule."
       ]
     },
     {
@@ -2068,6 +2097,398 @@
       "future_hypotheses": [
         "HYP-LONDON-ACCEPTANCE-01 may advance only after human review and a separately authorized validation protocol."
       ]
+    },
+    {
+      "experiment_id": "mnq_orb_v0_2_stage3c_combined_state_hypothesis",
+      "project_id": "mnq_orb_v0_2",
+      "strategy_id": "opening_range_breakout",
+      "strategy_version": "V0.2",
+      "research_stage": "STAGE_3_SIGNALS",
+      "title": "Stage 3C combined-state hypothesis test",
+      "gate": "V0.2-STAGE3C-COMBINED-STATE",
+      "experiment_type": "PREDECLARED_COMBINED_STATE_HYPOTHESIS_TEST",
+      "hypothesis": "20-minute PRINT ORB continuation is stronger when the current OR is relatively wide versus recent history, but the OR is not in the highest-efficiency state.",
+      "description": "Final DEVELOPMENT-only ORB round combining fixed causal OR-width bands with the unchanged 20-minute OR-efficiency quintiles.",
+      "scope": {
+        "instrument_id": "MNQ",
+        "universe_id": null,
+        "asset_class": "futures",
+        "timeframe": "1 minute",
+        "partition": "DEVELOPMENT"
+      },
+      "lineage": {
+        "parent_experiment_ids": [
+          "mnq_orb_v0_2_stage2_feature_freeze_approval",
+          "mnq_orb_v0_2_stage3a_conditional_state_characterization",
+          "mnq_orb_v0_2_stage3b_london_interaction_event_characterization"
+        ],
+        "source_gates": [
+          "Frozen Stage-2 feature layer",
+          "Stage 3A Step 2 causal OR-width findings",
+          "Stage 3A Step 3 20m OR-efficiency finding",
+          "Stage 3B weak/unstable result not promoted"
+        ]
+      },
+      "reproducibility": {
+        "dataset_id": "MNQ_1m_actual_contract_v1",
+        "dataset_version": "v1",
+        "data_hash": "6c60be7885d5307694b94c8bd64376fc32fea1b04e1521d4100c859d4219b550",
+        "config_path": "config/experiments/mnq_orb_v0_2_stage3c_combined_state_hypothesis.json",
+        "git_sha": "a0cb90b35c500592f50550d9ff6a013c49e64ace",
+        "working_tree_dirty": true,
+        "run_timestamp": "2026-09-07T12:00:12.132843Z",
+        "final_git_sha": "a0cb90b35c500592f50550d9ff6a013c49e64ace",
+        "final_working_tree_dirty": true
+      },
+      "data_references": [],
+      "configuration": {
+        "path": "config/experiments/mnq_orb_v0_2_stage3c_combined_state_hypothesis.json",
+        "parameters": {
+          "hypothesis_id": "HYP-ORB-STATE-01",
+          "hypothesis_status": "DEVELOPMENT_ONLY",
+          "or_minutes": 20,
+          "lookbacks": [
+            5,
+            10,
+            15,
+            20
+          ],
+          "state_groups": [
+            "WIDTH_ELEVATED_NOT_MAX_EFFICIENCY",
+            "WIDTH_ELEVATED_MAX_EFFICIENCY",
+            "WIDTH_NOT_ELEVATED"
+          ],
+          "thresholds_optimized": false,
+          "strategy_diagnostic_completed": false
+        }
+      },
+      "status": "complete",
+      "decision": "revise",
+      "confirmatory": false,
+      "reserved_data_exposed": false,
+      "summary_metrics": {
+        "analysis_status": "analysis_complete",
+        "hypothesis_id": "HYP-ORB-STATE-01",
+        "hypothesis_status": "DEVELOPMENT_ONLY",
+        "hypothesis_classification": "POTENTIALLY_INFORMATIVE",
+        "hypothesis_validated": false,
+        "orb_research_disposition": "PARKED_AS_RESEARCH_CANDIDATE",
+        "eligible_n_by_lookback": {
+          "5": 303,
+          "10": 293,
+          "15": 278,
+          "20": 266
+        },
+        "group_counts_by_lookback": {
+          "5": {
+            "WIDTH_ELEVATED_NOT_MAX_EFFICIENCY": 100,
+            "WIDTH_ELEVATED_MAX_EFFICIENCY": 38,
+            "WIDTH_NOT_ELEVATED": 165
+          },
+          "10": {
+            "WIDTH_ELEVATED_NOT_MAX_EFFICIENCY": 93,
+            "WIDTH_ELEVATED_MAX_EFFICIENCY": 29,
+            "WIDTH_NOT_ELEVATED": 171
+          },
+          "15": {
+            "WIDTH_ELEVATED_NOT_MAX_EFFICIENCY": 88,
+            "WIDTH_ELEVATED_MAX_EFFICIENCY": 32,
+            "WIDTH_NOT_ELEVATED": 158
+          },
+          "20": {
+            "WIDTH_ELEVATED_NOT_MAX_EFFICIENCY": 81,
+            "WIDTH_ELEVATED_MAX_EFFICIENCY": 32,
+            "WIDTH_NOT_ELEVATED": 153
+          }
+        },
+        "promotion_ready_lookbacks": 1,
+        "combined_more_interpretable_lookbacks": 3,
+        "lookback_assessment": [
+          {
+            "research_scope": "DEVELOPMENT_ONLY",
+            "hypothesis_id": "HYP-ORB-STATE-01",
+            "lookback_sessions": 5,
+            "eligible_n": 303,
+            "primary_n": 100,
+            "elevated_max_efficiency_n": 38,
+            "not_elevated_n": 165,
+            "full_30m_primary_minus_not_elevated_mfe_pct": 0.0007799032925323501,
+            "full_30m_primary_minus_not_elevated_mae_pct": -0.00026765900587810004,
+            "full_30m_primary_minus_not_elevated_quality_pct": 0.0010475622984104501,
+            "full_60m_primary_minus_not_elevated_mfe_pct": 0.0015047992505868501,
+            "full_60m_primary_minus_not_elevated_mae_pct": -0.0004778354337437499,
+            "full_60m_primary_minus_not_elevated_quality_pct": 0.0019826346843306,
+            "full_30m_primary_minus_max_efficiency_mfe_pct": 0.0003962861382991005,
+            "full_60m_primary_minus_max_efficiency_mfe_pct": 0.0011226782492781001,
+            "full_30m_width_only_minus_not_elevated_mfe_pct": 0.0006729589584649996,
+            "full_60m_width_only_minus_not_elevated_mfe_pct": 0.00136584990301935,
+            "first_half_support": true,
+            "second_half_support": true,
+            "both_halves_support": true,
+            "long_support": true,
+            "short_support": true,
+            "no_severe_direction_contradiction": true,
+            "sample_adequate": true,
+            "full_primary_support": true,
+            "max_efficiency_underperforms": true,
+            "combined_more_interpretable_than_width_alone": true,
+            "promotion_ready": true
+          },
+          {
+            "research_scope": "DEVELOPMENT_ONLY",
+            "hypothesis_id": "HYP-ORB-STATE-01",
+            "lookback_sessions": 10,
+            "eligible_n": 293,
+            "primary_n": 93,
+            "elevated_max_efficiency_n": 29,
+            "not_elevated_n": 171,
+            "full_30m_primary_minus_not_elevated_mfe_pct": 0.0008979445462347999,
+            "full_30m_primary_minus_not_elevated_mae_pct": 0.0002712984271917001,
+            "full_30m_primary_minus_not_elevated_quality_pct": 0.0006266461190430998,
+            "full_60m_primary_minus_not_elevated_mfe_pct": 0.0013532856993286498,
+            "full_60m_primary_minus_not_elevated_mae_pct": 0.00040063750034609975,
+            "full_60m_primary_minus_not_elevated_quality_pct": 0.00095264819898255,
+            "full_30m_primary_minus_max_efficiency_mfe_pct": -0.00042846657618000016,
+            "full_60m_primary_minus_max_efficiency_mfe_pct": -0.00026607110330319986,
+            "full_30m_width_only_minus_not_elevated_mfe_pct": 0.0009347631060727998,
+            "full_60m_width_only_minus_not_elevated_mfe_pct": 0.00149909062605315,
+            "first_half_support": true,
+            "second_half_support": false,
+            "both_halves_support": false,
+            "long_support": true,
+            "short_support": true,
+            "no_severe_direction_contradiction": true,
+            "sample_adequate": true,
+            "full_primary_support": true,
+            "max_efficiency_underperforms": false,
+            "combined_more_interpretable_than_width_alone": false,
+            "promotion_ready": false
+          },
+          {
+            "research_scope": "DEVELOPMENT_ONLY",
+            "hypothesis_id": "HYP-ORB-STATE-01",
+            "lookback_sessions": 15,
+            "eligible_n": 278,
+            "primary_n": 88,
+            "elevated_max_efficiency_n": 32,
+            "not_elevated_n": 158,
+            "full_30m_primary_minus_not_elevated_mfe_pct": 0.0007102190653200499,
+            "full_30m_primary_minus_not_elevated_mae_pct": 0.0006226520642005999,
+            "full_30m_primary_minus_not_elevated_quality_pct": 8.756700111945e-05,
+            "full_60m_primary_minus_not_elevated_mfe_pct": 0.0011648254262516498,
+            "full_60m_primary_minus_not_elevated_mae_pct": 0.0006904257481460002,
+            "full_60m_primary_minus_not_elevated_quality_pct": 0.00047439967810564967,
+            "full_30m_primary_minus_max_efficiency_mfe_pct": 0.00024217956567409993,
+            "full_60m_primary_minus_max_efficiency_mfe_pct": 0.0009837289017106,
+            "full_30m_width_only_minus_not_elevated_mfe_pct": 0.0006246387961656497,
+            "full_60m_width_only_minus_not_elevated_mfe_pct": 0.00105675942099865,
+            "first_half_support": true,
+            "second_half_support": false,
+            "both_halves_support": false,
+            "long_support": true,
+            "short_support": true,
+            "no_severe_direction_contradiction": true,
+            "sample_adequate": true,
+            "full_primary_support": true,
+            "max_efficiency_underperforms": true,
+            "combined_more_interpretable_than_width_alone": true,
+            "promotion_ready": false
+          },
+          {
+            "research_scope": "DEVELOPMENT_ONLY",
+            "hypothesis_id": "HYP-ORB-STATE-01",
+            "lookback_sessions": 20,
+            "eligible_n": 266,
+            "primary_n": 81,
+            "elevated_max_efficiency_n": 32,
+            "not_elevated_n": 153,
+            "full_30m_primary_minus_not_elevated_mfe_pct": 0.0007162158889137001,
+            "full_30m_primary_minus_not_elevated_mae_pct": 0.0010839218408560001,
+            "full_30m_primary_minus_not_elevated_quality_pct": -0.0003677059519423,
+            "full_60m_primary_minus_not_elevated_mfe_pct": 0.0009619693756477499,
+            "full_60m_primary_minus_not_elevated_mae_pct": 0.0010806158793192,
+            "full_60m_primary_minus_not_elevated_quality_pct": -0.00011864650367145006,
+            "full_30m_primary_minus_max_efficiency_mfe_pct": 0.00020862006089415047,
+            "full_60m_primary_minus_max_efficiency_mfe_pct": 0.00020420360852565003,
+            "full_30m_width_only_minus_not_elevated_mfe_pct": 0.0007103019553502,
+            "full_60m_width_only_minus_not_elevated_mfe_pct": 0.0008734521985757,
+            "first_half_support": true,
+            "second_half_support": false,
+            "both_halves_support": false,
+            "long_support": true,
+            "short_support": false,
+            "no_severe_direction_contradiction": false,
+            "sample_adequate": true,
+            "full_primary_support": false,
+            "max_efficiency_underperforms": true,
+            "combined_more_interpretable_than_width_alone": true,
+            "promotion_ready": false
+          }
+        ],
+        "optional_frozen_strategy_diagnostic": "SKIPPED_NO_REUSABLE_EVENT_LEVEL_FROZEN_ARTIFACT",
+        "reserved_data_exposed": false
+      },
+      "artifacts": [
+        {
+          "artifact_id": "stage3c_combined_state_configuration",
+          "type": "configuration",
+          "title": "Stage 3C combined-state configuration",
+          "path": "config/experiments/mnq_orb_v0_2_stage3c_combined_state_hypothesis.json",
+          "description": null,
+          "mime_type": "application/json",
+          "category": "configuration",
+          "metadata": {
+            "partition": "DEVELOPMENT",
+            "analysis_step": "STAGE_3C_COMBINED_STATE",
+            "hypothesis_id": "HYP-ORB-STATE-01",
+            "hypothesis_validated": false,
+            "strategy_performance": false,
+            "validation_or_oos_accessed": false
+          },
+          "required": true
+        },
+        {
+          "artifact_id": "stage3c_combined_state_direction",
+          "type": "direction_breakdown",
+          "title": "Stage 3C LONG/SHORT breakdown",
+          "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3c_DEV_combined_state_direction_breakdown.csv",
+          "description": null,
+          "mime_type": "application/vnd.ms-excel",
+          "category": "analysis",
+          "metadata": {
+            "partition": "DEVELOPMENT",
+            "analysis_step": "STAGE_3C_COMBINED_STATE",
+            "hypothesis_id": "HYP-ORB-STATE-01",
+            "hypothesis_validated": false,
+            "strategy_performance": false,
+            "validation_or_oos_accessed": false
+          },
+          "required": true
+        },
+        {
+          "artifact_id": "stage3c_combined_state_half_plot",
+          "type": "plot",
+          "title": "Stage 3C DEV-half MFE contrasts",
+          "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3c_DEV_combined_state_dev_half_mfe_contrast.png",
+          "description": null,
+          "mime_type": "image/png",
+          "category": "visualization",
+          "metadata": {
+            "partition": "DEVELOPMENT",
+            "analysis_step": "STAGE_3C_COMBINED_STATE",
+            "hypothesis_id": "HYP-ORB-STATE-01",
+            "hypothesis_validated": false,
+            "strategy_performance": false,
+            "validation_or_oos_accessed": false
+          },
+          "required": true
+        },
+        {
+          "artifact_id": "stage3c_combined_state_mae_plot",
+          "type": "plot",
+          "title": "Stage 3C median 30m MAE",
+          "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3c_DEV_combined_state_median_mae_30m.png",
+          "description": null,
+          "mime_type": "image/png",
+          "category": "visualization",
+          "metadata": {
+            "partition": "DEVELOPMENT",
+            "analysis_step": "STAGE_3C_COMBINED_STATE",
+            "hypothesis_id": "HYP-ORB-STATE-01",
+            "hypothesis_validated": false,
+            "strategy_performance": false,
+            "validation_or_oos_accessed": false
+          },
+          "required": true
+        },
+        {
+          "artifact_id": "stage3c_combined_state_master",
+          "type": "analysis_table",
+          "title": "Stage 3C combined-state master",
+          "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3c_DEV_combined_state_master.csv",
+          "description": null,
+          "mime_type": "application/vnd.ms-excel",
+          "category": "analysis",
+          "metadata": {
+            "partition": "DEVELOPMENT",
+            "analysis_step": "STAGE_3C_COMBINED_STATE",
+            "hypothesis_id": "HYP-ORB-STATE-01",
+            "hypothesis_validated": false,
+            "strategy_performance": false,
+            "validation_or_oos_accessed": false
+          },
+          "required": true
+        },
+        {
+          "artifact_id": "stage3c_combined_state_mfe_plot",
+          "type": "plot",
+          "title": "Stage 3C median 30m MFE",
+          "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3c_DEV_combined_state_median_mfe_30m.png",
+          "description": null,
+          "mime_type": "image/png",
+          "category": "visualization",
+          "metadata": {
+            "partition": "DEVELOPMENT",
+            "analysis_step": "STAGE_3C_COMBINED_STATE",
+            "hypothesis_id": "HYP-ORB-STATE-01",
+            "hypothesis_validated": false,
+            "strategy_performance": false,
+            "validation_or_oos_accessed": false
+          },
+          "required": true
+        },
+        {
+          "artifact_id": "stage3c_combined_state_report",
+          "type": "research_report",
+          "title": "Stage 3C combined-state report",
+          "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3c_DEV_combined_state_report.md",
+          "description": null,
+          "mime_type": "text/markdown",
+          "category": "documentation",
+          "metadata": {
+            "partition": "DEVELOPMENT",
+            "analysis_step": "STAGE_3C_COMBINED_STATE",
+            "hypothesis_id": "HYP-ORB-STATE-01",
+            "hypothesis_validated": false,
+            "strategy_performance": false,
+            "validation_or_oos_accessed": false
+          },
+          "required": true
+        },
+        {
+          "artifact_id": "stage3c_combined_state_stability",
+          "type": "stability_table",
+          "title": "Stage 3C DEVELOPMENT-half stability",
+          "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3c_DEV_combined_state_stability.csv",
+          "description": null,
+          "mime_type": "application/vnd.ms-excel",
+          "category": "analysis",
+          "metadata": {
+            "partition": "DEVELOPMENT",
+            "analysis_step": "STAGE_3C_COMBINED_STATE",
+            "hypothesis_id": "HYP-ORB-STATE-01",
+            "hypothesis_validated": false,
+            "strategy_performance": false,
+            "validation_or_oos_accessed": false
+          },
+          "required": true
+        }
+      ],
+      "notes": "Stage 3C final ORB round completed on DEVELOPMENT. Classification: POTENTIALLY_INFORMATIVE. Disposition: PARKED_AS_RESEARCH_CANDIDATE. The hypothesis is not validated and no strategy rule or performance simulation was produced.",
+      "known_limitations": [],
+      "started_at": "2026-09-07T12:00:12.132843Z",
+      "updated_at": "2026-09-07T12:00:12.784636Z",
+      "completed_at": "2026-09-07T12:00:12.784636Z",
+      "failed_at": null,
+      "failure": null,
+      "runtime_metadata": {
+        "python_version": "3.13.10",
+        "platform": "Windows-11-10.0.26200-SP0"
+      },
+      "registration": {
+        "api_version": "1.0",
+        "record_path": "experiments/projects/mnq_orb_v0_2/records/mnq_orb_v0_2_stage3c_combined_state_hypothesis.json"
+      }
     }
   ]
 }

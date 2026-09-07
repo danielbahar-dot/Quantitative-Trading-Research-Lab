@@ -51,15 +51,15 @@
       "fields": [
         "or_efficiency",
         "or_clv",
-        "directional_or_clv",
+        "directional_clv",
         "or_direction",
         "or_breakout_alignment",
         "or_net_move_points",
-        "or_net_move_pct"
+        "directional_or_net_move_pct"
       ],
       "derived_state_contract": {
-        "directional_or_clv": "LONG uses or_clv; SHORT uses 1 - or_clv.",
-        "or_breakout_alignment": "ALIGNED when OR direction agrees with breakout direction, OPPOSED when it disagrees, and NEUTRAL when the OR direction is neutral."
+        "directional_clv": "LONG uses or_clv; SHORT uses 1 - or_clv.",
+        "or_breakout_alignment": "ALIGNED when OR direction agrees with breakout direction, OPPOSED when it disagrees, and FLAT when the OR direction is flat."
       }
     },
     {
@@ -219,6 +219,7 @@
     "analysis_execution_authorized": true,
     "results_artifacts_created": true,
     "step2_causal_or_width_characterization": "complete",
+    "step3_or_internal_structure_characterization": "complete",
     "overall_stage3a_complete": false,
     "validation_accessed": false,
     "oos_burned_accessed": false

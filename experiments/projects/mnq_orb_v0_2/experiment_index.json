@@ -985,7 +985,37 @@
           "WEAK_OR_UNSTABLE": 5,
           "CONSISTENT_CANDIDATE_STATE": 5,
           "POTENTIALLY_INFORMATIVE": 2
-        }
+        },
+        "stage3a_step3_or_structure_characterization_complete": true,
+        "step3_input_rows": 935,
+        "step3_available_n_by_feature": {
+          "or_efficiency": 935,
+          "directional_clv": 935,
+          "directional_or_net_move_pct": 935,
+          "or_breakout_alignment": 935
+        },
+        "step3_missing_n_by_feature": {
+          "or_efficiency": 0,
+          "directional_clv": 0,
+          "directional_or_net_move_pct": 0,
+          "or_breakout_alignment": 0
+        },
+        "step3_development_split": {
+          "unique_event_dates": 247,
+          "first_half_dates": 123,
+          "second_half_dates": 124,
+          "first_half_start": "2024-06-21",
+          "first_half_end": "2024-12-20",
+          "second_half_start": "2024-12-23",
+          "second_half_end": "2025-06-30"
+        },
+        "step3_relationship_label_counts": {
+          "WEAK_OR_UNSTABLE": 7,
+          "NO_CLEAR_RELATIONSHIP": 3,
+          "CONSISTENT_CANDIDATE_STATE": 1,
+          "POTENTIALLY_INFORMATIVE": 1
+        },
+        "step3_other_state_families_combined": false
       },
       "artifacts": [
         {
@@ -1173,6 +1203,150 @@
           "required": true
         },
         {
+          "artifact_id": "stage3a_step3_directional_clv_plot",
+          "type": "plot",
+          "title": "Step 3 Directional CLV 30m excursion plot",
+          "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3a_step3_DEV_directional_clv_30m.png",
+          "description": null,
+          "mime_type": "image/png",
+          "category": "visualization",
+          "metadata": {
+            "partition": "DEVELOPMENT",
+            "analysis_step": "STAGE_3A_STEP_3",
+            "state_family": "OR_INTERNAL_STRUCTURE",
+            "strategy_performance": false,
+            "combined_with_or_width": false,
+            "validation_or_oos_accessed": false
+          },
+          "required": true
+        },
+        {
+          "artifact_id": "stage3a_step3_directional_or_net_move_pct_plot",
+          "type": "plot",
+          "title": "Step 3 Directional OR net move 30m excursion plot",
+          "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3a_step3_DEV_directional_or_net_move_pct_30m.png",
+          "description": null,
+          "mime_type": "image/png",
+          "category": "visualization",
+          "metadata": {
+            "partition": "DEVELOPMENT",
+            "analysis_step": "STAGE_3A_STEP_3",
+            "state_family": "OR_INTERNAL_STRUCTURE",
+            "strategy_performance": false,
+            "combined_with_or_width": false,
+            "validation_or_oos_accessed": false
+          },
+          "required": true
+        },
+        {
+          "artifact_id": "stage3a_step3_or_breakout_alignment_plot",
+          "type": "plot",
+          "title": "Step 3 OR/breakout alignment 30m excursion plot",
+          "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3a_step3_DEV_or_breakout_alignment_30m.png",
+          "description": null,
+          "mime_type": "image/png",
+          "category": "visualization",
+          "metadata": {
+            "partition": "DEVELOPMENT",
+            "analysis_step": "STAGE_3A_STEP_3",
+            "state_family": "OR_INTERNAL_STRUCTURE",
+            "strategy_performance": false,
+            "combined_with_or_width": false,
+            "validation_or_oos_accessed": false
+          },
+          "required": true
+        },
+        {
+          "artifact_id": "stage3a_step3_or_efficiency_plot",
+          "type": "plot",
+          "title": "Step 3 OR efficiency 30m excursion plot",
+          "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3a_step3_DEV_or_efficiency_30m.png",
+          "description": null,
+          "mime_type": "image/png",
+          "category": "visualization",
+          "metadata": {
+            "partition": "DEVELOPMENT",
+            "analysis_step": "STAGE_3A_STEP_3",
+            "state_family": "OR_INTERNAL_STRUCTURE",
+            "strategy_performance": false,
+            "combined_with_or_width": false,
+            "validation_or_oos_accessed": false
+          },
+          "required": true
+        },
+        {
+          "artifact_id": "stage3a_step3_or_structure_direction",
+          "type": "direction_breakdown",
+          "title": "Step 3 OR-structure LONG/SHORT breakdown",
+          "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3a_step3_DEV_or_structure_direction_breakdown.csv",
+          "description": null,
+          "mime_type": "text/csv",
+          "category": "analysis",
+          "metadata": {
+            "partition": "DEVELOPMENT",
+            "analysis_step": "STAGE_3A_STEP_3",
+            "state_family": "OR_INTERNAL_STRUCTURE",
+            "strategy_performance": false,
+            "combined_with_or_width": false,
+            "validation_or_oos_accessed": false
+          },
+          "required": true
+        },
+        {
+          "artifact_id": "stage3a_step3_or_structure_master",
+          "type": "analysis_table",
+          "title": "Step 3 OR-structure master characterization",
+          "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3a_step3_DEV_or_structure_characterization.csv",
+          "description": null,
+          "mime_type": "text/csv",
+          "category": "analysis",
+          "metadata": {
+            "partition": "DEVELOPMENT",
+            "analysis_step": "STAGE_3A_STEP_3",
+            "state_family": "OR_INTERNAL_STRUCTURE",
+            "strategy_performance": false,
+            "combined_with_or_width": false,
+            "validation_or_oos_accessed": false
+          },
+          "required": true
+        },
+        {
+          "artifact_id": "stage3a_step3_or_structure_report",
+          "type": "research_report",
+          "title": "Step 3 OR internal-structure report",
+          "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3a_step3_DEV_or_structure_report.md",
+          "description": null,
+          "mime_type": "text/markdown",
+          "category": "documentation",
+          "metadata": {
+            "partition": "DEVELOPMENT",
+            "analysis_step": "STAGE_3A_STEP_3",
+            "state_family": "OR_INTERNAL_STRUCTURE",
+            "strategy_performance": false,
+            "combined_with_or_width": false,
+            "validation_or_oos_accessed": false
+          },
+          "required": true
+        },
+        {
+          "artifact_id": "stage3a_step3_or_structure_stability",
+          "type": "stability_table",
+          "title": "Step 3 OR-structure DEVELOPMENT-half stability",
+          "path": "experiments/projects/mnq_orb_v0_2/signals/mnq_orb_v0_2_stage3a_step3_DEV_or_structure_stability.csv",
+          "description": null,
+          "mime_type": "text/csv",
+          "category": "analysis",
+          "metadata": {
+            "partition": "DEVELOPMENT",
+            "analysis_step": "STAGE_3A_STEP_3",
+            "state_family": "OR_INTERNAL_STRUCTURE",
+            "strategy_performance": false,
+            "combined_with_or_width": false,
+            "validation_or_oos_accessed": false
+          },
+          "required": true
+        },
+        {
           "artifact_id": "transition_note",
           "type": "research_transition_note",
           "title": "Research conclusions after Stage 2 and Stage 3A Step 1A",
@@ -1189,10 +1363,10 @@
           "required": true
         }
       ],
-      "notes": "Stage 3A Step 2 causal OR-width characterization is complete on DEVELOPMENT. The overall Stage 3A experiment remains planned; no filter, preferred lookback, strategy performance, Validation, or OOS_BURNED result was produced.",
+      "notes": "Stage 3A Step 3 OR internal-structure characterization is complete on DEVELOPMENT. The overall Stage 3A experiment remains planned. No state-family combination, strategy filter, strategy performance, Validation, or OOS_BURNED result was produced.",
       "known_limitations": [],
       "started_at": "2026-09-06T20:39:34.370699Z",
-      "updated_at": "2026-09-06T22:17:40.276600Z",
+      "updated_at": "2026-09-07T05:51:53.614104Z",
       "completed_at": null,
       "failed_at": null,
       "failure": null,
@@ -1205,10 +1379,11 @@
         "record_path": "experiments/projects/mnq_orb_v0_2/records/mnq_orb_v0_2_stage3a_conditional_state_characterization.json"
       },
       "warnings": [
-        "Overall Stage 3A remains incomplete after the OR-width family analysis.",
+        "Overall Stage 3A remains incomplete after the OR internal-structure analysis.",
         "No Validation or OOS_BURNED access is authorized or recorded.",
         "Descriptive candidate-state labels are not validated trading filters.",
-        "Signal-bar excursion remains chronology_unknown and is excluded from clean results."
+        "Only three FLAT alignment events exist; FLAT is reported but excluded from relationship classification.",
+        "Step 3 does not combine internal structure with OR-width state."
       ],
       "future_hypotheses": [
         "Promote a conditional state only under the predeclared stability, sample-size, outlier, cross-duration, and market-structure criteria in the phase specification."

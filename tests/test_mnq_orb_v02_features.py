@@ -423,10 +423,14 @@ class Stage2CompletionArtifactTests(unittest.TestCase):
         self.assertTrue(clean["close_through"])
         self.assertFalse(clean["reject"])
 
+        # The Stage-2 freeze is evidenced by the approval record above. The
+        # project manifest now reflects the later 2026-09-07 research closure
+        # (commit d129a98), which parked V0.2 without approving a next phase.
         manifest = json.loads((project_dir / "project.json").read_text(encoding="utf-8"))
         version = manifest["strategy_versions"][0]
-        self.assertEqual(version["lifecycle_status"], "FEATURES_VALIDATED_AND_FROZEN")
-        self.assertTrue(version["approved_for_next_phase"])
+        self.assertEqual(version["lifecycle_status"], "RESEARCH_PARKED")
+        self.assertTrue(version["decision"].startswith("PARKED_AS_RESEARCH_CANDIDATE"))
+        self.assertFalse(version["approved_for_next_phase"])
 
 
 if __name__ == "__main__":

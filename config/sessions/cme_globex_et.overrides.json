@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "calendar_id": "cme_globex_et_overrides",
+  "session_id": "cme_globex_et",
+  "coverage": {
+    "start": null,
+    "end": null
+  },
+  "coverage_note": "No exchange holidays or shortened sessions have been populated yet. Until a coverage range is declared, no date is calendar-verified, so an absent expected session cannot be classified as a legitimate exchange closure. Populate only from an authoritative exchange calendar.",
+  "overrides": []
+}

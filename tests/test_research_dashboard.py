@@ -31,7 +31,17 @@ class ResearchDashboardTests(unittest.TestCase):
         result = filter_experiment_index(index, partition="VALIDATION")
         self.assertEqual(result["gate"].tolist(), ["7"])
         result = filter_experiment_index(index, lifecycle_stage="STAGE_3_SIGNALS")
-        self.assertEqual(result["experiment_id"].tolist(), ["mnq_orb_v0_1_signal_validation"])
+        # V0.1 signal validation plus the three V0.2 Stage 3A-3C DEVELOPMENT
+        # characterizations registered before the 2026-09-07 research closure.
+        self.assertEqual(
+            result["experiment_id"].tolist(),
+            [
+                "mnq_orb_v0_1_signal_validation",
+                "mnq_orb_v0_2_stage3a_conditional_state_characterization",
+                "mnq_orb_v0_2_stage3b_london_interaction_event_characterization",
+                "mnq_orb_v0_2_stage3c_combined_state_hypothesis",
+            ],
+        )
 
     def test_lifecycle_progress_marks_current_and_complete_stages(self):
         index = load_experiment_index(PROJECT_ROOT)

@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "session_id": "cme_globex_et",
+  "display_name": "CME Globex regular futures session (Eastern Time)",
+  "description": "Authoritative generic exchange/session facts. Strategy and market-context windows (Asia, London, NY pre-market, overnight, OR) do not belong here.",
+  "timezone": "America/New_York",
+  "session_open": {
+    "time_et": "18:00",
+    "day_offset": -1
+  },
+  "session_close": {
+    "time_et": "17:00",
+    "day_offset": 0
+  },
+  "maintenance_break": {
+    "start_et": "17:00",
+    "end_et": "18:00"
+  },
+  "trading_weekdays": ["MON", "TUE", "WED", "THU", "FRI"],
+  "trading_date_convention": "A session is identified by its trading_date and spans [18:00 ET on the prior calendar day, 17:00 ET on the trading date). An instant at or after 18:00 ET belongs to the next calendar date; an instant before 17:00 ET belongs to its own calendar date. Instants in [17:00, 18:00) ET are the maintenance break and belong to no session. A resulting date that is not a trading weekday belongs to no session.",
+  "timestamp_convention": {
+    "rule_basis": "instant",
+    "session_interval": "[open, close)",
+    "timezone_handling": "Timezone-aware timestamps only; wall-clock rules are evaluated in the session timezone (DST-aware, never a fixed UTC offset).",
+    "bar_labels": "For bar-labelled data, rules are evaluated on the bar-start instant (bar_end label minus bar interval) and the whole bar must end no later than the session close. The canonical MNQ 1-minute dataset uses NinjaTrader bar_end labels."
+  },
+  "calendar": {
+    "overrides_file": "cme_globex_et.overrides.json",
+    "override_kinds": ["CLOSED", "MODIFIED"],
+    "missing_vs_closure_rule": "The previous/next expected session is derived from the regular weekly schedule plus explicit overrides. A date is calendar_verified only inside the declared override coverage (or when it has an explicit override); outside coverage an absent session cannot be classified as a legitimate exchange closure."
+  }
+}

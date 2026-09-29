@@ -21,6 +21,19 @@ from src.experiments.experiment_index import (
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
+# Reviewed V0.1 lifecycle history (19 records, closed at Gate 8A / decision).
+V01_EXPERIMENT_COUNT = 19
+# V0.2 records in index order: Stage 2 feature package, then the Stage 3A-3C
+# DEVELOPMENT characterizations added before the 2026-09-07 research closure.
+V02_EXPERIMENT_IDS = [
+    "mnq_orb_v0_2_stage2_feature_validation",
+    "mnq_orb_v0_2_stage2_feature_validation_completion",
+    "mnq_orb_v0_2_stage2_feature_freeze_approval",
+    "mnq_orb_v0_2_stage3a_conditional_state_characterization",
+    "mnq_orb_v0_2_stage3b_london_interaction_event_characterization",
+    "mnq_orb_v0_2_stage3c_combined_state_hypothesis",
+]
+
 
 def _record(experiment_id="test_experiment"):
     return {
@@ -85,8 +98,13 @@ class ExperimentIndexTests(unittest.TestCase):
     def test_real_index_loads_unique_backfilled_experiments(self):
         records = load_experiment_records(PROJECT_ROOT)
         ids = [record["experiment_id"] for record in records]
-        self.assertEqual(len(records), 22)
         self.assertEqual(len(ids), len(set(ids)))
+        by_project = {}
+        for record in records:
+            by_project.setdefault(record["project_id"], []).append(record["experiment_id"])
+        self.assertEqual(set(by_project), {"mnq_orb_v0_1", "mnq_orb_v0_2"})
+        self.assertEqual(len(by_project["mnq_orb_v0_1"]), V01_EXPERIMENT_COUNT)
+        self.assertEqual(sorted(by_project["mnq_orb_v0_2"]), sorted(V02_EXPERIMENT_IDS))
         self.assertIn("mnq_orb_v0_1_gate8a_post_validation_diagnostic", ids)
         self.assertIn("mnq_orb_v0_2_stage2_feature_validation", ids)
         self.assertIn("mnq_orb_v0_2_stage2_feature_validation_completion", ids)
@@ -97,20 +115,13 @@ class ExperimentIndexTests(unittest.TestCase):
         filtered = load_experiment_index(
             PROJECT_ROOT, project_id="mnq_orb_v0_1", strategy_version="V0.1"
         )
-        self.assertEqual(len(filtered), 19)
-        self.assertEqual(len(all_records), 22)
+        self.assertEqual(len(filtered), V01_EXPERIMENT_COUNT)
         self.assertTrue(filtered["project_id"].eq("mnq_orb_v0_1").all())
         v02 = load_experiment_index(
             PROJECT_ROOT, project_id="mnq_orb_v0_2", strategy_version="V0.2"
         )
-        self.assertEqual(
-            v02["experiment_id"].tolist(),
-            [
-                "mnq_orb_v0_2_stage2_feature_validation",
-                "mnq_orb_v0_2_stage2_feature_validation_completion",
-                "mnq_orb_v0_2_stage2_feature_freeze_approval",
-            ],
-        )
+        self.assertEqual(v02["experiment_id"].tolist(), V02_EXPERIMENT_IDS)
+        self.assertEqual(len(all_records), len(filtered) + len(v02))
 
     def test_artifact_paths_are_repository_relative_and_resolvable(self):
         artifacts = list_artifacts("orb_gate6b_dev_fixed_target_stop", PROJECT_ROOT)

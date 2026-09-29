@@ -657,11 +657,16 @@ must never silently combine incompatible experiments.
 ## Documentation ownership
 
 - `README.md`: platform architecture, usage, methodology, and reference project.
+- `CLAUDE.md`: operating instructions for Claude Code sessions.
 - `MEMORY.md`: concise durable decisions, validated state, and handoff.
+- `docs/project/`: governance and continuity — `WORK_PROGRESS.md` (current
+  status), `DECISION_LOG.md` (decisions and rationale), `CHANGELOG.md`
+  (internal change log), plus overview, architecture map, roadmap, quality
+  control, research governance, and task/review templates.
 - Ledger/config/artifacts: experiment history, parameters, metrics, evidence,
   and conclusions.
 - Git: implementation history.
 
-No `PROJECT_STATUS.md` is maintained because it would duplicate MEMORY. Add a
-`CHANGELOG.md` only when releases or external users need curated history beyond
-Git and the experiment ledger.
+Current status lives in `docs/project/WORK_PROGRESS.md`, not a separate
+`PROJECT_STATUS.md` (decision D-109 replaced the earlier "MEMORY only / no
+CHANGELOG" rule).

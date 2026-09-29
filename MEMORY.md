@@ -1,341 +1,286 @@
 # Project Memory
 
-This is the durable handoff for validated state, research decisions, and
-guardrails. It is intentionally not an experiment diary.
+Answers: **"What must the next agent know?"** Durable state, decisions, and
+guardrails — not an experiment diary. Run parameters/metrics belong in the
+experiment ledger and project artifact directories.
 
-Update MEMORY only when a gate is implemented and validated, a durable platform
-decision changes, a partition is opened/burned, or the authorized next step
-changes. Put individual run parameters, metrics, charts, and conclusions in the
-experiment ledger and project artifact directory.
+Continuity set: [CLAUDE.md](CLAUDE.md) (behavior) · this file (durable state) ·
+[WORK_PROGRESS](docs/project/WORK_PROGRESS.md) (where we are now) ·
+[DECISION_LOG](docs/project/DECISION_LOG.md) (why). Other governance docs:
+`docs/project/`.
 
-## Platform objective
+Update MEMORY only when a stage is validated/frozen/closed, a durable decision
+changes, a partition is opened/burned, or the authorized next step changes.
 
-Build a reproducible quantitative trading research platform for multiple
-strategy families and instruments/universes across futures, equities, ETFs, and
-extensible future asset classes.
+_Last restructured: 2026-09-24 (onboarding). Prior content was condensed;
+detailed ORB gate history and metrics remain in README, Git history
+(`d129a98` and earlier MEMORY versions), and project artifacts._
 
-MNQ ORB V0.1 is the first reference project. It must remain reproducible, but
-ORB timing, MNQ tick rules, and intraday limits are not platform-wide defaults.
+## 1. Repository purpose
 
-## Research Lifecycle V1.0
+The original Quantitative Trading Research Lab: causal, reproducible research
+for multiple strategy families and instruments. VectorBT for analytics and
+cross-checks; custom execution where intrabar/session/futures behavior matters.
+It is the research source of truth for current work. A separate
+NautilusTrader platform is the eventual runtime; migration is downstream and
+not a current refactor (D-108).
 
-The canonical strategy-independent lifecycle is:
+Design authority lives outside Claude (ChatGPT, relayed by the user). Claude
+implements; on ambiguity it stops and reports.
 
-`Idea -> Data -> Features -> Signals -> Execution -> DEV Baseline -> Exploration -> Robustness -> Freeze -> Validation -> Diagnosis -> Decision`.
+## 2. Current research status
 
-- Signal validation precedes all performance testing.
-- Feature, signal, state, strategy, and execution contracts remain separate.
-- DEVELOPMENT is the only exploration and tuning partition.
-- Candidate configuration, code/data boundary, and criteria freeze before
-  VALIDATION is opened.
-- VALIDATION is confirmatory and permits `PASS`, `REVISE`, or `REJECT`; it is
-  never a second optimization set.
-- Post-validation diagnosis is retrospective and cannot rewrite Validation.
-- A failed or revised strategy becomes a new strategy version/research cycle.
-- Research approval means eligible for a future controlled phase, not approved
-  for deployment and not at the end of the strategy lifetime.
+| Family | Status |
+|---|---|
+| MNQ ORB V0.1 | Complete cycle. Gate 7: CAND_001 `REVISE`, CAND_002/003 `REJECT`. No OOS/production progression. |
+| MNQ ORB V0.2 | Stage 2 features frozen (2026-09-02); Stage 3A–3C done; **`PARKED_AS_RESEARCH_CANDIDATE`** (2026-09-07). `HYP-ORB-STATE-01` potentially informative, unvalidated, parked. No new ORB optimization cycle. |
+| ICT | **Active, new, separate family.** Phase 1 feature-first. Nothing implemented yet. |
 
-## Durable platform guardrails
+ORB evidence is preserved as an infrastructure example and a future
+regression/parity oracle. Closure note:
+`experiments/projects/mnq_orb_v0_2/notes/mnq_orb_v0_2_final_development_research_conclusion.md`.
 
-- Keep strategy, instrument/universe, dataset, partition, parameter, execution,
-  cost, and code/environment identity separate.
-- Signals record market conditions; execution records whether/how the strategy
-  acts. Execution must not erase the signal record.
-- Maintain candidate/audit records for invalid, ambiguous, excluded, or
-  state-limit-rejected orders.
-- The custom execution engine is authoritative when intrabar order, next-bar
-  fills, session rules, ambiguity, or trade limits matter.
-- Use VectorBT for faithful vectorized work, generic numeric cross-checks,
-  parameter arrays, and visualization. Do not force ORB into
-  `Portfolio.from_signals()` if trade semantics change.
-- Canonical trades/audits are source artifacts; summaries/equity curves are
-  derived.
-- Raw data is immutable. Cleaned/processed data must be reproducible from a
-  versioned source and transform.
-- Every material run requires a config and ledger record with dataset ID/hash,
-  partition, parameters, execution/costs, Git/source hash, environment,
-  artifacts, status, and conclusion.
-- A rerun creates a new `run_id`; completed history is never overwritten.
-- Prefer stable parameter regions, temporal robustness, and economic rationale
-  over the single best in-sample cell.
-- Prevent lookahead at feature, state, signal, and execution boundaries.
-- Require a clean test/Git verification gate before advancing research stages.
+## 3. Current ICT initiative
 
-## Canonical architecture
+Phase 1 primitives (in order under consideration): External Liquidity →
+Internal Liquidity / meaningful swing structure → FVG → Rejection Block → MSS.
+Phase 2 (a Turtle Soup / liquidity-raid model) is **not** to be implemented or
+formalized until Phase 1 primitives are visually and programmatically validated.
 
-```text
-raw -> validated/clean -> features -> causal state -> signals
--> strategy definition -> execution -> completed trades/audit
--> experiments -> analytics -> ledger/dashboard -> gate decision
-```
+External Liquidity design direction (recorded, not implemented; details in
+DECISION_LOG D-104–D-106):
 
-New strategy logic belongs in a strategy context. Instrument facts belong in
-instrument/dataset configuration rather than strategy code.
+- Session references where already implemented: Previous Day H/L, Asia H/L,
+  London H/L, NY Pre-market H/L, Overnight H/L.
+- HTF: Daily EQH/EQL, Daily REQH/REQL, 4H EQH/EQL, 4H REQH/REQL.
+  **1H EQ/REQ is not external liquidity** (likely Internal Liquidity).
+- EQH/EQL: exact equality (0 ticks), no pivot, no look-forward, multiple
+  candles strengthen one level, causal once enough history exists, touch does
+  not consume, trade-through consumes, new extreme becomes the reference.
+- REQH/REQL: a cluster (member prices preserved, never averaged), working
+  tolerance 6 ticks for all included HTFs, chains allowed, no small member cap,
+  partial consumption (outer active member keeps the cluster alive), consumed
+  when the outer active extreme is traded through, no time expiry; any
+  working-set horizon must not change historical ACTIVE/TAKEN state.
+- Meaningful swing highs/lows and MSS are **not finalized** — do not invent.
 
-## Backtest observability is a first-class constraint
+## 4. Current next step
 
-> A historical strategy result is only as trustworthy as the data's ability to
-> resolve the execution rules being tested.
+Architecture cleanup comes before ICT liquidity work. Milestones proceed one
+at a time with explicit approval (D-117).
 
-For intrabar-sensitive execution, report ambiguity/exclusion rate alongside
-performance and test unresolved chronology before parameter selection. Do not
-equate a high-performing censored subset with fully observable strategy
-performance. Data resolution can be insufficient for an otherwise well-defined
-strategy, and observability may itself vary by market state or feature value.
+- **M1, the generic session model, is done** (2026-09-28): committed as
+  `d7b59fc` on the pushed branch `m1-session-model`. Local `main` still holds
+  the unpushed Nautilus-doc commit `e2f1474`, also saved on
+  `safety/pre-m1-local-main`.
+- **D1 data-quality gate** (D-120): source-data roll reconstruction + a
+  verified holiday / early-close calendar.
+  - Required **before M5 Market Context / Previous Day** and before any
+    External/Internal Liquidity research relies on source data.
+  - M4 persistence may precede it. The D1 solution is not yet designed.
+- **Frozen ORB limitation** (D-121): its dataset-previous "previous day" may
+  skip missing roll-week sessions. This is documented, not changed; ORB stays
+  frozen.
+- **M3, the generic timeframe builder, and the M3.1 audit are done**
+  (2026-09-29): `src/data/timeframes.py`, on demand, no persistence.
+  - Buckets anchor at the regular 18:00 open and are clipped to the actual
+    session.
+  - Incomplete buckets are emitted with flags; `available_at = bar_end`.
+  - Mixed-contract buckets raise. (D-119)
+  - A DEVELOPMENT smoke check confirmed that the dataset `session_date`
+    matches the session model.
+- **M2, generic instrument metadata, is done** (2026-09-29): committed as
+  `241622a`, `src/data/instruments.py`.
+  - `config/instruments/<id>.json` is authoritative, loaded into an immutable
+    `InstrumentSpec` with exact `Decimal` economics. No silent defaults.
+  - `mnq.json` must stay byte-identical: its hash is in the frozen Gate 6C
+    provenance.
+  - Legacy `TICK_SIZE` remains, guarded by a test. No consumers migrated.
+    (D-118)
+- Nothing is authorized next. Candidates:
+  - M4 (derived-data persistence; needs the Parquet decision);
+  - D1 (data-quality gate, before M5).
+- Branch `m1-session-model` (M1 + M2 + M3/M3.1) is under PR review against
+  `main`.
+- The next ICT design run will specify External and Internal Liquidity
+  together, including contract rolls, swings, EQ/REQ, and the timeframe
+  hierarchy.
+- Target architecture: ARCHITECTURE_MAP §B. Directives: D-110 to D-117.
 
-Parameter comparison must jointly consider expectancy, robustness, sample
-coverage, ambiguity rate, and chronology sensitivity.
+## 4a. Architecture directives (2026-09-28)
 
-## Partition policy
+**Reusable primitives (D-110)**
 
-- Define DEVELOPMENT, VALIDATION, and OOS before inspecting results.
-- DEVELOPMENT is the only place for parameter exploration.
-- Freeze candidate and acceptance criteria before opening VALIDATION.
-- VALIDATION is not a second development set; record failure before a new cycle.
-- Open OOS only after final freeze.
-- Relabel any period that influenced design/selection as burned; it is not
-  untouched evidence.
-- Assign by `session_date` unless an approved project specification says
-  otherwise.
+- Reusable primitives live in generic layers, not strategy modules.
+- ORB market context migrates to generic code only after parity is proven.
 
-## Repository and artifact decisions
+**Session model (D-111)**
 
-- Expected remote:
-  `https://github.com/danielbahar-dot/Quantitative-Trading-Research-Lab.git`.
-- Dataset configs: `config/datasets/`.
-- Instrument configs: `config/instruments/`.
-- Experiment grids: `config/experiments/`.
-- Reviewed artifacts:
-  `experiments/projects/<project_id>/<artifact_class>/`.
-- Local runs: `experiments/runs/<run_id>/`.
-- SQLite ledger/CSV mirror are generated local state; schema/templates are
-  versioned.
-- The reviewed project experiment index is the authoritative dashboard catalog.
-  Experiment outputs remain in canonical project folders; the dashboard
-  discovers and presents them rather than duplicating them.
-- The experiment package records canonical lifecycle stage separately from a
-  project-specific gate. The ledger/dashboard remain read-only research
-  navigation; operational runs remain local.
-- New research experiments register themselves through the canonical
-  programmatic experiment-registration API. Manual index editing is legacy
-  backfill behavior, not the intended future workflow.
-- Dashboard remains read-only; experiment execution and automation are future
-  layers.
-- Reusable feature/signal/state/strategy components are registered independently
-  from experiments. ORB is the first reference composition, not a platform
-  special case.
-- Preserve Python import paths during this housekeeping gate; do not move ORB
-  modules solely for cosmetic abstraction.
-- No `PROJECT_STATUS.md`; MEMORY owns current state.
-- No `CHANGELOG.md` until releases/external consumers make it useful.
+- Session for trading date D = [18:00 ET on D-1, 17:00 ET on D).
+- 17:00–18:00 is the maintenance break.
+- Timezone-aware, DST via wall-clock rules.
+- Single source: `config/sessions/cme_globex_et.json`.
 
-## Active reference project: `mnq_orb_v0_1`
+**Calendar overrides (D-112)**
 
-### Validated timing
+- Explicit `CLOSED` / `MODIFIED` overrides.
+- The calendar is currently empty with null coverage; no holiday dates were
+  invented.
 
-- MNQ one-minute NinjaTrader OHLC bars in Eastern Time.
-- Dataset ID: `MNQ_1m_actual_contract_v1`.
-- `timestamp_et = bar_end_time`.
-- OR windows / first eligible bar:
-  - 5m: 09:31-09:35 / 09:36.
-  - 10m: 09:31-09:40 / 09:41.
-  - 15m: 09:31-09:45 / 09:46.
-  - 20m: 09:31-09:50 / 09:51.
-  - 30m: 09:31-10:00 / 10:01.
-- Signal cutoff is inclusive at 11:30 ET.
+**Previous day (D-113)**
 
-### Frozen baseline semantics
+- "Previous day" means the previous **expected** session.
+- A missing expected session must be distinguished from a legitimate closure.
+- No silent fallback. ORB's frozen dataset-previous behavior differs.
 
-- Retain at most the first long and first short signal per session.
-- PRINT enters at OR boundary on the signal bar with validated same-bar
-  ambiguity rules.
-- CLOSE enters at the immediately following bar's open; the signal bar never
-  participates in execution or stop/target ambiguity.
-- Baseline stop: OR midpoint. Target: 2R. Tick size: 0.25 points.
-- Entry not beyond its stop is invalid.
-- Execute earliest valid candidate only, maximum one trade/session per
-  OR-duration/breakout variant.
-- Invalid/ambiguous candidates do not consume the allowance. Rejected later
-  candidates remain audited with `SESSION_TRADE_LIMIT`.
-- SESSION_END, shortened sessions, holding time, MFE, and MAE are validated.
-- No BE, trailing, FVG/EMA/VWAP, partial exits, commissions, or slippage.
+**Generic windows (D-114)**
 
-Do not change these rules during analytics. Rule changes require a separately
-approved gate and strategy version when appropriate.
+- Overnight 18:00–07:00 and NY pre-market 07:00–09:00, non-overlapping.
+- 09:00–09:30 is in neither window.
+- Asia and London unchanged. Frozen ORB `overnight` stays 18:00–09:30.
 
-### Canonical local artifacts
+**Level interaction (D-115)**
 
-- Bars: `data/MNQ_raw_cleaned_ET.csv`.
-- OR levels: `data/processed/mnq_or_levels.csv`.
-- Historical trades: `data/processed/orb_v01_completed_trades.csv`.
-- Historical audit: `data/processed/orb_v01_candidate_audit.csv`.
-- 20m DEV trades:
-  `data/processed/orb_v01_20m_print_DEV_completed_trades.csv`.
-- 20m DEV audit:
-  `data/processed/orb_v01_20m_print_DEV_candidate_audit.csv`.
-- Partitions:
-  `config/datasets/mnq_1m_actual_contract_v1.partitions.json`.
-- Reviewed outputs:
-  `experiments/projects/mnq_orb_v0_1/baselines/`.
+- TRADE_THROUGH = ≥1 tick beyond intrabar. CLOSE_THROUGH = close ≥1 tick
+  beyond.
+- A level never interacts with the bar that establishes it.
 
-Market data, generated trade/audit tables, and local ledgers are ignored by Git.
+**Timeframes (D-116)**
 
-### Counts and partition state
+- 1m is canonical; derived timeframes are cache.
+- Session-anchored 5m/15m/1H/4H/Daily. 4H anchors: 18/22/02/06/10/14.
+- No synthetic bars, and no HTF bar is used before it is complete.
 
-- Historical canonical table: 4,073 full-history trades across 5/10/15/30m
-  PRINT and CLOSE.
-- DEVELOPMENT: 2024-06-21 through 2025-06-30.
-- VALIDATION: 2025-07-01 through 2025-12-31; do not inspect during development.
-- OOS_BURNED: 2026-01-01 through 2026-08-17; full-history baseline performance
-  was viewed before partitioning.
-- Historical Gate 5B DEV diagnostics: 1,926 trades.
-- Expanded comparison with 20m PRINT: 2,172 DEV trades; maximum session date
-  2025-06-30.
+## 5. Critical architectural constraints
 
-### Durable Gate 5B interpretation
+- FEATURE ≠ STATE ≠ SIGNAL ≠ STRATEGY ≠ EXECUTION; contracts stay separate.
+- Pipeline: `raw → validated/clean → features → causal state → signals →
+  strategy definition → execution → completed trades/audit → experiments →
+  analytics → ledger/dashboard → gate decision`.
+- Prevent look-ahead at every boundary; signals are recorded even when not
+  traded; execution never erases the signal record.
+- Custom execution is authoritative when intrabar order, next-bar fills, session
+  rules, ambiguity, or trade limits matter. Do not force ORB into
+  `Portfolio.from_signals()`.
+- Canonical trades/audits are source artifacts; summaries/equity are derived.
+- Keep strategy, instrument, dataset, partition, parameter, execution/cost, and
+  code identity separate. Instrument facts belong in instrument config.
+- Raw data immutable; reruns get a new `run_id`; never overwrite history.
+- New experiments register via `src/experiments/experiment_registration.py`;
+  manual index editing is legacy backfill. Dashboard is read-only.
+- Preserve existing Python import paths; do not move ORB modules cosmetically.
+- Backtest observability is first-class: report ambiguity/exclusion rates and
+  chronology sensitivity alongside any performance.
 
-- All eight historical DEV variants had positive average R but -1R medians;
-  larger winners offset frequent full losses.
-- Profit factors were approximately 1.08-1.37.
-- 15m/30m PRINT were descriptively strongest, but no duration was selected.
-- Shorts were stronger in most variants; this does not authorize a side filter.
-- Every variant had a negative rolling-50 window; seven ended negative on
-  rolling-50 and only the 5m variants ended negative on rolling-100.
-- DEV has 13 months and roughly 225-247 trades per historical variant;
-  optimization capacity is limited.
-- Decision: optimize PRINT only; keep CLOSE as historical benchmark.
+## 6. Important frozen assumptions
 
-## Current validated state
+**Data / time (all research):**
 
-- Gates 1-4D validate data, OR features, PRINT/CLOSE signals, candidate entries,
-  stop/target execution, ambiguity handling, completed trades, and one accepted
-  trade per session/variant.
-- Gates 5/5B provide baseline and DEVELOPMENT-only diagnostics.
-- Gate 5C adds 20m PRINT without changing existing duration behavior.
-- Gate 6A and 6A.1 provide the first R-target surface and entry-bar sensitivity.
-- Gate 6B evaluates 75 DEVELOPMENT-only 15m/20m/30m PRINT configurations using
-  40/50/60/75/100-point targets and midpoint, 25%-OR, or fixed 30/40/50 stops.
-- Gate 6B.1 maps the nonlinear OR-width relationship without creating a filter.
-- Gate 6B.2 maps EXCLUDED, ENTRY_FIRST, and ADVERSE_MOVE_FIRST chronology for
-  all 75 Gate 6B cells. EXCLUDED reproduces Gate 6B exactly, resolved first
-  candidates consume the daily allowance, and Gate 6B/6B.1 remain unchanged.
-- Gate 6C reduces the frozen 75-cell DEVELOPMENT evidence to three proposed
-  core candidates plus two separate research hypotheses. Human review approved
-  the three core candidates and the package is `FROZEN_FOR_VALIDATION`.
-- Gate 7 evaluated exactly those three candidates on the predefined VALIDATION
-  partition without parameter changes. HYP_001/HYP_002 and OOS_BURNED were not
-  accessed.
-- Gate 8A retrospectively compares the complete 75-cell Gate 6B surface across
-  DEVELOPMENT and VALIDATION. It is diagnostic, not confirmatory, and does not
-  select or define a new strategy.
+- MNQ 1-minute NinjaTrader OHLC, Eastern Time, `timestamp_et = bar_end_time`.
+  Conceptual `[start, end)` windows use bars `start+1min`…`end`. Bars from the
+  18:01 reopen belong to the next CME trading `session_date`.
+- Dataset ID `MNQ_1m_actual_contract_v1`; bars `data/MNQ_raw_cleaned_ET.csv`
+  (actual contract, not back-adjusted). MNQ tick 0.25 points.
 
-### DEVELOPMENT freeze
+**Partitions** (`config/datasets/mnq_1m_actual_contract_v1.partitions.json`):
 
-- `CAND_001`: 15m PRINT / fixed-50 stop / fixed 75-point target.
-- `CAND_002`: 20m PRINT / OR-midpoint stop / fixed 75-point target.
-- `CAND_003`: 30m PRINT / fixed-40 stop / fixed 75-point target.
-- HYP_001/HYP_002 remain in research history and are not part of V0.1
-  Validation.
+- DEVELOPMENT 2024-06-21 → 2025-06-30 (only exploration/tuning partition).
+- VALIDATION 2025-07-01 → 2025-12-31 — exposed by ORB Gate 7/8A; burned for ORB
+  V0.2 hypothesis generation; usable only for retrospective diagnosis there.
+- OOS_BURNED 2026-01-01 → 2026-08-17 — full-history ORB results viewed before
+  partitioning; not untouched evidence; do not access without human approval.
 
-### Gate 7 result
+**Stage 2 frozen feature semantics (2026-09-02, human-validated 14/14):**
 
-- `CAND_001`: `REVISE`. A small observed edge remained, but degradation was
-  high, chronology-robust expectancy was marginal, and the second half gave
-  back a material share of first-half gains.
-- `CAND_002`: `REJECT`. Observed and ENTRY_FIRST expectancy reversed sign.
-- `CAND_003`: `REJECT`. Expectancy reversed sign under every chronology
-  scenario.
-- Durable finding: the strongest DEVELOPMENT regions did not broadly persist
-  through VALIDATION; execution observability alone did not explain the
-  degradation.
-- No MNQ ORB V0.1 frozen candidate passed Validation. V0.1 is not approved for
-  OOS or production progression.
+- Asia 20:00–00:00 ET, London 02:00–05:00 ET, NY pre-market 07:00–09:00 ET
+  (`NY PM` = New York pre-market, never afternoon).
+- `OVERNIGHT_CONTEXT_2000_0900` is a continuous context range
+  (`combined_preopen` = migration alias only). Separate `overnight` window:
+  18:01–09:30 bar-ends (dataset-verified).
+- Previous full futures trading-day H/L/C are the primary prior-day references;
+  previous RTH H/L/C remain available.
+- `GLOBEX_REOPEN_GAP` (prior 17:00 close vs 18:01 reopen) and `NY_OPEN_GAP`
+  (prior 16:14 close vs current 09:31 open) are distinct; missing bars are not
+  substituted.
+- TOUCH, TRADE_THROUGH, CLOSE_THROUGH, REJECT, SWEEP are neutral primitive
+  key-level events (SWEEP implies TRADE_THROUGH and REJECT) — ORB-OR-scoped.
+- Price-normalized values stored as decimal ratios; raw points kept separately.
+- Causal OR-width percentile uses 5/10/15/20 prior same-duration sessions,
+  explicit warm-up, no backfill.
+- Config: `config/features/mnq_orb_v0_2_preopen_windows.json`.
 
-### Gate 8A purpose and durable diagnostic state
+**ORB V0.1 frozen timing/semantics** (full detail in README): OR windows start
+09:31 bar-end (5/10/15/20/30m; first eligible bars 09:36/09:41/09:46/09:51/
+10:01); signal cutoff 11:30 inclusive; PRINT enters at OR boundary on signal
+bar, CLOSE at next bar open; baseline stop OR midpoint, 2R target; one trade per
+session per variant; no costs/slippage. V0.1 frozen candidates: CAND_001
+15m/fixed-50/75pt, CAND_002 20m/midpoint/75pt, CAND_003 30m/fixed-40/75pt.
 
-- The V0.1 post-mortem distinguishes broad edge deterioration, parameter
-  instability/migration, market-state dependence, and selection/overfitting.
-- The diagnostic supports broad edge deterioration, parameter migration, and
-  OR-width state dependence under its predeclared descriptive rules. It does
-  not support the specific frozen-candidate selection-error pattern.
-- Lower Validation ambiguity and exclusion rates across every stop family did
-  not explain the expectancy loss.
-- Gate 8A creates no V0.2 candidate and authorizes no parameter retuning.
+**Durable ORB learnings:** strongest DEVELOPMENT regions did not persist in
+VALIDATION; ambiguity did not explain degradation; OR width is nonlinear and
+state-dependent; parameter maxima alone are insufficient evidence.
 
-## Current methodological findings
+## 7. Known issues / technical debt
 
-- PRINT is retained for the current ORB research path; CLOSE is a historical
-  benchmark.
-- Current parameter research focuses on 15m/20m/30m OR durations.
-- Midpoint, fixed-40, and fixed-50 stops were chronology-robust across all 15
-  tested Gate 6B cells in each family. Fixed-30 was mostly robust, with several
-  weak chronology-sensitive cells.
-- The 25% retracement family was heavily ambiguity-sensitive; only 20m/75 and
-  20m/100 remained robust under every Gate 6B.2 chronology scenario.
-- OR width has a nonlinear relationship with outcomes and is a candidate future
-  feature/state variable, not a current strategy filter.
-- Fixed and relative stops can be materially affected by PRINT entry-bar
-  observability; chronology robustness must accompany parameter surfaces.
-- Parameter maxima alone are insufficient evidence. Stable neighborhoods,
-  sample size, causal availability, and chronology robustness matter.
+- Reusable session-level construction (previous day, Asia, London, NY
+  pre-market, overnight) lives in the ORB-named module
+  `src/experiments/mnq_orb_v02_features.py`; generic primitives are in
+  `src/features/market_context.py` (which also carries ORB constants).
+- **Source-data gap at contract rolls** (M3.1, DEVELOPMENT):
+  - Mon–Thu of every quarterly roll week is absent (16 sessions), and each
+    new contract starts at 00:01 on the roll Friday (18:01–00:00 missing).
+  - These are missing expected sessions, not closures.
+  - It affects the future PDH/PDL and roll design. Frozen ORB used the prior
+    week's Friday as "previous day" on those Fridays.
+  - Detail: WORK_PROGRESS and
+    `reports/validation/m3_1_dev_daily_incompleteness.csv`.
+- No persistence for derived timeframes yet (M4). No generic level-lifecycle
+  (ACTIVE/TAKEN) model.
+- Legacy tick-size duplicates remain as temporary compatibility artifacts,
+  pending consumer migration:
+  - `TICK_SIZE = 0.25` in `candidate_entries.py` (guarded by a test);
+  - a `0.25` literal in `orb_gate6b_fixed_points.py` metadata;
+  - `tick_size` in `config/experiments/orb_gate6b_dev_fixed_target_stop.json`.
+  - The authoritative source is `config/instruments/mnq.json` via
+    `load_instrument` (M2).
+- Two ledger mechanisms: legacy `src/research_harness.py` (SQLite/CSV; used
+  only by `orb_v01.py` and notebook 16) and the V1.0 registration API
+  (canonical going forward, PROPOSED).
+- `ET_TIMEZONE` constant defined in 2 modules; `"America/New_York"` literal in
+  ~8 more. New code must use `src/data/sessions.py` instead.
+- Previous-day levels in ORB use "previous session present in data" (silent
+  fallback if a session is missing) — frozen; generic rule is D-113.
+- Test baseline is green as of M1.1 (2026-09-28): 247 passed, 0 failed.
+  Tests do **not** read Git-ignored market data (this corrects the
+  2026-09-24 note).
+- ORB V0.2 Stage 3B record is still `status=running` (human review pending
+  per its notes). It is frozen and left unchanged; finalizing it needs a
+  design-authority decision.
+- `src/strategies/` empty; `strategies/momentum/` is a placeholder.
+- Extra ad-hoc CSVs at `data/` root; `data/raw/` and `data/cleaned/` empty.
+- `experiments/projects/mnq_orb_v0_2/research_ideas.json` still labels
+  `research_stage` as `STAGE_2_FEATURES` (frozen artifact; left unchanged).
 
-> Validation is confirmatory rather than exploratory. Broad parameter search
-> ends at DEVELOPMENT freeze. Validation results may generate future
-> hypotheses, but must not be used to retune the frozen strategy version.
+## 8. Pending decisions
 
-> Backtest observability is a first-class research constraint. Performance must
-> be interpreted jointly with ambiguity rate, sample coverage and chronology
-> sensitivity.
+See WORK_PROGRESS "Blocked / unresolved" for the full list. Headline items:
 
-> Validation has now been exposed and is burned for V0.2 hypothesis generation.
-> It may be used for retrospective diagnosis, but cannot serve again as
-> untouched Validation evidence. OOS_BURNED remains unopened in the formal
-> lifecycle and must not be accessed without human approval.
+- holiday calendar source (override coverage);
+- level orientation reference;
+- incomplete-HTF-bar policy;
+- Parquet approval;
+- generic overnight ID;
+- ICT partition plan;
+- contract rolls and swing/MSS/EQ/REQ (next ICT design run).
 
-## MNQ ORB V0.2 Stage 2 feature decisions
+## 9. Repository conventions
 
-- Fixed execution distances should be represented in price-normalized terms
-  for future research where the intent is economic comparability over changing
-  price levels. This does not change any current strategy stop or target.
-- OR-width percentile is not a validated trading state. Its research
-  implementation uses 5/10/15/20 prior completed sessions of the same OR
-  duration, with explicit warm-up and no future backfill.
-- Human-approved windows are Asia 20:00-00:00 ET, London 02:00-05:00 ET, and
-  New York pre-market 07:00-09:00 ET. `NY PM` means New York pre-market.
-- The broad continuous 20:00-09:00 context is
-  `OVERNIGHT_CONTEXT_2000_0900`; `combined_preopen` is a migration alias only.
-- Previous full futures trading-day high/low are the primary generic prior-day
-  key-level references. Previous RTH high/low/close remain available.
-- `GLOBEX_REOPEN_GAP` and `NY_OPEN_GAP` are separate concepts. The latter uses
-  the prior trading day's 16:14 bar close and current 09:31 bar open under NT8
-  bar-end semantics; missing bars are not substituted.
-- Signal-bar favorable/adverse excursion is descriptive only and always marked
-  chronology-unknown. Clean MFE/MAE begins with the next complete bar.
-- TOUCH, TRADE_THROUGH, CLOSE_THROUGH, REJECT, and SWEEP are primitive neutral
-  key-level events, not trading rules. SWEEP implies TRADE_THROUGH and REJECT.
-- Stage-2 human review completed on 2026-09-02 with 14/14 representative cases
-  passing. Every case retains a machine-stable `trigger_id`; multi-predicate
-  cases such as CLEAN_TRADE_THROUGH must reconcile every predicate on the same
-  exact reference level.
-- The Stage-2 feature package is validated and frozen. Validation and
-  OOS_BURNED were not accessed during feature validation or approval.
-- The NY pre-market opposite-side liquidity observation is an untested
-  hypothesis candidate. London ORB is a parked, separate future research idea.
-- V0.2 strategy hypotheses remain intentionally undefined; Stage 3 may now
-  define and validate signals without changing the frozen feature semantics.
-
-## Immediate project objective
-
-`V0.2 Stage 2 features frozen -> Stage 3 signal hypothesis and validation`
-
-Research infrastructure now includes the V1.0 lifecycle, reviewed ledger,
-dashboard, and initial reusable component registry. Future strategy/production
-lifecycle management is planned but not implemented.
-
-## Next gate
-
-**V0.2 Stage 3 signal hypothesis and signal validation.**
-
-Preserve the frozen Stage-2 feature definitions while defining causal signal
-hypotheses and validating event timestamps and eligibility. Do not begin
-performance optimization or access OOS_BURNED.
+- Remote: `https://github.com/danielbahar-dot/Quantitative-Trading-Research-Lab.git`.
+- Configs: `config/datasets/`, `config/instruments/`, `config/features/`,
+  `config/experiments/`, `config/components/`.
+- Reviewed artifacts: `experiments/projects/<project_id>/<artifact_class>/`;
+  local runs `experiments/runs/<run_id>/`. SQLite ledger/CSV mirror, market data,
+  and generated tables are Git-ignored.
+- Documentation: README = platform reference; MEMORY = durable state;
+  `docs/project/` = governance, progress, decisions, internal changelog (D-109
+  supersedes the former "no PROJECT_STATUS / no CHANGELOG" rule).

@@ -4,18 +4,28 @@ Answers: **"Where exactly are we now?"** Update this after every meaningful
 task. Keep entries short. History goes in [CHANGELOG](CHANGELOG.md) and
 rationale in [DECISION_LOG](DECISION_LOG.md).
 
-_Last updated: 2026-09-28_
+_Last updated: 2026-09-29_
 
 ## Current focus
 
 Architecture cleanup before ICT liquidity work. Milestones proceed one at a
-time with explicit approval (D-117). **M1, the generic session model, is
-done.** ICT feature work is on hold until the next design run, which will
-specify External and Internal Liquidity together.
+time with explicit approval (D-117).
+
+- **M1 (session model) is done**: committed as `d7b59fc` and pushed on branch
+  `m1-session-model`.
+- **M2 (instrument metadata) is done** but uncommitted, on the same branch.
+- ICT feature work is on hold until the next design run, which will specify
+  External and Internal Liquidity together.
 
 ## Last completed work
 
-- **2026-09-28 — M1.1 stabilization** (uncommitted).
+- **2026-09-29 — M2 generic instrument metadata** (uncommitted).
+  - Added `src/data/instruments.py` and `tests/test_instruments.py`.
+  - `config/instruments/mnq.json` is authoritative and was left
+    byte-identical: its SHA-256 is recorded in the frozen Gate 6C provenance.
+  - Legacy `TICK_SIZE` is kept and guarded by a test. No consumers migrated.
+    No ORB code changed. (D-118)
+- **2026-09-28 — M1.1 stabilization** (committed in `d7b59fc`).
   - `is_maintenance_break()` now agrees with `session_status()`: it is True
     only for the Mon–Thu 17:00–18:00 break. Friday from 17:00 and Sunday
     before 18:00 are `NON_TRADING_DAY`. Added an explicit weekly-boundary
@@ -23,7 +33,7 @@ specify External and Internal Liquidity together.
   - Four stale pre-Stage-3 test expectations reconciled with the verified
     current state. No production or ORB code changed.
   - Full suite is now green.
-- **2026-09-28 — M1 generic session model** (uncommitted).
+- **2026-09-28 — M1 generic session model** (committed in `d7b59fc`).
   - Added `config/sessions/cme_globex_et.json`,
     `config/sessions/cme_globex_et.overrides.json` (empty, coverage null),
     `src/data/sessions.py`, and `tests/test_sessions.py`.
@@ -40,9 +50,9 @@ specify External and Internal Liquidity together.
 
 ## Next approved task
 
-- **None.** M2 or later needs explicit approval.
+- **None.** M3 or later needs explicit approval.
 - Candidate order (see ROADMAP):
-  1. M2 instrument metadata
+  1. ~~M2 instrument metadata~~ (done 2026-09-29)
   2. M3 timeframe builder (on demand)
   3. M4 derived-data persistence
   4. M5 generic session levels with ORB parity
@@ -85,10 +95,14 @@ specify External and Internal Liquidity together.
 
 ## Recent test status
 
+- 2026-09-29 (M2), `tests/test_instruments.py`: **19 passed** (47 subtests).
+- 2026-09-29 (M2), full suite: **266 passed, 0 failed** (104 subtests).
+  That is the 247 baseline plus the 19 new tests. This is the baseline for
+  M3.
 - 2026-09-28 (M1.1), `tests/test_sessions.py`: **28 passed** (40 subtests).
 - 2026-09-28 (M1.1), full suite (`.\.venv\Scripts\python.exe -m pytest -q`,
-  ~8 min): **247 passed, 0 failed** (57 subtests). This is the clean
-  repository baseline for M2.
+  ~8 min): **247 passed, 0 failed** (57 subtests). This was the pre-M2
+  baseline.
 - The earlier M1 run showed 4 failures, all stale pre-Stage-3 test
   expectations. They were fixed in M1.1 (see CHANGELOG).
 - Tests do not read Git-ignored market data (see ARCHITECTURE_MAP §A.11).

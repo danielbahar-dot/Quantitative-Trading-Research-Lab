@@ -329,6 +329,33 @@ repository. For D-101 onward the date is when it was recorded here
 - **Status:** ACTIVE
 - **Revisit trigger:** Next ICT design run.
 
+### D-118 — Authoritative instrument metadata (M2)
+- **Date:** 2026-09-29
+- **Decision:** `config/instruments/<instrument_id>.json` is the single
+  authoritative source for instrument economics, consumed through
+  `src/data/instruments.load_instrument()` into an immutable `InstrumentSpec`.
+  - Tick size, point value, and tick value are exact `Decimal`s parsed from
+    the JSON text (never via binary floats).
+  - `tick_value == tick_size × point_value` must hold exactly.
+  - Missing, invalid, or inconsistent metadata fails explicitly. There are no
+    Python defaults and no substitute instruments.
+  - The canonical schema keeps the existing `mnq.json` field names
+    (`tick_size_points`, `point_value_usd`, `tick_value_usd`).
+  - `instrument_id` is the root (e.g. `MNQ`), not a dated contract.
+- **Reason:** Remove duplicated, hard-coded instrument facts.
+- **Alternatives considered:** Renaming the `mnq.json` fields to a new schema.
+  Rejected because the file's SHA-256 is recorded in the frozen Gate 6C
+  provenance.
+- **Consequences:**
+  - Legacy constants (`candidate_entries.TICK_SIZE`, experiment-metadata
+    literals) remain temporarily for ORB compatibility. They are guarded by
+    tests and are not independent sources.
+  - Consumers are not migrated in M2.
+  - Contract identity beyond the root, and all roll behavior, remain deferred
+    (D-117).
+- **Status:** ACTIVE (implemented 2026-09-29)
+- **Revisit trigger:** First consumer migration, or a non-USD instrument.
+
 ### PROPOSED items awaiting design-authority approval (2026-09-28)
 Claude recommendations from the architecture closeout; **not decisions**:
 Market Context as tidy-DataFrame functions (no MarketContext object);
@@ -337,8 +364,7 @@ window-aggregate modes; minimal State/Signal contracts as a DataFrame column
 schema + small frozen dataclass spec (Signal has no order fields);
 `available_at = nominal bar_end` for derived bars even when incomplete;
 Parquet + JSON manifest, partition-scoped, for derived data (needs `pyarrow`
-approval); instrument metadata loader with config as the tick-size source;
-registration API as the canonical ledger (`research_harness.py` legacy);
+approval); registration API as the canonical ledger (`research_harness.py` legacy);
 unit / golden / integration test tiers. Details: ARCHITECTURE_MAP §B.
 
 ---

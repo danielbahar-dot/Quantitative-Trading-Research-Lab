@@ -13,8 +13,8 @@ High-level only. No deadlines. Status vocabulary: `DONE`, `ACTIVE`, `NEXT`,
 | 1a | Keep ORB evidence frozen as the regression/parity oracle; migrate its reusable market context to generic code only after parity (D-110) | ACTIVE (maintenance only) |
 | 2 | Architecture cleanup: reusable primitives (one milestone at a time, each separately approved) | **ACTIVE** |
 | 2.M1 | Generic session model and calendar overrides | **DONE** (2026-09-28) |
-| 2.M2 | Instrument metadata loader | NEXT (awaiting approval) |
-| 2.M3 | Generic timeframe builder, on demand (5m/15m/1H/4H/Daily) | PLANNED |
+| 2.M2 | Instrument metadata loader | **DONE** (2026-09-29) |
+| 2.M3 | Generic timeframe builder, on demand (5m/15m/1H/4H/Daily) | NEXT (awaiting approval) |
 | 2.M4 | Derived-timeframe persistence and manifest | PLANNED (Parquet decision pending) |
 | 2.M5 | Generic Market Context session levels + ORB parity tests | PLANNED |
 | 2.M6 | Generic level-interaction primitives + ORB parity tests | PLANNED |

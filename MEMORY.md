@@ -69,10 +69,19 @@ DECISION_LOG D-104–D-106):
 Architecture cleanup comes before ICT liquidity work. Milestones proceed one
 at a time with explicit approval (D-117).
 
-- **M1, the generic session model, is done** (2026-09-28, uncommitted):
-  `src/data/sessions.py` plus `config/sessions/`.
-- Nothing is authorized next. M2 (instrument metadata) is the next
-  candidate.
+- **M1, the generic session model, is done** (2026-09-28): committed as
+  `d7b59fc` on the pushed branch `m1-session-model`. Local `main` still holds
+  the unpushed Nautilus-doc commit `e2f1474`, also saved on
+  `safety/pre-m1-local-main`.
+- **M2, generic instrument metadata, is done** (2026-09-29, uncommitted):
+  `src/data/instruments.py`.
+  - `config/instruments/<id>.json` is authoritative, loaded into an immutable
+    `InstrumentSpec` with exact `Decimal` economics. No silent defaults.
+  - `mnq.json` must stay byte-identical: its hash is in the frozen Gate 6C
+    provenance.
+  - Legacy `TICK_SIZE` remains, guarded by a test. No consumers migrated.
+    (D-118)
+- Nothing is authorized next. M3 (timeframe builder) is the next candidate.
 - The next ICT design run will specify External and Internal Liquidity
   together, including contract rolls, swings, EQ/REQ, and the timeframe
   hierarchy.
@@ -198,8 +207,13 @@ state-dependent; parameter maxima alone are insufficient evidence.
   `src/experiments/mnq_orb_v02_features.py`; generic primitives are in
   `src/features/market_context.py` (which also carries ORB constants).
 - No HTF resampling utility; no generic level-lifecycle (ACTIVE/TAKEN) model.
-- Tick size hard-coded (`TICK_SIZE = 0.25` in `src/backtesting/candidate_entries.py`);
-  `config/instruments/mnq.json` is not loaded by code.
+- Legacy tick-size duplicates remain as temporary compatibility artifacts,
+  pending consumer migration:
+  - `TICK_SIZE = 0.25` in `candidate_entries.py` (guarded by a test);
+  - a `0.25` literal in `orb_gate6b_fixed_points.py` metadata;
+  - `tick_size` in `config/experiments/orb_gate6b_dev_fixed_target_stop.json`.
+  - The authoritative source is `config/instruments/mnq.json` via
+    `load_instrument` (M2).
 - Two ledger mechanisms: legacy `src/research_harness.py` (SQLite/CSV; used
   only by `orb_v01.py` and notebook 16) and the V1.0 registration API
   (canonical going forward, PROPOSED).

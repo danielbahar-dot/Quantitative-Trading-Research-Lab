@@ -12,6 +12,14 @@ Areas: `ARCH`, `FEATURE`, `STATE`, `SIGNAL`, `EXECUTION`, `METHOD`, `DATA`,
 
 ## Unreleased
 
+- 2026-09-29 — [DATA/ARCH] M2 generic instrument metadata.
+  - Added `src/data/instruments.py`: `load_instrument` → frozen
+    `InstrumentSpec` with exact `Decimal` economics, `is_tick_aligned`, and a
+    small error hierarchy.
+  - Added `tests/test_instruments.py` (19 tests), including guards for the
+    legacy `TICK_SIZE` and the frozen `mnq.json` provenance hash.
+  - `mnq.json` unchanged. No consumer migrated. No ORB code changed. (D-118)
+
 - 2026-09-28 — [DATA/VALIDATION-TOOLING] M1.1 stabilization.
   - `is_maintenance_break()` is True only for the Mon–Thu between-session
     break. Friday ≥17:00 and Sunday <18:00 are `NON_TRADING_DAY`.

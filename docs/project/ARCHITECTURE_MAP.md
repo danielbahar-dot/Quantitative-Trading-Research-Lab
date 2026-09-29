@@ -44,6 +44,7 @@ D-110 to D-117 and the PROPOSED list.
 | `src/backtesting/orb_v01.py` | Early lean ORB V0.1 event simulation + legacy ledger usage | Execution (legacy) |
 | `src/data/partitions.py` | Session-date partitioning + integrity checks + hashing | Data |
 | `src/data/sessions.py` | **Generic session model (M1, 2026-09-28):** trading-date assignment, session bounds, maintenance break, calendar overrides, previous/next expected session | Data / session foundation |
+| `src/data/instruments.py` | **Generic instrument metadata (M2, 2026-09-29):** `load_instrument` → immutable `InstrumentSpec` with exact `Decimal` economics; `is_tick_aligned` | Data / instrument foundation |
 | `src/experiments/experiment_index.py` | Read-only index, record validation, artifact discovery, lifecycle/component loaders | Experiment infra |
 | `src/experiments/experiment_registration.py` | Prospective registration API (`create_experiment`, `register_artifact`, `finalize_experiment`, `ExperimentRun`) | Experiment infra |
 | `src/research_harness.py` | Older SQLite + CSV `ExperimentLedger` (used by `orb_v01.py`, Gate 8A notebook) | Experiment infra (legacy) |
@@ -56,7 +57,7 @@ D-110 to D-117 and the PROPOSED list.
 
 | File | Purpose |
 |---|---|
-| `config/instruments/mnq.json` | MNQ metadata (tick 0.25, tick value, RTH, bar-end semantics) |
+| `config/instruments/mnq.json` | **Authoritative** MNQ metadata (tick 0.25, point value 2.0, tick value 0.5, USD, CME), consumed via `load_instrument` (M2). Content hash is recorded in the frozen Gate 6C provenance, so the file must not change without a decision. Its `research_timezone` / `regular_session` fields are legacy descriptive; session facts belong to `config/sessions/` |
 | `config/sessions/cme_globex_et.json` | Authoritative generic session facts (M1) |
 | `config/sessions/cme_globex_et.overrides.json` | Session override calendar (CLOSED / MODIFIED); currently empty, coverage null |
 | `config/datasets/mnq_1m_actual_contract_v1.partitions.json` | DEVELOPMENT / VALIDATION / OOS(BURNED) session-date ranges |
@@ -129,7 +130,7 @@ config/experiments/<id>.json → runner (notebook / src/experiments module)
 | Session/timezone windows | Yes (ORB-scoped) | `market_context.py` + ORB windows JSON; `ET_TIMEZONE` defined in 2 modules and `"America/New_York"` literal in ~8 more |
 | Session-date ownership (18:01 reopen → next date) | Yes (data + config) | Dataset `session_date` column; the M1 bar-end rule follows the same documented convention (not yet checked row-by-row against the dataset) |
 | Resampling to 4H / Daily | **No** | No resampling utility in `src/` |
-| Instrument / tick size | Partial | `mnq.json` not loaded by code; `TICK_SIZE = 0.25` hard-coded in `candidate_entries.py` |
+| Instrument / tick size | **Yes (M2)** | `src/data/instruments.py` + `config/instruments/`. Not yet consumed by existing code. Legacy duplicates still present: `TICK_SIZE = 0.25` in `candidate_entries.py` (guarded by a test), `"tick_size": 0.25` literal in `orb_gate6b_fixed_points.py` metadata, `tick_size` in `config/experiments/orb_gate6b_dev_fixed_target_stop.json`; notebook 14 embeds the raw `mnq.json` into the frozen V0.1 spec |
 | Generic level lifecycle (ACTIVE/TAKEN) | **No** | `level_interaction` evaluates a level against the OR window only |
 | Swing / EQ / REQ / FVG / MSS detection | **No** | Nothing ICT-related exists |
 
@@ -307,11 +308,19 @@ oracle, and ORB migrates to the generic code only after parity is proven
   `data/derived/timeframes/<dataset_id>/<partition>/`.
 - A cache is valid only if the source hash and builder version match.
 
-**Instrument metadata**
+**Instrument metadata — IMPLEMENTED (M2)**
 
-- `load_instrument(id)` returns an `InstrumentSpec` from
-  `config/instruments/`.
-- Missing config raises an error. `TICK_SIZE` is guarded by a parity test.
+- `load_instrument(id, config_dir=...)` returns a frozen `InstrumentSpec`
+  (`instrument_id`, `name`, `asset_class`, `exchange`, `currency`,
+  `tick_size`, `point_value`, `tick_value`, `source_path`).
+- Economics are parsed from the JSON text straight into `Decimal`, and
+  `tick_value == tick_size × point_value` is checked exactly.
+- Errors: `InstrumentError` ⊃ `InstrumentNotFoundError`,
+  `InstrumentConfigError`. There are no defaults.
+- `is_tick_aligned(price, tick_size)` is the only tick helper. Broader tick
+  arithmetic belongs to the level-interaction milestone.
+- Legacy `TICK_SIZE` and the `mnq.json` provenance hash are guarded by tests.
+- Consumers are not migrated yet.
 
 **Ledger**
 

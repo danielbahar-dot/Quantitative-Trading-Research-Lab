@@ -12,6 +12,15 @@ Areas: `ARCH`, `FEATURE`, `STATE`, `SIGNAL`, `EXECUTION`, `METHOD`, `DATA`,
 
 ## Unreleased
 
+- 2026-09-29 — [DATA/EXPERIMENT-INFRA] M4 derived-timeframe persistence.
+  - Added `src/data/timeframe_store.py`: Parquet + JSON manifest,
+    provenance-validated loads, a stale-cache error, a reserved-partition
+    guard, and atomic writes.
+  - `TIMEFRAME_BUILDER_VERSION` added to `timeframes.py`. `pyarrow==25.0.1`
+    pinned. `data/derived/` Git-ignored.
+  - Added `tests/test_timeframe_store.py` (17 tests).
+  - DEVELOPMENT materialization matches M3.1 exactly. (D-122)
+
 - 2026-09-29 — [DATA/METHOD] M3.1 DEVELOPMENT completeness audit.
   - Builder accounting reconciled independently (0 mismatches). All 337,815
     bars match the session model.

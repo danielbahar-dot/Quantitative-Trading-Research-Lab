@@ -16,8 +16,8 @@ High-level only. No deadlines. Status vocabulary: `DONE`, `ACTIVE`, `NEXT`,
 | 2.M2 | Instrument metadata loader | **DONE** (2026-09-29) |
 | 2.M3 | Generic timeframe builder, on demand (5m/15m/1H/4H/Daily) | **DONE** (2026-09-29) |
 | 2.M3.1 | Completeness / source-data audit (DEVELOPMENT) | **DONE** (2026-09-29) |
-| 2.M4 | Derived-timeframe persistence and manifest | NEXT (awaiting approval; Parquet decision pending). Allowed before D1 |
-| **D1** | **Source data / contract-roll reconstruction + holiday / early-close calendar.** A data-quality / research-validity gate, not an architecture milestone (D-120) | **REQUIRED GATE** before M5 and before any liquidity research relies on source data |
+| 2.M4 | Derived-timeframe persistence (Parquet + manifest) | **DONE** (2026-09-29) |
+| **D1** | **Source data / contract-roll reconstruction + holiday / early-close calendar.** A data-quality / research-validity gate, not an architecture milestone (D-120) | **NEXT / REQUIRED GATE** before M5 and before any liquidity research relies on source data |
 | 2.M5 | Generic Market Context session levels (incl. Previous Day) + ORB parity tests | **BLOCKED by D1** |
 | 2.M6 | Generic level-interaction primitives + ORB parity tests | PLANNED |
 | 2.M7 | Minimal State/Signal contracts | PLANNED |

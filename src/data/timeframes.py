@@ -42,6 +42,9 @@ from src.data.sessions import (
     LABEL_BAR_END,
 )
 
+# Bump whenever build_timeframe() output semantics change; persisted derived
+# data carrying an older version is treated as stale.
+TIMEFRAME_BUILDER_VERSION = 1
 DEFAULT_SOURCE_INTERVAL = pd.Timedelta(minutes=1)
 PRICE_COLUMNS = ("open", "high", "low", "close")
 REQUIRED_COLUMNS = (*PRICE_COLUMNS, "volume", "contract")

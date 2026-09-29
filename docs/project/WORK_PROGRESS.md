@@ -11,21 +11,27 @@ _Last updated: 2026-09-29_
 Architecture cleanup before ICT liquidity work. Milestones proceed one at a
 time with explicit approval (D-117).
 
-- **M1 (session model) is done**: committed as `d7b59fc` and pushed on branch
-  `m1-session-model`.
-- **M2 (instrument metadata) is done**: committed as `241622a` and pushed on
-  the same branch.
-- **M3 (timeframe builder) and the M3.1 audit are done.** They are committed
-  in the checkpoint commit on `m1-session-model` and under PR review against
-  `main`.
-- **New gate D1** (D-120): source-data roll reconstruction + verified holiday
-  calendar. It is required before M5 Market Context and before liquidity
-  research on source data. M4 may precede it.
+- **M1, M2, M3 and the M3.1 audit are merged into `main`** (PR #1, merge
+  commit `7dfa78b`).
+- **M4 (derived-timeframe persistence) is done** but uncommitted, on branch
+  `m4-derived-timeframe-persistence` (from `main`).
+- **Next gate D1** (D-120): source-data roll reconstruction + verified
+  holiday calendar. It is required before M5 Market Context and before
+  liquidity research on source data.
 - ICT feature work is on hold until the next design run, which will specify
   External and Internal Liquidity together.
 
 ## Last completed work
 
+- **2026-09-29 — M4 derived-timeframe persistence** (uncommitted).
+  - Added `src/data/timeframe_store.py` (Parquet + manifest,
+    provenance-validated loads, stale-cache error, reserved-partition guard)
+    and `tests/test_timeframe_store.py`.
+  - Other changes: `TIMEFRAME_BUILDER_VERSION`, `pyarrow==25.0.1` pinned,
+    `data/derived/` Git-ignored. (D-122)
+  - DEVELOPMENT materialization of all five timeframes reproduced the M3.1
+    row counts and incomplete counts exactly. The local cache is about
+    4.6 MB.
 - **2026-09-29 — M3.1 incompleteness audit** (DEVELOPMENT only, read-only).
   - **Builder accounting verified:** per-bucket missing counts match an
     independent computation at every timeframe (0 mismatches). Observed
@@ -85,12 +91,11 @@ time with explicit approval (D-117).
 
 ## Next approved task
 
-- **None.** M4 or later needs explicit approval.
+- **None.** D1 or later needs explicit approval.
 - Candidate order (see ROADMAP):
   1. ~~M2 instrument metadata~~ (done 2026-09-29)
   2. ~~M3 timeframe builder (on demand)~~ (done 2026-09-29)
-  3. M4 derived-data persistence (needs the Parquet decision; allowed
-     before D1)
+  3. ~~M4 derived-data persistence~~ (done 2026-09-29)
   4. **D1** source-data roll reconstruction + holiday / early-close calendar
      (data-quality gate; solution not yet designed)
   5. M5 generic session levels with ORB parity (**blocked by D1**)
@@ -112,7 +117,7 @@ time with explicit approval (D-117).
    incomplete bars.
 5. **Session-window completeness.** Keep the strict ORB rule or tolerate
    missing minutes.
-6. **Parquet.** Approve `pyarrow` for derived data (PROPOSED).
+6. ~~**Parquet.**~~ Approved and implemented in M4 (D-122).
 7. **Generic overnight ID.** Proposed `overnight_1800_0700`. Also decide
    whether RTH is a generic window.
 8. **Golden fixtures.** Whether small real-market-data samples may be
@@ -127,12 +132,18 @@ time with explicit approval (D-117).
 
 ## Validation pending
 
-- M1 status: `TESTED` on synthetic data. It has not yet been checked against
-  the dataset's `session_date` column. That integration check (real data,
-  opt-in) should be part of a later milestone.
+- M1 status: `TESTED` on synthetic data and checked against the real
+  DEVELOPMENT `session_date` column (0 mismatches in M3/M3.1). This was a
+  one-off script; there is no committed integration test yet (M8 test
+  tiers).
 - No ICT primitive exists.
 
 ## Recent test status
+
+- 2026-09-29 (M4), `tests/test_timeframe_store.py`: **17 passed**
+  (7 subtests).
+- 2026-09-29 (M4), full suite: **308 passed, 0 failed** (135 subtests). That
+  is the 291 baseline plus the 17 new tests. This is the current baseline.
 
 - 2026-09-29 (M3), `tests/test_timeframes.py` + `tests/test_sessions.py`:
   **53 passed** (64 subtests).

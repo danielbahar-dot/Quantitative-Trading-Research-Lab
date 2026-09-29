@@ -44,6 +44,7 @@ D-110 to D-117 and the PROPOSED list.
 | `src/backtesting/orb_v01.py` | Early lean ORB V0.1 event simulation + legacy ledger usage | Execution (legacy) |
 | `src/data/partitions.py` | Session-date partitioning + integrity checks + hashing | Data |
 | `src/data/sessions.py` | **Generic session model (M1, 2026-09-28):** trading-date assignment, session bounds, maintenance break, calendar overrides, previous/next expected session | Data / session foundation |
+| `src/data/timeframe_store.py` | **Derived-timeframe persistence (M4, 2026-09-29):** `materialize_timeframe` / `load_timeframe`, Parquet + manifest with provenance validation | Data / derived cache |
 | `src/data/timeframes.py` | **Generic timeframe builder (M3, 2026-09-29):** `build_timeframe(bars, timeframe, session_spec)` for 5m/15m/1H/4H/1D or any `TimeframeSpec`; on demand, no persistence | Data / derived timeframes |
 | `src/data/instruments.py` | **Generic instrument metadata (M2, 2026-09-29):** `load_instrument` → immutable `InstrumentSpec` with exact `Decimal` economics; `is_tick_aligned` | Data / instrument foundation |
 | `src/experiments/experiment_index.py` | Read-only index, record validation, artifact discovery, lifecycle/component loaders | Experiment infra |
@@ -130,7 +131,7 @@ config/experiments/<id>.json → runner (notebook / src/experiments module)
 | Generic session model / trading date | **Yes (M1)** | `src/data/sessions.py` + `config/sessions/`; not yet used by existing modules |
 | Session/timezone windows | Yes (ORB-scoped) | `market_context.py` + ORB windows JSON; `ET_TIMEZONE` defined in 2 modules and `"America/New_York"` literal in ~8 more |
 | Session-date ownership (18:01 reopen → next date) | Yes (data + config) | Dataset `session_date` column; the M1 bar-end rule follows the same documented convention (not yet checked row-by-row against the dataset) |
-| Resampling to derived timeframes | **Yes (M3)** | `src/data/timeframes.py`, on demand. Persistence not implemented (M4) |
+| Resampling to derived timeframes | **Yes (M3/M4)** | `src/data/timeframes.py` on demand; `src/data/timeframe_store.py` persists Parquet + manifest |
 | Instrument / tick size | **Yes (M2)** | `src/data/instruments.py` + `config/instruments/`. Not yet consumed by existing code. Legacy duplicates still present: `TICK_SIZE = 0.25` in `candidate_entries.py` (guarded by a test), `"tick_size": 0.25` literal in `orb_gate6b_fixed_points.py` metadata, `tick_size` in `config/experiments/orb_gate6b_dev_fixed_target_stop.json`; notebook 14 embeds the raw `mnq.json` into the frozen V0.1 spec |
 | Generic level lifecycle (ACTIVE/TAKEN) | **No** | `level_interaction` evaluates a level against the OR window only |
 | Swing / EQ / REQ / FVG / MSS detection | **No** | Nothing ICT-related exists |
@@ -205,7 +206,8 @@ config/experiments/<id>.json → runner (notebook / src/experiments module)
 **Storage**
 
 - CSV with ISO-8601 offsets.
-- No Parquet in use; `pyarrow` is not in `requirements.txt`.
+- No Parquet was in use before M4. Since M4, derived timeframes are Parquet
+  via `pyarrow` (pinned `25.0.1`); source data remains CSV.
 
 ---
 
@@ -317,13 +319,26 @@ oracle, and ORB migrates to the generic code only after parity is proven
 - States add `value` and `active`. Signals add `reason`.
 - A Signal carries no order, price, or quantity fields.
 
-### B.6 Other PROPOSED items
+### B.6 Other items
 
-**Derived-data persistence**
+**Derived-data persistence — IMPLEMENTED (M4; D-122)**
 
-- Parquet plus a JSON manifest, built per partition, under
-  `data/derived/timeframes/<dataset_id>/<partition>/`.
-- A cache is valid only if the source hash and builder version match.
+- `materialize_timeframe(tf, partition=...)` and
+  `load_timeframe(tf, partition=...)` in `src/data/timeframe_store.py`.
+- Output is Parquet (`pyarrow`) plus a JSON manifest, under
+  `data/derived/timeframes/<dataset_id>/<partition>/` (Git-ignored).
+- The manifest records:
+  - dataset and partition, instrument and contracts;
+  - source path, SHA-256, row count and range;
+  - timeframe, session fingerprint and calendar coverage;
+  - conventions;
+  - builder version, Git SHA, and library versions;
+  - output SHA-256, rows and incomplete count.
+- Loading validates the output hash, builder version, session fingerprint
+  and source hash. A stale file raises; nothing is rebuilt silently.
+- Reserved partitions need an explicit flag.
+- DEVELOPMENT materialization (2026-09-29) reproduced the M3.1 row counts and
+  incomplete counts exactly for all five timeframes, about 4.6 MB in total.
 
 **Instrument metadata — IMPLEMENTED (M2)**
 

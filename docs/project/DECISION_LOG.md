@@ -411,7 +411,9 @@ repository. For D-101 onward the date is when it was recorded here
 - **Alternatives considered:** Proceed to Market Context on current data
   (rejected: invalid previous-day semantics); block M4 as well (rejected:
   persistence preserves source faithfully with completeness metadata).
-- **Status:** ACTIVE (gate open; solution to be designed)
+- **Status:** REVISED by D-123 (2026-09-29). D1 is no longer a prerequisite
+  for M5–M7 or the ICT feature library, and it is now DEFERRED. The finding
+  and gate rationale above remain valid.
 - **Revisit trigger:** D1 design task.
 
 ### D-121 — Frozen ORB previous-day limitation (documented, not changed)
@@ -472,6 +474,53 @@ repository. For D-101 onward the date is when it was recorded here
 - **Status:** ACTIVE (implemented 2026-09-29)
 - **Revisit trigger:** D1 source rebuild (new source hash); a builder
   semantic change.
+
+### D-123 — D1 deferred; continuity-aware feature work may proceed
+- **Date:** 2026-09-29
+- **Decision:**
+  1. **D1 (contract stitching / source-data repair + holiday calendar) is
+     DEFERRED** until continuous-history research requires it. It is not
+     implemented, and no source data is modified.
+  2. **M5** Generic Market Context, **M6** Generic Level Interactions,
+     **M7** State/Signal Contracts, and later reusable feature-library work
+     (including ICT) **may proceed before D1**.
+  3. **Known limitation.** The current roll gaps are a known source-data
+     limitation. Feature code must not silently work around them.
+  4. **Continuity-aware generic components.** Generic components must:
+     - never substitute an older available session for a missing expected
+       session;
+     - when an expected input session is absent, expose the feature as
+       unavailable with an explicit reason;
+     - never implicitly carry multi-session state across missing expected
+       sessions;
+     - never aggregate across mixed contracts.
+  5. **D1 remains a required gate before:**
+     - research assuming continuous history across contract rolls;
+     - final broad strategy-performance validation where roll periods
+       matter;
+     - carrying cross-session or cross-contract structures through known
+       source-data gaps;
+     - any methodology requiring a canonical stitched continuous contract.
+  6. **Frozen ORB is unchanged.** Its previous-available-session behavior
+     around roll gaps remains a documented historical limitation (D-121).
+- **Reason:** Design-authority decision. Reusable primitives can be built and
+  validated correctly on gapped data if continuity is explicit. Stitching is
+  only essential where continuous history is assumed.
+- **Alternatives considered:** Keep D1 as a gate before M5 (D-120, superseded
+  in part).
+- **Consequences:**
+  - M5 is NEXT.
+  - Continuity-awareness is a required review item (QUALITY_CONTROL §1–2).
+  - M3/M4 already comply for aggregation: mixed-contract buckets raise, and
+    empty buckets are not synthesized.
+  - D-113 (previous *expected* session; missing ≠ closure) is the governing
+    rule for Previous Day in M5.
+  - Because the calendar is still empty, an absent expected session cannot
+    be verified as a legitimate closure. It must surface as unavailable or
+    unverified, never be skipped.
+- **Status:** ACTIVE
+- **Revisit trigger:** Research that needs continuous history across rolls,
+  or final performance validation over roll periods.
 
 ### PROPOSED items awaiting design-authority approval (2026-09-28)
 Claude recommendations from the architecture closeout; **not decisions**:

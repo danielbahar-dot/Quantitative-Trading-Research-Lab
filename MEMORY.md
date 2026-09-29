@@ -69,18 +69,40 @@ DECISION_LOG D-104–D-106):
 Architecture cleanup comes before ICT liquidity work. Milestones proceed one
 at a time with explicit approval (D-117).
 
-- **M1, the generic session model, is done** (2026-09-28): committed as
-  `d7b59fc` on the pushed branch `m1-session-model`. Local `main` still holds
-  the unpushed Nautilus-doc commit `e2f1474`, also saved on
-  `safety/pre-m1-local-main`.
-- **D1 data-quality gate** (D-120): source-data roll reconstruction + a
-  verified holiday / early-close calendar.
-  - Required **before M5 Market Context / Previous Day** and before any
-    External/Internal Liquidity research relies on source data.
-  - M4 persistence may precede it. The D1 solution is not yet designed.
-- **Frozen ORB limitation** (D-121): its dataset-previous "previous day" may
-  skip missing roll-week sessions. This is documented, not changed; ORB stays
-  frozen.
+- **M1–M3.1 are merged into `main`** via PR #1 (merge commit `7dfa78b`).
+  The unrelated Nautilus-doc commit `e2f1474` was never pushed; it is kept on
+  the local branches `safety/pre-m1-local-main` and
+  `safety/pre-m4-realign`.
+- **M4, derived-timeframe persistence, is done** (2026-09-29): committed as
+  `412dcd0` on branch `m4-derived-timeframe-persistence` (PR pending),
+  `src/data/timeframe_store.py`.
+  - Parquet (`pyarrow==25.0.1`) + JSON manifest under the Git-ignored
+    `data/derived/timeframes/`.
+  - Loads validate the output hash, `TIMEFRAME_BUILDER_VERSION`, session
+    fingerprint and source hash. Stale data raises; nothing is rebuilt
+    silently.
+  - Reserved partitions need an explicit flag. (D-122)
+- **D1 (contract stitching / source repair + holiday calendar) is DEFERRED**
+  (D-123, revising D-120).
+  - M5 Market Context, M6 Level Interactions, M7 State/Signal and the ICT
+    feature library **may proceed before D1**, but must be
+    **continuity-aware**:
+    - never substitute an older available session for a missing expected
+      session;
+    - a missing expected input session → the feature is unavailable with an
+      explicit reason;
+    - no multi-session state is carried across missing expected sessions;
+    - no aggregation across mixed contracts.
+  - The roll gaps are a known limitation. Feature code must not silently work
+    around them.
+  - **D1 is still required before:**
+    - research assuming continuous history across rolls;
+    - final broad performance validation where roll periods matter;
+    - carrying cross-session/contract structures through known gaps;
+    - any canonical stitched continuous contract.
+- **Frozen ORB limitation** (D-121): its previous-available-session "previous
+  day" may skip missing roll-week sessions. This is a documented historical
+  limitation; ORB stays frozen and unchanged.
 - **M3, the generic timeframe builder, and the M3.1 audit are done**
   (2026-09-29): `src/data/timeframes.py`, on demand, no persistence.
   - Buckets anchor at the regular 18:00 open and are clipped to the actual
@@ -97,11 +119,8 @@ at a time with explicit approval (D-117).
     provenance.
   - Legacy `TICK_SIZE` remains, guarded by a test. No consumers migrated.
     (D-118)
-- Nothing is authorized next. Candidates:
-  - M4 (derived-data persistence; needs the Parquet decision);
-  - D1 (data-quality gate, before M5).
-- Branch `m1-session-model` (M1 + M2 + M3/M3.1) is under PR review against
-  `main`.
+- Nothing is authorized next. **M5 Generic Market Context** (continuity-aware;
+  Previous Day per D-113) is the next candidate.
 - The next ICT design run will specify External and Internal Liquidity
   together, including contract rolls, swings, EQ/REQ, and the timeframe
   hierarchy.
@@ -234,7 +253,7 @@ state-dependent; parameter maxima alone are insufficient evidence.
     week's Friday as "previous day" on those Fridays.
   - Detail: WORK_PROGRESS and
     `reports/validation/m3_1_dev_daily_incompleteness.csv`.
-- No persistence for derived timeframes yet (M4). No generic level-lifecycle
+- Derived-timeframe persistence exists (M4); no generic level-lifecycle
   (ACTIVE/TAKEN) model.
 - Legacy tick-size duplicates remain as temporary compatibility artifacts,
   pending consumer migration:
@@ -268,7 +287,6 @@ See WORK_PROGRESS "Blocked / unresolved" for the full list. Headline items:
 - holiday calendar source (override coverage);
 - level orientation reference;
 - incomplete-HTF-bar policy;
-- Parquet approval;
 - generic overnight ID;
 - ICT partition plan;
 - contract rolls and swing/MSS/EQ/REQ (next ICT design run).

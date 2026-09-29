@@ -38,6 +38,8 @@ data/**/*.hdf5
 data/**/*.npy
 data/**/*.npz
 !data/**/.gitkeep
+# Derived-timeframe cache (Parquet + manifests); rebuildable, never authoritative.
+data/derived/
 
 # Experiment ledgers and run outputs are generated and remain local.
 experiments/experiment_ledger.sqlite

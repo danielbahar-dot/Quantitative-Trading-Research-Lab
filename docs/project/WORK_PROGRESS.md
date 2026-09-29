@@ -11,21 +11,34 @@ _Last updated: 2026-09-29_
 Architecture cleanup before ICT liquidity work. Milestones proceed one at a
 time with explicit approval (D-117).
 
-- **M1 (session model) is done**: committed as `d7b59fc` and pushed on branch
-  `m1-session-model`.
-- **M2 (instrument metadata) is done**: committed as `241622a` and pushed on
-  the same branch.
-- **M3 (timeframe builder) and the M3.1 audit are done.** They are committed
-  in the checkpoint commit on `m1-session-model` and under PR review against
+- **M1, M2, M3 and the M3.1 audit are merged into `main`** (PR #1, merge
+  commit `7dfa78b`).
+- **M4 (derived-timeframe persistence) is done**: committed as `412dcd0` on
+  branch `m4-derived-timeframe-persistence`, with a PR pending against
   `main`.
-- **New gate D1** (D-120): source-data roll reconstruction + verified holiday
-  calendar. It is required before M5 Market Context and before liquidity
-  research on source data. M4 may precede it.
+- **D1 is DEFERRED** (D-123). M5 Generic Market Context is **NEXT** (awaiting
+  approval). M5, M6, M7 and the ICT feature library may proceed before D1
+  but must be **continuity-aware** (see QUALITY_CONTROL §1–2).
 - ICT feature work is on hold until the next design run, which will specify
   External and Internal Liquidity together.
 
 ## Last completed work
 
+- **2026-09-29 — Roadmap adjustment** (governance only, uncommitted).
+  - D1 deferred; continuity-aware rules recorded (D-123); D-120 marked
+    revised.
+  - ROADMAP updated with M5 next and D1 deferred.
+  - QUALITY_CONTROL gains continuity checks. No code changed.
+
+- **2026-09-29 — M4 derived-timeframe persistence** (committed in `412dcd0`).
+  - Added `src/data/timeframe_store.py` (Parquet + manifest,
+    provenance-validated loads, stale-cache error, reserved-partition guard)
+    and `tests/test_timeframe_store.py`.
+  - Other changes: `TIMEFRAME_BUILDER_VERSION`, `pyarrow==25.0.1` pinned,
+    `data/derived/` Git-ignored. (D-122)
+  - DEVELOPMENT materialization of all five timeframes reproduced the M3.1
+    row counts and incomplete counts exactly. The local cache is about
+    4.6 MB.
 - **2026-09-29 — M3.1 incompleteness audit** (DEVELOPMENT only, read-only).
   - **Builder accounting verified:** per-bucket missing counts match an
     independent computation at every timeframe (0 mismatches). Observed
@@ -85,25 +98,26 @@ time with explicit approval (D-117).
 
 ## Next approved task
 
-- **None.** M4 or later needs explicit approval.
+- **None.** M5 or later needs explicit approval.
 - Candidate order (see ROADMAP):
   1. ~~M2 instrument metadata~~ (done 2026-09-29)
   2. ~~M3 timeframe builder (on demand)~~ (done 2026-09-29)
-  3. M4 derived-data persistence (needs the Parquet decision; allowed
-     before D1)
-  4. **D1** source-data roll reconstruction + holiday / early-close calendar
-     (data-quality gate; solution not yet designed)
-  5. M5 generic session levels with ORB parity (**blocked by D1**)
-  6. M6 level-interaction primitives with parity
-  7. M7 State/Signal contracts
+  3. ~~M4 derived-data persistence~~ (done 2026-09-29)
+  4. **M5** generic Market Context session levels with ORB parity
+     (continuity-aware; Previous Day follows D-113; **NEXT**)
+  5. M6 level-interaction primitives with parity
+  6. M7 State/Signal contracts
+  7. ICT reusable feature library (after the joint External/Internal
+     Liquidity design)
   8. M8 test tiers
   9. M9 legacy-ledger deprecation notice
 
 ## Blocked / unresolved (design-authority decisions)
 
-1. **Holiday calendar source.** Coverage is null, so no date is
-   calendar-verified yet. Missing sessions cannot be told apart from closures
-   until this is populated.
+1. **Holiday calendar source.** Part of D1, which is deferred (D-123).
+   Coverage is null, so no date is calendar-verified. Until it is populated,
+   an absent expected session must surface as unavailable or unverified in
+   M5+, never be skipped.
 2. **Level orientation.** What reference price makes a generic level
    "upper" or "lower", and how to treat a level exactly at price.
 3. **REJECT / SWEEP.** Formal confirmation of the existing meanings (D-115).
@@ -112,7 +126,7 @@ time with explicit approval (D-117).
    incomplete bars.
 5. **Session-window completeness.** Keep the strict ORB rule or tolerate
    missing minutes.
-6. **Parquet.** Approve `pyarrow` for derived data (PROPOSED).
+6. ~~**Parquet.**~~ Approved and implemented in M4 (D-122).
 7. **Generic overnight ID.** Proposed `overnight_1800_0700`. Also decide
    whether RTH is a generic window.
 8. **Golden fixtures.** Whether small real-market-data samples may be
@@ -122,17 +136,28 @@ time with explicit approval (D-117).
 10. **Generic interaction default.** Per-bar or window-aggregate evaluation.
 11. **ICT partition plan.** Use of the exposed VALIDATION and OOS_BURNED
     ranges.
-12. **Contract rolls, swings, MSS, EQ/REQ details.** Deferred to the next ICT
-    design run (D-117).
+12. **Swings, MSS, EQ/REQ details.** Deferred to the next ICT design run
+    (D-117). Contract stitching is deferred to D1 (D-123). Features must stay
+    continuity-aware in the meantime.
+
+Items 5 and 7 (window completeness, generic overnight ID) and the exact
+"unavailable" reason vocabulary are the likely decisions M5 needs before
+implementation.
 
 ## Validation pending
 
-- M1 status: `TESTED` on synthetic data. It has not yet been checked against
-  the dataset's `session_date` column. That integration check (real data,
-  opt-in) should be part of a later milestone.
+- M1 status: `TESTED` on synthetic data and checked against the real
+  DEVELOPMENT `session_date` column (0 mismatches in M3/M3.1). This was a
+  one-off script; there is no committed integration test yet (M8 test
+  tiers).
 - No ICT primitive exists.
 
 ## Recent test status
+
+- 2026-09-29 (M4), `tests/test_timeframe_store.py`: **17 passed**
+  (7 subtests).
+- 2026-09-29 (M4), full suite: **308 passed, 0 failed** (135 subtests). That
+  is the 291 baseline plus the 17 new tests. This is the current baseline.
 
 - 2026-09-29 (M3), `tests/test_timeframes.py` + `tests/test_sessions.py`:
   **53 passed** (64 subtests).
@@ -156,8 +181,9 @@ time with explicit approval (D-117).
   sessions of each quarterly roll week are absent, and the new contract's
   first session starts at 00:01 Friday.
   - Under D-113 these are *missing expected sessions*, not closures.
-  - This is now tracked as the **D1 gate** (D-120). It was not investigated
-    in VALIDATION or OOS.
+  - It is a **known limitation**. D1 (stitching / repair) is **deferred**
+    (D-123). Feature code must not silently work around it.
+  - It was not investigated in VALIDATION or OOS.
 - **Frozen ORB limitation (D-121):** ORB's dataset-previous "previous day"
   may reference an older session around missing roll-week sessions (e.g. a
   roll Friday referencing the prior week's Friday).

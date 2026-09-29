@@ -411,7 +411,9 @@ repository. For D-101 onward the date is when it was recorded here
 - **Alternatives considered:** Proceed to Market Context on current data
   (rejected: invalid previous-day semantics); block M4 as well (rejected:
   persistence preserves source faithfully with completeness metadata).
-- **Status:** ACTIVE (gate open; solution to be designed)
+- **Status:** REVISED by D-123 (2026-09-29). D1 is no longer a prerequisite
+  for M5–M7 or the ICT feature library, and it is now DEFERRED. The finding
+  and gate rationale above remain valid.
 - **Revisit trigger:** D1 design task.
 
 ### D-121 — Frozen ORB previous-day limitation (documented, not changed)
@@ -434,14 +436,99 @@ repository. For D-101 onward the date is when it was recorded here
 - **Status:** ACTIVE
 - **Revisit trigger:** D1 completion or any ORB reopening.
 
+### D-122 — Derived-timeframe persistence: Parquet + manifest (M4)
+- **Date:** 2026-09-29
+- **Decision:** Derived timeframes are persisted by
+  `src/data/timeframe_store.py` as a Parquet file plus a sibling JSON
+  manifest.
+  - **Engine:** `pyarrow`, now pinned in `requirements.txt` as `25.0.1`, the
+    version already installed via streamlit.
+  - **Layout:** `data/derived/timeframes/<dataset_id>/<partition>/<dataset_id>__<partition>__<tf>__tfb-v<N>.parquet`
+    plus `.manifest.json`. The folder is Git-ignored.
+  - **Source:** the partition file declared in the dataset partition config.
+  - **Partition guard:** only DEVELOPMENT-role partitions are processed
+    unless `allow_reserved_partition=True` is passed explicitly.
+  - **Validity:** a persisted file is returned only if its manifest matches
+    the Parquet SHA-256, the current `TIMEFRAME_BUILDER_VERSION`, the
+    effective session-model fingerprint (including overrides), and, by
+    default, the source SHA-256.
+  - **Mismatch:** raises `StaleDerivedTimeframeError`. There is no silent
+    rebuild on read. `materialize_timeframe()` reuses valid files and
+    replaces stale ones.
+  - **Writes:** atomic (temp file, then replace). Parquet is written before
+    the manifest.
+  - **Git SHA and dirty flag:** recorded for provenance, but not a validity
+    criterion.
+- **Reason:** Design-authority approval of Parquet + manifest (2026-09-29).
+  Parquet preserves the tz-aware timestamps, dates, ints and bools exactly;
+  a round-trip test shows strict frame equality.
+- **Alternatives considered:** CSV + manifest (loses dtypes, larger);
+  silent rebuild on read (hides provenance changes).
+- **Consequences:**
+  - Derived files are cache, never authoritative, and are rebuildable from
+    the 1m source.
+  - Bumping `TIMEFRAME_BUILDER_VERSION` changes file names, so old versions
+    are never returned.
+  - M4 precedes D1 by design (D-120): it faithfully preserves current
+    source completeness.
+- **Status:** ACTIVE (implemented 2026-09-29)
+- **Revisit trigger:** D1 source rebuild (new source hash); a builder
+  semantic change.
+
+### D-123 — D1 deferred; continuity-aware feature work may proceed
+- **Date:** 2026-09-29
+- **Decision:**
+  1. **D1 (contract stitching / source-data repair + holiday calendar) is
+     DEFERRED** until continuous-history research requires it. It is not
+     implemented, and no source data is modified.
+  2. **M5** Generic Market Context, **M6** Generic Level Interactions,
+     **M7** State/Signal Contracts, and later reusable feature-library work
+     (including ICT) **may proceed before D1**.
+  3. **Known limitation.** The current roll gaps are a known source-data
+     limitation. Feature code must not silently work around them.
+  4. **Continuity-aware generic components.** Generic components must:
+     - never substitute an older available session for a missing expected
+       session;
+     - when an expected input session is absent, expose the feature as
+       unavailable with an explicit reason;
+     - never implicitly carry multi-session state across missing expected
+       sessions;
+     - never aggregate across mixed contracts.
+  5. **D1 remains a required gate before:**
+     - research assuming continuous history across contract rolls;
+     - final broad strategy-performance validation where roll periods
+       matter;
+     - carrying cross-session or cross-contract structures through known
+       source-data gaps;
+     - any methodology requiring a canonical stitched continuous contract.
+  6. **Frozen ORB is unchanged.** Its previous-available-session behavior
+     around roll gaps remains a documented historical limitation (D-121).
+- **Reason:** Design-authority decision. Reusable primitives can be built and
+  validated correctly on gapped data if continuity is explicit. Stitching is
+  only essential where continuous history is assumed.
+- **Alternatives considered:** Keep D1 as a gate before M5 (D-120, superseded
+  in part).
+- **Consequences:**
+  - M5 is NEXT.
+  - Continuity-awareness is a required review item (QUALITY_CONTROL §1–2).
+  - M3/M4 already comply for aggregation: mixed-contract buckets raise, and
+    empty buckets are not synthesized.
+  - D-113 (previous *expected* session; missing ≠ closure) is the governing
+    rule for Previous Day in M5.
+  - Because the calendar is still empty, an absent expected session cannot
+    be verified as a legitimate closure. It must surface as unavailable or
+    unverified, never be skipped.
+- **Status:** ACTIVE
+- **Revisit trigger:** Research that needs continuous history across rolls,
+  or final performance validation over roll periods.
+
 ### PROPOSED items awaiting design-authority approval (2026-09-28)
 Claude recommendations from the architecture closeout; **not decisions**:
 Market Context as tidy-DataFrame functions (no MarketContext object);
 level-interaction API with integer-tick comparison and per-bar plus
 window-aggregate modes; minimal State/Signal contracts as a DataFrame column
 schema + small frozen dataclass spec (Signal has no order fields);
-Parquet + JSON manifest, partition-scoped, for derived data (needs `pyarrow`
-approval); registration API as the canonical ledger (`research_harness.py` legacy);
+registration API as the canonical ledger (`research_harness.py` legacy);
 unit / golden / integration test tiers. Details: ARCHITECTURE_MAP §B.
 
 ---

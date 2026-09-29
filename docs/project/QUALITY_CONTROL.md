@@ -53,6 +53,15 @@ sampling → 7. Audit/export output → 8. Visual chart validation →
 - [ ] Audit/export table produced with enough columns to verify by hand.
 - [ ] Visual validation performed or explicitly pending.
 - [ ] No parameter chosen by looking at performance.
+- [ ] **Continuity-aware (D-123).** Known roll gaps exist in the source data.
+  - [ ] Inputs are resolved against *expected* sessions (session model),
+        never "the previous row / session present in the data".
+  - [ ] A missing expected input session makes the feature unavailable with
+        an explicit reason; no older session is substituted.
+  - [ ] No multi-session state is carried across missing expected sessions.
+  - [ ] No aggregation across mixed contracts.
+  - [ ] Tests include a missing-expected-session case and a contract-change
+        case.
 
 ## 2. State / signal review
 
@@ -64,6 +73,8 @@ sampling → 7. Audit/export output → 8. Visual chart validation →
 - [ ] Negative cases sampled (conditions that should *not* fire).
 - [ ] Parity check between feature table and state/signal table.
 - [ ] Visual validation of representative and negative cases.
+- [ ] Continuity-aware (D-123): state does not persist across missing expected
+      sessions or contract changes unless an explicit, approved policy says so.
 
 ## 3. Strategy review
 

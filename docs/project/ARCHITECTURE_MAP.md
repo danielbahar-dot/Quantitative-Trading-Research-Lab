@@ -44,6 +44,7 @@ D-110 to D-117 and the PROPOSED list.
 | `src/backtesting/orb_v01.py` | Early lean ORB V0.1 event simulation + legacy ledger usage | Execution (legacy) |
 | `src/data/partitions.py` | Session-date partitioning + integrity checks + hashing | Data |
 | `src/data/sessions.py` | **Generic session model (M1, 2026-09-28):** trading-date assignment, session bounds, maintenance break, calendar overrides, previous/next expected session | Data / session foundation |
+| `src/data/timeframes.py` | **Generic timeframe builder (M3, 2026-09-29):** `build_timeframe(bars, timeframe, session_spec)` for 5m/15m/1H/4H/1D or any `TimeframeSpec`; on demand, no persistence | Data / derived timeframes |
 | `src/data/instruments.py` | **Generic instrument metadata (M2, 2026-09-29):** `load_instrument` → immutable `InstrumentSpec` with exact `Decimal` economics; `is_tick_aligned` | Data / instrument foundation |
 | `src/experiments/experiment_index.py` | Read-only index, record validation, artifact discovery, lifecycle/component loaders | Experiment infra |
 | `src/experiments/experiment_registration.py` | Prospective registration API (`create_experiment`, `register_artifact`, `finalize_experiment`, `ExperimentRun`) | Experiment infra |
@@ -129,7 +130,7 @@ config/experiments/<id>.json → runner (notebook / src/experiments module)
 | Generic session model / trading date | **Yes (M1)** | `src/data/sessions.py` + `config/sessions/`; not yet used by existing modules |
 | Session/timezone windows | Yes (ORB-scoped) | `market_context.py` + ORB windows JSON; `ET_TIMEZONE` defined in 2 modules and `"America/New_York"` literal in ~8 more |
 | Session-date ownership (18:01 reopen → next date) | Yes (data + config) | Dataset `session_date` column; the M1 bar-end rule follows the same documented convention (not yet checked row-by-row against the dataset) |
-| Resampling to 4H / Daily | **No** | No resampling utility in `src/` |
+| Resampling to derived timeframes | **Yes (M3)** | `src/data/timeframes.py`, on demand. Persistence not implemented (M4) |
 | Instrument / tick size | **Yes (M2)** | `src/data/instruments.py` + `config/instruments/`. Not yet consumed by existing code. Legacy duplicates still present: `TICK_SIZE = 0.25` in `candidate_entries.py` (guarded by a test), `"tick_size": 0.25` literal in `orb_gate6b_fixed_points.py` metadata, `tick_size` in `config/experiments/orb_gate6b_dev_fixed_target_stop.json`; notebook 14 embeds the raw `mnq.json` into the frozen V0.1 spec |
 | Generic level lifecycle (ACTIVE/TAKEN) | **No** | `level_interaction` evaluates a level against the OR window only |
 | Swing / EQ / REQ / FVG / MSS detection | **No** | Nothing ICT-related exists |
@@ -234,28 +235,44 @@ oracle, and ORB migrates to the generic code only after parity is proven
 - Timestamps may be `label="instant"` (default) or `label="bar_end"` with a
   `bar_interval`.
 
-### B.2 Timeframe builder (D-116; next architecture candidate after approval)
+### B.2 Timeframe builder — IMPLEMENTED on demand (M3; D-116, D-119)
+
+**API**
+
+- `build_timeframe(bars, timeframe, session_spec, *, source_interval="1min")`
+- `timeframe` is `"5m"`, `"15m"`, `"1H"`, `"4H"`, `"1D"`, or any
+  `TimeframeSpec(id, minutes | None)`. `None` means one bar per session.
+- `bars` must have a tz-aware bar-end `DatetimeIndex` and the columns open,
+  high, low, close, volume and contract. An optional `session_date` column
+  is checked against the session model.
 
 **Bucketing**
 
-- Buckets are anchored at 18:00 ET on the prior day, and the session ends at
-  17:00.
+- Buckets anchor at the regular session open (18:00 ET on the prior day) and
+  are clipped to the actual session bounds.
 - 5m, 15m and 1H divide the 1380-minute session exactly.
-- 4H buckets start at 18/22/02/06/10/14; the final one is truncated at 17:00
-  and flagged.
-- Daily is one bucket per session.
+- 4H buckets start at 18/22/02/06/10/14. The final one ends at 17:00 and is
+  flagged `is_session_truncated`.
 - A 1m bar joins the bucket containing its bar-start.
 - OHLCV is first / max / min / last / sum.
-- Empty buckets produce no row. Mixed-contract buckets are flagged; roll
-  handling is deferred.
+- Empty buckets produce no row. Mixed-contract buckets **raise** (roll
+  handling deferred).
 
-**Stored fields (PROPOSED)**
+**Output fields**
 
-- `bar_start`, `bar_end` (nominal, clipped to the session), and
-  `timestamp_et = bar_end`.
-- `available_at = bar_end`, even when trailing minutes are missing.
-- `trading_date`, expected/observed 1m counts, `is_complete`, and
-  `is_session_truncated`.
+- `timeframe`, `trading_date`, `contract`
+- `bar_start`, `bar_end`, `available_at = bar_end`
+- OHLCV
+- `expected_bars`, `observed_bars`, `is_complete`, `is_session_truncated`
+- The index `timestamp_et` equals `bar_end`.
+
+**DEVELOPMENT smoke check (2026-09-29, read-only)**
+
+- All 337,815 bars passed session validation, and every `session_date`
+  matched the session model.
+- No mixed-contract buckets occurred.
+- Incomplete daily bars: 28 of 248 (11.3%).
+- Each timeframe built in about 1 s.
 
 **Consumption rule**
 

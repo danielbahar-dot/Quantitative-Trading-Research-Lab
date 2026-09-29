@@ -12,6 +12,27 @@ Areas: `ARCH`, `FEATURE`, `STATE`, `SIGNAL`, `EXECUTION`, `METHOD`, `DATA`,
 
 ## Unreleased
 
+- 2026-09-29 — [DATA/METHOD] M3.1 DEVELOPMENT completeness audit.
+  - Builder accounting reconciled independently (0 mismatches). All 337,815
+    bars match the session model.
+  - The 28 incomplete daily bars are source-data / calendar caused.
+  - 16 roll-week Mon–Thu sessions are absent, and roll Fridays start at
+    00:01.
+  - Artifact: `reports/validation/m3_1_dev_daily_incompleteness.csv` plus a
+    README.
+  - Added the D1 data-quality gate to the roadmap (D-120). Recorded the
+    frozen ORB previous-day limitation without changing ORB (D-121).
+
+- 2026-09-29 — [DATA/ARCH] M3 generic timeframe builder (on demand).
+  - Added `src/data/timeframes.py` and `tests/test_timeframes.py`
+    (25 tests).
+  - Additive vectorized `assign_trading_dates()` in `src/data/sessions.py`,
+    parity-tested against the scalar rule. Existing session semantics are
+    unchanged.
+  - A DEVELOPMENT-only smoke check confirmed that the dataset `session_date`
+    matches the session model.
+  - No persistence. No ORB code changed. (D-119)
+
 - 2026-09-29 — [DATA/ARCH] M2 generic instrument metadata.
   - Added `src/data/instruments.py`: `load_instrument` → frozen
     `InstrumentSpec` with exact `Decimal` economics, `is_tick_aligned`, and a

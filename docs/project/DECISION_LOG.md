@@ -356,13 +356,90 @@ repository. For D-101 onward the date is when it was recorded here
 - **Status:** ACTIVE (implemented 2026-09-29)
 - **Revisit trigger:** First consumer migration, or a non-USD instrument.
 
+### D-119 — Timeframe builder policies (M3)
+- **Date:** 2026-09-29
+- **Decision:** `src/data/timeframes.build_timeframe()` implements D-116 on
+  demand, with no persistence.
+  - **Anchoring:** buckets anchor at the *regular* session open. They are
+    clipped to the actual session bounds (overrides applied) and flagged
+    `is_session_truncated`.
+  - **Incomplete buckets** are **emitted with flags** (`expected_bars`,
+    `observed_bars`, `is_complete=False`). Downstream consumption policy is
+    decided per milestone.
+  - **Availability:** `available_at = bar_end` (nominal, clipped), even for
+    incomplete bars.
+  - **Empty buckets** produce no row.
+  - **Mixed contracts:** a bucket mixing contracts **raises** until roll
+    handling exists (D-117).
+  - **Source validation:** bars must lie inside session bounds. An optional
+    `session_date` column must match the session model.
+  - Trading-date ownership comes from the new vectorized
+    `sessions.assign_trading_dates()`, which is parity-tested against the
+    scalar rule.
+- **Reason:** Design-authority answers of 2026-09-29 on the two open
+  policies.
+- **Alternatives considered:** Drop incomplete buckets (the strict ORB-window
+  style); emit and flag mixed-contract buckets.
+- **Consequences:** Without a populated holiday calendar, early-close
+  sessions appear as incomplete rather than truncated. On DEVELOPMENT data,
+  11.3% of daily bars are incomplete.
+- **Status:** ACTIVE (implemented 2026-09-29)
+- **Revisit trigger:** Holiday calendar populated; roll design; M4
+  persistence.
+
+### D-120 — D1 data-quality gate: roll reconstruction + holiday calendar
+- **Date:** 2026-09-29
+- **Decision:** Add **D1 — Source Data / Contract-Roll Reconstruction +
+  Holiday / Early-Close Calendar** as a data-quality / research-validity gate.
+  - It is not an architecture milestone.
+  - D1 must be completed before generic Market Context / Previous Day (M5),
+    and before External/Internal Liquidity research relies on source data.
+  - M4 (persistence) may precede D1.
+  - The D1 technical solution is **not** defined here.
+- **Reason:** The M3.1 DEVELOPMENT audit (all builder accounting reconciled,
+  0 mismatches; all 337,815 bars match the session model) found:
+  - 16 absent Mon–Thu sessions in quarterly roll weeks;
+  - roll Fridays starting at 00:01 (360 minutes missing);
+  - 3 further absent weekdays that are unverified closure candidates;
+  - early data ends that the empty override calendar cannot verify.
+- **Consequences:**
+  - Naïve previous-day traversal jumps over missing sessions.
+  - Multi-session liquidity/state objects could span missing data.
+  - Daily/4H structures around rolls may mislead.
+  - Missing data cannot be told apart from closures until the calendar is
+    verified.
+- **Alternatives considered:** Proceed to Market Context on current data
+  (rejected: invalid previous-day semantics); block M4 as well (rejected:
+  persistence preserves source faithfully with completeness metadata).
+- **Status:** ACTIVE (gate open; solution to be designed)
+- **Revisit trigger:** D1 design task.
+
+### D-121 — Frozen ORB previous-day limitation (documented, not changed)
+- **Date:** 2026-09-29
+- **Decision:** Frozen ORB research remains historical evidence and is
+  **not** reopened or changed.
+  - Known limitation: its previous-day logic uses the prior session
+    *present in the dataset*.
+  - Around missing roll-week sessions, it may therefore reference an older
+    session than the expected immediately-prior CME session. For example, a
+    roll Friday references the previous week's Friday.
+- **Reason:** M3.1 finding. Changing frozen outputs would rewrite historical
+  evidence.
+- **Consequences:**
+  - Recorded as a known limitation and a future, separately authorized
+    sensitivity-analysis item.
+  - ORB conclusions are unchanged by this task.
+  - Future ORB parity tests must account for this intended difference from
+    D-113.
+- **Status:** ACTIVE
+- **Revisit trigger:** D1 completion or any ORB reopening.
+
 ### PROPOSED items awaiting design-authority approval (2026-09-28)
 Claude recommendations from the architecture closeout; **not decisions**:
 Market Context as tidy-DataFrame functions (no MarketContext object);
 level-interaction API with integer-tick comparison and per-bar plus
 window-aggregate modes; minimal State/Signal contracts as a DataFrame column
 schema + small frozen dataclass spec (Signal has no order fields);
-`available_at = nominal bar_end` for derived bars even when incomplete;
 Parquet + JSON manifest, partition-scoped, for derived data (needs `pyarrow`
 approval); registration API as the canonical ledger (`research_harness.py` legacy);
 unit / golden / integration test tiers. Details: ARCHITECTURE_MAP §B.

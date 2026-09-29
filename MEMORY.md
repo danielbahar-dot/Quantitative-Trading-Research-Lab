@@ -73,15 +73,35 @@ at a time with explicit approval (D-117).
   `d7b59fc` on the pushed branch `m1-session-model`. Local `main` still holds
   the unpushed Nautilus-doc commit `e2f1474`, also saved on
   `safety/pre-m1-local-main`.
-- **M2, generic instrument metadata, is done** (2026-09-29, uncommitted):
-  `src/data/instruments.py`.
+- **D1 data-quality gate** (D-120): source-data roll reconstruction + a
+  verified holiday / early-close calendar.
+  - Required **before M5 Market Context / Previous Day** and before any
+    External/Internal Liquidity research relies on source data.
+  - M4 persistence may precede it. The D1 solution is not yet designed.
+- **Frozen ORB limitation** (D-121): its dataset-previous "previous day" may
+  skip missing roll-week sessions. This is documented, not changed; ORB stays
+  frozen.
+- **M3, the generic timeframe builder, and the M3.1 audit are done**
+  (2026-09-29): `src/data/timeframes.py`, on demand, no persistence.
+  - Buckets anchor at the regular 18:00 open and are clipped to the actual
+    session.
+  - Incomplete buckets are emitted with flags; `available_at = bar_end`.
+  - Mixed-contract buckets raise. (D-119)
+  - A DEVELOPMENT smoke check confirmed that the dataset `session_date`
+    matches the session model.
+- **M2, generic instrument metadata, is done** (2026-09-29): committed as
+  `241622a`, `src/data/instruments.py`.
   - `config/instruments/<id>.json` is authoritative, loaded into an immutable
     `InstrumentSpec` with exact `Decimal` economics. No silent defaults.
   - `mnq.json` must stay byte-identical: its hash is in the frozen Gate 6C
     provenance.
   - Legacy `TICK_SIZE` remains, guarded by a test. No consumers migrated.
     (D-118)
-- Nothing is authorized next. M3 (timeframe builder) is the next candidate.
+- Nothing is authorized next. Candidates:
+  - M4 (derived-data persistence; needs the Parquet decision);
+  - D1 (data-quality gate, before M5).
+- Branch `m1-session-model` (M1 + M2 + M3/M3.1) is under PR review against
+  `main`.
 - The next ICT design run will specify External and Internal Liquidity
   together, including contract rolls, swings, EQ/REQ, and the timeframe
   hierarchy.
@@ -206,7 +226,16 @@ state-dependent; parameter maxima alone are insufficient evidence.
   pre-market, overnight) lives in the ORB-named module
   `src/experiments/mnq_orb_v02_features.py`; generic primitives are in
   `src/features/market_context.py` (which also carries ORB constants).
-- No HTF resampling utility; no generic level-lifecycle (ACTIVE/TAKEN) model.
+- **Source-data gap at contract rolls** (M3.1, DEVELOPMENT):
+  - Mon–Thu of every quarterly roll week is absent (16 sessions), and each
+    new contract starts at 00:01 on the roll Friday (18:01–00:00 missing).
+  - These are missing expected sessions, not closures.
+  - It affects the future PDH/PDL and roll design. Frozen ORB used the prior
+    week's Friday as "previous day" on those Fridays.
+  - Detail: WORK_PROGRESS and
+    `reports/validation/m3_1_dev_daily_incompleteness.csv`.
+- No persistence for derived timeframes yet (M4). No generic level-lifecycle
+  (ACTIVE/TAKEN) model.
 - Legacy tick-size duplicates remain as temporary compatibility artifacts,
   pending consumer migration:
   - `TICK_SIZE = 0.25` in `candidate_entries.py` (guarded by a test);

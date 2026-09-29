@@ -227,6 +227,60 @@ def assign_trading_date(
     return trading_date
 
 
+def assign_trading_dates(
+    timestamps: Any,
+    spec: SessionSpec,
+    *,
+    label: str = LABEL_INSTANT,
+    bar_interval: Any = None,
+) -> pd.Series:
+    """Vectorized ``assign_trading_date`` for a sequence of timestamps.
+
+    Returns a Series of ``date`` objects indexed by the input timestamps and
+    applies exactly the same rules, raising ``SessionError`` for the first
+    invalid timestamp instead of skipping it.
+    """
+    index = pd.DatetimeIndex(timestamps)
+    if index.tz is None:
+        raise SessionError("Timestamps must be timezone-aware")
+    if index.hasnans:
+        raise SessionError("Timestamps contain missing values")
+    local = index.tz_convert(spec.timezone)
+    if label == LABEL_INSTANT:
+        if bar_interval is not None:
+            raise SessionError("bar_interval is only valid with label='bar_end'")
+        starts, ends = local, None
+    elif label == LABEL_BAR_END:
+        if bar_interval is None:
+            raise SessionError("label='bar_end' requires bar_interval")
+        interval = pd.Timedelta(bar_interval)
+        if interval <= pd.Timedelta(0):
+            raise SessionError("bar_interval must be positive")
+        starts, ends = local - interval, local
+    else:
+        raise SessionError(f"Unknown timestamp label: {label}")
+
+    wall = starts.tz_localize(None)
+    clock = wall - wall.normalize()
+    in_break = (clock >= _clock_offset(spec.break_start)) & (clock < _clock_offset(spec.break_end))
+    if in_break.any():
+        raise SessionError(f"{index[in_break.argmax()]} falls in the maintenance break")
+    after_open = clock >= _clock_offset(spec.open_time)
+    days = wall.normalize() + pd.to_timedelta(after_open.astype("int64"), unit="D")
+    non_trading = ~days.weekday.isin(sorted(spec.trading_weekdays))
+    if non_trading.any():
+        position = non_trading.argmax()
+        raise SessionError(f"{index[position]} maps to non-trading day {days[position].date()}")
+    if ends is not None:
+        closes = (days + _clock_offset(spec.close_time)).tz_localize(
+            spec.timezone, ambiguous="raise", nonexistent="raise"
+        )
+        beyond = ends > closes
+        if beyond.any():
+            raise SessionError(f"Bar ending {index[beyond.argmax()]} extends beyond the session close")
+    return pd.Series(days.date, index=index, name="trading_date")
+
+
 def session_bounds(trading_date: date | str, spec: SessionSpec) -> SessionBounds:
     """Resolve the session for ``trading_date`` with overrides applied."""
     day = _as_date(trading_date)
@@ -351,6 +405,12 @@ def _resolve_instant(
             raise SessionError("bar_interval must be positive")
         return local - interval, local
     raise SessionError(f"Unknown timestamp label: {label}")
+
+
+def _clock_offset(clock: time) -> pd.Timedelta:
+    return pd.Timedelta(
+        hours=clock.hour, minutes=clock.minute, seconds=clock.second, microseconds=clock.microsecond
+    )
 
 
 def _in_break(local: pd.Timestamp, spec: SessionSpec) -> bool:

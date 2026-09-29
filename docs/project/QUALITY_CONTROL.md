@@ -90,6 +90,12 @@ sampling → 7. Audit/export output → 8. Visual chart validation →
 - [ ] Timestamp semantics, timezone, session ownership verified.
 - [ ] Duplicates, gaps, missing bars, roll boundaries reported.
 - [ ] Partition membership unchanged or change explicitly approved.
+- [ ] Observed sessions reconciled against *expected* sessions (session model
+      + override calendar). Absent expected sessions are listed and classified
+      as verified closure vs missing data, never silently skipped (D-113,
+      D-120).
+- [ ] Multi-session features/states do not span missing expected sessions
+      without an explicit, documented policy.
 - [ ] Downstream artifacts affected are identified.
 
 ## 6. Experiment / research review

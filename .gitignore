@@ -41,6 +41,10 @@ data/**/*.npz
 # Derived-timeframe cache (Parquet + manifests); rebuildable, never authoritative.
 data/derived/
 
+# M5A visual-validation chart embeds raw 1m market prices; keep it local.
+# The price-free *_cases.csv next to it is the tracked audit artifact.
+reports/validation/m5a_market_context_visual_validation.html
+
 # Experiment ledgers and run outputs are generated and remain local.
 experiments/experiment_ledger.sqlite
 experiments/experiment_ledger.sqlite-*

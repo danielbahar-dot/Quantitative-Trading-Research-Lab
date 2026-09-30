@@ -119,8 +119,38 @@ at a time with explicit approval (D-117).
     provenance.
   - Legacy `TICK_SIZE` remains, guarded by a test. No consumers migrated.
     (D-118)
-- Nothing is authorized next. **M5 Generic Market Context** (continuity-aware;
-  Previous Day per D-113) is the next candidate.
+- **M5A, the Generic Market Context library, is done** (2026-09-29, branch
+  `m5-generic-market-context`). Details: D-124 and
+  `docs/project/M5_MARKET_CONTEXT_SPEC.md`.
+  - `src/features/session_context.py` + `config/features/market_context_windows.json`.
+  - **Generic contexts:** `previous_day`, `previous_rth` (validated
+    09:30–16:00, close = 16:00 bar), `asia_2000_0000`, `london_0200_0500`,
+    `overnight_1800_0700`, `overnight_context_2000_0900`,
+    `ny_premarket_0700_0900`. Generic ≠ ORB-only.
+  - Canonical 1m only. Strict completeness. Previous-expected-session
+    selection with no fallback.
+  - Summary reasons: `INSUFFICIENT_HISTORY`, `INSUFFICIENT_FUTURE_COVERAGE`,
+    `MISSING_EXPECTED_SESSION`, `NOT_SCHEDULED`, `NO_OBSERVATIONS`,
+    `MIXED_CONTRACT`, `INCOMPLETE_WINDOW`.
+  - Alignment statuses: `AVAILABLE`, `PENDING`, `UNAVAILABLE_CONTEXT`,
+    `CONTRACT_MISMATCH`. Visibility requires `bar_start ≥ available_at`, and
+    context applies to the target session only.
+  - Observed prices live only in the audit tier (`observed_*`). Consumers use
+    `valid_context_levels` / `align_market_context`.
+  - DEVELOPMENT check: exact parity with frozen ORB for Asia, London, NY
+    pre-market and Overnight Context. Previous Day and Previous RTH differ
+    only on the 6 D-121 dates.
+- **M5A is APPROVED / FROZEN** (2026-09-30).
+  - Visual validation (7 DEVELOPMENT sessions) and the semantic audit are
+    complete. `MISSING_EXPECTED_SESSION` means the source session has no
+    bars; `NO_OBSERVATIONS` means the session exists but the window is
+    empty.
+  - All invariants passed on 337,815 bars.
+  - The visual HTML is local only and Git-ignored (raw prices). The
+    price-free cases CSV is tracked.
+  - Semantic changes need a new `definition_version`.
+- Nothing is authorized next. **M5B is optional** compatibility work and does
+  not block the generic catalog (M6+).
 - The next ICT design run will specify External and Internal Liquidity
   together, including contract rolls, swings, EQ/REQ, and the timeframe
   hierarchy.

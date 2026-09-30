@@ -17,7 +17,8 @@ High-level only. No deadlines. Status vocabulary: `DONE`, `ACTIVE`, `NEXT`,
 | 2.M3 | Generic timeframe builder, on demand (5m/15m/1H/4H/Daily) | **DONE** (2026-09-29) |
 | 2.M3.1 | Completeness / source-data audit (DEVELOPMENT) | **DONE** (2026-09-29) |
 | 2.M4 | Derived-timeframe persistence (Parquet + manifest) | **DONE** (2026-09-29) |
-| 2.M5 | Generic Market Context session levels (incl. Previous Day) + ORB parity tests; continuity-aware (D-123) | **NEXT** (awaiting approval) |
+| 2.M5A | Generic Market Context library (Previous Day, Previous RTH, Asia, London, Overnight, Overnight Context, NY Pre-market); continuity-aware (D-123, D-124) | **DONE — APPROVED / FROZEN** (2026-09-30) |
+| 2.M5B | ORB compatibility / migration: formal parity harness, legacy `orb_overnight_1800_0930` and previous-available-session adapter only where semantics differ | PLANNED, **optional**; not required before M6 or the generic catalog |
 | 2.M6 | Generic level-interaction primitives + ORB parity tests; continuity-aware | PLANNED |
 | 2.M7 | Minimal State/Signal contracts; continuity-aware | PLANNED |
 | 2.M8 | Test tiers (unit / golden / integration) | PLANNED |

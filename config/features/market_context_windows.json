@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0",
+  "session_id": "cme_globex_et",
+  "timezone": "America/New_York",
+  "timestamp_semantics": "bar_end",
+  "description": "Authoritative generic Market Context registry (M5A). Clock windows are expressed relative to a trading date with explicit day offsets for both ends. A context pairs a window with a source session: TARGET (the trading date the context is used in) or PREVIOUS_EXPECTED (the previous expected open session from the session model). Previous Day is defined in code as the full previous expected session. ORB-only compatibility definitions do not belong here.",
+  "windows": [
+    {
+      "window_id": "asia_2000_0000",
+      "display_name": "Asia",
+      "start_et": "20:00",
+      "start_day_offset": -1,
+      "end_et": "00:00",
+      "end_day_offset": 0,
+      "provenance": "ORB V0.2 Stage 2 human-validated 2026-09-02 (D-004); generic per D-114"
+    },
+    {
+      "window_id": "london_0200_0500",
+      "display_name": "London",
+      "start_et": "02:00",
+      "start_day_offset": 0,
+      "end_et": "05:00",
+      "end_day_offset": 0,
+      "provenance": "ORB V0.2 Stage 2 human-validated 2026-09-02 (D-004); generic per D-114"
+    },
+    {
+      "window_id": "overnight_1800_0700",
+      "display_name": "Overnight",
+      "start_et": "18:00",
+      "start_day_offset": -1,
+      "end_et": "07:00",
+      "end_day_offset": 0,
+      "provenance": "Design authority 2026-09-28 (D-114)"
+    },
+    {
+      "window_id": "overnight_context_2000_0900",
+      "display_name": "Overnight Context",
+      "start_et": "20:00",
+      "start_day_offset": -1,
+      "end_et": "09:00",
+      "end_day_offset": 0,
+      "provenance": "ORB V0.2 Stage 2 human-validated 2026-09-02 (D-004); generic per M5A decision 2026-09-29"
+    },
+    {
+      "window_id": "ny_premarket_0700_0900",
+      "display_name": "NY Pre-market",
+      "start_et": "07:00",
+      "start_day_offset": 0,
+      "end_et": "09:00",
+      "end_day_offset": 0,
+      "provenance": "ORB V0.2 Stage 2 human-validated 2026-09-02 (D-004); generic per D-114"
+    },
+    {
+      "window_id": "rth_0930_1600",
+      "display_name": "Regular Trading Hours",
+      "start_et": "09:30",
+      "start_day_offset": 0,
+      "end_et": "16:00",
+      "end_day_offset": 0,
+      "provenance": "Existing validated definition: mnq_orb_v02_features rth_window 09:30-16:00 and frozen timing contract; mnq.json regular_session"
+    }
+  ],
+  "contexts": [
+    {"context_id": "asia_2000_0000", "window_id": "asia_2000_0000", "source_session": "TARGET", "definition_version": 1},
+    {"context_id": "london_0200_0500", "window_id": "london_0200_0500", "source_session": "TARGET", "definition_version": 1},
+    {"context_id": "overnight_1800_0700", "window_id": "overnight_1800_0700", "source_session": "TARGET", "definition_version": 1},
+    {"context_id": "overnight_context_2000_0900", "window_id": "overnight_context_2000_0900", "source_session": "TARGET", "definition_version": 1},
+    {"context_id": "ny_premarket_0700_0900", "window_id": "ny_premarket_0700_0900", "source_session": "TARGET", "definition_version": 1},
+    {"context_id": "previous_rth", "window_id": "rth_0930_1600", "source_session": "PREVIOUS_EXPECTED", "definition_version": 1}
+  ]
+}

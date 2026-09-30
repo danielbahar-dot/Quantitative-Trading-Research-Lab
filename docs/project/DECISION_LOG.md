@@ -522,9 +522,68 @@ repository. For D-101 onward the date is when it was recorded here
 - **Revisit trigger:** Research that needs continuous history across rolls,
   or final performance validation over roll periods.
 
+### D-124 — Generic Market Context library (M5A)
+- **Date:** 2026-09-29
+- **Decision:** Generic Market Context lives in
+  `src/features/session_context.py` with the registry
+  `config/features/market_context_windows.json`. Full specification:
+  [M5_MARKET_CONTEXT_SPEC](M5_MARKET_CONTEXT_SPEC.md).
+  - **Generic contexts:** `previous_day`, `previous_rth`, `asia_2000_0000`,
+    `london_0200_0500`, `overnight_1800_0700`,
+    `overnight_context_2000_0900`, `ny_premarket_0700_0900`.
+  - **Generic ≠ ORB-only.** A concept is not ORB-specific because ORB uses
+    it. **Previous Day, Previous RTH and `overnight_context_2000_0900` are
+    generic.** ORB compatibility definitions exist only where frozen ORB
+    semantics genuinely differ (M5B).
+  - **Previous RTH** uses the existing validated definition, confirmed
+    unambiguous from repository evidence: 09:30→16:00 ET, bar-ends
+    09:31…16:00 (390), close = the 16:00 bar, available at 16:00 of the
+    source session.
+  - **Registry shape:** clock windows with explicit day offsets for both
+    ends, plus contexts pairing a window with a `TARGET` or
+    `PREVIOUS_EXPECTED` source session. Previous Day is code-defined as the
+    full previous expected session.
+  - **Canonical 1m source**, not the M4 cache.
+  - **Strict completeness.** Verified overrides clip the window
+    (`is_schedule_clipped`); zero scheduled minutes gives `NOT_SCHEDULED`;
+    an unverified early end is `INCOMPLETE_WINDOW`.
+  - **Summary reasons,** by precedence: `INSUFFICIENT_HISTORY`,
+    `INSUFFICIENT_FUTURE_COVERAGE`, `MISSING_EXPECTED_SESSION`,
+    `NOT_SCHEDULED`, `NO_OBSERVATIONS`, `MIXED_CONTRACT`,
+    `INCOMPLETE_WINDOW`. `calendar_verified` is metadata only.
+  - **Three tiers:** audit summary (`observed_*` only), valid levels
+    (available only), and bar alignment.
+  - **Alignment statuses:** `AVAILABLE`, `PENDING`, `UNAVAILABLE_CONTEXT`,
+    `CONTRACT_MISMATCH`. Visibility requires `bar_start ≥ available_at`.
+    Scope is the target session only. A contract mismatch hides the value
+    but leaves the summary valid.
+  - **Previous Day / Previous RTH** select the previous **expected**
+    session and never fall back.
+- **Reason:** Design-authority M5A instruction (2026-09-29).
+- **Alternatives considered:** Classifying Previous RTH /
+  `overnight_context_2000_0900` as ORB-only (rejected: strategy-independent);
+  computing from the M4 cache (rejected: canonical 1m is the source of
+  truth); a single reason covering alignment states (rejected: summary
+  validity ≠ consumer compatibility).
+- **Consequences:**
+  - The DEVELOPMENT read-only check shows exact frozen-ORB parity for Asia,
+    London, NY pre-market and Overnight Context.
+  - Previous Day and Previous RTH differ from ORB only on the 6 intentional
+    D-121 dates.
+  - ORB is not rewired. M5B (compatibility and migration) is separate.
+- **Status:** ACTIVE. **M5A APPROVED / FROZEN** (2026-09-30).
+  - Visual validation, the semantic audit
+    (`MISSING_EXPECTED_SESSION` vs `NO_OBSERVATIONS`), and all
+    causal / contract / session invariants passed.
+  - M5B is optional compatibility work and does not block the generic
+    catalog.
+  - Semantic changes require a new `definition_version`.
+- **Revisit trigger:** M5B, a verified holiday calendar, or D1.
+
 ### PROPOSED items awaiting design-authority approval (2026-09-28)
 Claude recommendations from the architecture closeout; **not decisions**:
-Market Context as tidy-DataFrame functions (no MarketContext object);
+~~Market Context as tidy-DataFrame functions (no MarketContext object)~~
+(adopted in D-124);
 level-interaction API with integer-tick comparison and per-bar plus
 window-aggregate modes; minimal State/Signal contracts as a DataFrame column
 schema + small frozen dataclass spec (Signal has no order fields);

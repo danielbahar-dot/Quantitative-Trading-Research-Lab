@@ -12,6 +12,20 @@ Areas: `ARCH`, `FEATURE`, `STATE`, `SIGNAL`, `EXECUTION`, `METHOD`, `DATA`,
 
 ## Unreleased
 
+- 2026-09-29/30 — [FEATURE] M5A Generic Market Context.
+  - Added `src/features/session_context.py` and the registry
+    `config/features/market_context_windows.json`.
+  - Contexts: `previous_day`, `previous_rth`, Asia, London,
+    `overnight_1800_0700`, `overnight_context_2000_0900`, NY pre-market.
+  - Behavior: previous-expected-session selection, strict completeness,
+    controlled unavailable reasons, and causal, contract-aware alignment.
+  - Added `tests/test_session_context.py` (33 tests) and
+    `docs/project/M5_MARKET_CONTEXT_SPEC.md`.
+  - DEVELOPMENT validation: exact frozen-ORB parity for the four identical
+    windows; Previous Day / RTH differ only on the 6 D-121 dates. Visual
+    validation artifacts are in `reports/validation/`.
+  - No ORB code changed. (D-124)
+
 - 2026-09-29 — [DATA/EXPERIMENT-INFRA] M4 derived-timeframe persistence.
   - Added `src/data/timeframe_store.py`: Parquet + JSON manifest,
     provenance-validated loads, a stale-cache error, a reserved-partition

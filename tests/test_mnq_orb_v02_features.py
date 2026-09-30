@@ -205,35 +205,36 @@ class ContextLogicTests(unittest.TestCase):
         self.assertFalse(repeated_crossing["closed_through"])
 
     def test_audit_has_one_row_per_session_duration_and_prior_rth_is_causal(self):
-        prices = pd.concat([make_owned_session("2025-01-05", 100), make_owned_session("2025-01-06", 110)]).sort_index()
+        # Weekday sessions: ORB market context now runs through the CME session model (M5B).
+        prices = pd.concat([make_owned_session("2025-01-06", 100), make_owned_session("2025-01-07", 110)]).sort_index()
         audit = build_feature_audit(prices, window_config(), durations=[15, 20, 30], lookbacks=[20])
         self.assertEqual(len(audit), 6)
         self.assertFalse(audit.duplicated(["session_date", "or_minutes"]).any())
-        second = audit.loc[audit["session_date"].eq(pd.Timestamp("2025-01-06").date())]
-        prior = prices.loc[prices["session_date"].eq(pd.Timestamp("2025-01-05").date())].between_time("09:31", "16:00")
-        prior_full = prices.loc[prices["session_date"].eq(pd.Timestamp("2025-01-05").date())]
+        second = audit.loc[audit["session_date"].eq(pd.Timestamp("2025-01-07").date())]
+        prior = prices.loc[prices["session_date"].eq(pd.Timestamp("2025-01-06").date())].between_time("09:31", "16:00")
+        prior_full = prices.loc[prices["session_date"].eq(pd.Timestamp("2025-01-06").date())]
         self.assertTrue(second["previous_day_feature_available"].all())
         self.assertTrue((second["previous_day_high"] == prior_full["high"].max()).all())
         self.assertTrue((second["previous_day_low"] == prior_full["low"].min()).all())
-        self.assertTrue((second["previous_day_close"] == prior_full.loc[pd.Timestamp("2025-01-05 17:00", tz=ET), "close"]).all())
+        self.assertTrue((second["previous_day_close"] == prior_full.loc[pd.Timestamp("2025-01-06 17:00", tz=ET), "close"]).all())
         self.assertTrue(second["previous_rth_feature_available"].all())
         self.assertTrue((second["previous_rth_high"] == prior["high"].max()).all())
         self.assertTrue(second["ny_premarket_feature_available"].all())
         self.assertTrue(second["row_feature_complete"].all())
 
     def test_previous_day_requires_only_completed_prior_futures_session_data(self):
-        prior = make_owned_session("2025-01-05").drop(pd.Timestamp("2025-01-04 20:00", tz=ET))
-        current = make_owned_session("2025-01-06")
+        prior = make_owned_session("2025-01-06").drop(pd.Timestamp("2025-01-05 20:00", tz=ET))
+        current = make_owned_session("2025-01-07")
         audit = build_feature_audit(pd.concat([prior, current]).sort_index(), window_config(), durations=[15], lookbacks=[5])
-        row = audit.loc[audit["session_date"].eq(pd.Timestamp("2025-01-06").date())].iloc[0]
+        row = audit.loc[audit["session_date"].eq(pd.Timestamp("2025-01-07").date())].iloc[0]
         self.assertFalse(row["previous_day_feature_available"])
         self.assertEqual(row["previous_day_missing_reason"], "INCOMPLETE_WINDOW")
         self.assertTrue(pd.isna(row["previous_day_high"]))
 
     def test_future_session_changes_do_not_change_prior_features(self):
-        first = make_owned_session("2025-01-05", 100)
-        second = make_owned_session("2025-01-06", 110)
-        third = make_owned_session("2025-01-07", 120)
+        first = make_owned_session("2025-01-06", 100)
+        second = make_owned_session("2025-01-07", 110)
+        third = make_owned_session("2025-01-08", 120)
         base = build_feature_audit(pd.concat([first, second, third]).sort_index(), window_config(), durations=[15], lookbacks=[20])
         third.loc[:, ["open", "high", "low", "close"]] += 10000
         changed = build_feature_audit(pd.concat([first, second, third]).sort_index(), window_config(), durations=[15], lookbacks=[20])

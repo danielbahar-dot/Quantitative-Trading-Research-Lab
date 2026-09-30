@@ -12,6 +12,20 @@ Areas: `ARCH`, `FEATURE`, `STATE`, `SIGNAL`, `EXECUTION`, `METHOD`, `DATA`,
 
 ## Unreleased
 
+- 2026-09-30 — [FEATURE/ARCH] M5B ORB Market Context migration.
+  - ORB `build_feature_audit` now consumes the generic catalog through
+    `src/experiments/orb_market_context_compat.py`.
+  - Compatibility is only for genuine historical differences:
+    - `orb_overnight_1800_0930`, in the new
+      `config/features/market_context_compatibility.json`;
+    - legacy previous-available-session selection for Previous Day / RTH.
+  - `session_context.py` exposes `evaluate_context` / `prepare_context_bars`
+    (behavior unchanged).
+  - Exact frozen-ORB parity, with the oracle SHA-256 recorded.
+  - Added `tests/test_orb_market_context_compat.py` (11 tests). Three ORB
+    test fixtures moved from Sunday to weekday dates, with assertions
+    unchanged. (D-125)
+
 - 2026-09-29/30 — [FEATURE] M5A Generic Market Context.
   - Added `src/features/session_context.py` and the registry
     `config/features/market_context_windows.json`.

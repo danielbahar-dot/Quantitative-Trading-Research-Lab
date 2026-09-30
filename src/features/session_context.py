@@ -44,6 +44,7 @@ import pandas as pd
 from src.data.instruments import load_instrument
 from src.data.sessions import (
     LABEL_BAR_END,
+    SessionBounds,
     SessionSpec,
     assign_trading_dates,
     previous_expected_session,
@@ -292,23 +293,52 @@ def build_market_context(
     registry = registry if registry is not None else load_market_context_windows(session_spec)
     definitions = _select_definitions(registry, context_ids)
     instrument = load_instrument(instrument_id).instrument_id
-    interval = pd.Timedelta(bar_interval)
-    source = _prepare_bars(bars, session_spec, interval)
-    coverage_start, coverage_end = _coverage(source, interval, coverage)
-    by_date = _group_by_trading_date(source)
+    prepared = prepare_context_bars(bars, session_spec, coverage=coverage, bar_interval=bar_interval)
     regular_spec = with_calendar_overrides(session_spec, [])
 
-    first, last = source["trading_date"].iloc[0], source["trading_date"].iloc[-1]
     rows: list[dict[str, Any]] = []
-    for target in _expected_open_dates(first, last, session_spec):
+    for target in _expected_open_dates(prepared.first_trading_date, prepared.last_trading_date, session_spec):
         for definition in definitions:
             rows.append(summarize_context(
-                definition, target, by_date, session_spec, regular_spec,
-                instrument_id=instrument, coverage_start=coverage_start,
-                coverage_end=coverage_end, interval=interval,
+                definition, target, prepared.bars_by_date, session_spec, regular_spec,
+                instrument_id=instrument, coverage_start=prepared.coverage_start,
+                coverage_end=prepared.coverage_end, interval=prepared.interval,
             ))
     frame = pd.DataFrame(rows, columns=SUMMARY_COLUMNS)
     return frame.reset_index(drop=True)
+
+
+@dataclass(frozen=True)
+class PreparedContextBars:
+    """Validated source bars grouped by trading date, plus known source coverage."""
+
+    bars_by_date: Mapping[date, pd.DataFrame]
+    coverage_start: pd.Timestamp
+    coverage_end: pd.Timestamp
+    interval: pd.Timedelta
+    first_trading_date: date
+    last_trading_date: date
+
+
+def prepare_context_bars(
+    bars: pd.DataFrame,
+    session_spec: SessionSpec,
+    *,
+    coverage: tuple[Any, Any] | None = None,
+    bar_interval: Any = ONE_MINUTE,
+) -> PreparedContextBars:
+    """Validate canonical bars once for repeated ``evaluate_context`` calls."""
+    interval = pd.Timedelta(bar_interval)
+    source = _prepare_bars(bars, session_spec, interval)
+    coverage_start, coverage_end = _coverage(source, interval, coverage)
+    return PreparedContextBars(
+        bars_by_date=MappingProxyType(_group_by_trading_date(source)),
+        coverage_start=coverage_start,
+        coverage_end=coverage_end,
+        interval=interval,
+        first_trading_date=source["trading_date"].iloc[0],
+        last_trading_date=source["trading_date"].iloc[-1],
+    )
 
 
 def summarize_context(
@@ -323,13 +353,46 @@ def summarize_context(
     coverage_end: pd.Timestamp,
     interval: pd.Timedelta = ONE_MINUTE,
 ) -> dict[str, Any]:
-    """Evaluate one context for one target trading date (one summary row)."""
+    """Evaluate one context for one target trading date (one summary row).
+
+    The source session is chosen by the generic rule: the target session
+    itself (``TARGET``) or the previous *expected* session
+    (``PREVIOUS_EXPECTED``).  Window evaluation is ``evaluate_context``.
+    """
     if definition.source_session == SOURCE_TARGET:
         source_bounds = session_bounds(target_trading_date, session_spec)
-        calendar_verified = source_bounds.calendar_verified
     else:
         source_bounds = previous_expected_session(target_trading_date, session_spec)
-        calendar_verified = source_bounds.calendar_verified
+    return evaluate_context(
+        definition, target_trading_date, source_bounds, bars_by_date, session_spec, regular_spec,
+        instrument_id=instrument_id, coverage_start=coverage_start,
+        coverage_end=coverage_end, interval=interval,
+    )
+
+
+def evaluate_context(
+    definition: ContextDefinition,
+    target_trading_date: date,
+    source_bounds: SessionBounds,
+    bars_by_date: Mapping[date, pd.DataFrame],
+    session_spec: SessionSpec,
+    regular_spec: SessionSpec,
+    *,
+    instrument_id: str,
+    coverage_start: pd.Timestamp,
+    coverage_end: pd.Timestamp,
+    interval: pd.Timedelta = ONE_MINUTE,
+) -> dict[str, Any]:
+    """The single window-evaluation engine for a context and a given source session.
+
+    ``source_bounds`` must be an open session (``SessionBounds.is_open``).
+    Generic callers obtain it through ``summarize_context``; compatibility
+    layers may supply a different, explicitly labelled session-selection
+    policy while reusing this engine unchanged.
+    """
+    if not source_bounds.is_open:
+        raise MarketContextError(f"Source session {source_bounds.trading_date} is not an open session")
+    calendar_verified = source_bounds.calendar_verified
     source_date = source_bounds.trading_date
     regular = session_bounds(source_date, regular_spec)
     if definition.window is None:

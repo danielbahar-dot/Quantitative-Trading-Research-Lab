@@ -1,7 +1,7 @@
 # M5 — Generic Market Context: Specification
 
 Related: [DECISION_LOG](DECISION_LOG.md) (D-110, D-113, D-114, D-121, D-123,
-**D-124**) · [ARCHITECTURE_MAP](ARCHITECTURE_MAP.md) ·
+**D-124**, **D-125**) · [ARCHITECTURE_MAP](ARCHITECTURE_MAP.md) ·
 [QUALITY_CONTROL](QUALITY_CONTROL.md).
 
 **Status:**
@@ -15,15 +15,17 @@ Related: [DECISION_LOG](DECISION_LOG.md) (D-110, D-113, D-114, D-121, D-123,
     approved.
   - Frozen means changes to these semantics require a new
     `definition_version` and a decision entry.
-- **M5B (ORB compatibility / migration): NOT STARTED, optional.**
-  - It is not required before continuing the generic context / feature
-    catalog.
+- **M5B (ORB compatibility / migration): IMPLEMENTED** (2026-09-30; see
+  §11). ORB now consumes the generic catalog, with exact frozen parity.
 
 **Code:**
 
 - `src/features/session_context.py`
 - Registry: `config/features/market_context_windows.json`
 - Tests: `tests/test_session_context.py`
+- ORB compatibility (M5B): `src/experiments/orb_market_context_compat.py`,
+  `config/features/market_context_compatibility.json`, and
+  `tests/test_orb_market_context_compat.py`
 
 ## 1. Generic vs compatibility
 
@@ -259,15 +261,77 @@ mixed.
 - The Previous Day / RTH source always equals `previous_expected_session`,
   with no observations taken from any other session.
 
-## 11. M5B (not started; optional)
+## 11. M5B — ORB migration / compatibility (implemented 2026-09-30)
 
-M5B is optional compatibility / migration work. It is **not** a
-prerequisite for continuing the generic catalog (e.g. M6). It needs separate
-approval, and would include:
+**Rule:** a generic market fact comes from the generic catalog. Historical
+ORB-specific behavior lives in an explicit compatibility adapter or config.
 
-- a formal read-only parity harness;
-- a legacy compatibility config/adapter for ORB `overnight` 18:00–09:30 and
-  previous-*available*-session selection;
-- optionally, routing ORB through the generic engine behind golden tests.
+**Migration map** (ORB `build_feature_audit` window features):
 
-Frozen artifacts are never rewritten.
+| ORB feature prefix | Class | Now computed by |
+|---|---|---|
+| `asia` | A: generic / identical | generic `asia_2000_0000` |
+| `london` | A | generic `london_0200_0500` |
+| `ny_premarket` | A | generic `ny_premarket_0700_0900` |
+| `overnight_context_2000_0900` | A | generic `overnight_context_2000_0900` (one implementation; no ORB copy) |
+| `previous_rth` | B: generic window, legacy selection | generic `rth_0930_1600` window + legacy selector |
+| `previous_day` | B | generic full-session definition + legacy selector |
+| `overnight` (18:00–09:30) | C: legacy ORB-only definition | compatibility `orb_overnight_1800_0930` (`config/features/market_context_compatibility.json`) |
+| OR context, causal width history, key-level set, level interaction, Globex/NY-open gaps, liquidity path, breakout outcomes, review queues, availability-audit classifier | D: strategy-specific, or not in the catalog yet | unchanged in ORB |
+
+**One engine, pluggable selection:**
+
+- M5A's evaluation is exposed as `evaluate_context(definition, target,
+  source_bounds, …)`. `summarize_context` supplies the **generic**
+  previous-expected source.
+- The ORB layer supplies `previous_available_session_legacy_orb`, a
+  clearly labelled legacy policy used only for ORB.
+- Nothing aggregates outside that engine.
+
+**Schema adapter:** `to_orb_window_summary` maps a generic record to frozen
+ORB's `summarize_window` schema, key for key:
+
+- legacy availability = completeness only;
+- missing reason is `""`, `INCOMPLETE_WINDOW`, or `NO_PRIOR_SESSION`;
+- derived range / move / direction / efficiency use ORB's own helpers.
+
+**Drift guard:** `assert_orb_window_config_matches` fails if the frozen ORB
+window config ever diverges from the catalog or compatibility definitions it
+maps to.
+
+**Parity (DEVELOPMENT, read-only):**
+
+- The migrated `build_feature_audit` output equals the **pre-migration
+  implementation exactly** (744 × 474, `check_exact`).
+- It equals the **frozen oracle** on all 474 columns, and on all 7 contexts ×
+  20 fields, with 0 mismatches.
+- The window-availability audit is unchanged, and the M5A generic output is
+  unchanged.
+- Oracle: `experiments/projects/mnq_orb_v0_2/features/mnq_orb_v0_2_stage2_completion_DEV_feature_audit.csv`,
+  committed `0120af8` (2026-09-02), 3,705,778 bytes,
+  **SHA-256 `7543579877a74a76bbba916a453ca341e08f09d60af9a619bfe64b1cc1017f3b`**.
+  The hash is recorded here; the artifact itself is unmodified.
+- The frozen audit stores no per-window source session or contract. Those are
+  not parity-checkable against it; the source-session behavior is covered by
+  the legacy-equivalence unit tests.
+
+**Known historical differences, kept on purpose:**
+
+| Item | Generic | ORB compatibility |
+|---|---|---|
+| Previous Day / RTH session selection | previous **expected** session (D-113) | previous **available** session (D-121). They differ on 6 DEVELOPMENT dates: 2024-09-20, 2024-12-20, 2025-01-02, 2025-03-21, 2025-04-21, 2025-06-20 |
+| Overnight | 18:00–07:00 | 18:00–09:30 |
+| Contract mixing | `MIXED_CONTRACT` | legacy completeness-only availability. No mixed-contract window exists in DEVELOPMENT |
+
+**Input contract change:** ORB context now runs through the CME session
+model, so calendar-invalid inputs are rejected. For example, a Sunday
+`session_date` is a non-trading day. Frozen DEVELOPMENT data is unaffected
+(0 mismatches). Three synthetic ORB unit-test fixtures that used Sunday
+2025-01-05 were shifted to weekday dates, with all assertions unchanged
+(design-authority decision, 2026-09-30).
+
+**Retained legacy helpers:** `market_context.summarize_window`,
+`WindowDefinition`, `expected_bar_end_index` and `load_context_windows` remain
+only for the ORB opening-range context, the ORB availability audit, and as the
+legacy reference in the tests. They no longer compute any market-context
+window. Frozen artifacts were not rewritten.

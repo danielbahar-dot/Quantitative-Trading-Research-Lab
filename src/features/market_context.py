@@ -4,6 +4,14 @@ All timestamps are Eastern Time NinjaTrader bar-end labels.  A conceptual
 window ``07:00-09:00`` therefore contains one-minute bars stamped 07:01
 through 09:00.  Functions in this module operate only on rows owned by the
 requested trading ``session_date`` and never infer unavailable observations.
+
+Ownership note (M5B): the authority for market-context windows is
+``src/features/session_context.py``, the generic catalog.  ORB consumes it
+through ``src/experiments/orb_market_context_compat.py``.  The window helpers
+here (``WindowDefinition``, ``summarize_window``, ``expected_bar_end_index``,
+``load_context_windows``) are kept for ORB-specific uses (the opening-range
+context and the ORB availability audit) and as the legacy reference in the
+parity tests.  Do not use them for new market-context work.
 """
 
 from __future__ import annotations

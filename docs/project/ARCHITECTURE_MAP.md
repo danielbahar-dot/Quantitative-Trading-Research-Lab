@@ -35,8 +35,9 @@ D-110 to D-117 and the PROPOSED list.
 |---|---|---|
 | `src/features/opening_range.py` | OR calculation for 5/10/15/20/30m (bar-end semantics) | Feature |
 | `src/features/session_context.py` | **Generic Market Context (M5A, 2026-09-29):** registry loader, `build_market_context` (audit summary), `valid_context_levels`, `align_market_context`; previous-expected-session Previous Day / Previous RTH and named windows | Feature (generic Market Context) |
-| `src/features/market_context.py` | `WindowDefinition`, `load_context_windows`, `expected_bar_end_index`, `summarize_window` (window high/low/etc.), OR context, causal width history, Globex reopen / NY-open gaps, `level_interaction` (TOUCH / TRADE_THROUGH / CLOSE_THROUGH / REJECT / SWEEP vs OR) | Feature / State primitives |
-| `src/experiments/mnq_orb_v02_features.py` | Builds the V0.2 feature audit: previous trading-day and previous RTH H/L/C, Asia/London/NY pre-market/overnight H/L, liquidity path, key-level interactions, review queues; outcomes kept separate (`outcome_*`) | Feature assembly (ORB-scoped) |
+| `src/features/market_context.py` | ORB-oriented primitives: OR context, causal width history, Globex reopen / NY-open gaps, `level_interaction` (TOUCH / TRADE_THROUGH / CLOSE_THROUGH / REJECT / SWEEP vs OR). Legacy window helpers (`WindowDefinition`, `summarize_window`, …) are **no longer the market-context source** (M5B); they serve the ORB opening range, the ORB audit, and test references | Feature / State primitives (ORB) |
+| `src/experiments/orb_market_context_compat.py` | **ORB compatibility layer (M5B):** maps ORB window features to the generic catalog, the legacy `orb_overnight_1800_0930` definition, the legacy previous-available-session selector, the ORB schema adapter, and a drift guard | Compatibility (ORB) |
+| `src/experiments/mnq_orb_v02_features.py` | Builds the V0.2 feature audit. Window features (Asia/London/NY pre-market/overnight/overnight context/previous day/previous RTH) come **from the generic catalog via the compatibility layer**; OR context, gaps, liquidity path, key-level interactions and review queues stay ORB-specific; outcomes kept separate (`outcome_*`) | Feature assembly (ORB-scoped) |
 | `src/experiments/mnq_orb_v02_*` (stage3a, width, or_structure, room_to_level, key_level_interaction, london_interaction_event, combined_state_hypothesis) | ORB V0.2 Stage 3 characterization | State / Signal research (ORB) |
 | `src/experiments/orb_gate*.py`, `orb_v01_*.py` | ORB V0.1 gate analyses (sweeps, robustness, freeze, validation, post-mortem) | Experiment / Analytics (ORB) |
 | `src/backtesting/candidate_entries.py` | Signals → entry/stop/target candidates; `round_to_tick` (tick size constant 0.25) | Strategy / Execution |
@@ -66,6 +67,7 @@ D-110 to D-117 and the PROPOSED list.
 | `config/datasets/mnq_1m_actual_contract_v1.partitions.json` | DEVELOPMENT / VALIDATION / OOS(BURNED) session-date ranges |
 | `config/features/mnq_orb_v0_2_preopen_windows.json` | Frozen ORB session windows (Asia, London, NY pre-market, overnight 18:00–09:30, overnight context); historical snapshot, not the generic source |
 | `config/features/market_context_windows.json` | **Authoritative generic Market Context registry** (M5A): clock windows with explicit day offsets + contexts (`TARGET` / `PREVIOUS_EXPECTED` source session) |
+| `config/features/market_context_compatibility.json` | ORB-only compatibility definitions (M5B): currently just `orb_overnight_1800_0930`; not for new strategies |
 | `config/features/mnq_orb_v0_2_stage2_human_reviews.json` | Stage 2 human-review decisions |
 | `config/components/research_components.json` | Reusable component registry (features/signals/strategy, with status) |
 | `config/experiments/*.json` | Per-experiment/gate configurations |
@@ -313,11 +315,16 @@ Full specification: [M5_MARKET_CONTEXT_SPEC](M5_MARKET_CONTEXT_SPEC.md).
 
 **Status and frozen ORB**
 
-- `src/features/market_context.py` (frozen-ORB-imported) is unchanged.
-- ORB is not rewired yet (M5B).
-- The DEVELOPMENT read-only check gives exact parity with frozen ORB for
-  Asia, London, NY pre-market and Overnight Context. Previous Day and
-  Previous RTH differ only on the 6 intentional D-121 dates.
+- **M5B (D-125): ORB consumes the catalog** through
+  `orb_market_context_compat.py`. The only compatibility items are the
+  legacy 18:00–09:30 overnight and the legacy previous-available-session
+  selector.
+- One evaluation engine, `evaluate_context`, with a pluggable source
+  session.
+- The migrated ORB audit matches the pre-migration output and the frozen
+  oracle exactly (all 474 columns).
+- Generic vs frozen-ORB differences are by design: Previous Day / RTH on 6
+  dates (D-121); overnight 18:00–07:00 vs 18:00–09:30.
 
 ### B.4 Level interaction (D-115; API PROPOSED)
 

@@ -4,26 +4,39 @@ Answers: **"Where exactly are we now?"** Update this after every meaningful
 task. Keep entries short. History goes in [CHANGELOG](CHANGELOG.md) and
 rationale in [DECISION_LOG](DECISION_LOG.md).
 
-_Last updated: 2026-09-29_
+_Last updated: 2026-09-30_
 
 ## Current focus
 
 Architecture cleanup before ICT liquidity work. Milestones proceed one at a
 time with explicit approval (D-117).
 
-- **M1–M4 are merged into `main`:** PR #1 (`7dfa78b`) and PR #2 (`e47d7de`,
-  M4 + D1 deferral).
-- **M5A (Generic Market Context library) is APPROVED / FROZEN**
-  (2026-09-30). It is staged for commit on branch
-  `m5-generic-market-context` (based on `e47d7de`).
-- **M5B** (ORB compatibility / migration) is **optional**. It is not required
-  before continuing the generic catalog (M6+).
+- **M1–M5A are merged into `main`:** PR #1 (`7dfa78b`), PR #2 (`e47d7de`) and
+  PR #3 (`30a87cf`, M5A approved / frozen).
+- **M5B (ORB consumes the generic catalog) is done** but uncommitted, on
+  branch `m5b-orb-market-context-migration` (from `30a87cf`). It awaits
+  review. Market Context migration is complete (D-125).
+- **M6** (generic level interactions) is next, after M5B review and freeze.
 - **D1 is DEFERRED** (D-123). Feature work must be continuity-aware.
 - ICT feature work is on hold until the next design run, which will specify
   External and Internal Liquidity together.
 
 ## Last completed work
 
+- **2026-09-30 — M5B ORB Market Context migration** (uncommitted).
+  - Added `src/experiments/orb_market_context_compat.py`,
+    `config/features/market_context_compatibility.json`, and
+    `tests/test_orb_market_context_compat.py` (11 tests).
+  - `session_context.py` exposes the engine as `evaluate_context` and
+    `prepare_context_bars`; M5A output is byte-identical.
+  - ORB `build_feature_audit` consumes the generic catalog.
+  - Compatibility is limited to `orb_overnight_1800_0930` and the legacy
+    previous-available-session selector.
+  - **Exact parity**, on DEVELOPMENT: vs the pre-migration output
+    (744 × 474) and vs the frozen oracle (all 474 columns; SHA-256 recorded
+    in M5 spec §11).
+  - Three synthetic ORB test fixtures moved from Sunday to weekday dates,
+    with assertions unchanged (design-authority choice).
 - **2026-09-30 — M5A final validation and close-out** (no code changed).
   M5A is approved and frozen. The visual HTML is Git-ignored; the price-free
   CSV is tracked.
@@ -124,14 +137,13 @@ time with explicit approval (D-117).
   2. ~~M3 timeframe builder (on demand)~~ (done 2026-09-29)
   3. ~~M4 derived-data persistence~~ (done 2026-09-29)
   4. ~~M5A generic Market Context library~~ (approved / frozen 2026-09-30)
-  5. M6 level-interaction primitives (generic catalog; not blocked by M5B)
-  6. M7 State/Signal contracts
-  7. ICT reusable feature library (after the joint External/Internal
+  5. ~~M5B ORB Market Context migration~~ (done 2026-09-30; review pending)
+  6. **M6** level-interaction primitives (**NEXT** after M5B review/freeze)
+  7. M7 State/Signal contracts
+  8. ICT reusable feature library (after the joint External/Internal
      Liquidity design)
-  8. M8 test tiers
-  9. M9 legacy-ledger deprecation notice
-  - Optional at any point: **M5B** ORB compatibility / migration (parity
-    harness and legacy adapters only where semantics differ).
+  9. M8 test tiers
+  10. M9 legacy-ledger deprecation notice
 
 ## Blocked / unresolved (design-authority decisions)
 
@@ -186,11 +198,18 @@ Items 5 and 7 and the reason vocabulary were settled for M5A (D-124):
 
 ## Recent test status
 
+- 2026-09-30 (M5B), `tests/test_orb_market_context_compat.py`: **11 passed**
+  (6 subtests), including the frozen-oracle parity test (it skips if local
+  DEVELOPMENT data is absent).
+- 2026-09-30 (M5B), `tests/test_mnq_orb_v02_features.py` **26 passed**;
+  `tests/test_session_context.py` **33 passed**.
+- 2026-09-30 (M5B), full suite: **352 passed, 0 failed** (180 subtests).
+  That is the 341 baseline plus the 11 new tests. This is the current
+  baseline.
 - 2026-09-29 (M5A), `tests/test_session_context.py`: **33 passed**
   (39 subtests).
 - 2026-09-29 (M5A), full suite: **341 passed, 0 failed** (174 subtests).
-  That is the 308 baseline plus the 33 new tests. This is the current
-  baseline.
+  That is the 308 baseline plus the 33 new tests.
 
 - 2026-09-29 (M4), `tests/test_timeframe_store.py`: **17 passed**
   (7 subtests).

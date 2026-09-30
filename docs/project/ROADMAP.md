@@ -18,8 +18,8 @@ High-level only. No deadlines. Status vocabulary: `DONE`, `ACTIVE`, `NEXT`,
 | 2.M3.1 | Completeness / source-data audit (DEVELOPMENT) | **DONE** (2026-09-29) |
 | 2.M4 | Derived-timeframe persistence (Parquet + manifest) | **DONE** (2026-09-29) |
 | 2.M5A | Generic Market Context library (Previous Day, Previous RTH, Asia, London, Overnight, Overnight Context, NY Pre-market); continuity-aware (D-123, D-124) | **DONE — APPROVED / FROZEN** (2026-09-30) |
-| 2.M5B | ORB compatibility / migration: formal parity harness, legacy `orb_overnight_1800_0930` and previous-available-session adapter only where semantics differ | PLANNED, **optional**; not required before M6 or the generic catalog |
-| 2.M6 | Generic level-interaction primitives + ORB parity tests; continuity-aware | PLANNED |
+| 2.M5B | ORB consumes the generic catalog: compatibility only for the legacy 18:00–09:30 overnight and previous-available-session selection; exact frozen parity (D-125) | **DONE** (2026-09-30; review pending) |
+| 2.M6 | Generic level-interaction primitives + ORB parity tests; continuity-aware | **NEXT** (after M5B review/freeze) |
 | 2.M7 | Minimal State/Signal contracts; continuity-aware | PLANNED |
 | 2.M8 | Test tiers (unit / golden / integration) | PLANNED |
 | 2.M9 | Legacy ledger deprecation notice | PLANNED |

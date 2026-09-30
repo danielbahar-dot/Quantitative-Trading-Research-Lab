@@ -149,8 +149,23 @@ at a time with explicit approval (D-117).
   - The visual HTML is local only and Git-ignored (raw prices). The
     price-free cases CSV is tracked.
   - Semantic changes need a new `definition_version`.
-- Nothing is authorized next. **M5B is optional** compatibility work and does
-  not block the generic catalog (M6+).
+- **M5B, the ORB Market Context migration, is done** (2026-09-30,
+  uncommitted, branch `m5b-orb-market-context-migration`; D-125).
+  - The generic catalog is the authority. ORB consumes it via
+    `src/experiments/orb_market_context_compat.py`.
+  - Compatibility is limited to `orb_overnight_1800_0930`
+    (`config/features/market_context_compatibility.json`) and
+    `previous_available_session_legacy_orb` for Previous Day / RTH.
+  - One engine: `session_context.evaluate_context`, with a pluggable source
+    session.
+  - Parity with frozen ORB is exact (all 474 audit columns; oracle SHA-256
+    in M5 spec §11). M5A output is unchanged.
+  - ORB context inputs now go through the CME session model (e.g. Sunday
+    dates are rejected).
+  - The window helpers in `market_context.py` are legacy, used only for the
+    ORB opening range, the ORB audit and tests.
+- Nothing is authorized next. **M6** (generic level interactions) is next,
+  after M5B review.
 - The next ICT design run will specify External and Internal Liquidity
   together, including contract rolls, swings, EQ/REQ, and the timeframe
   hierarchy.

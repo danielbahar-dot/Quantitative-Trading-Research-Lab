@@ -580,6 +580,45 @@ repository. For D-101 onward the date is when it was recorded here
   - Semantic changes require a new `definition_version`.
 - **Revisit trigger:** M5B, a verified holiday calendar, or D1.
 
+### D-125 — ORB consumes the generic Market Context catalog (M5B)
+- **Date:** 2026-09-30
+- **Decision:** The generic catalog (D-124) is the authority for market
+  context. Frozen ORB V0.2 consumes it through
+  `src/experiments/orb_market_context_compat.py`.
+  - **Identical definitions are reused directly:** Asia, London, NY
+    pre-market, `overnight_context_2000_0900`, and the Previous RTH window.
+  - **Compatibility exists only for genuine historical differences:**
+    - `orb_overnight_1800_0930`, in the separate
+      `config/features/market_context_compatibility.json`;
+    - `previous_available_session_legacy_orb`, the legacy
+      previous-AVAILABLE selection for Previous Day / RTH;
+    - a thin schema adapter to frozen ORB's `summarize_window` output
+      (legacy availability = completeness).
+  - **One evaluation engine:** `evaluate_context` is exposed from the generic
+    module with a pluggable source session. There is no duplicated
+    aggregation.
+  - **Input contract:** ORB context inputs are now validated by the CME
+    session model. Three synthetic ORB test fixtures using Sunday dates were
+    moved to weekdays, with assertions unchanged (design-authority choice
+    over a looser bypass).
+- **Reason:** Remove duplicated ownership of generic market facts from ORB
+  while keeping frozen research reproducible.
+- **Alternatives considered:**
+  - Keep ORB's own window computation (rejected: duplicate ownership).
+  - Switch ORB to generic semantics (rejected: changes frozen results).
+  - Bypass the session model for ORB (rejected: a looser second path).
+- **Consequences:**
+  - DEVELOPMENT parity is exact against both the pre-migration
+    implementation (744 × 474) and the frozen oracle, whose SHA-256 is
+    recorded in the M5 spec §11.
+  - M5A generic output is unchanged.
+  - The retained `market_context.py` window helpers serve only the ORB
+    opening range, the ORB audit, and the tests.
+  - Market Context migration is complete; M6 is next.
+- **Status:** ACTIVE (implemented 2026-09-30)
+- **Revisit trigger:** An ORB reopening; any change to the catalog
+  definitions that ORB maps to (the drift guard will fail).
+
 ### PROPOSED items awaiting design-authority approval (2026-09-28)
 Claude recommendations from the architecture closeout; **not decisions**:
 ~~Market Context as tidy-DataFrame functions (no MarketContext object)~~

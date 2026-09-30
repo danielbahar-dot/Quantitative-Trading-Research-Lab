@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "session_id": "cme_globex_et",
+  "timezone": "America/New_York",
+  "timestamp_semantics": "bar_end",
+  "compatibility_scope": "mnq_orb_v0_2 frozen research reproduction only (M5B)",
+  "description": "Legacy Market Context definitions that exist ONLY to reproduce frozen ORB research where its semantics genuinely differ from the generic catalog (config/features/market_context_windows.json). Not for new strategies. Evaluated by the same generic engine (src/features/session_context.py).",
+  "windows": [
+    {
+      "window_id": "orb_overnight_1800_0930",
+      "display_name": "ORB legacy Overnight 18:00-09:30",
+      "start_et": "18:00",
+      "start_day_offset": -1,
+      "end_et": "09:30",
+      "end_day_offset": 0,
+      "provenance": "Frozen ORB V0.2 'overnight' window (config/features/mnq_orb_v0_2_preopen_windows.json, DATASET_VERIFIED). Generic Overnight is overnight_1800_0700 (D-114)."
+    }
+  ],
+  "contexts": [
+    {"context_id": "orb_overnight_1800_0930", "window_id": "orb_overnight_1800_0930", "source_session": "TARGET", "definition_version": 1}
+  ]
+}

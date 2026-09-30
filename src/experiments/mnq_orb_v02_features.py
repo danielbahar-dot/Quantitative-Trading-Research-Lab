@@ -17,11 +17,12 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 
+from src.data.sessions import SessionSpec
+from src.experiments.orb_market_context_compat import orb_window_summaries
 from src.features.market_context import (
     ET_TIMEZONE,
     HISTORICAL_LOOKBACKS,
     OR_DURATIONS,
-    WindowDefinition,
     add_causal_width_history,
     calculate_or_context,
     gap_context,
@@ -30,7 +31,6 @@ from src.features.market_context import (
     load_context_windows,
     ny_open_gap_context,
     expected_bar_end_index,
-    summarize_window,
 )
 from src.visualization.research_viewer import find_orb_signals
 
@@ -110,21 +110,26 @@ def build_feature_audit(
     *,
     durations: Iterable[int] = OR_DURATIONS,
     lookbacks: Iterable[int] = HISTORICAL_LOOKBACKS,
+    session_spec: SessionSpec | None = None,
 ) -> pd.DataFrame:
-    """Return one causal feature row per DEVELOPMENT session x OR duration."""
+    """Return one causal feature row per DEVELOPMENT session x OR duration.
+
+    Market-context windows (Asia, London, NY pre-market, overnight, overnight
+    context, previous day, previous RTH) come from the generic Market Context
+    catalog through the ORB compatibility layer (M5B), which reproduces the
+    frozen ORB definitions and schema exactly.
+    """
     _assert_development(prices)
-    windows = load_context_windows(window_config)
-    missing_windows = set(WINDOW_PREFIXES) - set(windows)
+    missing_windows = set(WINDOW_PREFIXES) - {item["window_id"] for item in window_config["windows"]}
     if missing_windows:
         raise ValueError(f"Window configuration missing: {sorted(missing_windows)}")
+    context_by_session = orb_window_summaries(prices, window_config, session_spec)
     session_dates = sorted(prices["session_date"].unique())
     sessions = {
         session_date: prices.loc[prices["session_date"].eq(session_date)]
         for session_date in session_dates
     }
     rows: list[dict[str, Any]] = []
-    rth_window = WindowDefinition("rth", time(9, 30), time(16, 0))
-    trading_day_window = WindowDefinition("trading_day", time(18, 0), time(17, 0), -1)
 
     for session_offset, session_date in enumerate(session_dates):
         session_rows = sessions[session_date]
@@ -136,24 +141,13 @@ def build_feature_audit(
             "timezone": ET_TIMEZONE,
             "timestamp_semantics": "bar_end_time",
         }
+        context = context_by_session[session_date]
         window_summaries: dict[str, dict[str, Any]] = {}
-        for window_id, prefix in WINDOW_PREFIXES.items():
-            summary = summarize_window(session_rows, session_date, windows[window_id])
-            window_summaries[prefix] = summary
-            base.update(_flatten_window(prefix, summary))
-
-        if prior_rows is None:
-            previous_day = summarize_window(pd.DataFrame(index=pd.DatetimeIndex([], tz=ET_TIMEZONE)), session_date, trading_day_window)
-            previous_day["available_at"] = pd.NaT
-            previous_day["missing_reason"] = "NO_PRIOR_SESSION"
-            previous_rth = summarize_window(pd.DataFrame(index=pd.DatetimeIndex([], tz=ET_TIMEZONE)), session_date, rth_window)
-            previous_rth["available_at"] = pd.NaT
-            previous_rth["missing_reason"] = "NO_PRIOR_SESSION"
-        else:
-            previous_day = summarize_window(prior_rows, prior_date, trading_day_window)
-            previous_rth = summarize_window(prior_rows, prior_date, rth_window)
-        base.update(_flatten_window("previous_day", previous_day))
-        base.update(_flatten_window("previous_rth", previous_rth))
+        for prefix in WINDOW_PREFIXES.values():
+            window_summaries[prefix] = context[prefix]
+            base.update(_flatten_window(prefix, context[prefix]))
+        base.update(_flatten_window("previous_day", context["previous_day"]))
+        base.update(_flatten_window("previous_rth", context["previous_rth"]))
         base.update(gap_context(prior_rows, session_rows, session_date))
         base.update(ny_open_gap_context(prior_rows, session_rows, session_date))
         base.update(_liquidity_path(window_summaries))

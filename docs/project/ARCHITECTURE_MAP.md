@@ -34,6 +34,7 @@ D-110 to D-117 and the PROPOSED list.
 | Module | Role | Layer |
 |---|---|---|
 | `src/features/opening_range.py` | OR calculation for 5/10/15/20/30m (bar-end semantics) | Feature |
+| `src/features/session_context.py` | **Generic Market Context (M5A, 2026-09-29):** registry loader, `build_market_context` (audit summary), `valid_context_levels`, `align_market_context`; previous-expected-session Previous Day / Previous RTH and named windows | Feature (generic Market Context) |
 | `src/features/market_context.py` | `WindowDefinition`, `load_context_windows`, `expected_bar_end_index`, `summarize_window` (window high/low/etc.), OR context, causal width history, Globex reopen / NY-open gaps, `level_interaction` (TOUCH / TRADE_THROUGH / CLOSE_THROUGH / REJECT / SWEEP vs OR) | Feature / State primitives |
 | `src/experiments/mnq_orb_v02_features.py` | Builds the V0.2 feature audit: previous trading-day and previous RTH H/L/C, Asia/London/NY pre-market/overnight H/L, liquidity path, key-level interactions, review queues; outcomes kept separate (`outcome_*`) | Feature assembly (ORB-scoped) |
 | `src/experiments/mnq_orb_v02_*` (stage3a, width, or_structure, room_to_level, key_level_interaction, london_interaction_event, combined_state_hypothesis) | ORB V0.2 Stage 3 characterization | State / Signal research (ORB) |
@@ -63,7 +64,8 @@ D-110 to D-117 and the PROPOSED list.
 | `config/sessions/cme_globex_et.json` | Authoritative generic session facts (M1) |
 | `config/sessions/cme_globex_et.overrides.json` | Session override calendar (CLOSED / MODIFIED); currently empty, coverage null |
 | `config/datasets/mnq_1m_actual_contract_v1.partitions.json` | DEVELOPMENT / VALIDATION / OOS(BURNED) session-date ranges |
-| `config/features/mnq_orb_v0_2_preopen_windows.json` | Frozen session windows (Asia, London, NY pre-market, overnight, overnight context) |
+| `config/features/mnq_orb_v0_2_preopen_windows.json` | Frozen ORB session windows (Asia, London, NY pre-market, overnight 18:00–09:30, overnight context); historical snapshot, not the generic source |
+| `config/features/market_context_windows.json` | **Authoritative generic Market Context registry** (M5A): clock windows with explicit day offsets + contexts (`TARGET` / `PREVIOUS_EXPECTED` source session) |
 | `config/features/mnq_orb_v0_2_stage2_human_reviews.json` | Stage 2 human-review decisions |
 | `config/components/research_components.json` | Reusable component registry (features/signals/strategy, with status) |
 | `config/experiments/*.json` | Per-experiment/gate configurations |
@@ -281,20 +283,41 @@ oracle, and ORB migrates to the generic code only after parity is proven
 - An HTF bar is usable at base time t only if `available_at <= t`.
 - Level interaction starts on the next base bar.
 
-### B.3 Market Context (PROPOSED shape)
+### B.3 Generic Market Context — M5A IMPLEMENTED (D-124)
 
-**Functions returning tidy DataFrames** (reusing `WindowDefinition`):
+Full specification: [M5_MARKET_CONTEXT_SPEC](M5_MARKET_CONTEXT_SPEC.md).
 
-- `summarize_session_windows` returns one row per (trading_date, window).
-- `previous_trading_day_levels` uses the previous *expected* session (D-113).
-- `align_context_to_bars` is an as-of join on `available_at`.
+**Module and registry**
 
-**Windows config**
+- Module `src/features/session_context.py`; registry
+  `config/features/market_context_windows.json`.
+- Generic contexts: `previous_day`, `previous_rth`, `asia_2000_0000`,
+  `london_0200_0500`, `overnight_1800_0700`,
+  `overnight_context_2000_0900`, `ny_premarket_0700_0900`.
 
-- Generic windows go in a new config (D-114). The frozen ORB windows config
-  stays a historical snapshot.
-- A parity test will guard the shared Asia/London/NY-pre-market definitions
-  against drift.
+**API**
+
+- `load_market_context_windows` → registry.
+- `build_market_context` → audit summary (`observed_*`, reasons).
+- `valid_context_levels` → available only.
+- `align_market_context` → per-bar values plus a status
+  (`AVAILABLE` / `PENDING` / `UNAVAILABLE_CONTEXT` / `CONTRACT_MISMATCH`).
+
+**Semantics**
+
+- Computed from canonical 1m data with the M1 session model.
+- Strict completeness and schedule clipping.
+- Previous-expected-session selection with no fallback.
+- `MIXED_CONTRACT` within a window.
+- Causal `bar_start ≥ available_at`; target-session scope.
+
+**Status and frozen ORB**
+
+- `src/features/market_context.py` (frozen-ORB-imported) is unchanged.
+- ORB is not rewired yet (M5B).
+- The DEVELOPMENT read-only check gives exact parity with frozen ORB for
+  Asia, London, NY pre-market and Overnight Context. Previous Day and
+  Previous RTH differ only on the 6 intentional D-121 dates.
 
 ### B.4 Level interaction (D-115; API PROPOSED)
 

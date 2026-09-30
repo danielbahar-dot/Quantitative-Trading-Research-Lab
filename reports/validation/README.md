@@ -54,3 +54,44 @@ Daily bar):
   candidates.
 
 See DECISION_LOG D-120 / D-121.
+
+## `m5a_market_context_visual_validation.html` / `_cases.csv`
+
+M5A Generic Market Context visual validation (2026-09-30). DEVELOPMENT only;
+source data was read, not modified.
+
+**What the chart shows**
+
+- 7 sessions:
+  - 2 normal (2024-10-01, 2025-05-01);
+  - a roll Friday (2024-12-20);
+  - after a missing expected session (2025-01-02);
+  - an incomplete window (2025-01-23);
+  - 2 DST-adjacent sessions (2024-11-04, 2025-03-10).
+- Each panel shows 1m candles plus levels taken **only** from
+  `align_market_context` (status `AVAILABLE`), so it shows exactly what a
+  consumer sees.
+- A dotted line marks each `available_at`; ✖ marks the completing (`PENDING`)
+  bar and ○ the first eligible bar.
+- Unavailable contexts are listed in red and never drawn.
+
+**The CSV (price-free)** has one row per session × context:
+
+- availability and reason;
+- window and `available_at`;
+- expected and observed counts;
+- the status of the completing bar (`PENDING`, `COMPLETING_BAR_ABSENT_FROM_DATA`,
+  or `OUTSIDE_TARGET_SESSION` for Previous Day / RTH);
+- the first exposed bar, its offset from `available_at`, and the number of
+  exposed bars.
+
+**Tracking policy:**
+
+- The HTML was used for **manual visual validation**.
+- It is **intentionally excluded from Git**, via an exact path in
+  `.gitignore`, because it embeds raw 1m market prices (about 9.6k bars).
+  It exists only locally.
+- The price-free `m5a_market_context_visual_validation_cases.csv` is the
+  **tracked audit artifact**.
+
+Findings: `docs/project/M5_MARKET_CONTEXT_SPEC.md` §10.

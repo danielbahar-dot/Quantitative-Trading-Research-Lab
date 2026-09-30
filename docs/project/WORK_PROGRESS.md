@@ -11,26 +11,46 @@ _Last updated: 2026-09-29_
 Architecture cleanup before ICT liquidity work. Milestones proceed one at a
 time with explicit approval (D-117).
 
-- **M1, M2, M3 and the M3.1 audit are merged into `main`** (PR #1, merge
-  commit `7dfa78b`).
-- **M4 (derived-timeframe persistence) is done**: committed as `412dcd0` on
-  branch `m4-derived-timeframe-persistence`, with a PR pending against
-  `main`.
-- **D1 is DEFERRED** (D-123). M5 Generic Market Context is **NEXT** (awaiting
-  approval). M5, M6, M7 and the ICT feature library may proceed before D1
-  but must be **continuity-aware** (see QUALITY_CONTROL §1–2).
+- **M1–M4 are merged into `main`:** PR #1 (`7dfa78b`) and PR #2 (`e47d7de`,
+  M4 + D1 deferral).
+- **M5A (Generic Market Context library) is APPROVED / FROZEN**
+  (2026-09-30). It is staged for commit on branch
+  `m5-generic-market-context` (based on `e47d7de`).
+- **M5B** (ORB compatibility / migration) is **optional**. It is not required
+  before continuing the generic catalog (M6+).
+- **D1 is DEFERRED** (D-123). Feature work must be continuity-aware.
 - ICT feature work is on hold until the next design run, which will specify
   External and Internal Liquidity together.
 
 ## Last completed work
 
-- **2026-09-29 — Roadmap adjustment** (governance only, uncommitted).
+- **2026-09-30 — M5A final validation and close-out** (no code changed).
+  M5A is approved and frozen. The visual HTML is Git-ignored; the price-free
+  CSV is tracked.
+  - Visual review of 7 DEVELOPMENT sessions.
+  - `MISSING_EXPECTED_SESSION` vs `NO_OBSERVATIONS` semantics verified.
+  - All invariants pass on every DEVELOPMENT bar.
+  - Artifacts are in `reports/validation/`.
+- **2026-09-29 — M5A Generic Market Context** (uncommitted). Specification:
+  `docs/project/M5_MARKET_CONTEXT_SPEC.md` (D-124).
+  - Added `src/features/session_context.py`,
+    `config/features/market_context_windows.json`, and
+    `tests/test_session_context.py` (33 tests).
+  - Generic contexts: `previous_day`, `previous_rth` (validated 09:30–16:00
+    definition), Asia, London, `overnight_1800_0700`,
+    `overnight_context_2000_0900`, NY pre-market.
+  - DEVELOPMENT read-only validation: exact frozen-ORB parity for Asia,
+    London, NY pre-market and Overnight Context. Previous Day and Previous
+    RTH differ only on the 6 intentional D-121 dates.
+  - No ORB code changed.
+- **2026-09-29 — Roadmap adjustment** (governance only; committed in
+  `c1c9a8a`).
   - D1 deferred; continuity-aware rules recorded (D-123); D-120 marked
     revised.
   - ROADMAP updated with M5 next and D1 deferred.
   - QUALITY_CONTROL gains continuity checks. No code changed.
 
-- **2026-09-29 — M4 derived-timeframe persistence** (committed in `412dcd0`).
+- **2026-09-29 — M4 derived-timeframe persistence** (merged via PR #2).
   - Added `src/data/timeframe_store.py` (Parquet + manifest,
     provenance-validated loads, stale-cache error, reserved-partition guard)
     and `tests/test_timeframe_store.py`.
@@ -98,19 +118,20 @@ time with explicit approval (D-117).
 
 ## Next approved task
 
-- **None.** M5 or later needs explicit approval.
-- Candidate order (see ROADMAP):
+- **None.** Any further milestone needs explicit approval.
+- Candidates (see ROADMAP):
   1. ~~M2 instrument metadata~~ (done 2026-09-29)
   2. ~~M3 timeframe builder (on demand)~~ (done 2026-09-29)
   3. ~~M4 derived-data persistence~~ (done 2026-09-29)
-  4. **M5** generic Market Context session levels with ORB parity
-     (continuity-aware; Previous Day follows D-113; **NEXT**)
-  5. M6 level-interaction primitives with parity
+  4. ~~M5A generic Market Context library~~ (approved / frozen 2026-09-30)
+  5. M6 level-interaction primitives (generic catalog; not blocked by M5B)
   6. M7 State/Signal contracts
   7. ICT reusable feature library (after the joint External/Internal
      Liquidity design)
   8. M8 test tiers
   9. M9 legacy-ledger deprecation notice
+  - Optional at any point: **M5B** ORB compatibility / migration (parity
+    harness and legacy adapters only where semantics differ).
 
 ## Blocked / unresolved (design-authority decisions)
 
@@ -140,11 +161,22 @@ time with explicit approval (D-117).
     (D-117). Contract stitching is deferred to D1 (D-123). Features must stay
     continuity-aware in the meantime.
 
-Items 5 and 7 (window completeness, generic overnight ID) and the exact
-"unavailable" reason vocabulary are the likely decisions M5 needs before
-implementation.
+Items 5 and 7 and the reason vocabulary were settled for M5A (D-124):
+
+- strict completeness;
+- `overnight_1800_0700`;
+- `previous_rth` is generic;
+- controlled reasons and alignment statuses.
 
 ## Validation pending
+
+- **M5A Market Context:** nothing pending. It is **APPROVED / FROZEN**
+  (2026-09-30).
+  - Visual validation and the semantic audit are complete, and all
+    invariants passed (spec §10).
+  - The visual HTML stays local (Git-ignored: it embeds raw prices).
+  - The price-free `reports/validation/m5a_market_context_visual_validation_cases.csv`
+    is the tracked evidence.
 
 - M1 status: `TESTED` on synthetic data and checked against the real
   DEVELOPMENT `session_date` column (0 mismatches in M3/M3.1). This was a
@@ -153,6 +185,12 @@ implementation.
 - No ICT primitive exists.
 
 ## Recent test status
+
+- 2026-09-29 (M5A), `tests/test_session_context.py`: **33 passed**
+  (39 subtests).
+- 2026-09-29 (M5A), full suite: **341 passed, 0 failed** (174 subtests).
+  That is the 308 baseline plus the 33 new tests. This is the current
+  baseline.
 
 - 2026-09-29 (M4), `tests/test_timeframe_store.py`: **17 passed**
   (7 subtests).

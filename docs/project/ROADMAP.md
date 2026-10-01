@@ -20,7 +20,7 @@ High-level only. No deadlines. Status vocabulary: `DONE`, `ACTIVE`, `NEXT`,
 | 2.M5A | Generic Market Context library (Previous Day, Previous RTH, Asia, London, Overnight, Overnight Context, NY Pre-market); continuity-aware (D-123, D-124) | **DONE — APPROVED / FROZEN** (2026-09-30) |
 | 2.M5B | ORB consumes the generic catalog: compatibility only for the legacy 18:00–09:30 overnight and previous-available-session selection; exact frozen parity (D-125) | **DONE** (2026-09-30; merged, PR #4) |
 | 2.M6 | Generic level-interaction primitives (M6A generic engine; M6B ORB migration with parity); stateless, continuity-aware | **COMPLETE** (2026-10-01; D-126–D-128). M6A merged (PR #5): `src/features/level_interactions.py`. M6B (uncommitted): ORB consumes it via `src/experiments/orb_level_interaction_compat.py`, with exact frozen parity on 234/234 columns |
-| 2.M7 | Minimal State/Signal contracts; continuity-aware | **M7A IMPLEMENTED AND VALIDATED** (2026-10-01, uncommitted; D-129, D-130, D-131): generic event-based State contract in `src/state/contract.py`. **M7B (Signal contract) is next.** M7 is not complete |
+| 2.M7 | Minimal State/Signal contracts; continuity-aware | **COMPLETE** (2026-10-01; D-129–D-132). M7A merged (PR #7): generic event-based State contract in `src/state/contract.py`. M7B (uncommitted): generic Signal contract in `src/signals/contract.py`. These are envelopes only; no real State or Signal family is implemented |
 | 2.M8 | Test tiers (unit / golden / integration) | PLANNED |
 | 2.M9 | Legacy ledger deprecation notice | PLANNED |
 | 3 | ICT research family (separate from ORB) | ACTIVE (design) |

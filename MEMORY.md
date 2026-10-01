@@ -168,8 +168,19 @@ at a time with explicit approval (D-117).
   `src/features/level_interactions.py` (merged, PR #5) and is the sole
   generic authority. `docs/project/M6_LEVEL_INTERACTIONS_SPEC.md` rev 4.
   **M7A (generic State contract) is implemented and validated** in
-  `src/state/contract.py` (D-129; spec rev 3, §0 normative). **M7B (Signals)
-  is next.**
+  `src/state/contract.py` (D-129; spec rev 3, §0 normative; merged in PR
+  #7). **M7B (generic Signal contract) is implemented** in
+  `src/signals/contract.py` (D-132). **M7 is complete.**
+  - A Signal is an immutable point event: no lifetime and no execution
+    fields.
+  - It reuses M7A's public `CausalKey` / `compare_causal` / `SourceRef`;
+    no private State helpers.
+  - The id is the full SHA-256 over type, version, instrument, scope,
+    contract, subject, event key, direction, trigger and source refs, with
+    no availability.
+  - At most one Signal per semantic event key.
+  - `trigger_ref` must not repeat in `source_refs`.
+  - `SignalContractError(ValueError)`; State errors are translated.
   - The core is event-based: causal key `(at, seq_domain, seq)` (D-130).
     `compare_causal` returns BEFORE / AFTER / EQUAL / INCOMPARABLE.
     Sequences order only within the same domain; anything else at the same

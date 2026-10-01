@@ -1,7 +1,16 @@
 # M7 — Generic State and Signal Contracts: Specification
 
-**Status: rev 3 — APPROVED (2026-10-01, D-129). M7A IMPLEMENTED AND
-VALIDATED (synthetic); M7B (Signals) is next. M7 is not complete.**
+**Status: M7 COMPLETE (2026-10-01).**
+
+- **M7A (State)** is implemented and validated, and merged in PR #7
+  (`4a0d674`; D-129–D-131).
+- **M7B (Signal)** is implemented and validated in `src/signals/contract.py`
+  (D-132). Its normative contract is "M7B FINAL CONTRACT" at the end of
+  this document. Tests: `tests/test_signal_contract.py`, 28 tests / 88
+  subtests.
+- **Full suite:** 474 passed, 343 subtests.
+- **Scope:** both are generic envelopes validated synthetically. No real
+  State lifecycle or Signal family exists yet.
 
 **M7A implementation (rev 3.1, D-130):**
 
@@ -1285,3 +1294,497 @@ Only questions that change the architecture. Each has a recommendation.
     backward compatible as a nullable column.
 - *Alternative:* add `transition_seq_domain` / `event_seq_domain` now, so
   that M7 can refuse cross-domain comparisons from day one.
+
+---
+
+## M7B FINAL CONTRACT — APPROVED / IMPLEMENTED (D-132)
+
+**Status: APPROVED and IMPLEMENTED 2026-10-01 (D-132), with the amendments
+in B.0, which override B.1–B.16 where they differ.**
+
+- Implementation: `src/signals/contract.py`.
+- Tests: `tests/test_signal_contract.py`, 28 tests / 88 subtests, synthetic
+  definitions only. This section **supersedes §11–§15
+for M7B**. §11–§16 are kept as historical reasoning from before D-130 /
+D-131.
+
+### B.0 Design-authority amendments (normative)
+
+1. **Q1–Q10.** The questions are approved as recommended. `subject_kind` is
+   required. `allowed_directions` works as simplified: empty means a null
+   direction; non-empty means exactly one of the declared values; NEUTRAL
+   has no special behaviour. Availability is not in the id. Source
+   resolution is deferred, there are no materialization utilities, and
+   there is no `reason_code`.
+2. **`subject_id`** is a stable, non-empty, trimmed, single-line semantic
+   identifier. It is **not** restricted to a token regex; separators, dates
+   and compound ids are allowed. `subject_kind` lives only on the
+   definition.
+3. **Overlap.** `trigger_ref` must not also appear in `source_refs`;
+   `source_refs` holds additional provenance only. An exact canonical
+   overlap is rejected. This is not retrofitted into M7A State.
+4. **Identity (supersedes B.6).** `signal_id = "sg_" + full SHA-256` of:
+   - `signal_type`, `definition_version`;
+   - `instrument_id`, `contract_scope`, `contract`;
+   - `subject_id`;
+   - canonical UTC `event_at`, `event_seq_domain`, `event_seq`;
+   - `direction`;
+   - `trigger_ref`;
+   - canonical `source_refs`.
+
+   It is instrument- and contract-safe without relying on `subject_id`
+   being globally qualified. Excluded: `available_*` and `attr_*`.
+5. **Semantic-event uniqueness (supersedes B.7 Rule 2).** At most one
+   Signal per (`signal_type`, `definition_version`, `instrument_id`,
+   `contract_scope`, `contract`, `subject_id`, `event_at`,
+   `event_seq_domain`, `event_seq`, `direction`).
+   - The key **excludes** `trigger_ref`, `source_refs`, `available_*` and
+     attributes.
+   - The same semantic event with different provenance is a duplicate.
+   - The same trigger may yield different types or subjects. Opposite
+     directions are distinct only when the definition allows them.
+   - Duplicate `signal_id`s are also rejected.
+6. **Ordering (supersedes B.11):**
+   1. `available_at`;
+   2. `available_seq_domain`, then `available_seq`;
+   3. `event_at`;
+   4. `event_seq_domain`, then `event_seq`;
+   5. `signal_type`, `instrument_id`, `contract_scope`, `contract`,
+      `subject_id`, `direction`, `signal_id`.
+
+   Strings use deterministic sorted ranks, never encounter order, and nulls
+   sort first. The order is for reproducibility only, never chronology.
+7. **Errors.**
+   - `SignalContractError(ValueError)`, which is not a
+     `StateContractError`.
+   - Reused M7A primitives' `StateContractError` is translated at the
+     Signal API boundary with chaining.
+   - Only public M7A primitives are imported. Signal-local private helpers
+     do the DataFrame plumbing, and M7A is not refactored.
+8. **Forbidden execution fields.** Exactly the B.9 list, checked directly
+   and as `attr_<name>`, with no fuzzy matching. `side` stays allowed.
+
+This section aligns Signals exactly with the implemented M7A causal,
+provenance and identity model (D-129–D-131). M7A is not redesigned.
+
+### B.1 Definition and scope
+
+**A Signal is an immutable, reusable market event.** It describes *what
+happened*, never *what trade to place*.
+
+- **Origins.** It may originate from a Feature, an Interaction, a
+  StateTransition, another objective event, or several of these. It is
+  **not** required to originate from State.
+- **Point events.** Signals carry no ACTIVE / EXPIRED state, no
+  `valid_from` / `valid_until`, no holding period and no expiry bars.
+- **Lifetime belongs elsewhere:** to the subject's State, or to Strategy
+  eligibility. Validity windows stay deferred.
+- **Infrastructure only.** M7B ships no real definitions (`liquidity.sweep`,
+  `structure.mss`, `fvg.created`, `orb.breakout` …). Tests use synthetic
+  definitions, and ORB is not migrated.
+
+**Repository evidence reviewed (read-only):**
+
+- `research_viewer.find_orb_signals`: a breakout event with `signal_time`,
+  `direction` LONG/SHORT and `ambiguity_status`. "First per direction" and
+  the 11:30 cut-off are strategy eligibility. LONG / SHORT is action
+  vocabulary, which M7B does not adopt.
+- `backtesting.candidate_entries`: signal → `entry_price`, `initial_stop`,
+  `initial_target`, `risk_points`. This is execution, and confirms the
+  forbidden-field list.
+- `orb_v01.Breakout`: mixes the event (`direction`, `timestamp`) with
+  execution (`entry`, `entry_at_open`), which is exactly what the contract
+  must forbid.
+- `completed_trades`: `AMBIGUOUS_*` when OHLC cannot order events, the same
+  "never invent order" principle.
+- None of this contradicts the recommendations below. Nothing is migrated.
+
+### B.2 `SignalDefinitionSpec` (frozen dataclass)
+
+| Field | Rule |
+|---|---|
+| `signal_type` | Dotted lowercase, e.g. `test.sweep`. It determines the event semantics |
+| `subject_kind` | **Required**, a lowercase token (e.g. `liquidity_level`, `swing`, `fvg`). It mirrors `StateNamespaceSpec.entity_kind`, so there is no per-row subject type |
+| `definition_version` | Non-empty |
+| `allowed_directions` | A tuple drawn from {`BULLISH`, `BEARISH`, `NEUTRAL`}, unique. Empty means an undirected definition |
+| `attributes` | A tuple of M7A `AttributeSpec`, giving typed `attr_<name>` columns. Each name is checked against the forbidden list (B.9) at construction |
+
+### B.3 Signal row schema
+
+| Column | Req. | Rule |
+|---|---|---|
+| `signal_id` | yes | `"sg_" + full 64-hex SHA-256` (B.6) |
+| `signal_type`, `definition_version` | yes | Must equal the definition's |
+| `subject_id` | yes | Non-empty stable id of the primary subject (an entity, level, swing …). It is not resolved against an entity frame; subject validity belongs upstream (B.10) |
+| `event_at`, `event_seq_domain`, `event_seq` | yes / nullable / nullable | M7A causal key of the event confirmation; the domain and sequence are co-null |
+| `available_at`, `available_seq_domain`, `available_seq` | yes / nullable / nullable | M7A causal key at which consumers may know the signal |
+| `instrument_id` | yes | Non-empty |
+| `contract_scope`, `contract` | yes | `SPECIFIC` requires a non-empty contract; `AGNOSTIC` requires null. No stitching or bridging |
+| `direction` | yes, nullable | B.5 |
+| `trigger_ref` | yes | Canonical M7A `SourceRef` (B.4) |
+| `source_refs` | optional | Canonical tuple, possibly empty (B.4) |
+| `attr_<name>` | optional | Declared and typed (B.8) |
+
+No other columns are allowed. **There is no `reason_code`**: a signal's
+meaning is its `signal_type`. If a concrete need appears, it can be added
+later as an optional column.
+
+### B.4 Causal model and provenance (reusing M7A, no second model)
+
+**Keys.** Event and availability keys are M7A `CausalKey`s
+`(at, seq_domain, seq)`, compared only with M7A `compare_causal`:
+
+- `compare_causal(event, available)` must be `BEFORE` or `EQUAL`;
+- `AFTER` is invalid, and `INCOMPARABLE` is invalid;
+- completed-bar signals use `(bar_end, null, null)` for both keys;
+- `event_at` is never back-dated to an inferred intrabar time.
+
+**Derivation vs consumption.**
+
+- A Signal may be **created** at the same causal event that creates a
+  StateTransition, and may reference it:
+  - M6 interaction at K → StateTransition at K → Signal at K is valid.
+  - Derivation is another description of the same event, not downstream
+    consumption.
+- The causal observation that creates a Signal **cannot consume it**. A
+  Strategy or Execution decision needs a causally later observation, under
+  the M7A strict rule `available ≺ decision`.
+- A future bar consumer adapter may apply the explicit `BAR_END` boundary
+  convention, as `materialize_state_to_bars` does.
+- **Signal validation has no inclusive mode.**
+
+**Provenance.**
+
+- **`trigger_ref`** is required. It is the single causal source event
+  whose arrival caused the Signal. Examples:
+  - `M6_INTERACTION:<level_id>@<bar_end UTC>`;
+  - `STATE_TRANSITION:<transition_id>`;
+  - `TRADE:<stream>@<t>#<domain>:<seq>`.
+- **`source_refs`** is optional supporting provenance:
+  - zero or more references;
+  - canonicalized exactly as in M7A (`canonical_source_refs`: sorted,
+    unique);
+  - it need not repeat `trigger_ref`; overlap is allowed, as in M7A.
+- **SourceRef keys are opaque.** M7B never parses them to infer timing,
+  provider or source semantics.
+
+### B.5 Direction semantics
+
+- **Rule:**
+  - `allowed_directions` empty ⇒ `direction` must be null;
+  - `allowed_directions` non-empty ⇒ `direction` must be one of the listed
+    values.
+- `NEUTRAL` has no hidden rule. A definition that may emit it lists it
+  explicitly.
+- Direction describes the market event only: BULLISH ≠ BUY and
+  BEARISH ≠ SELL. The Strategy maps direction to action.
+- **Edge case (reported, not a rule change).** A directional definition
+  cannot emit a null direction; it must list `NEUTRAL` if some events are
+  directionless. No repository evidence needs anything else.
+
+### B.6 Deterministic identity
+
+- **`signal_id`** = `"sg_" + sha256(json([…]))`, over this natural key:
+  - `signal_type`;
+  - `definition_version`;
+  - `subject_id`;
+  - `canonical_time(event_at)`, `event_seq_domain|null`, `event_seq|null`;
+  - `direction|null`;
+  - `canonical_ref(trigger_ref)`;
+  - `[canonical source_refs]`.
+- It uses the **full SHA-256**, exactly the M7A standard. The natural-key
+  fields stay as columns.
+- **Excluded from identity:**
+  - **`available_*`**, because availability is not event identity. A
+    republication or delay of the same event keeps its id;
+  - `instrument_id` / `contract`, which are implied by the deterministic
+    `subject_id` (as M7A treats `entity_id`);
+  - `attr_*`, which describe the event but do not define it.
+- **Invariance:**
+  - timezone-equivalent `event_at` values give the same id, through UTC
+    canonical time;
+  - the input order of `source_refs` does not affect the id.
+
+### B.7 Uniqueness
+
+M7A's "one per entity + namespace + trigger_ref" rule is **not** copied.
+One trigger may legitimately produce several Signals (different types,
+subjects or directions).
+
+- **Rule 1.** Duplicate `signal_id`s are rejected; this is duplicate
+  natural-key rejection.
+- **Rule 2 (recommended in addition; see Q5).**
+  - At most one Signal per **semantic event key**:
+    (`signal_type`, `definition_version`, `subject_id`, event causal key,
+    `direction`).
+  - **Why:** the natural key includes `trigger_ref` and `source_refs`.
+    Without Rule 2, the same market event recorded twice with different
+    supporting references, or different simultaneous triggers, would yield
+    two distinct "valid" Signals.
+  - **Consequences:**
+    - the same `trigger_ref` producing different types or subjects stays
+      valid;
+    - distinct directions stay distinct identities.
+
+### B.8 Typed attributes
+
+- They reuse the M7A `AttributeSpec` pattern.
+- Validation rejects:
+  - an undeclared `attr_*`;
+  - a wrong dtype;
+  - a missing required attribute;
+  - any non-envelope, non-`attr_` column, so there is no dictionary
+    payload.
+- Objective event metadata is allowed, e.g. `attr_extreme_price`. It is
+  never an entry instruction.
+
+### B.9 Forbidden execution fields (finite controlled list; no heuristics)
+
+`entry`, `entry_price`, `entry_time`, `stop`, `stop_loss`, `stop_price`,
+`initial_stop`, `take_profit`, `target`, `target_price`,
+`initial_target`, `limit_price`, `quantity`, `size`, `position_size`,
+`order_type`, `order_side`, `risk`, `risk_points`, `r_multiple`,
+`trade_id`.
+
+- **Rejected forms:** the exact column name, and `attr_<name>`.
+  - Comparison is exact on the lowercase name: no substring, regex or
+    fuzzy text classification.
+  - Attribute names are also checked when `SignalDefinitionSpec` is
+    constructed, so a definition cannot declare one.
+- **Not listed:** `side`, because the word is used for level sides in
+  M6. Direction covers market direction, and execution side lives in the
+  Strategy.
+
+### B.10 Validation responsibility boundary (as D-131)
+
+**`validate_signals(signals, definition)` validates:**
+
+- schema and dtypes;
+- definition membership (type, version, direction, attributes);
+- causal consistency (event `≼` availability; co-null sequence pairs);
+- provenance format and canonical form;
+- scope / contract rules;
+- deterministic identity and uniqueness;
+- forbidden fields;
+- canonical ordering.
+
+**It does not:**
+
+- reconstruct whether the upstream trigger observation was eligible to
+  create the Signal;
+- resolve subjects;
+- resolve the timing of source refs.
+
+Those belong to the source Feature / Interaction / State module. There is
+no `decision_offset`, `trigger_decision_at`, bar duration or tick/bar
+geometry in the schema.
+
+**Cross-layer source causal revalidation is deferred.** The repository has
+no reusable resolver for source records, and M7A deliberately keeps
+SourceRef opaque. There is no registry, event database, graph resolver or
+plugin.
+
+### B.11 Canonical ordering
+
+- **Stable sort, in order:**
+  1. `available_at`;
+  2. `available_seq_domain`, then `available_seq`, with nulls first;
+  3. `event_at`;
+  4. `event_seq_domain`, then `event_seq`;
+  5. `signal_type`;
+  6. `subject_id`;
+  7. `signal_id`.
+- String keys use deterministic sorted-unique codes, from a local helper
+  equivalent to `factorize(sort=True)`. They never use encounter order.
+- Order is for reproducibility only. It never implies causal order between
+  simultaneous or `INCOMPARABLE` signals.
+
+### B.12 Shared M7A primitives and import direction
+
+- **`src/signals/contract.py` imports from `src/state/contract.py`.**
+  - Reused public primitives: `CausalKey`, `compare_causal`, `BEFORE` /
+    `AFTER` / `EQUAL` / `INCOMPARABLE`, `SourceRef`, `canonical_ref`,
+    `canonical_source_refs`, `canonical_time`, `AttributeSpec`,
+    `ATTRIBUTE_PREFIX`, `SPECIFIC` / `AGNOSTIC` / `CONTRACT_SCOPES`.
+  - **No cycle:** `state.contract` imports only numpy and pandas.
+  - **Layering is downward** (Signal → State primitives).
+- **Responsibility split (design-authority clarification, 2026-10-01):**
+  - **Reused (public M7A semantics only).** Causal comparison
+    (`CausalKey` / `compare_causal`), SourceRef canonicalization and
+    canonical timestamp identity are **never duplicated**.
+  - **Never imported:** underscore-prefixed State helpers (`_frame_keys`,
+    `_sequence_pair`, `_tz_column`, `_check_scope`, `_check_attribute`,
+    `_codes`, …).
+  - **Local Signal-specific helpers** in `src/signals/contract.py` handle:
+    - required columns;
+    - tz-aware timestamp normalization to UTC;
+    - the `seq_domain` / `seq` co-null check;
+    - contract-field checks (using the public scope constants);
+    - typed `attr_*` validation against `AttributeSpec`;
+    - deterministic row sorting with sorted-unique string codes.
+
+    These are plumbing, not M7 semantics.
+  - **Causal checks.** Event `≼` availability is evaluated per row with the
+    public `compare_causal` on `CausalKey`s. Signal volumes are small, and
+    the comparator mathematics is not re-implemented.
+  - **No M7A refactor.** Helpers are not moved into a shared module, and
+    `src/state` behaviour does not change unless an actual blocker is
+    demonstrated. Nothing is re-exported through `src/state/__init__.py`.
+- **Errors.**
+  - M7B defines `SignalContractError(ValueError)`. It is **not** a
+    subclass of `StateContractError`.
+  - Every Signal-facing public API raises `SignalContractError`.
+  - A `StateContractError` raised by a reused primitive (e.g. `CausalKey`,
+    `SourceRef.parse`, `canonical_source_refs`, `AttributeSpec`) is caught
+    at the Signal boundary and re-raised as `SignalContractError(...)`
+    with `raise … from exc`.
+
+### B.13 Proposed public API
+
+```text
+SignalDefinitionSpec(signal_type, subject_kind, definition_version,
+                     allowed_directions=(), attributes=())
+SignalContractError(ValueError)        # State errors re-raised with chaining
+DIRECTIONS = ("BULLISH", "BEARISH", "NEUTRAL")
+FORBIDDEN_EXECUTION_FIELDS = (... B.9 ...)
+SIGNAL_COLUMNS / SIGNAL_ID_PREFIX = "sg_"
+
+signal_id(*, signal_type, definition_version, subject_id, event_at,
+          event_seq_domain=None, event_seq=None, direction=None,
+          trigger_ref, source_refs=()) -> str
+assign_signal_ids(signals: DataFrame) -> DataFrame
+validate_signals(signals: DataFrame, definition: SignalDefinitionSpec) -> DataFrame
+```
+
+- `validate_signals` validates one definition per call, mirroring M7A's
+  one namespace per call. It returns UTC-normalized rows in canonical
+  order, with canonical refs.
+- **Not in M7B:** `signal_as_of`, `materialize_signals_to_*`,
+  `active_signals`, `expire_signals`. Signals are point events. The first
+  Strategy consumer adds a causal alignment adapter when one is actually
+  needed.
+
+### B.14 Focused test plan (synthetic definitions only)
+
+**Schema:**
+
+- a valid directed and a valid undirected signal;
+- an unknown direction;
+- a direction on an undirected definition;
+- a null direction on a directed definition;
+- missing required fields;
+- naive timestamps;
+- the domain / sequence co-null rule;
+- SPECIFIC / AGNOSTIC rules;
+- unknown extra columns;
+- a type or version mismatch with the definition.
+
+**Causality:**
+
+- event `BEFORE` availability: accepted;
+- event `EQUAL` availability: accepted;
+- `AFTER`: rejected;
+- same timestamp, same domain: ordered sequences accepted, reversed
+  rejected;
+- same timestamp with different domains, or a missing sequence on one
+  side: rejected (`INCOMPARABLE`).
+
+**Provenance:**
+
+- `trigger_ref` required (missing or null rejected);
+- `source_refs` optional and empty allowed;
+- canonical ordering;
+- a future SourceRef kind accepted structurally;
+- a malformed ref rejected.
+
+**Identity:**
+
+- full SHA-256 that is deterministic;
+- timezone-equivalent events give the same id;
+- `source_refs` input order gives the same id;
+- the event sequence domain participates;
+- each natural-key field changes the id;
+- **an availability change alone does not change the id.**
+
+**Uniqueness:**
+
+- a duplicate id is rejected;
+- a duplicate semantic event key (with different `source_refs`) is
+  rejected;
+- the same trigger may produce two different types;
+- the same trigger may produce signals for different subjects;
+- distinct directions are distinct ids.
+
+**Error boundary:**
+
+- Malformed refs, keys or attribute specs surface as `SignalContractError`
+  (not `StateContractError`), with the original as `__cause__`.
+- `SignalContractError` is not a `StateContractError`.
+
+**Attributes and forbidden fields:**
+
+- a typed attribute is accepted;
+- an undeclared, wrong-dtype or missing required attribute is rejected;
+- each forbidden name is rejected directly and through `attr_`;
+- a definition declaring a forbidden attribute is rejected.
+
+**Determinism:**
+
+- shuffled input rows give identical canonical output;
+- simultaneous `INCOMPARABLE` signals sort deterministically without
+  implying chronology.
+
+**State interop:**
+
+- a Signal with `trigger_ref = STATE_TRANSITION:<id>` built with M7A
+  `assign_transition_ids` on a synthetic namespace, at the same causal key
+  as that transition, is valid.
+- No real lifecycle is involved.
+
+### B.15 Anti-overengineering
+
+M7B does not include:
+
+- a registry or discovery mechanism;
+- an event bus;
+- a graph or database;
+- a source resolver;
+- a strategy DSL;
+- a lifetime engine or signal state machine;
+- tick ingestion;
+- execution integration.
+
+M7B is only the reusable Signal envelope.
+
+### B.16 Design-authority questions
+
+- **Q1. Require `subject_kind`.** Recommend **yes**. There is no
+  contrary repository evidence, and it mirrors `entity_kind`.
+- **Q2. Simplified `allowed_directions`.** Recommend **yes**. The only
+  edge is that a directed definition cannot emit a null direction and must
+  list NEUTRAL instead.
+- **Q3. Identity includes `trigger_ref` and canonical `source_refs`.**
+  Recommend **yes**, matching M7A.
+- **Q4. `available_*` in `signal_id`.** Recommend **no**.
+- **Q5. Duplicate natural-key rejection only, or also a semantic-event
+  key.** Recommend **duplicate ids plus the semantic-event uniqueness of
+  B.7 Rule 2.**
+  - Natural-key rejection alone is weaker than intended, because the key
+    contains provenance.
+  - *Alternative:* natural-key duplicates only, which allows the same
+    event to be recorded twice with different supporting refs.
+- **Q6. Cross-layer source causal resolution.** Recommend **deferring
+  it**.
+- **Q7. Import shared primitives from `src/state/contract.py` without
+  refactoring.** Recommend **yes**.
+- **Q8. Signal materialization / alignment utilities in M7B.** Recommend
+  **no**.
+- **Q9. Private M7A helpers: resolved (2026-10-01).**
+  - Only public M7A semantics are reused; no underscore helpers are
+    imported.
+  - Small local Signal plumbing helpers are allowed.
+  - There is no M7A refactor.
+  - `SignalContractError(ValueError)`, with State errors re-raised through
+    chaining (B.12).
+- **Q10 (new). `reason_code`.** Recommend **omitting it** from Signal. It
+  is available in State; for Signals the type carries the meaning.

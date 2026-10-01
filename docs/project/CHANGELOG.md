@@ -12,6 +12,18 @@ Areas: `ARCH`, `FEATURE`, `STATE`, `SIGNAL`, `EXECUTION`, `METHOD`, `DATA`,
 
 ## Unreleased
 
+- 2026-10-01 — [SIGNAL/ARCH] M7B generic Signal contract (D-132). M7 is
+  complete.
+  - Added `src/signals/contract.py`, which provides:
+    - `SignalDefinitionSpec`, `SignalContractError`, `DIRECTIONS`,
+      `FORBIDDEN_EXECUTION_FIELDS`;
+    - `signal_id`, using the full SHA-256;
+    - `assign_signal_ids` and `validate_signals`.
+  - It reuses the public M7A primitives; M7A is unchanged.
+  - Added `tests/test_signal_contract.py` (28 tests), synthetic definitions
+    only.
+  - Full suite: 474 passed.
+
 - 2026-10-01 — [STATE/ARCH] M7A generic State contract (D-129).
   - Added `src/state/contract.py`. It provides:
     - `StateNamespaceSpec`, `AttributeSpec` and `SourceRef`;

@@ -4,26 +4,52 @@ Answers: **"Where exactly are we now?"** Update this after every meaningful
 task. Keep entries short. History goes in [CHANGELOG](CHANGELOG.md) and
 rationale in [DECISION_LOG](DECISION_LOG.md).
 
-_Last updated: 2026-09-30_
+_Last updated: 2026-10-01_
 
 ## Current focus
 
 Architecture cleanup before ICT liquidity work. Milestones proceed one at a
 time with explicit approval (D-117).
 
-- **M1–M5A are merged into `main`:** PR #1 (`7dfa78b`), PR #2 (`e47d7de`) and
-  PR #3 (`30a87cf`, M5A approved / frozen).
-- **M5B (ORB consumes the generic catalog) is done** but uncommitted, on
-  branch `m5b-orb-market-context-migration` (from `30a87cf`). It awaits
-  review. Market Context migration is complete (D-125).
-- **M6** (generic level interactions) is next, after M5B review and freeze.
+- **M1–M5B are merged into `main`:** PR #1 (`7dfa78b`), PR #2 (`e47d7de`),
+  PR #3 (`30a87cf`, M5A approved / frozen) and PR #4 (`8fea836`, M5B: ORB
+  consumes the generic catalog, D-125). Market Context migration is
+  complete.
+- **M6A (generic level interactions) is implemented and validated**, but
+  uncommitted, on branch `m6-level-interactions-spec`. Spec rev 3:
+  `docs/project/M6_LEVEL_INTERACTIONS_SPEC.md` (D-126, D-127). **Next:
+  M6B**, the ORB migration with parity, which needs explicit approval. M6 is
+  not complete until M6B passes.
 - **D1 is DEFERRED** (D-123). Feature work must be continuity-aware.
 - ICT feature work is on hold until the next design run, which will specify
   External and Internal Liquidity together.
 
 ## Last completed work
 
-- **2026-09-30 — M5B ORB Market Context migration** (uncommitted).
+- **2026-10-01 — M6A generic Level Interaction catalog** (uncommitted).
+  - Added `src/features/level_interactions.py` and
+    `tests/test_level_interactions.py` (29 tests / 35 subtests).
+  - Applicability bounds (D-127): `bar_start ≥ max(available_at, valid_from)`
+    and `bar_start < valid_until`. Pending rows only for the confirming bar
+    inside the window.
+  - Full suite: 381 passed, 215 subtests. That is the M5B baseline of 352
+    plus 29 M6A tests.
+  - DEVELOPMENT, read-only: 3,379,242 pairs with zero invariant, causality,
+    window, scope, contract or NA-shape failures. There are 0
+    `CONTRACT_MISMATCH` rows and no off-grid levels in the data.
+  - Visual review of 12 cases passes. HTML is local; price-free CSVs are in
+    `reports/validation/m6a_*`.
+  - ORB untouched.
+- **2026-09-30 — M6 specification rev 2** (docs only). All nine
+  design-authority decisions are incorporated (D-126):
+  - far-side support via `approach_side`;
+  - `NEUTRAL` orientation with `AMBIGUOUS_APPROACH`;
+  - `valid_until`;
+  - off-grid levels using exact first-tradable prices;
+  - `SPECIFIC` / `AGNOSTIC` contract scope;
+  - raw offset ticks.
+  Three minor questions remain (spec §19 a–c). M6A awaits final approval.
+- **2026-09-30 — M5B ORB Market Context migration** (merged, PR #4).
   - Added `src/experiments/orb_market_context_compat.py`,
     `config/features/market_context_compatibility.json`, and
     `tests/test_orb_market_context_compat.py` (11 tests).
@@ -137,8 +163,9 @@ time with explicit approval (D-117).
   2. ~~M3 timeframe builder (on demand)~~ (done 2026-09-29)
   3. ~~M4 derived-data persistence~~ (done 2026-09-29)
   4. ~~M5A generic Market Context library~~ (approved / frozen 2026-09-30)
-  5. ~~M5B ORB Market Context migration~~ (done 2026-09-30; review pending)
-  6. **M6** level-interaction primitives (**NEXT** after M5B review/freeze)
+  5. ~~M5B ORB Market Context migration~~ (merged 2026-09-30)
+  6. **M6** level-interaction primitives: **M6A implemented and validated**;
+     M6B (ORB migration / parity) next
   7. M7 State/Signal contracts
   8. ICT reusable feature library (after the joint External/Internal
      Liquidity design)
@@ -198,14 +225,19 @@ Items 5 and 7 and the reason vocabulary were settled for M5A (D-124):
 
 ## Recent test status
 
+- 2026-10-01 (M6A), `tests/test_level_interactions.py`: **29 passed**
+  (35 subtests).
+- 2026-10-01 (M6A), full suite: **381 passed, 0 failed** (215 subtests).
+  That is the M5B baseline of 352 plus the 29 new M6A tests, and the
+  subtests are 180 + 35. This is the current baseline.
 - 2026-09-30 (M5B), `tests/test_orb_market_context_compat.py`: **11 passed**
   (6 subtests), including the frozen-oracle parity test (it skips if local
   DEVELOPMENT data is absent).
 - 2026-09-30 (M5B), `tests/test_mnq_orb_v02_features.py` **26 passed**;
   `tests/test_session_context.py` **33 passed**.
 - 2026-09-30 (M5B), full suite: **352 passed, 0 failed** (180 subtests).
-  That is the 341 baseline plus the 11 new tests. This is the current
-  baseline.
+  That is the 341 baseline plus the 11 new tests. This was the last frozen
+  baseline before M6A.
 - 2026-09-29 (M5A), `tests/test_session_context.py`: **33 passed**
   (39 subtests).
 - 2026-09-29 (M5A), full suite: **341 passed, 0 failed** (174 subtests).

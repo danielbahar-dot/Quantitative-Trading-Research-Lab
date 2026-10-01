@@ -15,17 +15,42 @@ time with explicit approval (D-117).
   PR #3 (`30a87cf`, M5A approved / frozen), PR #4 (`8fea836`, M5B: ORB
   consumes the generic catalog, D-125) and PR #5 (`372c9e2`, M6A generic
   level interactions, D-126 / D-127).
-- **M6 is complete.** M6B (ORB consumes M6A with exact frozen parity, D-128)
-  is done but uncommitted, on branch `m6b-orb-level-interaction-migration`.
-  Spec rev 4: `docs/project/M6_LEVEL_INTERACTIONS_SPEC.md` §21.
-- **Next: M7**, the minimal State/Signal contracts. It needs a design run
-  and explicit approval.
+- **M6 is complete** and merged (PR #6, `0d0e917`; M6B: ORB consumes M6A
+  with exact frozen parity, D-128).
+- **M7A (generic State contract) is implemented and validated**, but
+  uncommitted, on branch `m7-state-signal-contracts`. Spec rev 3 is
+  approved (D-129). **Next: M7B**, the Signal contract. M7 is not
+  complete.
 - **D1 is DEFERRED** (D-123). Feature work must be continuity-aware.
 - ICT feature work is on hold until the next design run, which will specify
   External and Internal Liquidity together.
 
 ## Last completed work
 
+- **2026-10-01 — M7A generic State contract** (uncommitted).
+  - The spec was updated first (rev 3, §0 normative), and D-129 recorded.
+  - Added `src/state/__init__.py`, `src/state/contract.py` and
+    `tests/test_state_contract.py` (46 tests / 40 subtests).
+  - `decision_offset` was removed (D-131). `validate_transitions` checks log
+    integrity, causality, provenance and replay; exact trigger eligibility
+    is owned upstream.
+  - The final-validation amendments are D-130 (rev 3.1): a sequence domain,
+    a required `trigger_ref`, strict consumers, and no default bar
+    timeframe.
+  - **Contract:**
+    - an event-based transition log with causal keys
+      `(at, seq_domain, seq)`;
+    - a `StateNamespaceSpec` with a required `initial_state` and no
+      creation transition;
+    - a caller-provided entity applicability frame;
+    - one transition per entity + namespace + causal source event;
+    - full SHA-256 ids and a typed `SourceRef`.
+  - **Utilities:** `validate_transitions`, `state_as_of`,
+    `materialize_state_to_observations` (the generic core) and
+    `materialize_state_to_bars` (a `BAR_END` wrapper that keeps
+    `bar_start ≥ available_at`).
+  - Validation is synthetic only; no real lifecycle exists yet. M5 and M6
+    are unchanged.
 - **2026-10-01 — M6B ORB level-interaction migration** (uncommitted).
   - Added `src/experiments/orb_level_interaction_compat.py` and
     `tests/test_orb_level_interaction_compat.py` (19 tests).
@@ -180,7 +205,8 @@ time with explicit approval (D-117).
   5. ~~M5B ORB Market Context migration~~ (merged 2026-09-30)
   6. **M6** level-interaction primitives: **COMPLETE** (M6A merged; M6B
      exact ORB parity)
-  7. M7 State/Signal contracts (**next**)
+  7. M7 State/Signal contracts: **M7A implemented and validated**; M7B
+     (Signals) next
   8. ICT reusable feature library (after the joint External/Internal
      Liquidity design)
   9. M8 test tiers

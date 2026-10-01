@@ -12,6 +12,23 @@ Areas: `ARCH`, `FEATURE`, `STATE`, `SIGNAL`, `EXECUTION`, `METHOD`, `DATA`,
 
 ## Unreleased
 
+- 2026-10-01 — [STATE/ARCH] M7A generic State contract (D-129).
+  - Added `src/state/contract.py`. It provides:
+    - `StateNamespaceSpec`, `AttributeSpec` and `SourceRef`;
+    - `transition_id`, using the full SHA-256;
+    - causal-key helpers;
+    - `validate_transitions`, `state_as_of`,
+      `materialize_state_to_observations` and `materialize_state_to_bars`.
+  - The contract is event / observation based rather than bar-specific,
+    with optional `(seq_domain, seq)` pairs.
+  - Each transition has a required `trigger_ref`, and consumers are strict
+    (D-130).
+  - `validate_transitions` has no `decision_offset`; trigger eligibility is
+    owned upstream (D-131).
+  - Added `tests/test_state_contract.py` (46 tests), synthetic namespaces
+    only.
+  - M7 spec rev 3 is approved. No Signals yet, and M5, M6 and ORB are
+    unchanged.
 - 2026-10-01 — [FEATURE/ARCH] M6B ORB level-interaction migration (D-128).
   M6 is complete.
   - Added `src/experiments/orb_level_interaction_compat.py`. Each aggregated

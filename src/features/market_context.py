@@ -340,66 +340,9 @@ def ny_open_gap_context(
     }
 
 
-def level_interaction(
-    *,
-    level: float,
-    or_open: float,
-    or_high: float,
-    or_low: float,
-    or_close: float,
-    or_mid: float,
-) -> dict[str, Any]:
-    """Deterministic OR relationship to a price known before OR completion."""
-    if any(pd.isna(value) for value in (level, or_open, or_high, or_low, or_close, or_mid)):
-        return {
-            "available": False,
-            "start_side": None,
-            "distance_from_or_high_points": np.nan,
-            "distance_from_or_low_points": np.nan,
-            "distance_from_or_mid_points": np.nan,
-            "distance_from_or_high_pct": np.nan,
-            "distance_from_or_low_pct": np.nan,
-            "distance_from_or_mid_pct": np.nan,
-            "touched": False,
-            "traded_through": False,
-            "swept": False,
-            "closed_through": False,
-            "rejected": False,
-        }
-    start_side = "BELOW" if or_open < level else ("ABOVE" if or_open > level else "AT")
-    touched = bool(or_low <= level <= or_high)
-    if start_side == "BELOW":
-        traded_through = bool(or_high > level)
-        closed_through = bool(or_close > level)
-        swept = bool(traded_through and or_close <= level)
-        rejected = bool(touched and or_close <= level)
-    elif start_side == "ABOVE":
-        traded_through = bool(or_low < level)
-        closed_through = bool(or_close < level)
-        swept = bool(traded_through and or_close >= level)
-        rejected = bool(touched and or_close >= level)
-    else:
-        # With no original side, directional through/reject/sweep states are
-        # intentionally undefined and represented as false primitive flags.
-        traded_through = False
-        closed_through = False
-        swept = False
-        rejected = False
-    return {
-        "available": True,
-        "start_side": start_side,
-        "distance_from_or_high_points": level - or_high,
-        "distance_from_or_low_points": level - or_low,
-        "distance_from_or_mid_points": level - or_mid,
-        "distance_from_or_high_pct": _safe_divide(level - or_high, or_mid),
-        "distance_from_or_low_pct": _safe_divide(level - or_low, or_mid),
-        "distance_from_or_mid_pct": _safe_divide(level - or_mid, or_mid),
-        "touched": touched,
-        "traded_through": traded_through,
-        "swept": swept,
-        "closed_through": closed_through,
-        "rejected": rejected,
-    }
+# ORB key-level interactions (formerly ``level_interaction``) are evaluated by
+# the generic M6A engine through ``src.experiments.orb_level_interaction_compat``
+# (M6B).
 
 
 def interaction_state(took_high: bool, took_low: bool) -> str:

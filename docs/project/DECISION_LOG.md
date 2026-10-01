@@ -654,7 +654,7 @@ repository. For D-101 onward the date is when it was recorded here
     compatibility reduces to the legacy `AT` rule and schema mapping.
   - Evaluator statuses: `EVALUATED`, `AMBIGUOUS_APPROACH`, `PENDING_LEVEL`,
     `CONTRACT_MISMATCH`.
-- **Status:** ACTIVE (implemented in M6A, 2026-10-01; M6B pending).
+- **Status:** ACTIVE (implemented in M6A; ORB migrated in M6B, D-128).
 - **Revisit trigger:** M6A validation findings; State-layer design
   (retests, `GAP_THROUGH`).
 - **Update 2026-10-01:** final answers a/b/c applied, with `valid_until`
@@ -686,6 +686,36 @@ repository. For D-101 onward the date is when it was recorded here
   M6A validated).
 - **Revisit trigger:** level types with non-session applicability (swings,
   FVG) during State-layer design.
+
+### D-128 — ORB consumes the generic Level Interaction catalog (M6B)
+- **Date:** 2026-10-01
+- **Decision:**
+  - M6A (`src/features/level_interactions.py`) is the sole authority for
+    level-interaction primitives.
+  - Frozen ORB V0.2 consumes it through
+    `src/experiments/orb_level_interaction_compat.py`. The legacy
+    `market_context.level_interaction` is removed.
+  - Aggregated OR-window evaluation is an **ORB consumer pattern**, not the
+    generic primitive definition: one explicit aggregated bar, with
+    `valid_from` / `valid_until` = the window and `available_at` = the
+    window start (ORB's historical contract).
+  - The **only compatibility rule** is open-at-level: `approach_side == AT`
+    forces the four directional flags to False.
+  - ORB distances, `available`, the schema and its order stay in the
+    adapter. Stateful first-interaction logic stays in the London
+    characterization script.
+- **Reason:** Remove duplicated interaction mathematics while preserving
+  frozen research exactly.
+- **Consequences:**
+  - Exact parity on all 234 `level_*` oracle columns (and all 474), with 0
+    mismatches.
+  - Removing the AT rule breaks 718 frozen rows; a test guards this.
+  - Synthetic ORB / London test fixtures were snapped to the 0.25 tick grid,
+    with assertions unchanged (design-authority choice).
+  - M6 is complete; M7 is next.
+- **Status:** ACTIVE.
+- **Revisit trigger:** any new ORB work. It must use the generic API, not
+  the adapter.
 
 ### PROPOSED items awaiting design-authority approval (2026-09-28)
 Claude recommendations from the architecture closeout; **not decisions**:

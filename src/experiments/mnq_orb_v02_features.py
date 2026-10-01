@@ -18,6 +18,11 @@ import pandas as pd
 import plotly.graph_objects as go
 
 from src.data.sessions import SessionSpec
+from src.experiments.orb_level_interaction_compat import (
+    ORB_INTERACTION_FIELDS,
+    orb_level_window_records,
+    orb_window_interactions,
+)
 from src.experiments.orb_market_context_compat import orb_window_summaries
 from src.features.market_context import (
     ET_TIMEZONE,
@@ -27,7 +32,6 @@ from src.features.market_context import (
     calculate_or_context,
     gap_context,
     interaction_state,
-    level_interaction,
     load_context_windows,
     ny_open_gap_context,
     expected_bar_end_index,
@@ -130,6 +134,8 @@ def build_feature_audit(
         for session_date in session_dates
     }
     rows: list[dict[str, Any]] = []
+    interaction_records: list[dict[str, Any]] = []
+    interaction_slots: list[tuple[int, str]] = []
 
     for session_offset, session_date in enumerate(session_dates):
         session_rows = sessions[session_date]
@@ -153,20 +159,18 @@ def build_feature_audit(
         base.update(_liquidity_path(window_summaries))
 
         levels = _key_levels(base)
+        or_start = pd.Timestamp.combine(session_date, time(9, 30)).tz_localize(ET_TIMEZONE)
         for duration in durations:
             or_context = calculate_or_context(session_rows, session_date, int(duration))
             row = {**base, **or_context}
             for level_id, level in levels.items():
                 row[f"{level_id}_price"] = level
-                relation = level_interaction(
-                    level=level,
-                    or_open=row["or_open"],
-                    or_high=row["or_high"],
-                    or_low=row["or_low"],
-                    or_close=row["or_close"],
-                    or_mid=row["or_mid"],
-                )
-                row.update({f"level_{level_id}_{key}": value for key, value in relation.items()})
+                # Placeholders keep the frozen column order; filled below from M6A (M6B).
+                row.update({f"level_{level_id}_{key}": None for key in ORB_INTERACTION_FIELDS})
+            interaction_records.extend(orb_level_window_records(
+                levels, row, or_start, or_start + pd.Timedelta(minutes=int(duration)),
+            ))
+            interaction_slots.extend((len(rows), level_id) for level_id in levels)
             row.update(_expansion_ratios(row))
             row["row_feature_complete"] = bool(
                 row["or_feature_available"]
@@ -174,6 +178,12 @@ def build_feature_audit(
             )
             rows.append(row)
 
+    # Key-level interactions: one generic M6A evaluation of every aggregated OR
+    # window through the ORB compatibility adapter.
+    if interaction_records:
+        relations = orb_window_interactions(pd.DataFrame(interaction_records))
+        for (position, level_id), relation in zip(interaction_slots, relations):
+            rows[position].update({f"level_{level_id}_{key}": value for key, value in relation.items()})
     output = pd.DataFrame(rows)
     output = add_causal_width_history(output, lookbacks=lookbacks)
     if output.duplicated(["session_date", "or_minutes"]).any():

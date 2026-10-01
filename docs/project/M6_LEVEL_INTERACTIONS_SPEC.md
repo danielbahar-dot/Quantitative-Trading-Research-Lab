@@ -1,12 +1,17 @@
 # M6 — Generic Level Interaction Catalog: Specification
 
-**Status: rev 3. M6A IMPLEMENTED AND VALIDATED (2026-10-01); M6B (ORB
-migration / parity) is next. M6 is not complete until M6B passes.** It
-incorporates the design-authority decisions of 2026-09-30 (**D-126**) and the
-applicability-bound decision of 2026-10-01 (**D-127**).
+**Status: rev 4. M6 COMPLETE (2026-10-01).** M6A (generic engine) is
+implemented and validated. M6B (ORB migration) achieved exact frozen
+parity; see §21. It incorporates the design-authority decisions of
+2026-09-30 (**D-126**), the applicability-bound decision of 2026-10-01
+(**D-127**), and the ORB migration decision (**D-128**).
 
-Implementation: `src/features/level_interactions.py`; tests:
-`tests/test_level_interactions.py`; validation evidence: §17 and §20.
+- **Implementation:** `src/features/level_interactions.py` (generic
+  authority) and `src/experiments/orb_level_interaction_compat.py` (ORB
+  consumer / compatibility adapter).
+- **Tests:** `tests/test_level_interactions.py`,
+  `tests/test_orb_level_interaction_compat.py`.
+- **Validation evidence:** §17, §20, §21.
 
 Related: [M5_MARKET_CONTEXT_SPEC](M5_MARKET_CONTEXT_SPEC.md) ·
 [DECISION_LOG](DECISION_LOG.md) (D-115, D-118, D-123–D-126) ·
@@ -24,6 +29,10 @@ and per bar.
 ---
 
 ## 1. Existing ORB interaction logic
+
+This section describes the pre-M6B state. Since M6B, `level_interaction`
+has been removed from `market_context.py`, and ORB evaluates through M6A via
+`orb_level_interaction_compat.py` (§21).
 
 | Where | What | Unit | Orientation | Tick | State |
 |---|---|---|---|---|---|
@@ -344,7 +353,8 @@ clipped variants are added; a derived clipped penetration is trivially
 3. **Parity.** Exact parity against all 234 frozen `level_*` columns; 0
    mismatches required.
 4. **Negative test.** The generic `AT` rule *would* differ on the 3 frozen
-   `asia_high` `AT` rows. This protects the adapter from removal.
+   `asia_high` `AT` rows. This protects the adapter from removal. In the
+   implementation, removal breaks 718 frozen AT rows; see §21.
 5. **Scope.** Class C and D logic stays in ORB.
 
 ## 16. Required M6A unit tests (synthetic)
@@ -502,3 +512,79 @@ original-side rejection, far-side rejection, NEUTRAL touch, NEUTRAL
 ambiguous, pending confirming bar, level known before `valid_from`, final
 eligible bar ending at `valid_until`, and synthetic off-grid. All agree with
 §6–§9.
+
+## 21. M6B ORB migration results (2026-10-01, D-128)
+
+**Path migrated.** The frozen ORB `level_interaction` in
+`src/features/market_context.py` (18 key levels × 13 fields, per session ×
+OR duration in `mnq_orb_v02_features.build_feature_audit`) was removed. ORB
+now goes through `src/experiments/orb_level_interaction_compat.py`, which
+calls `evaluate_level_interactions` (M6A) and does not reimplement any
+primitive formula.
+
+**Classification:**
+
+| Class | Behavior | Where |
+|---|---|---|
+| A (generic, reused) | TOUCH, TRADE_THROUGH, CLOSE_THROUGH, REJECT, SWEEP; geometric `approach_side` (= ORB `start_side`) | M6A |
+| B (compatibility) | open-at-level rule; aggregated OR-window evaluation; historical 13-field schema and column order; `available` flag | adapter |
+| C (strategy-specific) | OR distance fields (points and `% of or_mid`); ORB categorical labels (`derive_frozen_interaction_state` / `derive_interaction_category`) | adapter / London script |
+| D (stateful) | `first_interaction_timestamps` (first touch / first trade-through per bar) | London characterization script (unchanged) |
+
+**Adapter (consumer pattern, not the generic definition):**
+
+- **Aggregated window.** Each OR is one explicit aggregated OHLC bar over
+  [09:30, 09:30 + duration), evaluated with `bar_interval = duration`.
+- **Bounds.** Each level gets `valid_from = window_start` and
+  `valid_until = window_end`, so it pairs only with its own window.
+- **Availability.** `available_at = window_start`. This is ORB's historical
+  contract that key levels are known before OR completion; the adapter
+  declares it and does not re-verify it.
+- **Contract scope.** `AGNOSTIC`, because ORB never compared contracts.
+- **Orientation** is semantic: `_high` UPPER, `_low` LOWER, closes and
+  reference prices NEUTRAL. It is proven not to affect ORB output.
+- **The only compatibility rule** applies when the window opens exactly at
+  the level (`approach_side == AT`). The adapter keeps generic
+  `touched = True` and forces `traded_through`, `closed_through`,
+  `rejected` and `swept` to `False`. Generic M6A behavior is unchanged:
+  directional AT is original side, and NEUTRAL AT is `AMBIGUOUS_APPROACH`.
+- **Equivalence for BELOW / ABOVE.** M6A matches the frozen strict-`>` /
+  `<` formulas for all on-grid bars and for any level. It is proven by
+  randomized tests against a verbatim frozen reference kept in the test
+  file.
+
+**Parity** against
+`experiments/projects/mnq_orb_v0_2/features/mnq_orb_v0_2_stage2_completion_DEV_feature_audit.csv`
+(committed `0120af8`, SHA-256
+`7543579877a74a76bbba916a453ca341e08f09d60af9a619bfe64b1cc1017f3b`,
+unmodified):
+
+- 744 × 474, column order identical.
+- All 234 `level_*` columns (18 × 13) show **0 mismatches** for every field
+  and level, and all 474 columns show 0 mismatches.
+- Frozen `start_side`: ABOVE 6,422; BELOW 5,442; AT 718.
+- AT rows by level: `ny_open_reference` 706 (it *is* the OR open), and 3
+  each for `asia_high`, `globex_reopen`, `globex_reopen_prior_1700_close`
+  and `previous_day_close`.
+- **Negative test.** Without the AT rule, 718 frozen rows break on
+  `traded_through` / `closed_through` / `swept` / `rejected` only.
+
+**Generic regression guard:**
+
+- `level_interactions.py` and its tests are unchanged.
+- The regenerated M6A DEVELOPMENT summary and case CSVs are
+  content-identical to the committed M6A baseline.
+
+**Fixture note (design-authority choice).** Synthetic test fixtures were
+off the 0.25 tick grid, and M6A rejects off-grid bars. Both were snapped to
+the grid, with assertions unchanged:
+
+- `test_mnq_orb_v02_features.make_owned_session`: the +0.01/min drift is
+  floored to 0.25 steps; this affected 5 tests.
+- The London characterization `_synthetic_inputs`: 101.2 → 101.25,
+  98.8 → 98.75, and the stated OR widths are 2.5 / 2.25; this affected 3
+  tests.
+
+**Tests:** `tests/test_orb_level_interaction_compat.py` adds 19 tests. Full
+suite: **400 passed**, 215 subtests. That is the post-M6A baseline of 381
+plus 19.

@@ -12,6 +12,21 @@ Areas: `ARCH`, `FEATURE`, `STATE`, `SIGNAL`, `EXECUTION`, `METHOD`, `DATA`,
 
 ## Unreleased
 
+- 2026-10-01 — [FEATURE/ARCH] M6B ORB level-interaction migration (D-128).
+  M6 is complete.
+  - Added `src/experiments/orb_level_interaction_compat.py`. Each aggregated
+    OR window is evaluated through the M6A engine. The only compatibility
+    rule is open-at-level (AT → directional flags False). ORB distances and
+    the 13-field schema are kept.
+  - `build_feature_audit` now makes one batched M6A evaluation.
+  - Removed `market_context.level_interaction`. The London characterization
+    script and the ORB feature tests import the adapter's legacy-signature
+    `level_interaction` instead.
+  - Exact frozen parity on all 234 `level_*` columns (and all 474).
+  - Added `tests/test_orb_level_interaction_compat.py` (19 tests).
+  - Snapped two synthetic test fixtures to the 0.25 tick grid, with
+    assertions unchanged.
+  - Full suite: 400 passed.
 - 2026-10-01 — [FEATURE] M6A generic Level Interaction catalog (D-126,
   D-127).
   - Added `src/features/level_interactions.py`, a stateless per-bar

@@ -20,7 +20,8 @@ from src.experiments.mnq_orb_v02_width_characterization import (
     DEVELOPMENT_END,
     DEVELOPMENT_START,
 )
-from src.features.market_context import ET_TIMEZONE, level_interaction
+from src.experiments.orb_level_interaction_compat import level_interaction
+from src.features.market_context import ET_TIMEZONE
 
 
 EXPERIMENT_ID = "mnq_orb_v0_2_stage3b_london_interaction_event_characterization"

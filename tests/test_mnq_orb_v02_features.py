@@ -12,13 +12,13 @@ from src.experiments.mnq_orb_v02_features import (
     build_representative_review_queue,
     build_window_availability_audit,
 )
+from src.experiments.orb_level_interaction_compat import level_interaction
 from src.features.market_context import (
     WindowDefinition,
     add_causal_width_history,
     calculate_or_context,
     expected_bar_end_index,
     gap_context,
-    level_interaction,
     ny_open_gap_context,
     summarize_window,
 )
@@ -45,7 +45,9 @@ def make_owned_session(session_date: str, base: float = 100.0) -> pd.DataFrame:
         day + pd.Timedelta(hours=17),
         freq="min", tz=ET,
     )
-    offset = np.arange(len(index), dtype=float) * 0.01
+    # Same slow drift, snapped to the MNQ 0.25 tick grid: key-level interactions
+    # now run through generic M6A, which requires on-grid bar prices (M6B).
+    offset = np.floor(np.arange(len(index), dtype=float) * 0.01 / 0.25) * 0.25
     frame = pd.DataFrame({
         "session_date": day.date(), "contract": "MNQ TEST",
         "open": base + offset, "high": base + offset + .75,

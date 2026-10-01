@@ -164,10 +164,22 @@ at a time with explicit approval (D-117).
     dates are rejected).
   - The window helpers in `market_context.py` are legacy, used only for the
     ORB opening range, the ORB audit and tests.
-- **M6A (generic level interactions): implemented and validated** in
-  `src/features/level_interactions.py` (uncommitted as of 2026-10-01).
-  `docs/project/M6_LEVEL_INTERACTIONS_SPEC.md` rev 3. **M6B (ORB migration
-  with parity) is next; M6 is not complete until it passes.**
+- **M6 (generic level interactions): COMPLETE.** M6A is in
+  `src/features/level_interactions.py` (merged, PR #5) and is the sole
+  generic authority. `docs/project/M6_LEVEL_INTERACTIONS_SPEC.md` rev 4.
+  **M7 is next.**
+  - **M6B (D-128).** ORB consumes M6A via
+    `src/experiments/orb_level_interaction_compat.py`, and
+    `market_context.level_interaction` is removed.
+    - Each OR is evaluated as one aggregated bar. This is an ORB consumer
+      pattern, not the generic definition.
+    - The only compatibility rule is open-at-level: AT forces the
+      directional flags to False.
+    - Parity with the frozen audit (`0120af8`) is exact: 234/234 `level_*`
+      columns. Removing the AT rule breaks 718 rows.
+    - New work must call M6A directly, never the adapter.
+    - M6A requires on-grid bar prices, so synthetic fixtures must use the
+      0.25 grid.
   - Applicability (D-127): optional immutable `valid_from` / `valid_until`.
     A bar is evaluated iff `bar_start ≥ max(available_at, valid_from)` and
     `bar_start < valid_until`. `PENDING_LEVEL` applies only to the

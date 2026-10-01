@@ -19,8 +19,8 @@ High-level only. No deadlines. Status vocabulary: `DONE`, `ACTIVE`, `NEXT`,
 | 2.M4 | Derived-timeframe persistence (Parquet + manifest) | **DONE** (2026-09-29) |
 | 2.M5A | Generic Market Context library (Previous Day, Previous RTH, Asia, London, Overnight, Overnight Context, NY Pre-market); continuity-aware (D-123, D-124) | **DONE — APPROVED / FROZEN** (2026-09-30) |
 | 2.M5B | ORB consumes the generic catalog: compatibility only for the legacy 18:00–09:30 overnight and previous-available-session selection; exact frozen parity (D-125) | **DONE** (2026-09-30; merged, PR #4) |
-| 2.M6 | Generic level-interaction primitives (M6A generic engine; M6B ORB migration with parity); stateless, continuity-aware | **M6A IMPLEMENTED AND VALIDATED** (2026-10-01, uncommitted; D-126, D-127): `src/features/level_interactions.py`. **M6B (ORB migration with parity) is next.** M6 is not complete until M6B passes |
-| 2.M7 | Minimal State/Signal contracts; continuity-aware | PLANNED |
+| 2.M6 | Generic level-interaction primitives (M6A generic engine; M6B ORB migration with parity); stateless, continuity-aware | **COMPLETE** (2026-10-01; D-126–D-128). M6A merged (PR #5): `src/features/level_interactions.py`. M6B (uncommitted): ORB consumes it via `src/experiments/orb_level_interaction_compat.py`, with exact frozen parity on 234/234 columns |
+| 2.M7 | Minimal State/Signal contracts; continuity-aware | **NEXT** (PLANNED; needs a design run) |
 | 2.M8 | Test tiers (unit / golden / integration) | PLANNED |
 | 2.M9 | Legacy ledger deprecation notice | PLANNED |
 | 3 | ICT research family (separate from ORB) | ACTIVE (design) |

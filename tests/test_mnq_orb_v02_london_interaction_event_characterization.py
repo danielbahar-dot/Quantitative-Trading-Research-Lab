@@ -220,18 +220,18 @@ def _synthetic_inputs():
         for timestamp in index:
             if offset == 0:
                 open_price = 99.0
-                high, low, close = 99.5, 98.8, 99.0
+                high, low, close = 99.5, 98.75, 99.0
                 if timestamp >= pd.Timestamp(
                     f"{session_date.isoformat()} 09:40", tz="America/New_York"
                 ):
-                    high = 101.2
+                    high = 101.25
                 if timestamp == pd.Timestamp(
                     f"{session_date.isoformat()} 10:00", tz="America/New_York"
                 ):
                     close = 101.0
             else:
                 open_price = 101.0
-                high, low, close = 101.2, 100.5, 101.0
+                high, low, close = 101.25, 100.5, 101.0
                 if timestamp >= pd.Timestamp(
                     f"{session_date.isoformat()} 09:45", tz="America/New_York"
                 ):
@@ -259,11 +259,11 @@ def _synthetic_inputs():
             "or_last_bar_end": pd.Timestamp(
                 f"{session_date.isoformat()} 10:00", tz="America/New_York"
             ),
-            "or_high": 101.2,
-            "or_low": 98.8 if offset == 0 else 99.0,
+            "or_high": 101.25,
+            "or_low": 98.75 if offset == 0 else 99.0,
             "or_open": 99.0 if offset == 0 else 101.0,
             "or_close": 101.0,
-            "or_width_points": 2.4 if offset == 0 else 2.2,
+            "or_width_points": 2.5 if offset == 0 else 2.25,
         }
         if offset == 0:
             row.update(_level_fields("london_high", 100.0, "BELOW", "CLOSE_THROUGH"))
@@ -282,7 +282,7 @@ def _synthetic_inputs():
         "breakout_timestamp": pd.Timestamp(
             "2024-07-01 10:05", tz="America/New_York"
         ),
-        "breakout_price": 101.2,
+        "breakout_price": 101.25,
         "feature_row_key": "2024-07-01_30m",
         "outcome_definition": "synthetic clean post-signal bars",
     }

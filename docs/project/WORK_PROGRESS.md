@@ -11,22 +11,36 @@ _Last updated: 2026-10-01_
 Architecture cleanup before ICT liquidity work. Milestones proceed one at a
 time with explicit approval (D-117).
 
-- **M1–M5B are merged into `main`:** PR #1 (`7dfa78b`), PR #2 (`e47d7de`),
-  PR #3 (`30a87cf`, M5A approved / frozen) and PR #4 (`8fea836`, M5B: ORB
-  consumes the generic catalog, D-125). Market Context migration is
-  complete.
-- **M6A (generic level interactions) is implemented and validated**, but
-  uncommitted, on branch `m6-level-interactions-spec`. Spec rev 3:
-  `docs/project/M6_LEVEL_INTERACTIONS_SPEC.md` (D-126, D-127). **Next:
-  M6B**, the ORB migration with parity, which needs explicit approval. M6 is
-  not complete until M6B passes.
+- **M1–M6A are merged into `main`:** PR #1 (`7dfa78b`), PR #2 (`e47d7de`),
+  PR #3 (`30a87cf`, M5A approved / frozen), PR #4 (`8fea836`, M5B: ORB
+  consumes the generic catalog, D-125) and PR #5 (`372c9e2`, M6A generic
+  level interactions, D-126 / D-127).
+- **M6 is complete.** M6B (ORB consumes M6A with exact frozen parity, D-128)
+  is done but uncommitted, on branch `m6b-orb-level-interaction-migration`.
+  Spec rev 4: `docs/project/M6_LEVEL_INTERACTIONS_SPEC.md` §21.
+- **Next: M7**, the minimal State/Signal contracts. It needs a design run
+  and explicit approval.
 - **D1 is DEFERRED** (D-123). Feature work must be continuity-aware.
 - ICT feature work is on hold until the next design run, which will specify
   External and Internal Liquidity together.
 
 ## Last completed work
 
-- **2026-10-01 — M6A generic Level Interaction catalog** (uncommitted).
+- **2026-10-01 — M6B ORB level-interaction migration** (uncommitted).
+  - Added `src/experiments/orb_level_interaction_compat.py` and
+    `tests/test_orb_level_interaction_compat.py` (19 tests).
+  - `build_feature_audit` evaluates aggregated OR windows through M6A.
+    `market_context.level_interaction` is removed.
+  - The only compatibility rule is open-at-level. Distances and the schema
+    stay in the adapter.
+  - **Exact parity** with the frozen audit (`0120af8`, SHA-256 `754357…`):
+    234/234 `level_*` columns and 474/474 overall. Removing the AT rule
+    breaks 718 frozen rows.
+  - M6A unchanged; its regenerated DEV summary is identical.
+  - Two synthetic fixtures were snapped to the 0.25 grid, with assertions
+    unchanged (design-authority choice).
+  - Full suite: 400 passed (381 + 19).
+- **2026-10-01 — M6A generic Level Interaction catalog** (merged, PR #5).
   - Added `src/features/level_interactions.py` and
     `tests/test_level_interactions.py` (29 tests / 35 subtests).
   - Applicability bounds (D-127): `bar_start ≥ max(available_at, valid_from)`
@@ -164,9 +178,9 @@ time with explicit approval (D-117).
   3. ~~M4 derived-data persistence~~ (done 2026-09-29)
   4. ~~M5A generic Market Context library~~ (approved / frozen 2026-09-30)
   5. ~~M5B ORB Market Context migration~~ (merged 2026-09-30)
-  6. **M6** level-interaction primitives: **M6A implemented and validated**;
-     M6B (ORB migration / parity) next
-  7. M7 State/Signal contracts
+  6. **M6** level-interaction primitives: **COMPLETE** (M6A merged; M6B
+     exact ORB parity)
+  7. M7 State/Signal contracts (**next**)
   8. ICT reusable feature library (after the joint External/Internal
      Liquidity design)
   9. M8 test tiers
@@ -227,9 +241,16 @@ Items 5 and 7 and the reason vocabulary were settled for M5A (D-124):
 
 - 2026-10-01 (M6A), `tests/test_level_interactions.py`: **29 passed**
   (35 subtests).
+- 2026-10-01 (M6B), `tests/test_orb_level_interaction_compat.py`: **19
+  passed**, including frozen-oracle parity and the compat-removal negative
+  test (both skip if local DEVELOPMENT data is absent). ORB feature, London
+  and key-level characterization tests all pass.
+- 2026-10-01 (M6B), full suite: **400 passed, 0 failed** (215 subtests).
+  That is the post-M6A baseline of 381 plus the 19 new M6B tests. This is
+  the current baseline.
 - 2026-10-01 (M6A), full suite: **381 passed, 0 failed** (215 subtests).
   That is the M5B baseline of 352 plus the 29 new M6A tests, and the
-  subtests are 180 + 35. This is the current baseline.
+  subtests are 180 + 35. This was the baseline before M6B.
 - 2026-09-30 (M5B), `tests/test_orb_market_context_compat.py`: **11 passed**
   (6 subtests), including the frozen-oracle parity test (it skips if local
   DEVELOPMENT data is absent).

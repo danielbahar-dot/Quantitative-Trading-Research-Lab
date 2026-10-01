@@ -167,7 +167,30 @@ at a time with explicit approval (D-117).
 - **M6 (generic level interactions): COMPLETE.** M6A is in
   `src/features/level_interactions.py` (merged, PR #5) and is the sole
   generic authority. `docs/project/M6_LEVEL_INTERACTIONS_SPEC.md` rev 4.
-  **M7 is next.**
+  **M7A (generic State contract) is implemented and validated** in
+  `src/state/contract.py` (D-129; spec rev 3, §0 normative). **M7B (Signals)
+  is next.**
+  - The core is event-based: causal key `(at, seq_domain, seq)` (D-130).
+    `compare_causal` returns BEFORE / AFTER / EQUAL / INCOMPARABLE.
+    Sequences order only within the same domain; anything else at the same
+    `at` is never ordered.
+  - Each transition has a required `trigger_ref`; `source_refs` is
+    optional, canonical provenance.
+  - `validate_transitions(transitions, spec, entities)` has no
+    `decision_offset` (D-131).
+    - It validates log integrity, causality, provenance and replay.
+    - Exact trigger-observation eligibility is owned by the upstream
+      module (M6 for bars).
+    - Exact windows are applied only by `state_as_of` and the
+      materializers.
+  - Consumers are strict (`state_as_of` = "available immediately before the
+    query point"). Only `materialize_state_to_bars` applies the bar-boundary
+    convention, and it needs an explicit `bar_start` or `bar_interval`.
+  - Namespaces declare `initial_state` (no creation transition), edges
+    (including skip edges, no self edges) and terminals (no exits).
+  - Entities are a caller-provided applicability frame.
+  - One transition per entity + namespace + causal source event.
+  - Ids are the full SHA-256 of the natural key.
   - **M6B (D-128).** ORB consumes M6A via
     `src/experiments/orb_level_interaction_compat.py`, and
     `market_context.level_interaction` is removed.

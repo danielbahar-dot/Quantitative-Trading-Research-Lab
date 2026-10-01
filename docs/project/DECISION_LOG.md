@@ -717,6 +717,120 @@ repository. For D-101 onward the date is when it was recorded here
 - **Revisit trigger:** any new ORB work. It must use the generic API, not
   the adapter.
 
+### D-129 — M7 State contract: event-based transition log (M7 spec rev 3)
+- **Date:** 2026-10-01
+- **Decision** (design-authority approval of
+  `docs/project/M7_STATE_SIGNAL_CONTRACTS_SPEC.md` §0):
+  1. State is a **generic envelope**. There is no global vocabulary, reset,
+     persistence or SUSPENDED state; namespaces are module-owned.
+  2. A **transition log** is canonical, and per-observation / per-bar views
+     are derived.
+  3. The core is **event / observation based**, with causal key
+     `(at, seq)`:
+     - strict `≺`;
+     - same `at` without a reliable sequence is simultaneous and never
+       ordered;
+     - sequenced same-timestamp events may be ordered.
+  4. `StateNamespaceSpec`:
+     - fields: `namespace`, `entity_kind`, **required `initial_state`**,
+       states, edges, terminals, version, typed `attr_*`;
+     - **no creation transition**;
+     - no self edges;
+     - terminal states have no outgoing edges.
+  5. A caller-provided **entity applicability frame** (`available_at[/seq]`,
+     `valid_from`, `valid_until`, scope / contract). No state exists outside
+     applicability.
+  6. **One transition per entity + namespace + causal source event.**
+     There are no same-event chains. Skip edges must be declared.
+  7. `transition_at` / `available_at` (with optional sequences) are
+     distinct. **The source observation that creates a transition cannot
+     consume it.** Bars keep `bar_start ≥ available_at` through an explicit
+     bar-boundary convention in the bar wrapper.
+  8. Transition id = **full SHA-256** of the natural key (namespace,
+     version, entity, previous / new state, transition key, canonical
+     source refs).
+  9. A typed `SourceRef(kind, key)`, not bar-specific, with no row numbers.
+     M5 and M6 are unchanged.
+  10. Utilities: `validate_transitions`, `state_as_of`,
+      `materialize_state_to_observations` (the generic core) and
+      `materialize_state_to_bars` (a wrapper) only.
+- **Reason:** reusable, auditable State for future liquidity / FVG / swing
+  modules without assuming 1-minute bars.
+- **Consequences:**
+  - M7A is implemented in `src/state/`.
+  - M7B (Signals) follows the approved §11–§16 design, adjusted to the same
+    causal key, SourceRef and identity rules.
+- **Status:** ACTIVE.
+- **Revisit trigger:**
+  - the first real state module;
+  - the first sequenced source, at which point the sequence domain (Q13)
+    is decided.
+- **Update:** the sequence domain was decided early, in D-130.
+
+### D-130 — M7A validation amendments (spec rev 3.1)
+- **Date:** 2026-10-01
+- **Decision** (design-authority answers during M7A final validation;
+  supersedes the matching parts of D-129 / rev 3):
+  1. **Sequence domain now.**
+     - Causal keys are `(at, seq_domain, seq)`, with domain and sequence
+       co-null.
+     - At equal `at`, ordering requires both sequences in the same domain;
+       otherwise the keys are `EQUAL` (both unsequenced, or the same domain
+       and sequence) or `INCOMPARABLE`.
+     - Domain/sequence pairs exist on transitions, entities, observations
+       and `state_as_of` queries.
+     - The domain is part of identity.
+  2. **Required `trigger_ref`** for the single causal source event.
+     - `source_refs` is optional, canonicalized supporting provenance.
+     - Only one transition is allowed per entity + namespace +
+       `trigger_ref`.
+     - The SHA-256 natural key includes `trigger_ref` and the canonical
+       `source_refs`.
+  3. **Strict consumers.**
+     - `state_as_of` returns the state "available immediately before the
+       query causal point", and `materialize_state_to_observations` is
+       strict too; there is no inclusive mode.
+     - The bar-boundary equality convention exists only in
+       `materialize_state_to_bars`.
+- **Reason:**
+  - It prevents same-event consumption and the inference of order across
+    feeds.
+  - The causal event is identified explicitly.
+- **Consequences:**
+  - `validate_transitions` is causally strict. `decision_offset` initially
+    affected only the static window check; it was later removed (D-131).
+  - `materialize_state_to_bars` requires an explicit `bar_start` or
+    `bar_interval`, with no 1-minute default.
+- **Status:** ACTIVE.
+
+### D-131 — `validate_transitions` does not re-evaluate trigger eligibility (spec rev 3.2)
+- **Date:** 2026-10-01
+- **Decision:**
+  - `decision_offset` is removed. The signature is
+    `validate_transitions(transitions, spec, entities) -> DataFrame`, with
+    no source-duration parameter and no batch-level workaround.
+  - `validate_transitions` validates the integrity, causality, provenance
+    and replay consistency of the transition log. It does **not**
+    independently re-evaluate whether the upstream trigger observation was
+    eligible to interact with the entity; that is owned by the source
+    feature / interaction module (M6 for bars, future modules for ticks).
+  - Retained, because they hold for any observation type:
+    - a well-formed entity applicability record;
+    - entity identity, and instrument / scope / contract consistency;
+    - entity availability `≺` transition key;
+    - `transition_at ≥ valid_from`.
+  - There is no upper-bound rule on `transition_at`.
+  - Exact windows stay in `state_as_of` and the observation / bar
+    materializers.
+  - No `trigger_decision_at` field is added in M7A. It may be reconsidered
+    only if a concrete second use case needs transition-level
+    revalidation.
+- **Reason:**
+  - Observation geometry (tick time, or `bar_start = bar_end − interval`)
+    belongs to the Feature / Interaction layer.
+  - A scalar offset could not support mixed granularities.
+- **Status:** ACTIVE.
+
 ### PROPOSED items awaiting design-authority approval (2026-09-28)
 Claude recommendations from the architecture closeout; **not decisions**:
 ~~Market Context as tidy-DataFrame functions (no MarketContext object)~~

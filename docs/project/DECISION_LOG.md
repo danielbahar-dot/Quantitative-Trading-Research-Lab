@@ -831,6 +831,50 @@ repository. For D-101 onward the date is when it was recorded here
   - A scalar offset could not support mixed granularities.
 - **Status:** ACTIVE.
 
+### D-132 — M7B generic Signal contract (spec "M7B FINAL CONTRACT", B.0)
+- **Date:** 2026-10-01
+- **Decision:** A Signal is an immutable point event describing what
+  happened, never a trade.
+  - **`SignalDefinitionSpec`:**
+    - `signal_type`, a required `subject_kind`, `definition_version`;
+    - `allowed_directions`, a subset of BULLISH / BEARISH / NEUTRAL. Empty
+      means the direction is null; otherwise it must be exactly one of the
+      declared values;
+    - typed `AttributeSpec` attributes, with forbidden execution names
+      rejected.
+  - **Row:**
+    - `signal_id`, type and version, a free-form stable `subject_id`;
+    - event and availability M7A causal keys;
+    - instrument / scope / contract;
+    - `direction`;
+    - a required `trigger_ref` and optional `source_refs`, which must not
+      overlap;
+    - typed `attr_*` columns.
+
+    There is no `reason_code` and no validity window.
+  - **Causality.** It reuses M7A `CausalKey` / `compare_causal`: the event
+    must be BEFORE or EQUAL to availability. A Signal may be created at the
+    same causal event as a StateTransition it describes; consumption needs
+    a later observation.
+  - **Identity.** Full SHA-256 over type, version, instrument, scope,
+    contract, subject, the event key, direction, `trigger_ref` and
+    canonical `source_refs`. Availability and attributes are excluded.
+  - **Uniqueness.** Duplicate ids are rejected, plus at most one Signal per
+    semantic event key: identity minus provenance.
+  - **Boundary.** `validate_signals` does not check trigger eligibility,
+    subject resolution, cross-layer source timing, or strategy / execution
+    eligibility. There is no materialization utility.
+  - **Execution fields.** A finite forbidden list, checked directly and as
+    `attr_*`.
+  - **Errors.** `SignalContractError(ValueError)`; M7A errors are
+    translated with chaining.
+  - **Reuse.** Only public M7A primitives are reused, and M7A is not
+    refactored.
+- **Reason:** a reusable event envelope aligned exactly with the
+  implemented M7A causal, provenance and identity model, with no execution
+  semantics.
+- **Status:** ACTIVE.
+
 ### PROPOSED items awaiting design-authority approval (2026-09-28)
 Claude recommendations from the architecture closeout; **not decisions**:
 ~~Market Context as tidy-DataFrame functions (no MarketContext object)~~

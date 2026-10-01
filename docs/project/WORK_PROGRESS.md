@@ -17,10 +17,12 @@ time with explicit approval (D-117).
   level interactions, D-126 / D-127).
 - **M6 is complete** and merged (PR #6, `0d0e917`; M6B: ORB consumes M6A
   with exact frozen parity, D-128).
-- **M7A (generic State contract) is implemented and validated**, but
-  uncommitted, on branch `m7-state-signal-contracts`. Spec rev 3 is
-  approved (D-129). **Next: M7B**, the Signal contract. M7 is not
-  complete.
+- **M7A (generic State contract) is implemented, validated and merged**
+  (PR #7, `4a0d674`; D-129–D-131).
+- **M7B (generic Signal contract) is implemented and validated**, but
+  uncommitted, on branch `m7b-signal-contract` (D-132). **M7 is
+  complete.** Both contracts are envelopes; no real State lifecycle or
+  Signal family exists yet.
 - **D1 is DEFERRED** (D-123). Feature work must be continuity-aware.
 - ICT feature work is on hold until the next design run, which will specify
   External and Internal Liquidity together.
@@ -205,8 +207,8 @@ time with explicit approval (D-117).
   5. ~~M5B ORB Market Context migration~~ (merged 2026-09-30)
   6. **M6** level-interaction primitives: **COMPLETE** (M6A merged; M6B
      exact ORB parity)
-  7. M7 State/Signal contracts: **M7A implemented and validated**; M7B
-     (Signals) next
+  7. M7 State/Signal contracts: **COMPLETE** (M7A merged; M7B implemented
+     and validated)
   8. ICT reusable feature library (after the joint External/Internal
      Liquidity design)
   9. M8 test tiers
@@ -265,6 +267,12 @@ Items 5 and 7 and the reason vocabulary were settled for M5A (D-124):
 
 ## Recent test status
 
+- 2026-10-01 (M7B), `tests/test_signal_contract.py`: **28 passed** (88
+  subtests). Full suite: **474 passed, 0 failed** (343 subtests). That is
+  the post-M7A baseline of 446 / 255 plus 28 / 88. This is the current
+  baseline.
+- 2026-10-01 (M7A), `tests/test_state_contract.py`: **46 passed** (40
+  subtests). Full suite: **446 passed, 0 failed** (255 subtests).
 - 2026-10-01 (M6A), `tests/test_level_interactions.py`: **29 passed**
   (35 subtests).
 - 2026-10-01 (M6B), `tests/test_orb_level_interaction_compat.py`: **19
@@ -272,8 +280,7 @@ Items 5 and 7 and the reason vocabulary were settled for M5A (D-124):
   test (both skip if local DEVELOPMENT data is absent). ORB feature, London
   and key-level characterization tests all pass.
 - 2026-10-01 (M6B), full suite: **400 passed, 0 failed** (215 subtests).
-  That is the post-M6A baseline of 381 plus the 19 new M6B tests. This is
-  the current baseline.
+  That is the post-M6A baseline of 381 plus the 19 new M6B tests.
 - 2026-10-01 (M6A), full suite: **381 passed, 0 failed** (215 subtests).
   That is the M5B baseline of 352 plus the 29 new M6A tests, and the
   subtests are 180 + 35. This was the baseline before M6B.

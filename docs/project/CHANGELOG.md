@@ -12,6 +12,23 @@ Areas: `ARCH`, `FEATURE`, `STATE`, `SIGNAL`, `EXECUTION`, `METHOD`, `DATA`,
 
 ## Unreleased
 
+- 2026-10-01 — [FEATURE] M6A generic Level Interaction catalog (D-126,
+  D-127).
+  - Added `src/features/level_interactions.py`, a stateless per-bar
+    evaluator:
+    - five primitives (TOUCH, TRADE_THROUGH, CLOSE_THROUGH, REJECT, SWEEP),
+      using exact integer-tick rules that also handle off-grid levels;
+    - UPPER / LOWER / NEUTRAL orientation, with `approach_side` /
+      `approach_relation`;
+    - `SPECIFIC` / `AGNOSTIC` contract scope and raw offset ticks;
+    - `valid_from` / `valid_until` applicability bounds;
+    - an M5 helper.
+  - Added `tests/test_level_interactions.py` (29 tests).
+  - Validation artifacts in `reports/validation/`:
+    - `m6a_level_interactions_dev_summary.csv` and `*_cases.csv` (tracked,
+      price-free);
+    - the visual HTML (local, Git-ignored).
+  - ORB unchanged.
 - 2026-09-30 — [FEATURE/ARCH] M5B ORB Market Context migration.
   - ORB `build_feature_audit` now consumes the generic catalog through
     `src/experiments/orb_market_context_compat.py`.

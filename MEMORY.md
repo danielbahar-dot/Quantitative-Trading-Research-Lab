@@ -149,8 +149,8 @@ at a time with explicit approval (D-117).
   - The visual HTML is local only and Git-ignored (raw prices). The
     price-free cases CSV is tracked.
   - Semantic changes need a new `definition_version`.
-- **M5B, the ORB Market Context migration, is done** (2026-09-30,
-  uncommitted, branch `m5b-orb-market-context-migration`; D-125).
+- **M5B, the ORB Market Context migration, is done** (2026-09-30, merged
+  via PR #4; D-125).
   - The generic catalog is the authority. ORB consumes it via
     `src/experiments/orb_market_context_compat.py`.
   - Compatibility is limited to `orb_overnight_1800_0930`
@@ -164,8 +164,27 @@ at a time with explicit approval (D-117).
     dates are rejected).
   - The window helpers in `market_context.py` are legacy, used only for the
     ORB opening range, the ORB audit and tests.
-- Nothing is authorized next. **M6** (generic level interactions) is next,
-  after M5B review.
+- **M6A (generic level interactions): implemented and validated** in
+  `src/features/level_interactions.py` (uncommitted as of 2026-10-01).
+  `docs/project/M6_LEVEL_INTERACTIONS_SPEC.md` rev 3. **M6B (ORB migration
+  with parity) is next; M6 is not complete until it passes.**
+  - Applicability (D-127): optional immutable `valid_from` / `valid_until`.
+    A bar is evaluated iff `bar_start ≥ max(available_at, valid_from)` and
+    `bar_start < valid_until`. `PENDING_LEVEL` applies only to the
+    confirming bar inside that window. M5 levels use the target session
+    open / close.
+  - D-126 applies. M6 is stateless and per bar, and its
+    orientation is semantic: UPPER, LOWER or NEUTRAL.
+  - Each bar has an `approach_side` (BELOW / ABOVE / AT, from the open) and
+    an `approach_relation` (ORIGINAL_SIDE / FAR_SIDE), so far-side retests
+    are supported. A directional open at the level counts as the original
+    side.
+  - Exact integer-tick rules use `f = floor(L/t)` and `c = ceil(L/t)`, so
+    off-grid levels are allowed; bars must be on the grid.
+  - Statuses: `EVALUATED`, `AMBIGUOUS_APPROACH` (NEUTRAL open at the level),
+    `PENDING_LEVEL`, `CONTRACT_MISMATCH`.
+  - Contract scope is `SPECIFIC` or `AGNOSTIC`. Offsets are raw
+    `open/high/low/close_offset_ticks`. Invalid input raises.
 - The next ICT design run will specify External and Internal Liquidity
   together, including contract rolls, swings, EQ/REQ, and the timeframe
   hierarchy.

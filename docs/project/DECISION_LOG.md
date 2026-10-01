@@ -619,6 +619,74 @@ repository. For D-101 onward the date is when it was recorded here
 - **Revisit trigger:** An ORB reopening; any change to the catalog
   definitions that ORB maps to (the drift guard will fail).
 
+### D-126 — M6 level-interaction design decisions (spec rev 2)
+- **Date:** 2026-09-30
+- **Decision:** For the generic, stateless per-bar Level Interaction catalog
+  (`docs/project/M6_LEVEL_INTERACTIONS_SPEC.md`):
+  1. **Far-side interactions are supported** via a per-bar `approach_side`
+     (`BELOW` / `ABOVE` / `AT`, from the bar open) and `approach_relation`
+     (`ORIGINAL_SIDE` / `FAR_SIDE`). The level `orientation` stays semantic
+     and immutable, never inferred.
+  2. **Gaps.** A bar opening beyond a level is not itself a TOUCH or
+     TRADE_THROUGH. If it returns to the level, that is a far-side
+     interaction. `GAP_THROUGH` is deferred because it needs prior-bar
+     state.
+  3. **`NEUTRAL` orientation** covers genuinely non-directional reference
+     levels. For NEUTRAL with `open == level`, no direction is invented; the
+     row gets the explicit status `AMBIGUOUS_APPROACH`.
+  4. **`valid_until`** (optional) is immutable applicability metadata, not
+     lifecycle state.
+  5. **Invalid input raises.** Schema, OHLC and input errors are never
+     evaluator statuses.
+  6. **Off-grid derived levels are allowed.** Bar prices must be on the tick
+     grid. First tradable prices strictly above and below the level are
+     computed with exact arithmetic (`f = floor(L/t)`, `c = ceil(L/t)`).
+  7. **UPPER/LOWER `open == level`** counts as the original side. ORB's
+     different `AT` behavior is preserved only in the M6B compatibility
+     adapter, if parity requires it.
+  8. **Explicit contract scope** (`SPECIFIC` / `AGNOSTIC`). A null contract
+     is never silently treated as agnostic.
+  9. **Measurements** are raw signed, unclipped
+     `open/high/low/close_offset_ticks`.
+- **Reason:** Design-authority answers to the M6 draft questions.
+- **Consequences:**
+  - ORB `start_side` equals the generic `approach_side`, so M6B's
+    compatibility reduces to the legacy `AT` rule and schema mapping.
+  - Evaluator statuses: `EVALUATED`, `AMBIGUOUS_APPROACH`, `PENDING_LEVEL`,
+    `CONTRACT_MISMATCH`.
+- **Status:** ACTIVE (implemented in M6A, 2026-10-01; M6B pending).
+- **Revisit trigger:** M6A validation findings; State-layer design
+  (retests, `GAP_THROUGH`).
+- **Update 2026-10-01:** final answers a/b/c applied, with `valid_until`
+  completed by `valid_from` (D-127). M6A is implemented and validated.
+
+### D-127 — Level applicability bounds: `valid_from` / `valid_until` (M6A)
+- **Date:** 2026-10-01
+- **Decision:**
+  - `available_at` is the causal knowledge time.
+  - `valid_from` and `valid_until` are optional, immutable static
+    applicability bounds, not lifecycle state.
+  - A bar is evaluated iff `bar_start ≥ max(available_at, valid_from)` and,
+    when set, `bar_start < valid_until`. `bar_end ≤ valid_until` is **not**
+    the generic end rule.
+  - `PENDING_LEVEL` is emitted only for the confirming bar, and only when
+    that bar itself lies inside the static window. This is enforced in the
+    generic engine, not only by helpers.
+  - M5-derived levels set `valid_from` / `valid_until` to the target trading
+    session open / close.
+- **Reason:** M6A DEV validation found `previous_rth` levels (available
+  16:00 on D−1) evaluated on D−1 16:01–17:00 bars, outside their target
+  session. Helper-only filtering was rejected.
+- **Consequences:**
+  - The output carries `valid_from` / `valid_until`.
+  - Input validation raises if `valid_until < available_at` or
+    `valid_until ≤ valid_from`.
+  - DEVELOPMENT shows zero cross-target-session rows.
+- **Status:** ACTIVE (implemented in `src/features/level_interactions.py`,
+  M6A validated).
+- **Revisit trigger:** level types with non-session applicability (swings,
+  FVG) during State-layer design.
+
 ### PROPOSED items awaiting design-authority approval (2026-09-28)
 Claude recommendations from the architecture closeout; **not decisions**:
 ~~Market Context as tidy-DataFrame functions (no MarketContext object)~~

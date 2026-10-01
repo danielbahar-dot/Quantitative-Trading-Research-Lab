@@ -95,3 +95,21 @@ source data was read, not modified.
   **tracked audit artifact**.
 
 Findings: `docs/project/M5_MARKET_CONTEXT_SPEC.md` §10.
+
+## `m6a_level_interactions_*`
+
+M6A Level Interaction validation (2026-10-01). Source: DEVELOPMENT only,
+read-only, using generic M5 levels from `market_context_levels`.
+
+- **`m6a_level_interactions_dev_summary.csv`** (tracked, price-free): pair
+  counts and primitive True-counts by context × field × orientation × status
+  × `approach_side` × `approach_relation`. Frequencies are not performance.
+- **`m6a_level_interactions_visual_validation_cases.csv`** (tracked,
+  price-free): 12 reviewed cases with timestamps, statuses, primitives and
+  offset ticks. It contains no prices. The off-grid case uses a synthetic
+  level (PDH − 0.125).
+- **`m6a_level_interactions_visual_validation.html`** (local, Git-ignored,
+  because it embeds raw prices): candle panels with the level, the case bar,
+  ineligible bars greyed and `PENDING_LEVEL` bars in amber.
+
+Findings: `docs/project/M6_LEVEL_INTERACTIONS_SPEC.md` §20.

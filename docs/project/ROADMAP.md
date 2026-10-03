@@ -19,17 +19,20 @@ High-level only. No deadlines. Status vocabulary: `DONE`, `ACTIVE`, `NEXT`,
 | 2.M4 | Derived-timeframe persistence (Parquet + manifest) | **DONE** (2026-09-29) |
 | 2.M5A | Generic Market Context library (Previous Day, Previous RTH, Asia, London, Overnight, Overnight Context, NY Pre-market); continuity-aware (D-123, D-124) | **DONE — APPROVED / FROZEN** (2026-09-30) |
 | 2.M5B | ORB consumes the generic catalog: compatibility only for the legacy 18:00–09:30 overnight and previous-available-session selection; exact frozen parity (D-125) | **DONE** (2026-09-30; merged, PR #4) |
-| 2.M6 | Generic level-interaction primitives (M6A generic engine; M6B ORB migration with parity); stateless, continuity-aware | **COMPLETE** (2026-10-01; D-126–D-128). M6A merged (PR #5): `src/features/level_interactions.py`. M6B (uncommitted): ORB consumes it via `src/experiments/orb_level_interaction_compat.py`, with exact frozen parity on 234/234 columns |
-| 2.M7 | Minimal State/Signal contracts; continuity-aware | **COMPLETE** (2026-10-01; D-129–D-132). M7A merged (PR #7): generic event-based State contract in `src/state/contract.py`. M7B (uncommitted): generic Signal contract in `src/signals/contract.py`. These are envelopes only; no real State or Signal family is implemented |
+| 2.M6 | Generic level-interaction primitives (M6A generic engine; M6B ORB migration with parity); stateless, continuity-aware | **COMPLETE** (2026-10-01; D-126–D-128). M6A merged (PR #5): `src/features/level_interactions.py`. M6B merged (PR #6): ORB consumes it via `src/experiments/orb_level_interaction_compat.py`, with exact frozen parity on 234/234 columns |
+| 2.M7 | Minimal State/Signal contracts; continuity-aware | **COMPLETE** (2026-10-01; D-129–D-132). M7A merged (PR #7): generic event-based State contract in `src/state/contract.py`. M7B merged (PR #8): generic Signal contract in `src/signals/contract.py`. These are envelopes only; no real State or Signal family is implemented |
 | 2.M8 | Test tiers (unit / golden / integration) | PLANNED |
 | 2.M9 | Legacy ledger deprecation notice | PLANNED |
-| 3 | ICT research family (separate from ORB) | ACTIVE (design) |
-| 3.1 | ICT reusable feature library: External + Internal Liquidity, specified together (HTF context, LTF structure, timeframe hierarchy, swings, EQ/REQ). Continuity-aware; may proceed before D1 | PLANNED |
-| 3.2 | FVG, Rejection Block, MSS | PLANNED (after 3.1) |
-| 4 | Visual and programmatic validation of each ICT primitive, then freeze | PLANNED (per primitive) |
-| 5 | ICT Phase 2: strategy/model construction (Turtle Soup / liquidity-raid candidate) | PLANNED, blocked on Phase 1. Final broad performance validation where roll periods matter needs D1 |
-| 6 | Broader experiment work (more families/instruments, experiment runner) | PLANNED |
-| 7 | NautilusTrader migration/parity using validated features and the ORB oracle | PLANNED (downstream; no refactor now) |
+| 3 | **Generic Market Structure & Liquidity**: methodology-neutral primitives usable by any strategy family (mean reversion, breakout, Wyckoff, SMC/ICT, order flow, statistical). Not ICT-specific (D-133). Continuity-aware; may proceed before D1 | **ACTIVE** |
+| 3.1 | External Liquidity (static): complete Daily H/L, selected session/reference H/L, Daily and 4H EQ/REQ structures (`docs/project/EXTERNAL_LIQUIDITY_SPEC.md`; D-134) | **DESIGN APPROVED — IMPLEMENTATION NEXT** |
+| 3.2 | Internal Liquidity (static): lower-timeframe EQ/REQ and related members, on the same member/structure envelope | PLANNED |
+| 3.3 | Swing Structure (generic; may later qualify HTF/LTF swings as External/Internal liquidity) | PLANNED |
+| 3.4 | Shared Liquidity Lifecycle: consumes 3.1 and 3.2 members, using M6 and M7. Designed only after both static representations exist | PLANNED |
+| 4 | Methodology-specific feature families, downstream of 3 (e.g. ICT/SMC: FVG, IFVG, Order Block, Rejection Block, Mitigation Block). MSS / BOS classification is open: the underlying structural shift may become a generic primitive with methodology-specific interpretation | PLANNED (after 3) |
+| 5 | Visual and programmatic validation of each primitive, then freeze | PLANNED (per primitive) |
+| 6 | Strategy/model construction (e.g. Turtle Soup / liquidity-raid candidate) | PLANNED; blocked on the required primitives. Final broad performance validation where roll periods matter needs D1 |
+| 7 | Broader experiment work (more families/instruments, experiment runner) | PLANNED |
+| 8 | NautilusTrader migration/parity using validated features and the ORB oracle | PLANNED (downstream; no refactor now) |
 | **D1** | **Contract stitching / source-data repair + verified holiday / early-close calendar** (data-quality gate, not an architecture milestone; D-120 as revised by D-123) | **DEFERRED** until required for continuous-history research |
 | — | Frozen ORB previous-day sensitivity analysis around roll gaps (D-121) | PARKED (future, needs authorization) |
 | — | London ORB idea; NY pre-market opposite-side liquidity idea (`research_ideas.json`) | PARKED |
@@ -46,8 +49,8 @@ The M3.1 DEVELOPMENT audit found that:
 These gaps are a **known source-data limitation**. They are not repaired
 now, and feature code must not silently work around them.
 
-**Work that may proceed before D1:** M5, M6, M7, and the ICT reusable feature
-library. These must be **continuity-aware** (D-123; checklist in
+**Work that may proceed before D1:** M5, M6, M7, and the Generic Market
+Structure & Liquidity library (3.x). These must be **continuity-aware** (D-123; checklist in
 [QUALITY_CONTROL](QUALITY_CONTROL.md)):
 
 - never substitute an older available session for a missing expected
@@ -74,10 +77,11 @@ future dedicated task.
 - Architecture milestones are approved and delivered one at a time.
 - Reusable feature work (M5+) may proceed before D1 only if it is
   continuity-aware (D-123).
-- ICT liquidity implementation waits for its joint External/Internal
-  specification.
-- Phase 2 does not start until the required Phase 1 primitives are
-  `APPROVED`/`FROZEN` (see [QUALITY_CONTROL](QUALITY_CONTROL.md)).
+- Liquidity work proceeds in this order: External (3.1) static, then
+  Internal (3.2) static; the Shared Lifecycle (3.4) is designed only after
+  both (D-133).
+- Strategy construction (6) does not start until the required primitives
+  are `APPROVED`/`FROZEN` (see [QUALITY_CONTROL](QUALITY_CONTROL.md)).
 - No ORB optimization cycle restarts without explicit authorization.
 - Nautilus work consumes validated definitions; it does not drive changes
   here.

@@ -122,6 +122,9 @@ repository. For D-101 onward the date is when it was recorded here
   confirm.
 - **Status:** ACTIVE (HTF details PENDING)
 - **Revisit trigger:** Internal Liquidity definition work.
+- **Update 2026-10-03:** clarified and extended by **D-134** (the complete
+  Daily H/L, the 4H candidate-only rule, the Previous Day reference, and
+  the session allowlist). The text above is kept as the historical record.
 
 ### D-105 — EQH / EQL semantics
 - **Date:** 2026-09-24
@@ -328,6 +331,13 @@ repository. For D-101 onward the date is when it was recorded here
   proceed one at a time with explicit approval (M1 approved 2026-09-28).
 - **Status:** ACTIVE
 - **Revisit trigger:** Next ICT design run.
+- **Update 2026-10-03:** (b) and (c) are refined by **D-133**.
+  - External and Internal Liquidity are designed as separate static
+    milestones, with a shared lifecycle designed after both.
+  - Liquidity and swing structure are generic market-structure primitives,
+    not ICT features.
+  - (a) is unchanged: there is still no cross-contract liquidity before
+    roll handling.
 
 ### D-118 — Authoritative instrument metadata (M2)
 - **Date:** 2026-09-29
@@ -874,6 +884,101 @@ repository. For D-101 onward the date is when it was recorded here
   implemented M7A causal, provenance and identity model, with no execution
   semantics.
 - **Status:** ACTIVE.
+
+### D-133 — Generic Market Structure & Liquidity workstream (classification and naming)
+- **Date:** 2026-10-03
+- **Decision:**
+  - External Liquidity, Internal Liquidity, EQ/REQ and Swing Structure are
+    **generic, methodology-neutral market-structure primitives**, usable by
+    mean-reversion, breakout, Wyckoff, SMC/ICT, order-flow, statistical and
+    other families. They are **not** ICT features and are not placed under
+    an ICT hierarchy or prefix.
+  - **Roadmap 3, Generic Market Structure & Liquidity:**
+    - 3.1 External Liquidity (static);
+    - 3.2 Internal Liquidity (static);
+    - 3.3 Swing Structure;
+    - 3.4 Shared Liquidity Lifecycle, designed only after 3.1 and 3.2.
+  - **Roadmap 4** is a separate, downstream methodology-specific family:
+    FVG, IFVG, Order / Rejection / Mitigation Blocks, etc. MSS / BOS
+    classification stays open.
+  - There is no "M8A/M8B/M8C" naming, because 2.M8 / 2.M9 are taken. The
+    spec file is `docs/project/EXTERNAL_LIQUIDITY_SPEC.md`.
+- **Reason:**
+  - These concepts are reused across strategy families.
+  - The previous M-number naming collided with the roadmap.
+- **Consequences:**
+  - Refines D-103 / D-117 (b, c).
+  - The branch name `m8a-external-liquidity-design` predates this decision
+    and is not renamed.
+- **Status:** ACTIVE.
+
+### D-134 — External Liquidity (static) final definition (clarifies D-104)
+- **Date:** 2026-10-03
+- **Decision** (full rules in `docs/project/EXTERNAL_LIQUIDITY_SPEC.md`):
+  1. **Families.**
+     - **(A)** Every **complete Daily** high/low is a standalone External
+       Liquidity member, available at the Daily `bar_end`.
+     - **(B)** Selected session/reference highs/lows: Asia, London, NY
+       Pre-market and Overnight 18:00–07:00. `overnight_context_2000_0900`
+       and `previous_rth` are excluded initially; Previous RTH may be added
+       later as its own family.
+     - **(C)** Daily EQ/REQ are **additional** structures over the existing
+       Daily members.
+     - **(D)** 4H EQ/REQ: an ordinary 4H high/low is only a **formation
+       candidate**. It becomes a canonical member only when a later
+       complete 4H bar confirms an EQ/REQ containing it. Then `source_at`
+       is its own `bar_end`, and `available_at` is the first confirmation.
+     - Future swing-based 4H liquidity is a separate path (Swing
+       Structure).
+  2. **Previous Day.** `previous_day` H/L is a **derived reference** to the
+     canonical Daily member of the previous expected session, not a
+     duplicate member. A price mismatch raises.
+  3. **No price deduplication** across distinct session families.
+  4. **EQ and REQ.**
+     - EQ: exact (0 ticks).
+     - REQ: ≤ 6-tick chain connectivity, members preserved, and ≥ 2
+       **distinct** prices. A pure-equal component is EQ only.
+     - Highs only with highs; integer ticks; no pivot or lookahead.
+  5. **Pair-outer formation barrier.** No bar strictly between `i < j` has
+     `high > max(p_i, p_j)` (UPPER) / `low < min(p_i, p_j)` (LOWER).
+  6. **Continuity segments.** Same contract, no missing expected session,
+     all bars complete. An incomplete bar is excluded **and** breaks the
+     segment. The existing 4H buckets are used, including a complete
+     14:00–17:00 bucket.
+  7. **Two canonical tables.** `liquidity_members` (atoms) and
+     `liquidity_structures` (EQ/REQ immutable content-addressed versions:
+     FORMED / EXTENDED / MERGED, `supersedes`). There is no join table, no
+     singleton structure rows, and no survivor or lineage id. Change kinds
+     are static history, not lifecycle.
+  8. **Identity** is full SHA-256: `lm_` (source identity, independent of
+     availability) and `ls_` (sorted member ids). `SPECIFIC` contract
+     scope. Fail closed on missing data.
+  9. **Out of scope:** lifecycle, Signals, Internal Liquidity, Swing
+     Structure, M6 integration.
+  10. Sparse Daily EQ/REQ on DEVELOPMENT is a data-coverage limitation. The
+      definition is not weakened.
+- **Reason:** design-authority final design, 2026-10-03.
+- **Status:** ACTIVE (design approved; implementation next).
+- **Clarification 2026-10-03: expected-bucket continuity.**
+  - Row adjacency is not continuity; M3 emits no row for empty buckets.
+  - A segment needs every **expected** observation present, every
+    observation complete, and an unchanged contract. Both an incomplete
+    expected bucket and an absent expected bucket (no row) break it.
+  - **1D:** continuous only if both bars are complete, the contract is
+    unchanged, and the later date's previous expected session is the
+    earlier date.
+  - **4H:** continuous only if the later bar is the **next expected
+    bucket** under the existing M1/M3 schedule. That schedule is anchored
+    at the regular open and clipped to the actual (override-applied)
+    session bounds, and it continues to the first bucket of the next
+    expected session. It is not "+4h" and not a hard-coded six-bucket day.
+    This is a check over M3 outputs, not a new aggregator.
+  - **Tests:** the eight synthetic continuity tests are required at
+    implementation (spec §4).
+  - **Implementation note:** a small additive public schedule helper in
+    `src/data/timeframes.py` (reusing M3's private schedule logic) is
+    recommended, and will be authorized with the implementation task.
+  - No other External Liquidity decision changes.
 
 ### PROPOSED items awaiting design-authority approval (2026-09-28)
 Claude recommendations from the architecture closeout; **not decisions**:

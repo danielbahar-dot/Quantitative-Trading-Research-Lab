@@ -26,7 +26,12 @@ time with explicit approval (D-117).
 - **External Liquidity (ROADMAP 3.1, Generic Market Structure &
   Liquidity): DESIGN APPROVED — IMPLEMENTATION NEXT** (D-133, D-134).
   - Spec: `docs/project/EXTERNAL_LIQUIDITY_SPEC.md`, on branch
-    `m8a-external-liquidity-design` (uncommitted). Nothing is implemented.
+    `m8a-external-liquidity-design` (uncommitted). No liquidity code is
+    implemented yet.
+  - **Stage EL-I0 done (uncommitted).** M3 `expected_timeframe_schedule()`
+    is the shared-geometry, read-only API that continuity will use.
+    `build_timeframe` output is unchanged and verified exactly on
+    DEVELOPMENT.
   - Daily H/L are standalone members; 4H H/L are candidates until EQ/REQ
     confirmation. Previous Day is a reference to the Daily member.
   - The pair-outer formation barrier applies, and incomplete bars break

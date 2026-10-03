@@ -29,6 +29,7 @@ a derived bar only if ``available_at <= t``.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import date
 from types import MappingProxyType
 from typing import Any
 
@@ -63,6 +64,16 @@ OUTPUT_COLUMNS = [
     "expected_bars",
     "observed_bars",
     "is_complete",
+    "is_session_truncated",
+]
+# Expected-schedule output: geometry only, no observation-dependent columns.
+SCHEDULE_COLUMNS = [
+    "timeframe",
+    "trading_date",
+    "bar_start",
+    "bar_end",
+    "available_at",
+    "expected_bars",
     "is_session_truncated",
 ]
 
@@ -122,12 +133,7 @@ def build_timeframe(
     checked against the session model's trading date.
     """
     spec = get_timeframe(timeframe)
-    interval = pd.Timedelta(source_interval)
-    if interval <= pd.Timedelta(0):
-        raise TimeframeError("source_interval must be positive")
-    bucket_length = pd.Timedelta(minutes=spec.minutes) if spec.minutes is not None else None
-    if bucket_length is not None and bucket_length % interval != pd.Timedelta(0):
-        raise TimeframeError(f"{spec.timeframe_id} is not a multiple of the source interval {interval}")
+    interval, bucket_length = _interval_and_bucket_length(spec, source_interval)
 
     source = _validate_source(bars)
     labels = source.index
@@ -168,16 +174,14 @@ def build_timeframe(
 
     if bucket_length is None:
         work["bucket"] = 0
-        nominal_start = work["anchor"]
-        nominal_end = work["anchor"] + work["trading_date"].map(nominal)
         work["nominal_length"] = work["trading_date"].map(nominal)
     else:
         work["bucket"] = (offset // bucket_length).astype("int64")
-        nominal_start = work["anchor"] + work["bucket"] * bucket_length
-        nominal_end = nominal_start + bucket_length
         work["nominal_length"] = bucket_length
-    work["bar_start"] = nominal_start.where(nominal_start >= work["session_open"], work["session_open"])
-    work["bar_end"] = nominal_end.where(nominal_end <= work["session_close"], work["session_close"])
+    work["bar_start"], work["bar_end"] = _bucket_geometry(
+        work["anchor"], work["bucket"], work["nominal_length"], bucket_length,
+        work["session_open"], work["session_close"],
+    )
 
     grouped = work.groupby(["trading_date", "bucket"], sort=True)
     output = grouped.agg(
@@ -202,13 +206,13 @@ def build_timeframe(
             "contract-roll handling is not implemented"
         )
 
-    duration = output["bar_end"] - output["bar_start"]
-    output["expected_bars"] = (duration // interval).astype("int64")
+    output["expected_bars"], output["is_session_truncated"] = _bucket_metrics(
+        output["bar_start"], output["bar_end"], output["nominal_length"], interval
+    )
     output["observed_bars"] = output["observed_bars"].astype("int64")
     if (output["observed_bars"] > output["expected_bars"]).any():
         raise TimeframeError("Internal error: more source bars than expected in a bucket")
     output["is_complete"] = output["observed_bars"] == output["expected_bars"]
-    output["is_session_truncated"] = duration < output["nominal_length"]
     output["available_at"] = output["bar_end"]
     output["timeframe"] = spec.timeframe_id
     output = output[OUTPUT_COLUMNS]
@@ -246,11 +250,145 @@ def _validate_source(bars: pd.DataFrame) -> pd.DataFrame:
     return source
 
 
+def expected_timeframe_schedule(
+    trading_dates: Any,
+    timeframe: TimeframeSpec | str,
+    session_spec: SessionSpec,
+    *,
+    source_interval: Any = DEFAULT_SOURCE_INTERVAL,
+) -> pd.DataFrame:
+    """Expected bucket geometry of ``timeframe`` for ``trading_dates`` (no source data).
+
+    Uses exactly the bucket geometry of :func:`build_timeframe` (shared
+    helpers): buckets anchored at the regular session open, clipped to the
+    actual session bounds with verified calendar overrides applied, and
+    flagged ``is_session_truncated`` when clipped.  ``available_at`` equals
+    ``bar_end`` and ``expected_bars`` is ``(bar_end - bar_start) //
+    source_interval``.
+
+    Unlike ``build_timeframe``, every expected bucket is listed, including
+    buckets that have no source observations (which ``build_timeframe``
+    never synthesizes).  Dates that are not open sessions under the session
+    model (verified ``CLOSED`` overrides, non-trading days) produce no rows;
+    a weekday merely missing from source data is still an expected session.
+    Sessions spanning a DST transition raise, as in ``build_timeframe``.
+
+    ``trading_dates`` is one date (``date`` / ISO string / ``Timestamp``) or an
+    iterable of them; duplicates are ignored.  Rows are ordered by
+    ``trading_date`` then ``bar_start``; the index is the ``bar_end``
+    ``DatetimeIndex`` named ``timestamp_et``, as in ``build_timeframe``.
+    """
+    spec = get_timeframe(timeframe)
+    interval, bucket_length = _interval_and_bucket_length(spec, source_interval)
+    days = _schedule_dates(trading_dates)
+    anchors, opens, closes, nominal = _session_frames(days, session_spec, skip_closed=True)
+    rows = []
+    for day in sorted(anchors):
+        anchor, session_open, session_close = anchors[day], opens[day], closes[day]
+        if bucket_length is None:
+            buckets, nominal_length = [0], nominal[day]
+        else:
+            first = (session_open - anchor) // bucket_length
+            last = -((anchor - session_close) // bucket_length) - 1
+            buckets, nominal_length = range(first, last + 1), bucket_length
+        for bucket in buckets:
+            rows.append((day, bucket, anchor, nominal_length, session_open, session_close))
+    if not rows:
+        empty = pd.DataFrame(columns=SCHEDULE_COLUMNS)
+        empty.index = pd.DatetimeIndex([], name="timestamp_et")
+        return empty
+    work = pd.DataFrame(rows, columns=["trading_date", "bucket", "anchor", "nominal_length", "session_open", "session_close"])
+    work["bar_start"], work["bar_end"] = _bucket_geometry(
+        work["anchor"], work["bucket"], work["nominal_length"], bucket_length,
+        work["session_open"], work["session_close"],
+    )
+    work = work.loc[work["bar_end"] > work["bar_start"]].reset_index(drop=True)
+    work["expected_bars"], work["is_session_truncated"] = _bucket_metrics(
+        work["bar_start"], work["bar_end"], work["nominal_length"], interval
+    )
+    work["available_at"] = work["bar_end"]
+    work["timeframe"] = spec.timeframe_id
+    output = work.sort_values(["trading_date", "bar_start"], kind="mergesort")[SCHEDULE_COLUMNS]
+    output.index = pd.DatetimeIndex(output["bar_end"], name="timestamp_et")
+    return output
+
+
+def _interval_and_bucket_length(spec: TimeframeSpec, source_interval: Any) -> tuple[pd.Timedelta, pd.Timedelta | None]:
+    """Validated source interval and bucket length (``None`` for session timeframes)."""
+    interval = pd.Timedelta(source_interval)
+    if interval <= pd.Timedelta(0):
+        raise TimeframeError("source_interval must be positive")
+    bucket_length = pd.Timedelta(minutes=spec.minutes) if spec.minutes is not None else None
+    if bucket_length is not None and bucket_length % interval != pd.Timedelta(0):
+        raise TimeframeError(f"{spec.timeframe_id} is not a multiple of the source interval {interval}")
+    return interval, bucket_length
+
+
+def _bucket_geometry(
+    anchor: pd.Series,
+    bucket: pd.Series,
+    nominal_length: pd.Series,
+    bucket_length: pd.Timedelta | None,
+    session_open: pd.Series,
+    session_close: pd.Series,
+) -> tuple[pd.Series, pd.Series]:
+    """Shared M3 geometry: the nominal bucket clipped to the actual session bounds.
+
+    Fixed-minute buckets are ``[anchor + k*L, anchor + (k+1)*L)``; a session
+    timeframe has one bucket ``[anchor, anchor + nominal_length)``.
+    """
+    if bucket_length is None:
+        nominal_start = anchor
+        nominal_end = anchor + nominal_length
+    else:
+        nominal_start = anchor + bucket * bucket_length
+        nominal_end = nominal_start + bucket_length
+    bar_start = nominal_start.where(nominal_start >= session_open, session_open)
+    bar_end = nominal_end.where(nominal_end <= session_close, session_close)
+    return bar_start, bar_end
+
+
+def _bucket_metrics(
+    bar_start: pd.Series,
+    bar_end: pd.Series,
+    nominal_length: pd.Series,
+    interval: pd.Timedelta,
+) -> tuple[pd.Series, pd.Series]:
+    """Shared M3 bucket metrics: expected source bars and session truncation."""
+    duration = bar_end - bar_start
+    return (duration // interval).astype("int64"), duration < nominal_length
+
+
+def _schedule_dates(trading_dates: Any) -> list:
+    if isinstance(trading_dates, (str, date, pd.Timestamp)):
+        trading_dates = [trading_dates]
+    try:
+        values = list(trading_dates)
+    except TypeError as exc:
+        raise TimeframeError("trading_dates must be a date or an iterable of dates") from exc
+    days = set()
+    for value in values:
+        try:
+            stamp = pd.Timestamp(value)
+        except (TypeError, ValueError) as exc:
+            raise TimeframeError(f"Invalid trading date {value!r}") from exc
+        if pd.isna(stamp):
+            raise TimeframeError("trading_dates contains a missing value")
+        days.add(stamp.date())
+    return sorted(days)
+
+
 def _session_frames(
     trading_dates: list,
     session_spec: SessionSpec,
+    *,
+    skip_closed: bool = False,
 ) -> tuple[dict, dict, dict, dict]:
-    """Per trading date: regular anchor, actual open/close, regular length."""
+    """Per trading date: regular anchor, actual open/close, regular length.
+
+    A date that is not an open session raises (source bars cannot exist
+    there) unless ``skip_closed`` is set, in which case it is omitted.
+    """
     regular_spec = with_calendar_overrides(session_spec, [])
     regular_length = (
         pd.Timedelta(days=1)
@@ -261,6 +399,8 @@ def _session_frames(
     for day in trading_dates:
         actual = session_bounds(day, session_spec)
         if not actual.is_open:
+            if skip_closed:
+                continue
             raise TimeframeError(f"Source bars present on {actual.kind} date {day}")
         regular = session_bounds(day, regular_spec)
         if regular.close - regular.open != regular_length:

@@ -165,17 +165,15 @@ both are complete, and the contract is unchanged.
 - **Example:** 18:00–22:00 present, 22:00–02:00 absent (no row), 02:00–06:00
   present. The first and third bars are in **different** segments.
 
-**Implementation note: needs authorization at implementation time.**
+**Expected schedule source: resolved in stage EL-I0 (2026-10-03).** M3 now
+exposes `src/data/timeframes.expected_timeframe_schedule(trading_dates,
+timeframe, session_spec)`.
 
-- M3 derives its bucket schedule in a private helper
-  (`timeframes._session_frames`), so no public "expected buckets for a
-  trading date" function exists.
-- To keep a single authority, the recommendation is a **small, additive,
-  read-only public schedule function in `src/data/timeframes.py`** that
-  reuses that logic, with no change to `build_timeframe` output. The
-  alternative is re-deriving the schedule in the External module from
-  public `session_bounds`, which risks drift.
-- The choice is made, and authorized, with the implementation task.
+- It shares the bucket geometry with `build_timeframe` (same private
+  helpers), and `build_timeframe` output is unchanged.
+- It lists every expected bucket, including those with no source rows.
+- External Liquidity continuity must use it, and must not re-derive the
+  geometry.
 
 **Fail closed.** A contract change, a missing expected session, a missing
 expected bucket, a known roll gap or an incomplete bar ends the segment.

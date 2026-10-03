@@ -19,13 +19,25 @@ time with explicit approval (D-117).
   with exact frozen parity, D-128).
 - **M7A (generic State contract) is implemented, validated and merged**
   (PR #7, `4a0d674`; D-129–D-131).
-- **M7B (generic Signal contract) is implemented and validated**, but
-  uncommitted, on branch `m7b-signal-contract` (D-132). **M7 is
-  complete.** Both contracts are envelopes; no real State lifecycle or
-  Signal family exists yet.
+- **M7B (generic Signal contract) is merged** (PR #8, `807c321`; D-132).
+  **M7 is complete.** Both contracts are envelopes; no real State
+  lifecycle or Signal family exists yet.
 - **D1 is DEFERRED** (D-123). Feature work must be continuity-aware.
-- ICT feature work is on hold until the next design run, which will specify
-  External and Internal Liquidity together.
+- **External Liquidity (ROADMAP 3.1, Generic Market Structure &
+  Liquidity): DESIGN APPROVED — IMPLEMENTATION NEXT** (D-133, D-134).
+  - Spec: `docs/project/EXTERNAL_LIQUIDITY_SPEC.md`, on branch
+    `m8a-external-liquidity-design` (uncommitted). No liquidity code is
+    implemented yet.
+  - **Stage EL-I0 done (uncommitted).** M3 `expected_timeframe_schedule()`
+    is the shared-geometry, read-only API that continuity will use.
+    `build_timeframe` output is unchanged and verified exactly on
+    DEVELOPMENT.
+  - Daily H/L are standalone members; 4H H/L are candidates until EQ/REQ
+    confirmation. Previous Day is a reference to the Daily member.
+  - The pair-outer formation barrier applies, and incomplete bars break
+    continuity.
+  - Next in the workstream: Internal Liquidity (3.2), Swing Structure
+    (3.3), then the Shared Lifecycle (3.4).
 
 ## Last completed work
 
@@ -207,10 +219,10 @@ time with explicit approval (D-117).
   5. ~~M5B ORB Market Context migration~~ (merged 2026-09-30)
   6. **M6** level-interaction primitives: **COMPLETE** (M6A merged; M6B
      exact ORB parity)
-  7. M7 State/Signal contracts: **COMPLETE** (M7A merged; M7B implemented
-     and validated)
-  8. ICT reusable feature library (after the joint External/Internal
-     Liquidity design)
+  7. M7 State/Signal contracts: **COMPLETE** (M7A and M7B merged)
+  8. Generic Market Structure & Liquidity (ROADMAP 3, D-133): External
+     Liquidity design approved, implementation next; then Internal
+     Liquidity, Swing Structure and the Shared Lifecycle
   9. M8 test tiers
   10. M9 legacy-ledger deprecation notice
 

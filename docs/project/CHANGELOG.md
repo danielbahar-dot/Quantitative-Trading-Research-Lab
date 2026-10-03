@@ -12,6 +12,19 @@ Areas: `ARCH`, `FEATURE`, `STATE`, `SIGNAL`, `EXECUTION`, `METHOD`, `DATA`,
 
 ## Unreleased
 
+- 2026-10-03 — [DATA] EL-I0: M3 expected timeframe schedule API (a
+  backward-compatible capability extension).
+  - Added `src/data/timeframes.expected_timeframe_schedule()`. It returns
+    the expected bucket geometry (`timeframe`, `trading_date`, `bar_start`,
+    `bar_end`, `available_at`, `expected_bars`, `is_session_truncated`)
+    without source data, including buckets with no observations.
+  - `build_timeframe` now shares private geometry and metric helpers with
+    it. Its output is unchanged: DEVELOPMENT 1D/4H/1H/15m/5m are exactly
+    equal to a pre-refactor capture, and the M4 cache matches.
+  - `TIMEFRAME_BUILDER_VERSION` is unchanged (1).
+  - Added `tests/test_timeframe_schedule.py` (13 tests), including a frozen
+    pre-refactor parity oracle.
+
 - 2026-10-01 — [SIGNAL/ARCH] M7B generic Signal contract (D-132). M7 is
   complete.
   - Added `src/signals/contract.py`, which provides:

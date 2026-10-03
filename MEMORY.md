@@ -170,7 +170,25 @@ at a time with explicit approval (D-117).
   **M7A (generic State contract) is implemented and validated** in
   `src/state/contract.py` (D-129; spec rev 3, §0 normative; merged in PR
   #7). **M7B (generic Signal contract) is implemented** in
-  `src/signals/contract.py` (D-132). **M7 is complete.**
+  `src/signals/contract.py` (D-132; merged in PR #8). **M7 is complete.**
+- **Generic Market Structure & Liquidity (ROADMAP 3; D-133).** These are
+  methodology-neutral primitives, **not** ICT features. ICT-type constructs
+  (FVG, blocks …) form downstream family 4. There is no M8 naming.
+  - **3.1 External Liquidity: DESIGN APPROVED, IMPLEMENTATION NEXT**
+    (`docs/project/EXTERNAL_LIQUIDITY_SPEC.md`, D-134).
+    - Complete Daily H/L are standalone members.
+    - Session members: Asia, London, NY Pre-market, Overnight 18–07.
+    - Previous Day is a derived reference to the Daily member.
+    - A 4H H/L is a candidate until a confirmed EQ/REQ promotes it, with
+      `available_at` = confirmation.
+    - EQ is 0 ticks. REQ is a ≤ 6-tick chain with ≥ 2 distinct prices.
+    - Pair-outer formation barrier.
+    - Segments break on a contract change, a missing session or an
+      incomplete bar.
+    - Two tables (members + immutable structure versions), with full
+      SHA-256 ids.
+  - Next: 3.2 Internal (static), 3.3 Swing Structure, then 3.4 Shared
+    Lifecycle.
   - A Signal is an immutable point event: no lifetime and no execution
     fields.
   - It reuses M7A's public `CausalKey` / `compare_causal` / `SourceRef`;

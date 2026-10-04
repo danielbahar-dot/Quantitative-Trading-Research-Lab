@@ -1,7 +1,9 @@
 # External Liquidity (static): Specification
 
-**Status: DESIGN APPROVED — IMPLEMENTATION NEXT (2026-10-03; D-133,
-D-134).** Nothing is implemented.
+**Status: APPROVED / FROZEN (2026-10-04; D-133, D-134).** Implemented,
+programmatically validated, and visually / design-authority reviewed.
+Implementation facts and the frozen baseline are in §18. Future semantic
+changes require a new decision.
 
 - **Workstream:** Generic Market Structure & Liquidity (ROADMAP 3.1). It is
   methodology-neutral; usable by mean-reversion, breakout, Wyckoff, SMC /
@@ -18,11 +20,18 @@ D-134).** Nothing is implemented.
 
 **Sequence (ROADMAP 3.x):**
 
-1. **3.1 External Liquidity:** static, this document.
-2. **3.2 Internal Liquidity:** static.
-3. **3.3 Swing Structure.**
-4. **3.4 Shared Liquidity Lifecycle:** designed only after 3.1 and 3.2
-   static representations exist.
+1. **3.1 External Liquidity:** static, this document (frozen).
+2. **3.2 Swing Structure:** generic, frozen before Internal Liquidity
+   (next).
+3. **3.3 Internal Liquidity:** static. It may consume lower-timeframe
+   EQ / REQ and Swing High / Low structures, and decides which swings
+   qualify; not every swing is liquidity.
+4. **3.4 Shared Liquidity Lifecycle:** designed only after the External
+   (3.1) and Internal (3.3) static representations exist.
+
+The sequence was clarified 2026-10-03 (D-133 clarification) from the
+earlier External → Internal → Swing order. The classification is
+unchanged, and no External Liquidity rule changes.
 
 Methodology-specific constructs (FVG, IFVG, Order / Rejection / Mitigation
 Blocks …) form a separate downstream family (ROADMAP 4).
@@ -508,13 +517,15 @@ price is independently evaluable.
 There is **no** generic detector, registry, plugin, DSL or lifecycle engine.
 Extraction is revisited when Internal Liquidity is the second real consumer.
 
-**Internal Liquidity (3.2)** uses the same envelope, with
+**Internal Liquidity (3.3)** uses the same envelope, with
 `liquidity_class=INTERNAL`, its own `reference_family` values (`1H`, `15m`,
 `5m`, `1m`) and `member_kind` values. It is not pre-designed here.
 
-**Swing Structure (3.3)** is a separate generic feature. It may later
-qualify some HTF swings as External and lower-timeframe swings as Internal
-Liquidity, with its own `member_kind`. That boundary is not decided here.
+**Swing Structure (3.2)** is a separate generic feature, defined and frozen
+before Internal Liquidity. Swings are not defined inside Internal Liquidity,
+and not every swing becomes liquidity. Some HTF swings may later qualify as
+External and some lower-timeframe swings as Internal Liquidity, with their
+own `member_kind`. That boundary is not decided here.
 
 ## 15. Audit outputs (implementation)
 
@@ -570,3 +581,166 @@ Dedicated audit outputs, not canonical tables, answer:
 **No implementation-blocking questions remain.** Remaining choices are
 implementation details within these rules: module and file placement,
 function names, and the audit file layout.
+
+## 18. Implementation (2026-10-03): facts, not new decisions
+
+### Modules
+
+| File | Content |
+|---|---|
+| `src/liquidity/contract.py` | Generic envelope only: the `MEMBER_COLUMNS` / `STRUCTURE_COLUMNS` schemas, `member_id` / `structure_id` (full SHA-256), `assign_member_ids` / `assign_structure_ids`, `validate_liquidity_members` / `validate_liquidity_structures`, `LiquidityContractError`. It reuses public M7 `CausalKey` / `compare_causal` / `canonical_ref` and translates M7 errors with chaining |
+| `src/features/external_liquidity.py` | External-specific logic: `build_external_liquidity`, `continuity_segments`, `previous_day_references`, `htf_source_ref`, `m5_context_ref`, `ExternalLiquidityError`, `ExternalLiquidityResult` |
+
+### API
+
+```text
+build_external_liquidity(bars_1m, session_spec, *, instrument_id,
+    market_context=None, instrument_config_dir=None, source_interval="1min")
+  -> ExternalLiquidityResult(members, structures, previous_day_references,
+                             candidates, continuity_breaks, barrier_blocks)
+```
+
+- `members` and `structures` are validated canonical tables.
+- The last three fields are audit tables. They may carry prices, so they
+  are kept local.
+- `barrier_blocks` records each blocked within-tolerance pair, plus its
+  blocker:
+  - `blocking_bar_end`: the outer-most bar strictly between the pair.
+    Among equal extremes it is the one nearest the later endpoint (the
+    scan runs backward from it).
+  - `blocking_excess_ticks`: the blocker's distance beyond the pair's
+    outer price, always > 0.
+  - This is audit provenance only. The blocking rule is unchanged.
+- **Id lists:** `member_ids` / `supersedes` that contain duplicate ids are
+  invalid input and raise `LiquidityContractError`. They are never
+  silently deduplicated. Unique ids in any order canonicalize to the same
+  sorted tuple.
+- **Audit invariant:** no structure version is superseded by more than one
+  later version. DEVELOPMENT violations: 0.
+- Daily and 4H bars come from `build_timeframe`, and continuity from
+  `expected_timeframe_schedule`. The M5 summary is taken as input, or
+  computed when omitted.
+
+### Implementation details within the approved rules
+
+- **Continuity** walks the M3 expected schedule from the first to the last
+  observed bucket. Gaps before the first or after the last observed bucket
+  cannot affect any structure, so they are not break events.
+- **Break-reason precedence** when one boundary has several causes:
+  `MISSING_EXPECTED_SESSION` > `MISSING_EXPECTED_BUCKET` > `INCOMPLETE_BAR`
+  > `CONTRACT_CHANGE`. A contract change is always flagged
+  (`contract_changed`) even when outranked.
+- A missing bucket counts toward `MISSING_EXPECTED_SESSION` when its
+  trading date has no observed rows at all.
+- **Session members:** `source_at` = M5 `window_end` and `available_at` =
+  M5 `available_at`.
+- **Structures:** contract = the segment's single contract. Ticks are exact
+  `Decimal` (M2 tick); an off-grid price raises.
+- **Previous Day:** resolved by deterministic `member_id` of the Daily bar
+  on M5's `source_trading_date`. A missing member or a price mismatch
+  raises.
+
+### Tests
+
+- `tests/test_liquidity_contract.py`: 15 tests.
+- `tests/test_external_liquidity.py`: 41 tests / 6 subtests.
+- Full suite: 543 passed / 382 subtests. That is the 487 / 376 baseline
+  plus 56 / 6.
+- The pre-freeze review corrections added 6 tests:
+  - duplicate ids;
+  - id-order canonicalization;
+  - UPPER and LOWER blocker provenance;
+  - touch records no block;
+  - single-predecessor history.
+- They also renamed the generic SourceRef test to state that refs are
+  opaque. Timezone canonicalization is tested at the `htf_source_ref`
+  producer.
+- Canonical DEVELOPMENT output (members, structures, Previous Day
+  references, candidates, breaks) is byte-for-byte identical before and
+  after the corrections.
+
+### DEVELOPMENT audit (read-only; recomputed under the final §4 rule)
+
+The pre-amendment counts in §4 are superseded.
+
+| | 1D | 4H |
+|---|---|---|
+| Observed / complete / incomplete bars | 248 / 220 / 28 | 1,472 / 1,443 / 29 |
+| Expected-but-absent buckets (in range) | 19 | 129 |
+| Continuity segments | 23 | 29 |
+| Breaks: missing session / missing bucket / incomplete / contract | 7 / 0 / 15 / 0 | 7 / 9 / 12 / 0 |
+| Breaks outranking a contract roll (flag only) | 4 | 4 |
+| Members | 220 H + 220 L | 169 promoted (83 with `source_at < available_at`, 86 confirmed at own source) |
+| Candidates qualified / never (UPPER; LOWER) | 0 / 220; 0 / 220 | 91 / 1,352; 78 / 1,365 |
+| EQ versions UPPER / LOWER | 0 / 0 | 1 / 3 |
+| REQ versions UPPER / LOWER | 0 / 0 | 46 / 36 |
+| FORMED / EXTENDED / MERGED | 0 / 0 / 0 | 84 / 2 / 0 |
+| Largest structure (members) | — | 3 |
+
+**Session members:**
+
+- Members per family (high = low): Asia 243, London 245, NY Pre-market 248,
+  Overnight 236.
+- Unavailable M5 rows excluded: 24 / 22 / 19 / 31 respectively.
+- Same-price coincidences (kept separate):
+  - highs: London = Overnight 62, Asia = Overnight 40;
+  - lows: London = Overnight 54, Asia = Overnight 39;
+  - plus 1 each for Asia = London highs and Asia = NY Pre-market highs.
+
+**Previous Day:** 219 M5 rows available, giving 438 references resolved;
+0 unresolved or mismatched.
+
+**Invariants:** missing structure members 0, availability violations 0,
+cross-contract structures 0, cross-segment structures 0, duplicate ids 0,
+off-grid prices 0.
+
+**Observation, not repaired:** every contract roll on DEVELOPMENT coincides
+with missing roll-week sessions. Daily EQ/REQ is absent on DEVELOPMENT, a
+data-coverage limitation (incomplete days, an empty calendar, D1 deferred).
+
+### Validation artifacts (`reports/validation/`)
+
+- **Tracked, price-free:**
+  - `external_liquidity_dev_summary.csv`;
+  - `external_liquidity_dev_structures.csv`;
+  - `external_liquidity_dev_continuity_breaks.csv`;
+  - `external_liquidity_visual_validation_cases.csv`.
+- **Local, Git-ignored:** `external_liquidity_visual_validation.html`, with
+  31 cases (14 DEVELOPMENT, 17 labelled synthetic where DEVELOPMENT has no
+  example).
+
+### Freeze (2026-10-04): APPROVED / FROZEN
+
+Design authority approved the counts, audits and charts. The semantics of
+§§1–14 (D-134) and the final review corrections are frozen:
+
+- duplicate ids fail;
+- SourceRef identity is opaque, and producers own timezone normalization;
+- `barrier_blocks` blocker provenance;
+- the single-predecessor version-history audit;
+- the visual blocker annotation and label staggering.
+
+Future semantic changes need a new decision; refactoring must preserve
+frozen parity.
+
+**Frozen validation baseline**
+
+- Full suite: 543 passed / 0 failed / 382 subtests.
+- Canonical DEVELOPMENT:
+  - members 2,553;
+  - structures 86;
+  - Previous Day references 438 (0 mismatch);
+  - candidates 3,326;
+  - continuity breaks 50;
+  - barrier blocks 412;
+  - 4H promoted members 169;
+  - FORMED 84 / EXTENDED 2 / MERGED 0;
+  - all invariants 0.
+- No Daily EQ/REQ on DEVELOPMENT is a data-coverage limitation, not a
+  semantic exception.
+- **4H expected-but-absent buckets** (the source data is not reinterpreted
+  or repaired):
+  - **Audit range:** 129 = 114 in entirely absent expected sessions + 15
+    inside represented sessions.
+  - **Whole represented window:** 130 = 114 + 16. The one extra
+    intra-session bucket, 2024-06-21 18:00, lies outside the audit range.

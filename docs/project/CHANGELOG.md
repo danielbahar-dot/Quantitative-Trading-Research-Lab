@@ -12,6 +12,51 @@ Areas: `ARCH`, `FEATURE`, `STATE`, `SIGNAL`, `EXECUTION`, `METHOD`, `DATA`,
 
 ## Unreleased
 
+- 2026-10-04 — [FEATURE] External Liquidity 3.1 is **APPROVED / FROZEN**
+  (D-134 freeze note; spec §18).
+  - Frozen DEVELOPMENT baseline:
+    - 2,553 members and 86 structures;
+    - 438 Previous Day references;
+    - 3,326 candidates, 50 breaks, 412 barrier blocks;
+    - 169 promoted 4H;
+    - FORMED 84 / EXTENDED 2 / MERGED 0;
+    - invariants 0.
+  - Suite: 543 passed / 382 subtests.
+  - Next is 3.2 Swing Structure (not started).
+
+- 2026-10-03 — [VALIDATION-TOOLING] External Liquidity pre-freeze review
+  corrections. There is no semantic change, and canonical DEVELOPMENT
+  output is identical.
+  - `canonical_id_tuple` now rejects duplicate `member_ids` /
+    `supersedes` instead of deduplicating them.
+  - `barrier_blocks` gains `blocking_bar_end` (nearest the later endpoint
+    among equal extremes) and `blocking_excess_ticks`.
+  - The generic SourceRef test is renamed to state that refs are opaque.
+  - Added an audit invariant: a version is superseded at most once.
+  - The visual now annotates the blocker and staggers labels.
+  - Tests: 543 passed / 382 subtests.
+
+- 2026-10-03 — [FEATURE] External Liquidity (static) implemented. It is
+  **not frozen**: visual and design-authority validation is pending.
+  - Added `src/liquidity/contract.py`, the generic member/structure
+    envelope with SHA-256 ids and validation.
+  - Added `src/features/external_liquidity.py`
+    (`build_external_liquidity`). It produces:
+    - Daily H/L members and session-reference members;
+    - the Previous Day reference view;
+    - continuity on the M3 expected schedule;
+    - Daily/4H EQ/REQ immutable versions with the pair-outer barrier and
+      4H promotion.
+  - Added `tests/test_liquidity_contract.py` (13) and
+    `tests/test_external_liquidity.py` (37). Full suite: 537 passed.
+  - DEVELOPMENT audit CSVs (price-free) are in `reports/validation/`; the
+    visual HTML is local.
+  - Doc cleanups:
+    - the EL-I0 test oracle is reworded as a "frozen pre-refactor
+      geometry/aggregation reference for valid source fixtures";
+    - roadmap sequencing is now External → Swing → Internal → Shared
+      Lifecycle (D-133 clarification).
+
 - 2026-10-03 — [DATA] EL-I0: M3 expected timeframe schedule API (a
   backward-compatible capability extension).
   - Added `src/data/timeframes.expected_timeframe_schedule()`. It returns

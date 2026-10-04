@@ -24,10 +24,10 @@ High-level only. No deadlines. Status vocabulary: `DONE`, `ACTIVE`, `NEXT`,
 | 2.M8 | Test tiers (unit / golden / integration) | PLANNED |
 | 2.M9 | Legacy ledger deprecation notice | PLANNED |
 | 3 | **Generic Market Structure & Liquidity**: methodology-neutral primitives usable by any strategy family (mean reversion, breakout, Wyckoff, SMC/ICT, order flow, statistical). Not ICT-specific (D-133). Continuity-aware; may proceed before D1 | **ACTIVE** |
-| 3.1 | External Liquidity (static): complete Daily H/L, selected session/reference H/L, Daily and 4H EQ/REQ structures (`docs/project/EXTERNAL_LIQUIDITY_SPEC.md`; D-134) | **DESIGN APPROVED — IMPLEMENTATION NEXT** |
-| 3.2 | Internal Liquidity (static): lower-timeframe EQ/REQ and related members, on the same member/structure envelope | PLANNED |
-| 3.3 | Swing Structure (generic; may later qualify HTF/LTF swings as External/Internal liquidity) | PLANNED |
-| 3.4 | Shared Liquidity Lifecycle: consumes 3.1 and 3.2 members, using M6 and M7. Designed only after both static representations exist | PLANNED |
+| 3.1 | External Liquidity (static): complete Daily H/L, selected session/reference H/L, Daily and 4H EQ/REQ structures (`docs/project/EXTERNAL_LIQUIDITY_SPEC.md`; D-134) | **DONE — APPROVED / FROZEN** (2026-10-04). `src/liquidity/contract.py` + `src/features/external_liquidity.py`; frozen DEVELOPMENT baseline in spec §18 / D-134 freeze note |
+| 3.2 | Swing Structure (generic market-structure primitive). Objectively defined and frozen **before** Internal Liquidity; not every swing is liquidity (D-133 clarification) | PLANNED (**next**) |
+| 3.3 | Internal Liquidity (static): may consume lower-timeframe EQ/REQ and generic Swing High/Low structures (3.2); decides which swings qualify. Same member/structure envelope | PLANNED (after 3.2) |
+| 3.4 | Shared Liquidity Lifecycle: consumes External (3.1) and Internal (3.3) members, using M6 and M7. Designed only after both static representations exist | PLANNED |
 | 4 | Methodology-specific feature families, downstream of 3 (e.g. ICT/SMC: FVG, IFVG, Order Block, Rejection Block, Mitigation Block). MSS / BOS classification is open: the underlying structural shift may become a generic primitive with methodology-specific interpretation | PLANNED (after 3) |
 | 5 | Visual and programmatic validation of each primitive, then freeze | PLANNED (per primitive) |
 | 6 | Strategy/model construction (e.g. Turtle Soup / liquidity-raid candidate) | PLANNED; blocked on the required primitives. Final broad performance validation where roll periods matter needs D1 |
@@ -77,9 +77,13 @@ future dedicated task.
 - Architecture milestones are approved and delivered one at a time.
 - Reusable feature work (M5+) may proceed before D1 only if it is
   continuity-aware (D-123).
-- Liquidity work proceeds in this order: External (3.1) static, then
-  Internal (3.2) static; the Shared Lifecycle (3.4) is designed only after
-  both (D-133).
+- Market-structure and liquidity work proceeds in this order (D-133, as
+  clarified):
+  1. External Liquidity (3.1), static;
+  2. Swing Structure (3.2);
+  3. Internal Liquidity (3.3), static;
+  4. the Shared Lifecycle (3.4), designed only after both static liquidity
+     representations exist.
 - Strategy construction (6) does not start until the required primitives
   are `APPROVED`/`FROZEN` (see [QUALITY_CONTROL](QUALITY_CONTROL.md)).
 - No ORB optimization cycle restarts without explicit authorization.

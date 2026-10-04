@@ -63,8 +63,9 @@ time with explicit approval (D-117).
   NEXT** (D-135–D-138). The swing detector is not implemented, and nothing
   is frozen.
   - The design was merged in PR #11 (`d4c0ce8`).
-  - **SW-I0 (D-137) is implemented and validated, uncommitted, on branch
-    `swing-structure-implementation`, pending design-authority review.**
+  - **SW-I0 (D-137) is implemented, validated, committed (`0087e5d`) and
+    design-authority approved on `swing-structure-implementation`;
+    pending PR / merge.**
     - The shared `src/data/continuity.py` (`continuity_segments`, break
       vocabulary, `ContinuityError`) is extracted unchanged from External.
     - External keeps a compatibility wrapper.
@@ -85,13 +86,14 @@ time with explicit approval (D-117).
       prerequisite.
   - Decisions D-135–D-138 (promoted from P-SW-1…4) are ACTIVE — DESIGN
     APPROVED.
-  - Next, after SW-I0 review: the swing implementation (D-135, D-136,
+  - Next, after the SW-I0 merge: the swing implementation (D-135, D-136,
     D-138).
 
 ## Last completed work
 
-- **2026-10-04 — SW-I0 shared continuity extraction** (uncommitted;
-  pending review).
+- **2026-10-04 — SW-I0 shared continuity extraction.** Implemented,
+  validated, committed (`0087e5d`) and design-authority approved on
+  `swing-structure-implementation`; pending PR / merge.
   - Added `src/data/continuity.py` and `tests/test_continuity.py` (20
     tests).
   - `src/features/external_liquidity.py` now uses a compatibility wrapper.
@@ -103,8 +105,8 @@ time with explicit approval (D-117).
 
 - **2026-10-04 — Swing Structure 3.2 design registered.**
   - P-SW-1…4 were promoted to D-135–D-138 (ACTIVE — DESIGN APPROVED).
-  - One design commit, pushed, with a design PR opened against `main`
-    (not merged).
+  - The design commits were merged into `main` via PR #11
+    (`d4c0ce8b3aa65752fc2ce3cfc2dc2e02eef77286`).
 
 - **2026-10-04 — Swing Structure 3.2 final design decisions (rev 3)**
   (design-only phase; now incorporated into the registered design).

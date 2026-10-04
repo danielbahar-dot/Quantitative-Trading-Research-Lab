@@ -211,7 +211,9 @@ at a time with explicit approval (D-117).
       validation configuration on all timeframes.
     - The `BAR_SPAN` format and the `sw_` key are final.
     - D-137: `ContinuityError` and `continuity_segments` now live in
-      `src/data/continuity.py` (SW-I0, uncommitted, pending review).
+      `src/data/continuity.py`. SW-I0 is implemented, validated,
+      committed (`0087e5d`) and design-authority approved on
+      `swing-structure-implementation`, pending PR / merge.
       - It is extracted unchanged from External; External keeps a
         compatibility wrapper and translates the error.
       - Frozen External parity is exact.
@@ -226,7 +228,8 @@ at a time with explicit approval (D-117).
       once `available_at ≤ bar_start`, with no copies.
     - Table `swing_points`, `UPPER` / `LOWER`.
     - First prerequisite (D-137): `src/data/continuity.py` extraction with
-      exact External parity. This is done as SW-I0, pending review.
+      exact External parity. This is SW-I0: implemented and approved,
+      pending PR / merge.
   - Next (D-133 sequencing clarification): 3.2 Swing Structure (frozen
     first), 3.3 Internal (static; may consume swings, but not every swing
     is liquidity), then 3.4 Shared Lifecycle.

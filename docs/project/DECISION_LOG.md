@@ -911,6 +911,24 @@ repository. For D-101 onward the date is when it was recorded here
   - The branch name `m8a-external-liquidity-design` predates this decision
     and is not renamed.
 - **Status:** ACTIVE.
+- **Clarification 2026-10-03: sequencing.** The design authority
+  subsequently changed the implementation **sequencing** to External →
+  Swing → Internal → Shared Lifecycle:
+  - 3.1 External Liquidity;
+  - 3.2 Swing Structure;
+  - 3.3 Internal Liquidity;
+  - 3.4 Shared Liquidity Lifecycle.
+
+  **Reason:**
+  - Swing Structure is a generic primitive that Internal Liquidity may
+    consume, alongside lower-timeframe EQ/REQ.
+  - It must therefore be objectively defined and frozen before Internal
+    Liquidity decides which swings qualify. Swings are not defined inside
+    Internal Liquidity, and not every swing becomes liquidity.
+
+  The generic classification above is **unchanged**, and no External
+  Liquidity rule (D-134) changes. The decision list above keeps its
+  original order as the historical record.
 
 ### D-134 — External Liquidity (static) final definition (clarifies D-104)
 - **Date:** 2026-10-03
@@ -958,7 +976,10 @@ repository. For D-101 onward the date is when it was recorded here
   10. Sparse Daily EQ/REQ on DEVELOPMENT is a data-coverage limitation. The
       definition is not weakened.
 - **Reason:** design-authority final design, 2026-10-03.
-- **Status:** ACTIVE (design approved; implementation next).
+- **Status:** ACTIVE (design approved). **Implementation status
+  2026-10-03:** implemented as specified, with no new semantic decision
+  (spec §18). Visual / design-authority validation is pending; not frozen.
+  (Superseded by the 2026-10-04 freeze note below.)
 - **Clarification 2026-10-03: expected-bucket continuity.**
   - Row adjacency is not continuity; M3 emits no row for empty buckets.
   - A segment needs every **expected** observation present, every
@@ -979,6 +1000,26 @@ repository. For D-101 onward the date is when it was recorded here
     `src/data/timeframes.py` (reusing M3's private schedule logic) is
     recommended, and will be authorized with the implementation task.
   - No other External Liquidity decision changes.
+- **Implementation / freeze note 2026-10-04.**
+  - The work is complete:
+    - implementation (`src/liquidity/contract.py`,
+      `src/features/external_liquidity.py`);
+    - programmatic validation;
+    - visual and design-authority review, including the pre-freeze
+      contract/audit/visual quality corrections in spec §18.
+  - **External Liquidity 3.1 is APPROVED / FROZEN.**
+  - **Frozen canonical DEVELOPMENT counts:**
+    - 2,553 members and 86 structures;
+    - 438 Previous Day references (0 mismatch);
+    - 3,326 candidates, 50 continuity breaks, 412 barrier blocks;
+    - 169 promoted 4H members;
+    - FORMED 84 / EXTENDED 2 / MERGED 0;
+    - all invariants 0.
+  - No Daily EQ/REQ on DEVELOPMENT is a data-coverage limitation, not a
+    semantic exception.
+  - Full suite: 543 passed / 0 failed / 382 subtests.
+  - Any future semantic change to these rules requires a new decision.
+    Refactoring must preserve frozen parity.
 
 ### PROPOSED items awaiting design-authority approval (2026-09-28)
 Claude recommendations from the architecture closeout; **not decisions**:

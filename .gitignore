@@ -47,6 +47,9 @@ reports/validation/m5a_market_context_visual_validation.html
 # M6A visual-validation chart likewise embeds raw prices; its *_cases.csv and
 # *_dev_summary.csv are price-free and tracked.
 reports/validation/m6a_level_interactions_visual_validation.html
+# External Liquidity visual-validation chart embeds raw prices; the price-free
+# external_liquidity_dev_*.csv and *_cases.csv next to it are tracked.
+reports/validation/external_liquidity_visual_validation.html
 
 # Experiment ledgers and run outputs are generated and remain local.
 experiments/experiment_ledger.sqlite

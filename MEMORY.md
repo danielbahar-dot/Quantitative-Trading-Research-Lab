@@ -47,8 +47,8 @@ Internal Liquidity / meaningful swing structure → FVG → Rejection Block → 
 Phase 2 (a Turtle Soup / liquidity-raid model) is **not** to be implemented or
 formalized until Phase 1 primitives are visually and programmatically validated.
 
-External Liquidity design direction (recorded, not implemented; details in
-DECISION_LOG D-104–D-106):
+External Liquidity design direction (historical; now implemented and frozen
+as 3.1 under D-134, see below; details in DECISION_LOG D-104–D-106):
 
 - Session references where already implemented: Previous Day H/L, Asia H/L,
   London H/L, NY Pre-market H/L, Overnight H/L.
@@ -174,8 +174,21 @@ at a time with explicit approval (D-117).
 - **Generic Market Structure & Liquidity (ROADMAP 3; D-133).** These are
   methodology-neutral primitives, **not** ICT features. ICT-type constructs
   (FVG, blocks …) form downstream family 4. There is no M8 naming.
-  - **3.1 External Liquidity: DESIGN APPROVED, IMPLEMENTATION NEXT**
-    (`docs/project/EXTERNAL_LIQUIDITY_SPEC.md`, D-134).
+  - **3.1 External Liquidity: APPROVED / FROZEN (2026-10-04)**
+    (`docs/project/EXTERNAL_LIQUIDITY_SPEC.md` §18, D-134 freeze note).
+    Semantic changes need a new decision; refactors must keep parity.
+    - Frozen DEVELOPMENT baseline:
+      - 2,553 members and 86 structures;
+      - 438 Previous Day references;
+      - 3,326 candidates, 50 breaks, 412 barrier blocks;
+      - 169 promoted 4H members;
+      - FORMED 84 / EXTENDED 2 / MERGED 0;
+      - invariants 0;
+      - suite 543 passed / 382 subtests.
+    - Duplicate ids fail. `barrier_blocks` carries `blocking_bar_end` /
+      `blocking_excess_ticks`.
+    - Code: `src/liquidity/contract.py` (generic envelope) and
+      `src/features/external_liquidity.py` (`build_external_liquidity`).
     - Complete Daily H/L are standalone members.
     - Session members: Asia, London, NY Pre-market, Overnight 18–07.
     - Previous Day is a derived reference to the Daily member.
@@ -187,8 +200,9 @@ at a time with explicit approval (D-117).
       incomplete bar.
     - Two tables (members + immutable structure versions), with full
       SHA-256 ids.
-  - Next: 3.2 Internal (static), 3.3 Swing Structure, then 3.4 Shared
-    Lifecycle.
+  - Next (D-133 sequencing clarification): 3.2 Swing Structure (next; not
+    started; frozen first), 3.3 Internal (static; may consume swings, but not every swing
+    is liquidity), then 3.4 Shared Lifecycle.
   - A Signal is an immutable point event: no lifetime and no execution
     fields.
   - It reuses M7A's public `CausalKey` / `compare_causal` / `SourceRef`;

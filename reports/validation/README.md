@@ -113,3 +113,37 @@ read-only, using generic M5 levels from `market_context_levels`.
   ineligible bars greyed and `PENDING_LEVEL` bars in amber.
 
 Findings: `docs/project/M6_LEVEL_INTERACTIONS_SPEC.md` §20.
+
+## `external_liquidity_*`
+
+External Liquidity (static) DEVELOPMENT audit (2026-10-03). This is the
+frozen validation baseline: External Liquidity 3.1 is **APPROVED / FROZEN**
+as of 2026-10-04. DEVELOPMENT only; the source is read, not modified.
+
+- **`external_liquidity_dev_summary.csv`** (tracked, price-free). Counts
+  per section (1D, 4H, session, Previous Day, invariants):
+  - bars, completeness and expected-but-absent buckets;
+  - segments and break reasons;
+  - candidates and qualification;
+  - EQ/REQ versions and change kinds;
+  - members, session coincidence counts, Previous Day resolution;
+  - barrier blocks and blocker checks (price-free tick distances);
+  - invariant failures, including "version superseded by more than one
+    later version";
+  - the review sections `4H_absent`, `versions` and `promotion`.
+- **`external_liquidity_dev_structures.csv`** (tracked, price-free). One row
+  per structure version: id, type, family, orientation, contract,
+  `available_at`, member count, change kind, supersedes count, segment.
+- **`external_liquidity_dev_continuity_breaks.csv`** (tracked, price-free).
+  One row per segment break: the timestamps on each side, the reason by
+  precedence, and the counts of missing buckets, missing sessions and
+  incomplete bars, plus the contract-change flag.
+- **`external_liquidity_visual_validation_cases.csv`** (tracked,
+  price-free). The reviewed cases, with `REAL` / `SYNTHETIC` source and
+  ids/timestamps. The barrier case also carries `blocking_bar_end` and
+  `blocking_excess_ticks`, and synthetic cases carry `synthetic_reason`.
+- **`external_liquidity_visual_validation.html`** (local, Git-ignored,
+  embeds prices). 31 charted cases (14 DEVELOPMENT, 17 labelled synthetic
+  where DEVELOPMENT has no example, e.g. Daily EQ/REQ and merges).
+
+Findings: `docs/project/EXTERNAL_LIQUIDITY_SPEC.md` §18.

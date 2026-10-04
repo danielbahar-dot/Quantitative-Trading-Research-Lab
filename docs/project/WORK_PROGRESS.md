@@ -4,7 +4,7 @@ Answers: **"Where exactly are we now?"** Update this after every meaningful
 task. Keep entries short. History goes in [CHANGELOG](CHANGELOG.md) and
 rationale in [DECISION_LOG](DECISION_LOG.md).
 
-_Last updated: 2026-10-01_
+_Last updated: 2026-10-04_
 
 ## Current focus
 
@@ -24,23 +24,69 @@ time with explicit approval (D-117).
   lifecycle or Signal family exists yet.
 - **D1 is DEFERRED** (D-123). Feature work must be continuity-aware.
 - **External Liquidity (ROADMAP 3.1, Generic Market Structure &
-  Liquidity): DESIGN APPROVED — IMPLEMENTATION NEXT** (D-133, D-134).
-  - Spec: `docs/project/EXTERNAL_LIQUIDITY_SPEC.md`, on branch
-    `m8a-external-liquidity-design` (uncommitted). No liquidity code is
-    implemented yet.
-  - **Stage EL-I0 done (uncommitted).** M3 `expected_timeframe_schedule()`
-    is the shared-geometry, read-only API that continuity will use.
-    `build_timeframe` output is unchanged and verified exactly on
-    DEVELOPMENT.
-  - Daily H/L are standalone members; 4H H/L are candidates until EQ/REQ
-    confirmation. Previous Day is a reference to the Daily member.
-  - The pair-outer formation barrier applies, and incomplete bars break
-    continuity.
-  - Next in the workstream: Internal Liquidity (3.2), Swing Structure
-    (3.3), then the Shared Lifecycle (3.4).
+  Liquidity): DONE — APPROVED / FROZEN** (2026-10-04; D-133, D-134
+  freeze note).
+  - Design and EL-I0 merged (PR #9, `27f493b`).
+  - The implementation and freeze are committed on branch
+    `external-liquidity-implementation` and in PR review against `main`
+    (not merged):
+    - `src/liquidity/contract.py` and `src/features/external_liquidity.py`;
+    - tests: 15 contract + 41 External;
+    - full suite: 543 passed / 0 failed / 382 subtests.
+  - Frozen DEVELOPMENT baseline:
+    - 2,553 members and 86 structures;
+    - 438 Previous Day references;
+    - 3,326 candidates, 50 breaks, 412 barrier blocks;
+    - FORMED 84 / EXTENDED 2 / MERGED 0.
+  - The final review corrections are part of the freeze (no semantic
+    change; canonical DEVELOPMENT output is identical):
+    - duplicate ids now raise;
+    - an accurate opaque-SourceRef test;
+    - barrier blocker provenance;
+    - visual blocker annotation and label staggering;
+    - a single-predecessor history invariant (0 violations).
+  - DEVELOPMENT audit:
+    - 440 Daily members;
+    - 1,944 session members across Asia / London / NY Pre-market /
+      Overnight;
+    - 438 Previous Day references, 0 mismatches;
+    - 169 promoted 4H members;
+    - 86 4H structure versions (EQ 1/3, REQ 46/36); no Daily structures (a
+      data-coverage limitation);
+    - all invariants 0.
+
+    Details are in spec §18.
+  - The visual HTML is local (31 cases). Price-free audit CSVs are in
+    `reports/validation/external_liquidity_*`.
+  - Next in the workstream (D-133 sequencing clarification): Swing
+    Structure (3.2, **next; not started**), Internal Liquidity (3.3), then
+    the Shared Lifecycle (3.4).
 
 ## Last completed work
 
+- **2026-10-04 — External Liquidity 3.1 APPROVED / FROZEN.**
+  - Recorded the freeze (spec status and §18 baseline, the D-134 freeze
+    note, ROADMAP, MEMORY).
+  - Two commits (implementation + tests; validation + governance), pushed;
+    PR opened against `main`, not merged.
+
+- **2026-10-03 — External Liquidity pre-freeze review corrections**
+  (uncommitted, not frozen). These are contract / audit / test / visual
+  quality fixes only.
+  - Code: `canonical_id_tuple` rejects duplicate ids, and
+    `barrier_blocks` gains `blocking_bar_end` / `blocking_excess_ticks`.
+  - Canonical DEVELOPMENT parity is exact: 2,553 members, 86 structures,
+    438 Previous Day references.
+  - Tests: 543 passed / 382 subtests.
+
+- **2026-10-03 — External Liquidity implementation (EL-I1 to EL-I4)**
+  (uncommitted, not frozen).
+  - Generic liquidity envelope plus the External extraction, continuity,
+    EQ/REQ, promotion and versions.
+  - DEVELOPMENT audit and visual artifact.
+  - Doc cleanups: the EL-I0 test wording, and the Swing-before-Internal
+    sequencing (D-133 clarification).
+  - Tests: 537 passed / 382 subtests (baseline 487 / 376).
 - **2026-10-01 — M7A generic State contract** (uncommitted).
   - The spec was updated first (rev 3, §0 normative), and D-129 recorded.
   - Added `src/state/__init__.py`, `src/state/contract.py` and

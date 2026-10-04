@@ -202,7 +202,18 @@ at a time with explicit approval (D-117).
       SHA-256 ids.
   - **3.2 Swing Structure: DESIGN APPROVED — IMPLEMENTATION IN PROGRESS
     (2026-10-04; spec rev 3; D-135–D-138 ACTIVE — DESIGN APPROVED). NOT
-    frozen; the detector is not implemented.**
+    frozen.**
+    - **SW-I2 (implemented, validated and design-authority approved;
+      committed on `swing-structure-contract`):**
+      `src/market_structure/swing_detector.py`
+      `build_swing_points`.
+      - One algorithm for all six timeframes; 1m comes directly from
+        canonical bars, 5m–1D from M3.
+      - Shared continuity, exact tick indices, maximal equal plateaus,
+        strict-exceed windows.
+      - Plus the public `validate_source_bars` in M3.
+      - Full suite: 629 / 0 / 474.
+      - Next is SW-I3 (audit and DEVELOPMENT baseline).
     - **SW-I1 (implemented, validated and design-authority approved;
       committed on the active Swing implementation branch
       `swing-structure-contract`; full suite 591 passed / 0 failed / 439

@@ -11,7 +11,11 @@
   - **SW-I1**, the canonical contract (`src/market_structure/swing.py`),
     is implemented, validated and design-authority approved, and
     committed on the active Swing implementation branch.
-  - The swing detector is not implemented.
+  - **SW-I2**, the generic multi-timeframe detector
+    (`src/market_structure/swing_detector.py`), is implemented, validated
+    and design-authority approved, and committed on the active Swing
+    implementation branch.
+  - SW-I3 (audit, DEVELOPMENT baseline, visual validation) is next.
 - Decisions **D-135 – D-138** (§26) are registered as ACTIVE — DESIGN
   APPROVED.
 

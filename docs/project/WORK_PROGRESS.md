@@ -60,8 +60,7 @@ time with explicit approval (D-117).
     Structure (3.2), Internal Liquidity (3.3), then the Shared Lifecycle
     (3.4).
 - **Swing Structure (ROADMAP 3.2): DESIGN APPROVED — IMPLEMENTATION IN
-  PROGRESS** (D-135–D-138). The swing detector is not implemented, and
-  nothing is frozen.
+  PROGRESS** (D-135–D-138). Nothing is frozen.
   - The design was merged in PR #11 (`d4c0ce8`).
   - **SW-I0 (D-137) is merged and complete** (PR #12, `3b098f5`).
     - The shared `src/data/continuity.py` (`continuity_segments`, break
@@ -76,6 +75,18 @@ time with explicit approval (D-117).
       `SWING_COLUMNS`, `bar_span_ref`, `swing_id`, `assign_swing_ids` and
       `validate_swing_points`.
     - There is no detection.
+  - **SW-I2 (generic multi-timeframe detector) is implemented, validated
+    and design-authority approved; it is committed on
+    `swing-structure-contract`.**
+    - `src/market_structure/swing_detector.py` provides
+      `build_swing_points`: one algorithm for 1m / 5m / 15m / 1H / 4H /
+      1D. 1m comes directly from canonical bars; 5m–1D come from M3
+      `build_timeframe`.
+    - It adds the public `validate_source_bars` wrapper in
+      `src/data/timeframes.py`; M3 behaviour is unchanged.
+    - Full suite: 629 passed / 0 failed / 474 subtests.
+  - Next: SW-I3, covering candidate audit, the DEVELOPMENT 2/2 baseline,
+    the regression baseline and visual-validation preparation.
   - Spec: `docs/project/SWING_STRUCTURE_SPEC.md`, **rev 3**, with the final
     design-authority decisions. It specifies:
     - a plateau-aware confirmed pivot, failing only on a strict exceed;
@@ -92,10 +103,19 @@ time with explicit approval (D-117).
       prerequisite.
   - Decisions D-135–D-138 (promoted from P-SW-1…4) are ACTIVE — DESIGN
     APPROVED.
-  - Next: SW-I2, the swing detector (D-135, D-136), with the canonical-1m
-    observation adapter.
 
 ## Last completed work
+
+- **2026-10-04 — SW-I2 generic multi-timeframe Swing detector.**
+  Implemented, validated and design-authority approved; committed on
+  `swing-structure-contract`. Full suite: 629 passed / 0 failed / 474
+  subtests.
+  - Added `src/market_structure/swing_detector.py` and
+    `tests/test_swing_detector.py` (35 tests / 27 subtests).
+  - Added `validate_source_bars` to `src/data/timeframes.py`, with 3
+    wrapper tests in `tests/test_timeframes.py`.
+  - All six timeframes are exercised.
+  - There is no candidate audit, no DEVELOPMENT counts and no projection.
 
 - **2026-10-04 — SW-I1 canonical Swing contract.** Implemented, validated
   and design-authority approved; committed on the active Swing

@@ -220,6 +220,15 @@ def build_timeframe(
     return output
 
 
+def validate_source_bars(bars: pd.DataFrame) -> pd.DataFrame:
+    """Public wrapper: validate canonical bar-end-labelled source bars exactly as ``build_timeframe`` does.
+
+    Returns the validated, index-sorted frame.  Same rules and errors as the
+    builder's source check; no additional validation.
+    """
+    return _validate_source(bars)
+
+
 def _validate_source(bars: pd.DataFrame) -> pd.DataFrame:
     if not isinstance(bars, pd.DataFrame):
         raise TimeframeError("bars must be a pandas DataFrame")

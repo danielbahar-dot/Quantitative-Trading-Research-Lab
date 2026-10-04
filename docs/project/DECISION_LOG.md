@@ -1059,9 +1059,17 @@ repository. For D-101 onward the date is when it was recorded here
     on 5m, 15m, 1H, 4H and 1D (M3 bars).
 - **Reason:** the design-authority-approved Swing Structure 3.2 design (spec
   rev 1–3, DEVELOPMENT design evidence in spec §23).
-- **Status:** ACTIVE — DESIGN APPROVED. The feature is not implemented and
-  not frozen. Freeze follows implementation, tests, audit, visual
-  validation and design-authority implementation review.
+- **Status:** ACTIVE — DESIGN APPROVED. The feature is not frozen. Freeze
+  follows implementation, tests, audit, visual validation and
+  design-authority implementation review.
+- **Implementation note 2026-10-04 (SW-I2):** implemented, validated and
+  design-authority approved; committed on the active Swing implementation
+  branch.
+  - The generic detector `build_swing_points` is in
+    `src/market_structure/swing_detector.py`. It is one algorithm for 1m /
+    5m / 15m / 1H / 4H / 1D (direct canonical 1m; M3 for 5m–1D).
+  - Audit, the DEVELOPMENT baseline and visual validation are pending
+    (SW-I3). The decision text is unchanged.
 
 ### D-136 — Timeframe independence and causal projection
 - **Date:** 2026-10-04
@@ -1078,7 +1086,11 @@ repository. For D-101 onward the date is when it was recorded here
   dependency. DEVELOPMENT evidence: keying on HTF `source_at` would leak
   the HTF classification about 10 h (4H) or about 2 h (1H) early (spec
   §23).
-- **Status:** ACTIVE — DESIGN APPROVED (not implemented).
+- **Status:** ACTIVE — DESIGN APPROVED.
+  - SW-I2 implements per-timeframe-independent detection: no
+    cross-timeframe input. It is approved and committed on the active
+    Swing implementation branch.
+  - Cross-timeframe projection is not implemented.
 
 ### D-137 — Shared expected-schedule continuity extraction
 - **Date:** 2026-10-04

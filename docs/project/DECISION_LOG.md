@@ -1100,8 +1100,24 @@ repository. For D-101 onward the date is when it was recorded here
     regression.
 - **Reason:** Swing Structure is the second real consumer of the
   expected-schedule continuity first proven in External Liquidity (D-134).
-- **Status:** ACTIVE — DESIGN APPROVED (not implemented; this is the first
-  implementation step).
+- **Status:** ACTIVE — DESIGN APPROVED.
+  - The SW-I0 implementation is complete and validated on
+    `swing-structure-implementation` (commit `0087e5d`), with exact
+    External parity proven.
+  - It is design-authority approved and pending PR / merge.
+  - Swing Structure itself is not yet implemented or frozen.
+- **Implementation note 2026-10-04 (SW-I0):** implemented, validated,
+  committed and design-authority approved on
+  `swing-structure-implementation`; pending PR / merge.
+  - `src/data/continuity.py` holds `continuity_segments`, the break
+    vocabulary, `BREAK_PRECEDENCE` and `ContinuityError`. The logic is
+    extracted unchanged from External.
+  - External keeps a compatibility wrapper and re-exports, and translates
+    `ContinuityError` to `ExternalLiquidityError`.
+  - Frozen External parity is exact on DEVELOPMENT (2,553 / 86 / 438 /
+    3,326 / 50 / 412). The regenerated External validation CSVs are
+    identical.
+  - The decision text is unchanged.
 
 ### D-138 — Canonical Swing table and identity
 - **Date:** 2026-10-04

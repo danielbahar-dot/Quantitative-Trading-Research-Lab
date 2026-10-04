@@ -1102,6 +1102,17 @@ repository. For D-101 onward the date is when it was recorded here
   expected-schedule continuity first proven in External Liquidity (D-134).
 - **Status:** ACTIVE — DESIGN APPROVED (not implemented; this is the first
   implementation step).
+- **Implementation note 2026-10-04 (SW-I0; uncommitted, pending
+  review).**
+  - `src/data/continuity.py` holds `continuity_segments`, the break
+    vocabulary, `BREAK_PRECEDENCE` and `ContinuityError`. The logic is
+    extracted unchanged from External.
+  - External keeps a compatibility wrapper and re-exports, and translates
+    `ContinuityError` to `ExternalLiquidityError`.
+  - Frozen External parity is exact on DEVELOPMENT (2,553 / 86 / 438 /
+    3,326 / 50 / 412). The regenerated External validation CSVs are
+    identical.
+  - The decision text is unchanged.
 
 ### D-138 — Canonical Swing table and identity
 - **Date:** 2026-10-04

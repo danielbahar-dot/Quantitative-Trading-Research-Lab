@@ -60,9 +60,15 @@ time with explicit approval (D-117).
     Structure (3.2), Internal Liquidity (3.3), then the Shared Lifecycle
     (3.4).
 - **Swing Structure (ROADMAP 3.2): DESIGN APPROVED — IMPLEMENTATION
-  NEXT** (D-135–D-138). It is not implemented and not frozen.
-  - The design is committed on branch `swing-structure-design`, with a
-    design PR open against `main` (not merged).
+  NEXT** (D-135–D-138). The swing detector is not implemented, and nothing
+  is frozen.
+  - The design was merged in PR #11 (`d4c0ce8`).
+  - **SW-I0 (D-137) is implemented and validated, uncommitted, on branch
+    `swing-structure-implementation`, pending design-authority review.**
+    - The shared `src/data/continuity.py` (`continuity_segments`, break
+      vocabulary, `ContinuityError`) is extracted unchanged from External.
+    - External keeps a compatibility wrapper.
+    - Frozen External parity is exact.
   - Spec: `docs/project/SWING_STRUCTURE_SPEC.md`, **rev 3**, with the final
     design-authority decisions. It specifies:
     - a plateau-aware confirmed pivot, failing only on a strict exceed;
@@ -79,10 +85,21 @@ time with explicit approval (D-117).
       prerequisite.
   - Decisions D-135–D-138 (promoted from P-SW-1…4) are ACTIVE — DESIGN
     APPROVED.
-  - Next: the continuity extraction with External parity (D-137), then the
-    swing implementation.
+  - Next, after SW-I0 review: the swing implementation (D-135, D-136,
+    D-138).
 
 ## Last completed work
+
+- **2026-10-04 — SW-I0 shared continuity extraction** (uncommitted;
+  pending review).
+  - Added `src/data/continuity.py` and `tests/test_continuity.py` (20
+    tests).
+  - `src/features/external_liquidity.py` now uses a compatibility wrapper.
+  - DEVELOPMENT parity is exact:
+    - External members 2,553, structures 86, Previous Day references 438,
+      candidates 3,326, breaks 50, barrier blocks 412;
+    - `continuity_segments` output is identical for 1m–1D;
+    - the regenerated External validation CSVs are identical.
 
 - **2026-10-04 — Swing Structure 3.2 design registered.**
   - P-SW-1…4 were promoted to D-135–D-138 (ACTIVE — DESIGN APPROVED).

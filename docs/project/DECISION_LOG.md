@@ -1021,6 +1021,119 @@ repository. For D-101 onward the date is when it was recorded here
   - Any future semantic change to these rules requires a new decision.
     Refactoring must preserve frozen parity.
 
+### D-135 — Canonical causal Swing Structure
+- **Date:** 2026-10-04
+- **Decision** (promoted from P-SW-1; full rules in
+  `docs/project/SWING_STRUCTURE_SPEC.md` rev 3). The Swing is a
+  plateau-aware confirmed pivot / local extremum:
+  - **Plateau.** A Swing plateau is a maximal sequence of consecutive
+    expected source observations within one continuity segment whose
+    relevant extreme (UPPER: high; LOWER: low) is exactly equal on the
+    instrument tick grid.
+    - It is only the source representation of one swing fact. It is not
+      consolidation, range, balance or liquidity.
+    - It may span an expected session boundary, a maintenance interval or
+      a weekend transition. Any actual continuity break terminates it.
+  - **Candidate.** No value in the `left_depth` observations before the
+    plateau is strictly greater (lower, for LOWER).
+  - **Confirmation.** No value in the `right_depth` observations after it
+    is strictly greater (lower). Both windows lie in the same segment.
+  - **Equality.** Equality outside the plateau never invalidates.
+    Separated equal extremes are independent swings; EQ / REQ is
+    downstream.
+  - **Depths.** `left_depth ≥ 1` and `right_depth ≥ 1` are always supplied
+    explicitly, with no implicit default. 2/2 is the explicit reference
+    configuration for validation, audits, visuals and regression baselines
+    on every timeframe. It is not a preferred scale, and depths are never
+    optimized with PnL.
+  - **Timing.** `source_at` = completion of the first plateau bar;
+    `source_end_at` = completion of the last; `available_at` = completion
+    of the final required right-confirmation bar.
+  - **Invariant.** `source_at ≤ source_end_at < available_at`: equality on
+    the left for a single bar, strict for a multi-bar plateau.
+  - **Facts.** Confirmed, immutable facts only. `SPECIFIC` contract scope.
+    Fail-closed expected-schedule continuity. Complete session-truncated
+    bars are valid. Candidate history is audit-only, with exact labels not
+    frozen.
+  - **Timeframes.** Identical semantics on 1m (canonical source bars) and
+    on 5m, 15m, 1H, 4H and 1D (M3 bars).
+- **Reason:** the design-authority-approved Swing Structure 3.2 design (spec
+  rev 1–3, DEVELOPMENT design evidence in spec §23).
+- **Status:** ACTIVE — DESIGN APPROVED. The feature is not implemented and
+  not frozen. Freeze follows implementation, tests, audit, visual
+  validation and design-authority implementation review.
+
+### D-136 — Timeframe independence and causal projection
+- **Date:** 2026-10-04
+- **Decision** (promoted from P-SW-2):
+  - The swings of a timeframe depend only on that timeframe's bars,
+    definition, continuity and contract history.
+  - A confirmed HTF swing may be referenced by an LTF bar consumer only
+    when HTF `available_at ≤` LTF `bar_start`. Event consumers obey the M7
+    strict causal rule.
+  - The same `swing_id` is referenced. There are no LTF copies, no
+    parent/child links, no strength or hierarchy, and no interpretation or
+    liquidity columns.
+- **Reason:** determinism, independent testing and no hidden HTF
+  dependency. DEVELOPMENT evidence: keying on HTF `source_at` would leak
+  the HTF classification about 10 h (4H) or about 2 h (1H) early (spec
+  §23).
+- **Status:** ACTIVE — DESIGN APPROVED (not implemented).
+
+### D-137 — Shared expected-schedule continuity extraction
+- **Date:** 2026-10-04
+- **Decision** (promoted from P-SW-3):
+  - The first implementation prerequisite is a small generic module
+    `src/data/continuity.py`. It provides:
+    - expected-schedule segmentation;
+    - missing expected bucket and missing expected session;
+    - incomplete observation and contract change;
+    - the existing break precedence;
+    - the generic `ContinuityError`.
+  - It must not depend on External Liquidity, Swing Structure, liquidity
+    contracts or strategy concepts.
+  - External may keep a compatibility re-export or wrapper and translate
+    `ContinuityError` to `ExternalLiquidityError`.
+  - Exact frozen External parity is required (members 2,553, structures
+    86, Previous Day references 438, candidates 3,326, continuity breaks
+    50, barrier blocks 412), together with the existing tests and a full
+    regression.
+- **Reason:** Swing Structure is the second real consumer of the
+  expected-schedule continuity first proven in External Liquidity (D-134).
+- **Status:** ACTIVE — DESIGN APPROVED (not implemented; this is the first
+  implementation step).
+
+### D-138 — Canonical Swing table and identity
+- **Date:** 2026-10-04
+- **Decision** (promoted from P-SW-4):
+  - The canonical table is `swing_points`, with orientation
+    `UPPER` / `LOWER`. Its columns are:
+    - `swing_id`, `orientation`, `timeframe`, `price`;
+    - `source_ref`, `source_at`, `source_seq_domain`, `source_seq`,
+      `source_end_at`;
+    - `available_at`, `available_seq_domain`, `available_seq`;
+    - `instrument_id`, `contract_scope`, `contract`;
+    - `left_depth`, `right_depth`, `definition_version`.
+  - Builder input is a small `SwingDefinitionSpec(definition_version,
+    left_depth, right_depth)`. The equality / plateau policy is fixed by
+    `definition_version`. Depths are persisted on rows, and there is no
+    registry.
+  - The canonical source ref is
+    `BAR_SPAN:<instrument_id>|<contract>|<timeframe>|<first_bar_end_utc>|<last_bar_end_utc>`,
+    using the canonical UTC serialization. For one source observation,
+    `first_bar_end_utc == last_bar_end_utc`. It contains no orientation,
+    price, depth, `available_at` or classification. External's `HTF_BAR`
+    refs are unchanged.
+  - `swing_id` = `sw_` + full SHA-256 over `definition_version`,
+    `instrument_id`, `contract_scope`, `contract`, `timeframe`,
+    `orientation`, `left_depth`, `right_depth` and the canonical
+    `BAR_SPAN` `source_ref`. It excludes price, `available_at`, candidate
+    audit status, HTF / LTF context and liquidity interpretation.
+- **Reason:** a minimal, stable canonical fact. Identity is source-based
+  and independent of confirmation timing, consistent with liquidity member
+  identity (D-134).
+- **Status:** ACTIVE — DESIGN APPROVED (not implemented).
+
 ### PROPOSED items awaiting design-authority approval (2026-09-28)
 Claude recommendations from the architecture closeout; **not decisions**:
 ~~Market Context as tidy-DataFrame functions (no MarketContext object)~~

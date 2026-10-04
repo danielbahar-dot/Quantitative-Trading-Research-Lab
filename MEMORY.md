@@ -200,8 +200,30 @@ at a time with explicit approval (D-117).
       incomplete bar.
     - Two tables (members + immutable structure versions), with full
       SHA-256 ids.
-  - Next (D-133 sequencing clarification): 3.2 Swing Structure (next; not
-    started; frozen first), 3.3 Internal (static; may consume swings, but not every swing
+  - **3.2 Swing Structure: DESIGN APPROVED — implementation next
+    (2026-10-04; spec rev 3; D-135–D-138 ACTIVE — DESIGN APPROVED). NOT
+    frozen, not implemented.**
+    - A plateau-aware confirmed pivot: a maximal equal run over
+      consecutive expected observations in one segment is one source (it
+      may cross a session boundary), and only a strict exceed fails a
+      window.
+    - Depths are explicit (≥ 1, no defaults). 2/2 is the reference
+      validation configuration on all timeframes.
+    - The `BAR_SPAN` format and the `sw_` key are final.
+    - `ContinuityError` lives in `src/data/continuity.py`.
+    - Audit labels are not frozen.
+    - Separated equal extremes are independent swings; EQ is downstream.
+      A plateau is not consolidation or range.
+    - `source_at` / `source_end_at` (canonical) / `available_at`, with
+      `BAR_SPAN` plateau identity.
+    - 1m (canonical bars) through 1D.
+    - Detection is per timeframe only. HTF context is used by `swing_id`
+      once `available_at ≤ bar_start`, with no copies.
+    - Table `swing_points`, `UPPER` / `LOWER`.
+    - First prerequisite (D-137): `src/data/continuity.py` extraction with
+      exact External parity.
+  - Next (D-133 sequencing clarification): 3.2 Swing Structure (frozen
+    first), 3.3 Internal (static; may consume swings, but not every swing
     is liquidity), then 3.4 Shared Lifecycle.
   - A Signal is an immutable point event: no lifetime and no execution
     fields.

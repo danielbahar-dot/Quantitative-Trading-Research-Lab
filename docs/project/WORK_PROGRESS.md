@@ -27,9 +27,7 @@ time with explicit approval (D-117).
   Liquidity): DONE — APPROVED / FROZEN** (2026-10-04; D-133, D-134
   freeze note).
   - Design and EL-I0 merged (PR #9, `27f493b`).
-  - The implementation and freeze are committed on branch
-    `external-liquidity-implementation` and in PR review against `main`
-    (not merged):
+  - The implementation and freeze are merged (PR #10, `db13d19`):
     - `src/liquidity/contract.py` and `src/features/external_liquidity.py`;
     - tests: 15 contract + 41 External;
     - full suite: 543 passed / 0 failed / 382 subtests.
@@ -59,10 +57,56 @@ time with explicit approval (D-117).
   - The visual HTML is local (31 cases). Price-free audit CSVs are in
     `reports/validation/external_liquidity_*`.
   - Next in the workstream (D-133 sequencing clarification): Swing
-    Structure (3.2, **next; not started**), Internal Liquidity (3.3), then
-    the Shared Lifecycle (3.4).
+    Structure (3.2), Internal Liquidity (3.3), then the Shared Lifecycle
+    (3.4).
+- **Swing Structure (ROADMAP 3.2): DESIGN APPROVED — IMPLEMENTATION
+  NEXT** (D-135–D-138). It is not implemented and not frozen.
+  - The design is committed on branch `swing-structure-design`, with a
+    design PR open against `main` (not merged).
+  - Spec: `docs/project/SWING_STRUCTURE_SPEC.md`, **rev 3**, with the final
+    design-authority decisions. It specifies:
+    - a plateau-aware confirmed pivot, failing only on a strict exceed;
+    - a plateau over consecutive expected observations in one segment
+      (session boundaries allowed);
+    - separated equal extremes as independent swings;
+    - the source timing invariant;
+    - a fixed `BAR_SPAN` format and a final `sw_` identity key;
+    - explicit depths ≥ 1 with no defaults, and 2/2 as the reference
+      validation configuration on all timeframes;
+    - 1m (canonical bars) through 1D;
+    - per-timeframe detection with causal `swing_id` projection;
+    - `src/data/continuity.py` with `ContinuityError` as the first
+      prerequisite.
+  - Decisions D-135–D-138 (promoted from P-SW-1…4) are ACTIVE — DESIGN
+    APPROVED.
+  - Next: the continuity extraction with External parity (D-137), then the
+    swing implementation.
 
 ## Last completed work
+
+- **2026-10-04 — Swing Structure 3.2 design registered.**
+  - P-SW-1…4 were promoted to D-135–D-138 (ACTIVE — DESIGN APPROVED).
+  - One design commit, pushed, with a design PR opened against `main`
+    (not merged).
+
+- **2026-10-04 — Swing Structure 3.2 final design decisions (rev 3)**
+  (uncommitted; design only).
+  - Q1 and Q9–Q12 resolved; no semantic questions remain.
+  - Spec status is DESIGN APPROVED.
+
+- **2026-10-04 — Swing Structure 3.2 design review amendment (rev 2)**
+  (uncommitted; design only).
+  - The equality rule changed: separated equal extremes now both confirm.
+    This adds 0 swings at N = 1 and +0.7–7.2 % at N = 2 to 5 on 1m–1H; 4H
+    and 1D are essentially unchanged.
+  - Plateau identity is now `BAR_SPAN`; 1m is included; continuity goes to
+    `src/data/continuity.py`.
+- **2026-10-04 — Swing Structure 3.2 design draft** (uncommitted; design
+  only).
+  - Read-only DEVELOPMENT probe (1m–1D, N = 1 / 2 / 3 / 5), equality
+    policy comparison, and a cross-timeframe as-of study.
+  - Local visual `reports/validation/swing_structure_design_visual.html`
+    (Git-ignored).
 
 - **2026-10-04 — External Liquidity 3.1 APPROVED / FROZEN.**
   - Recorded the freeze (spec status and §18 baseline, the D-134 freeze

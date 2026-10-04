@@ -1,10 +1,17 @@
 # Generic Swing Structure (3.2): Specification
 
-**Status: DESIGN APPROVED — IMPLEMENTATION NEXT (rev 3, 2026-10-04;
-D-135 – D-138).**
+**Status: DESIGN APPROVED — IMPLEMENTATION IN PROGRESS (rev 3,
+2026-10-04; D-135 – D-138).**
 
 - The semantic design is approved for implementation. The feature is
-  **not frozen**, because nothing is implemented or validated yet.
+  **not frozen**.
+- Implementation state (repository state only; semantics unchanged):
+  - **SW-I0**, the shared continuity (D-137), is merged and complete
+    (PR #12, `3b098f5`).
+  - **SW-I1**, the canonical contract (`src/market_structure/swing.py`),
+    is implemented, validated and design-authority approved, and
+    committed on the active Swing implementation branch.
+  - The swing detector is not implemented.
 - Decisions **D-135 – D-138** (§26) are registered as ACTIVE — DESIGN
   APPROVED.
 
@@ -505,7 +512,7 @@ frozen.**
   availability and timeframe).
 - Whether BOS / MSS is generic or ICT/SMC stays **open** (ROADMAP 4).
 
-## 21. Shared continuity (decided; not implemented)
+## 21. Shared continuity (decided; implemented and validated in SW-I0, merged in PR #12)
 
 Swing is the **second real consumer**. The **first implementation
 prerequisite** is to extract the continuity logic to

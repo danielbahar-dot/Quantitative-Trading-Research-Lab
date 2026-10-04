@@ -59,17 +59,23 @@ time with explicit approval (D-117).
   - Next in the workstream (D-133 sequencing clarification): Swing
     Structure (3.2), Internal Liquidity (3.3), then the Shared Lifecycle
     (3.4).
-- **Swing Structure (ROADMAP 3.2): DESIGN APPROVED — IMPLEMENTATION
-  NEXT** (D-135–D-138). The swing detector is not implemented, and nothing
-  is frozen.
+- **Swing Structure (ROADMAP 3.2): DESIGN APPROVED — IMPLEMENTATION IN
+  PROGRESS** (D-135–D-138). The swing detector is not implemented, and
+  nothing is frozen.
   - The design was merged in PR #11 (`d4c0ce8`).
-  - **SW-I0 (D-137) is implemented, validated, committed (`0087e5d`) and
-    design-authority approved on `swing-structure-implementation`;
-    pending PR / merge.**
+  - **SW-I0 (D-137) is merged and complete** (PR #12, `3b098f5`).
     - The shared `src/data/continuity.py` (`continuity_segments`, break
       vocabulary, `ContinuityError`) is extracted unchanged from External.
     - External keeps a compatibility wrapper.
     - Frozen External parity is exact.
+  - **SW-I1 (D-138 canonical contract) is implemented, validated and
+    design-authority approved; it is committed on the active Swing
+    implementation branch `swing-structure-contract`.** Full suite: 591
+    passed / 0 failed / 439 subtests.
+    - `src/market_structure/swing.py` provides `SwingDefinitionSpec`,
+      `SWING_COLUMNS`, `bar_span_ref`, `swing_id`, `assign_swing_ids` and
+      `validate_swing_points`.
+    - There is no detection.
   - Spec: `docs/project/SWING_STRUCTURE_SPEC.md`, **rev 3**, with the final
     design-authority decisions. It specifies:
     - a plateau-aware confirmed pivot, failing only on a strict exceed;
@@ -86,14 +92,24 @@ time with explicit approval (D-117).
       prerequisite.
   - Decisions D-135–D-138 (promoted from P-SW-1…4) are ACTIVE — DESIGN
     APPROVED.
-  - Next, after the SW-I0 merge: the swing implementation (D-135, D-136,
-    D-138).
+  - Next: SW-I2, the swing detector (D-135, D-136), with the canonical-1m
+    observation adapter.
 
 ## Last completed work
 
+- **2026-10-04 — SW-I1 canonical Swing contract.** Implemented, validated
+  and design-authority approved; committed on the active Swing
+  implementation branch `swing-structure-contract`.
+  - Tests: 28 new tests (57 subtests).
+  - Full suite: 591 passed / 0 failed / 439 subtests.
+  - Added `src/market_structure/{__init__,swing}.py` and
+    `tests/test_swing_contract.py`.
+  - The module covers the definition spec, exact schema, `BAR_SPAN`
+    provenance, the `sw_` identity and fact-envelope validation.
+  - There is no pivot logic and no source-bar adapter.
+
 - **2026-10-04 — SW-I0 shared continuity extraction.** Implemented,
-  validated, committed (`0087e5d`) and design-authority approved on
-  `swing-structure-implementation`; pending PR / merge.
+  validated, design-authority approved and merged (PR #12, `3b098f5`).
   - Added `src/data/continuity.py` and `tests/test_continuity.py` (20
     tests).
   - `src/features/external_liquidity.py` now uses a compatibility wrapper.

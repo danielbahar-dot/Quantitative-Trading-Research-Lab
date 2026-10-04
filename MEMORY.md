@@ -200,9 +200,16 @@ at a time with explicit approval (D-117).
       incomplete bar.
     - Two tables (members + immutable structure versions), with full
       SHA-256 ids.
-  - **3.2 Swing Structure: DESIGN APPROVED — implementation next
+  - **3.2 Swing Structure: DESIGN APPROVED — IMPLEMENTATION IN PROGRESS
     (2026-10-04; spec rev 3; D-135–D-138 ACTIVE — DESIGN APPROVED). NOT
-    frozen, not implemented.**
+    frozen; the detector is not implemented.**
+    - **SW-I1 (implemented, validated and design-authority approved;
+      committed on the active Swing implementation branch
+      `swing-structure-contract`; full suite 591 passed / 0 failed / 439
+      subtests):** the canonical contract in
+      `src/market_structure/swing.py`, with no detection. It provides:
+      - `SwingDefinitionSpec`, `SWING_COLUMNS` and `bar_span_ref`;
+      - `swing_id`, `assign_swing_ids` and `validate_swing_points`.
     - A plateau-aware confirmed pivot: a maximal equal run over
       consecutive expected observations in one segment is one source (it
       may cross a session boundary), and only a strict exceed fails a
@@ -211,9 +218,8 @@ at a time with explicit approval (D-117).
       validation configuration on all timeframes.
     - The `BAR_SPAN` format and the `sw_` key are final.
     - D-137: `ContinuityError` and `continuity_segments` now live in
-      `src/data/continuity.py`. SW-I0 is implemented, validated,
-      committed (`0087e5d`) and design-authority approved on
-      `swing-structure-implementation`, pending PR / merge.
+      `src/data/continuity.py`. SW-I0 is merged and complete (PR #12,
+      `3b098f5`).
       - It is extracted unchanged from External; External keeps a
         compatibility wrapper and translates the error.
       - Frozen External parity is exact.
@@ -228,8 +234,7 @@ at a time with explicit approval (D-117).
       once `available_at ≤ bar_start`, with no copies.
     - Table `swing_points`, `UPPER` / `LOWER`.
     - First prerequisite (D-137): `src/data/continuity.py` extraction with
-      exact External parity. This is SW-I0: implemented and approved,
-      pending PR / merge.
+      exact External parity. This is SW-I0, merged (PR #12).
   - Next (D-133 sequencing clarification): 3.2 Swing Structure (frozen
     first), 3.3 Internal (static; may consume swings, but not every swing
     is liquidity), then 3.4 Shared Lifecycle.

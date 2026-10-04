@@ -1101,14 +1101,12 @@ repository. For D-101 onward the date is when it was recorded here
 - **Reason:** Swing Structure is the second real consumer of the
   expected-schedule continuity first proven in External Liquidity (D-134).
 - **Status:** ACTIVE — DESIGN APPROVED.
-  - The SW-I0 implementation is complete and validated on
-    `swing-structure-implementation` (commit `0087e5d`), with exact
-    External parity proven.
-  - It is design-authority approved and pending PR / merge.
-  - Swing Structure itself is not yet implemented or frozen.
+  - The SW-I0 implementation is merged and complete (commit `0087e5d`;
+    PR #12 merged into `main` at `3b098f5`), with exact External parity
+    proven.
+  - Swing Structure itself is not yet fully implemented or frozen.
 - **Implementation note 2026-10-04 (SW-I0):** implemented, validated,
-  committed and design-authority approved on
-  `swing-structure-implementation`; pending PR / merge.
+  design-authority approved and merged (PR #12, `3b098f5`).
   - `src/data/continuity.py` holds `continuity_segments`, the break
     vocabulary, `BREAK_PRECEDENCE` and `ContinuityError`. The logic is
     extracted unchanged from External.
@@ -1148,7 +1146,14 @@ repository. For D-101 onward the date is when it was recorded here
 - **Reason:** a minimal, stable canonical fact. Identity is source-based
   and independent of confirmation timing, consistent with liquidity member
   identity (D-134).
-- **Status:** ACTIVE — DESIGN APPROVED (not implemented).
+- **Status:** ACTIVE — DESIGN APPROVED.
+- **Implementation note 2026-10-04 (SW-I1):** implemented, validated and
+  design-authority approved; committed on the active Swing implementation
+  branch.
+  - The contract is implemented in `src/market_structure/swing.py`:
+    `SwingDefinitionSpec`, `SWING_COLUMNS`, `bar_span_ref`, `swing_id`,
+    `assign_swing_ids` and `validate_swing_points`.
+  - There is no detection yet. The decision text is unchanged.
 
 ### PROPOSED items awaiting design-authority approval (2026-09-28)
 Claude recommendations from the architecture closeout; **not decisions**:

@@ -90,19 +90,19 @@ time with explicit approval (D-117).
     (not merged).
 
 - **2026-10-04 — Swing Structure 3.2 final design decisions (rev 3)**
-  (uncommitted; design only).
+  (design-only phase; now incorporated into the registered design).
   - Q1 and Q9–Q12 resolved; no semantic questions remain.
   - Spec status is DESIGN APPROVED.
 
 - **2026-10-04 — Swing Structure 3.2 design review amendment (rev 2)**
-  (uncommitted; design only).
+  (design-only phase; now incorporated into the registered design).
   - The equality rule changed: separated equal extremes now both confirm.
     This adds 0 swings at N = 1 and +0.7–7.2 % at N = 2 to 5 on 1m–1H; 4H
     and 1D are essentially unchanged.
   - Plateau identity is now `BAR_SPAN`; 1m is included; continuity goes to
     `src/data/continuity.py`.
-- **2026-10-04 — Swing Structure 3.2 design draft** (uncommitted; design
-  only).
+- **2026-10-04 — Swing Structure 3.2 design draft** (design-only phase;
+  now incorporated into the registered design).
   - Read-only DEVELOPMENT probe (1m–1D, N = 1 / 2 / 3 / 5), equality
     policy comparison, and a cross-timeframe as-of study.
   - Local visual `reports/validation/swing_structure_design_visual.html`
@@ -111,8 +111,8 @@ time with explicit approval (D-117).
 - **2026-10-04 — External Liquidity 3.1 APPROVED / FROZEN.**
   - Recorded the freeze (spec status and §18 baseline, the D-134 freeze
     note, ROADMAP, MEMORY).
-  - Two commits (implementation + tests; validation + governance), pushed;
-    PR opened against `main`, not merged.
+  - Two commits (implementation + tests; validation + governance), merged
+    to `main` via PR #10 (`db13d19`).
 
 - **2026-10-03 — External Liquidity pre-freeze review corrections**
   (uncommitted, not frozen). These are contract / audit / test / visual

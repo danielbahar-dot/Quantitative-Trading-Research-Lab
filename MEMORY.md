@@ -210,7 +210,8 @@ at a time with explicit approval (D-117).
     - Depths are explicit (≥ 1, no defaults). 2/2 is the reference
       validation configuration on all timeframes.
     - The `BAR_SPAN` format and the `sw_` key are final.
-    - `ContinuityError` lives in `src/data/continuity.py`.
+    - D-137 specifies `ContinuityError` for the future
+      `src/data/continuity.py` extraction; it is not implemented yet.
     - Audit labels are not frozen.
     - Separated equal extremes are independent swings; EQ is downstream.
       A plateau is not consolidation or range.

@@ -1,8 +1,10 @@
 """M3 expected-timeframe-schedule API tests (EL-I0). Synthetic bars only.
 
-``reference_build_timeframe`` below is a verbatim frozen copy of the
-pre-refactor ``build_timeframe`` (with its private helpers), kept only as a
-parity oracle proving the shared-geometry refactor changed no output.
+``reference_build_timeframe`` below is a frozen pre-refactor
+geometry/aggregation reference for valid source fixtures.  It reproduces the
+pre-refactor bucket geometry, aggregation and metrics, but not every input
+validation path.  It is kept only as a parity oracle showing that the
+shared-geometry refactor changed no output on valid fixtures.
 """
 
 from datetime import date, time, timedelta
@@ -68,7 +70,8 @@ def spans(schedule: pd.DataFrame) -> list[tuple[str, str]]:
 
 
 # ---------------------------------------------------------------------------
-# Frozen pre-refactor reference (parity oracle only)
+# Frozen pre-refactor geometry/aggregation reference for valid source fixtures
+# (parity oracle only; input validation paths are not reproduced)
 # ---------------------------------------------------------------------------
 
 

@@ -1,16 +1,23 @@
 # Generic Market Structure: Protected Swing, Structural Direction, Breaks, BOS, CHoCH — Design
 
-**Status: DESIGN DRAFT rev 2.3 (2026-10-05).**
+**Status: DESIGN DRAFT rev 2.4 (2026-10-05). SEMANTIC REVIEW COMPLETE.
+Final design approval, D-number registration, implementation and freeze
+are PENDING.**
 
-- **Within-contract semantic review: COMPLETE** (2026-10-05).
+- **Semantic review: COMPLETE** (2026-10-05), both within contracts and at
+  contract boundaries.
   - D1–D17, K-1 … K-14, N-1, N-3 and the rev 2.2 corrections apply.
   - Same-close target admission after a failed establishment (T-1) is
     **APPROVED (final, design authority, 2026-10-05)** (§E.6a, §K.2b).
-- **The full specification remains a DESIGN DRAFT** pending:
-  - contract-roll treatment (N-2 and the pure-roll reset onset, §G.0);
-  - final approval and D-number registration (MS-I0).
-- No implementation or freeze is authorized. Continuous or stitched
-  structure is out of scope for this phase.
+  - The contract-boundary decisions are **APPROVED** (rev 2.4; §G.0,
+    §G.2, §G.3, §K.2c):
+    - **CB-1:** a gap followed by a contract change;
+    - **CB-2:** a pure contract change.
+    - They resolve the former N-2 and the pure-roll onset.
+- **Pending:** final design approval and D-number registration (MS-I0).
+  No implementation or freeze is authorized.
+- **Not introduced:** stitching, price adjustment, or a roll-calendar
+  system. Every state and reference is contract-specific.
 
 **Rev 2.2 corrections** (review findings 1–5; approved semantics preserved;
 contract-roll treatment still deferred):
@@ -38,8 +45,8 @@ contract-roll treatment still deferred):
 **Rev 2.1 review outcomes:**
 
 - **N-1 APPROVED:** eligibility-order ties (§E.1).
-- **N-2 DEFERRED:** combined gap / contract-change provenance, pending the
-  contract-roll review (§G.0, §G.2).
+- **N-2 DEFERRED** at rev 2.1. It is **resolved in rev 2.4 by CB-1 /
+  CB-2** (§K.2c).
 - **N-3 APPROVED:** parent-dependent candidate-target assignments (§C.4,
   §E.4).
 - **N-4:** 3.MS draft numbering, sequenced before Internal Liquidity. This
@@ -249,9 +256,11 @@ One episode per (timeframe, definition, continuity segment).
 |---|---|
 | `episode_id` | `se_` + SHA-256(`definition_version`, swing-definition triple, `instrument_id`, `contract_scope`, `contract`, `timeframe`, `canonical(first_bar_end)`) |
 | `first_bar_end` | First valid observation of the segment; it is the entity `available_at` |
-| `opening_cause` | `DATA_START` \| `DATA_GAP_REESTABLISHMENT` \| `CONTRACT_CHANGE_REESTABLISHMENT` (§G.3). Which cause applies at a combined gap + roll boundary is **DEFERRED (N-2, §G.0)** |
-| `opening_ref` | Null for `DATA_START`; otherwise the preceding `CONTINUITY_BREAK:<timeframe>\|<prev_contract>\|<canonical(onset)>` |
-| `opening_contract_changed` | Boolean from shared continuity. Whether it is the provenance carrier at combined boundaries is **DEFERRED (N-2)** |
+| `opening_cause` | `DATA_START` \| `DATA_GAP_REESTABLISHMENT` \| `CONTRACT_CHANGE_REESTABLISHMENT` (§G.3). It names the reset that ended the predecessor: a gap followed by a contract change is `DATA_GAP_REESTABLISHMENT` (CB-1) |
+| `opening_ref` | Null for `DATA_START`; otherwise the predecessor's reset ref `CONTINUITY_BREAK:<timeframe>\|<prev_contract>\|<canonical(t_r)>`, identical to that RESET event's `reset_ref` |
+| `previous_contract` | The predecessor episode's contract; null for `DATA_START` |
+| `opening_contract_changed` | `contract ≠ previous_contract`. It is known only from the first new-contract observation, so it is available at `first_bar_end` (the shared-continuity break row's `contract_changed`) |
+| `opening_contract_change_ref` | Null unless `opening_contract_changed`. Otherwise the evidence of the observed contract change: the first new-contract observation, `BAR_SPAN:<instrument_id>\|<contract>\|<timeframe>\|<canonical(first_bar_end)>\|<canonical(first_bar_end)>`, an existing SourceRef format (CB-1 / CB-2) |
 | `contract`, `instrument_id`, `contract_scope` (SPECIFIC) | The segment's |
 
 There is no `valid_until` (no hindsight bound). An episode ends only
@@ -962,42 +971,44 @@ BATCH at e(N):
 
 ## G. Lifecycle, gaps, contracts, timeframes and revisions
 
-### G.0 Closed within-contract semantics versus deferred contract-roll treatment
+### G.0 Semantic closure: within contracts and at contract boundaries (rev 2.4)
 
-**CLOSED** (approved for design; it applies inside one continuity segment
-of one contract). **Within-contract semantic review is complete (rev 2.3,
-§K.2b).**
+**CLOSED (semantic review complete):**
 
-- D1–D17 and K-1 … K-14 as applied in §C–§F;
-- N-1 and N-3;
-- data-gap resets inside one contract (missing bucket / session,
-  incomplete observation): their scheduled-replay onset, the `DATA_GAP`
-  reason and the `DATA_GAP_REESTABLISHMENT` opening (K-5, §G.2);
-- contract isolation (K-5): episodes, roles and events are `SPECIFIC`, so
-  a new contract never inherits old-contract state, and no observation is
-  ever classified against another contract's state;
-- the requirement that a contract change carries its **own** reset reason
-  and provenance (`CONTRACT_CHANGE` / `CONTRACT_CHANGE_REESTABLISHMENT`),
-  never mislabelled `DATA_GAP` (K-5).
+- **Within one continuity segment of one contract:**
+  - D1–D17 and K-1 … K-14 as applied in §C–§F;
+  - N-1, N-3 and T-1 (§K.2b);
+  - data-gap resets inside one contract (missing bucket / session,
+    incomplete observation): their scheduled-replay onset, the `DATA_GAP`
+    reason and the `DATA_GAP_REESTABLISHMENT` opening (K-5, §G.2).
+- **At contract boundaries** (CB-1 / CB-2, §K.2c; these resolve the former
+  N-2 and the pure-roll onset):
+  - **CB-1, gap followed by a contract change:**
+    - a `DATA_GAP` reset at the first missing observation's expected
+      completion;
+    - the contract change is recorded **only when new-contract evidence
+      becomes available**, in the new episode's opening provenance;
+    - the earlier reset and its availability are **never** modified.
+  - **CB-2, pure contract change:** a `CONTRACT_CHANGE` reset at the first
+    new-contract bar's close, under the completed-bar input model.
+- **Contract isolation (K-5):**
+  - episodes, roles, events and references are `SPECIFIC` to one
+    contract;
+  - a new contract never inherits old-contract state;
+  - no new-contract observation is ever classified against old-contract
+    state.
 
-**DEFERRED** (dependent on the contract-roll review; not finalized):
+**Out of scope (unchanged; not part of this phase):**
 
-- **N-2:** provenance when a data gap and a contract change occur at the
-  same boundary.
-  - The user's provisional preference is primary `DATA_GAP` plus an
-    explicit `contract_changed = True` flag. This is **not** an approved
-    rule.
-  - On DEVELOPMENT **every** roll coincides with missing roll-week
-    sessions. Every DEVELOPMENT roll boundary therefore depends on N-2.
-- **The exact reset onset for a pure contract change** (no missing or
-  invalid observation).
-  - Proposed: the `bar_end` of the first new-contract observation (§G.3).
-  - It remains a proposal until roll treatment is reviewed.
-- **Any broader roll treatment.** Continuous or stitched structure across
-  rolls stays out of scope (D1 data-quality gate deferred, D-123).
+- continuous or stitched structure across rolls;
+- price adjustment;
+- any roll-calendar system.
 
-Implementation must not hard-code the deferred items before review
-(§J, MS-I0).
+The D1 data-quality gate stays deferred (D-123). The contract is known only
+from observed bars, never from a declared roll schedule.
+
+**Pending:** final design approval and D-number registration (MS-I0), then
+separately authorized implementation, validation and freeze.
 
 ### G.1 Lifecycle
 
@@ -1028,8 +1039,8 @@ observations:
 |---|---|---|
 | Missing expected bucket / session | Expected `bar_end` of the first missing expected observation after the last valid one (from `expected_timeframe_schedule`) | `DATA_GAP` |
 | Incomplete (invalid) observation | That observation's `bar_end` (its expected completion) | `DATA_GAP` |
-| Contract change, no missing or invalid observation | **Proposed, pending the roll review (§G.0):** `bar_end` of the first observation on the new contract (§G.3) | `CONTRACT_CHANGE` (distinct reason: K-5, closed) |
-| Gap **and** contract change at one boundary | **DEFERRED (N-2)**; the gap onset is the provisional preference | **DEFERRED (N-2)**; provisional preference `DATA_GAP` + `contract_changed = True`, **not approved** |
+| **CB-2:** contract change, no missing or invalid observation | `bar_end` of the first observation on the new contract. That is the first instant new-contract evidence exists under the completed-bar input model | `CONTRACT_CHANGE` |
+| **CB-1:** gap (missing / invalid observations) followed by a contract change | The gap onset: the expected `bar_end` of the first missing (or invalid) observation, exactly as for a gap without a roll | `DATA_GAP`. The reset carries **no** contract flag, because the change is not yet observable at `t_r` |
 
 **At `t_r`:**
 
@@ -1038,6 +1049,16 @@ observations:
 - a RESET event is written (`reset_reason`, `CONTINUITY_BREAK` ref).
 
 There is no BOS / CHoCH inference across or inside the gap (D12).
+
+**No retroactive revision (CB-1).**
+
+- The `DATA_GAP` reset, its transition, its RESET event and their
+  `available_at = t_r` are final when written.
+- When the next valid observation later shows a different contract, that
+  fact is recorded **only** in the new episode's opening provenance
+  (§C.3, §G.3), available at that observation's `bar_end`.
+- The fact is never back-filled onto the reset. Prefix replay to any
+  `e(k) < first_bar_end` is therefore unaffected by the later roll (§G.5).
 
 **Live operation:** feed lateness and timeout detection are **deferred**.
 The onset above is a property of scheduled historical replay. No claim is
@@ -1048,21 +1069,43 @@ made that a live system could detect it at `t_r`.
 | New episode follows | `opening_cause` |
 |---|---|
 | Start of the input (the first segment) | `DATA_START` |
-| A break whose shared-continuity reason is MISSING_EXPECTED_SESSION / MISSING_EXPECTED_BUCKET / INCOMPLETE_BAR, **without** a contract change | `DATA_GAP_REESTABLISHMENT` (closed) |
-| A break whose reason is CONTRACT_CHANGE only | `CONTRACT_CHANGE_REESTABLISHMENT` (the distinct cause is closed; the onset is pending the roll review) |
-| A gap break **with** `contract_changed = True` | **DEFERRED (N-2).** Provisionally `DATA_GAP_REESTABLISHMENT` with `opening_contract_changed = True`; not approved |
+| A break whose shared-continuity reason is MISSING_EXPECTED_SESSION / MISSING_EXPECTED_BUCKET / INCOMPLETE_BAR, **without** a contract change | `DATA_GAP_REESTABLISHMENT`; `opening_contract_changed = False` |
+| A break whose reason is CONTRACT_CHANGE only (CB-2) | `CONTRACT_CHANGE_REESTABLISHMENT`; `opening_contract_changed = True` |
+| A gap break with shared-continuity `contract_changed = True` (CB-1) | `DATA_GAP_REESTABLISHMENT`; `opening_contract_changed = True` |
+
+**Opening provenance (CB-1 / CB-2).** Every non-initial episode records
+both sides of its boundary:
+
+- **`opening_ref`:** the predecessor's reset (`CONTINUITY_BREAK` at
+  `t_r`);
+- **when the contract changed:** `previous_contract` and
+  `opening_contract_change_ref`, the `BAR_SPAN` of its own first
+  observation, which is the observed new-contract evidence.
+
+All of these are available at the episode's `first_bar_end`, its entity
+`available_at`. Nothing in the episode row predates the evidence it cites.
+
 
 Not every later segment is a data-gap re-establishment. The cause comes
 from the shared break row.
 
-**Contract changes** (the onset is proposed, pending the roll review;
-isolation is closed).
+**Contract changes (CB-2; isolation K-5).**
 
 - The new contract is known only from the first new-contract observation:
-  its data, available at its `bar_end`. Nothing earlier is assumed.
-- **Proposed:** the old episode resets, and the new episode opens, at the
-  same instant: `e(first new-contract observation)`. These are different
-  entities, so M7A is satisfied.
+  its data, available at its `bar_end`. Nothing earlier is assumed, and
+  there is no roll calendar.
+- **Pure change (CB-2):** the old episode resets (`CONTRACT_CHANGE`), and
+  the new episode opens, at the same instant: `e(first new-contract
+  observation)`. These are different entities, so M7A is satisfied.
+  - Until then the old episode remains the latest state of the **old**
+    contract only. No new-contract consumer can read it.
+- **Gap then change (CB-1):**
+  - the old episode resets earlier, at the gap onset (`DATA_GAP`, §G.2);
+  - the new episode opens at the first valid (new-contract) observation's
+    `bar_end`, with `DATA_GAP_REESTABLISHMENT` and the contract-change
+    provenance above;
+  - between the two instants no episode exists for either contract on
+    that timeframe.
 - That observation is the new episode's first observation and is **never
   classified against the old episode**.
 - **Contract isolation:**
@@ -1469,29 +1512,45 @@ same-orientation swings (§E.2a L0′), so no divergent case is shown.
 - Gap-open O = 110.50, C = 111 → break (D1), although M6 reports no
   close_through (§A.2).
 
-**H.11 Gap versus contract provenance (correction 4).**
+**H.11 Gap versus contract provenance (CB-1 / CB-2; rebuilt in rev 2.4).**
+4H observations; contracts `A` (old) and `B` (new).
 
-- **4H, contract A:** the last valid bucket ends 10:00; the 10:00–14:00
-  bucket is missing.
-  - RESET(`DATA_GAP`) at its expected `bar_end` 14:00.
-  - The next segment opens at the next valid bucket's `bar_end`, as
-    `DATA_GAP_REESTABLISHMENT`.
-- **Closed:** the A episode is not continued on B, and no B observation
-  is ever classified against A state (K-5).
-- **Roll with no gap: onset proposed, pending the roll review (§G.0).**
-  - The last A bar ends 14:00; the next expected bucket (14:00–17:00) is
-    on contract B.
-  - RESET(`CONTRACT_CHANGE`) of the A episode, and a new B episode
-    (`CONTRACT_CHANGE_REESTABLISHMENT`), both at 17:00.
-  - The 14:00–17:00 bar is the B episode's first observation.
-- **Roll during missing roll-week sessions** (the DEVELOPMENT pattern):
-  **DEFERRED (N-2).**
-  - Provisional, not approved: RESET(`DATA_GAP`, `contract_changed =
-    True`) at the first missing observation's expected end, with
-    `opening_cause = DATA_GAP_REESTABLISHMENT`.
-  - Until N-2 is decided, the only settled facts are these:
-    - the A episode ends no later than this boundary;
-    - B starts a new episode with no inherited state.
+- **Gap, same contract:**
+  - the last valid `A` bucket ends 10:00 and the 10:00–14:00 bucket is
+    missing;
+  - RESET(`DATA_GAP`) at its expected `bar_end` 14:00;
+  - the next segment (still `A`) opens at the next valid bucket's
+    `bar_end` as `DATA_GAP_REESTABLISHMENT`, with
+    `opening_contract_changed = False`.
+- **CB-2, pure roll:** the last `A` bar ends 14:00; the next expected
+  bucket (14:00–17:00) is present and on `B`.
+  - At 17:00: RESET(`CONTRACT_CHANGE`) of the `A` episode, with
+    `reset_ref = CONTINUITY_BREAK:4H|A|17:00`.
+  - At the same instant a new `B` episode opens:
+    - `first_bar_end = 17:00`;
+    - `CONTRACT_CHANGE_REESTABLISHMENT`, with `opening_ref` = that reset
+      ref and `previous_contract = A`;
+    - `opening_contract_change_ref = BAR_SPAN:<inst>|B|4H|17:00|17:00`.
+  - The 14:00–17:00 `B` bar is the `B` episode's first observation. It is
+    **never classified against `A` state**.
+- **CB-1, roll during missing roll-week sessions** (the DEVELOPMENT
+  pattern):
+  - The last `A` bar ends Friday 17:00. The Monday–Thursday expected
+    sessions are missing, and the next valid observation is on `B`.
+  - **At the expected `bar_end` of the first missing observation:**
+    RESET(`DATA_GAP`) of the `A` episode,
+    `reset_ref = CONTINUITY_BREAK:4H|A|<t_r>`.
+    - **No contract flag** is written: at `t_r` no `B` evidence exists.
+  - **At `e(first B observation)`:** a new `B` episode opens:
+    - `DATA_GAP_REESTABLISHMENT`;
+    - `opening_ref` = the gap reset ref;
+    - `previous_contract = A`;
+    - `opening_contract_changed = True`;
+    - `opening_contract_change_ref` = that observation's `BAR_SPAN`.
+  - The `A` reset row is never revisited.
+  - A prefix replay ending between `t_r` and `e(first B observation)`
+    contains the `A` reset and no `B` episode. That is identical to the
+    full run restricted to that prefix.
 
 **H.12 Revision (K-13 / correction 5).**
 
@@ -1526,7 +1585,7 @@ fails.
 |---|---|---|
 | Mathematical arguments | A-1 … A-7 below (A-1′, A-6 and A-7 new in rev 2.2) | Written; **not machine-checked** |
 | Example consistency check (rev 2.2) | EX-A, EX-B, EX-C (§H.0) | **Scratch-only script, run 2026-10-05: all assertions pass.** Swing spans come from the frozen `_confirmed_plateaus`; breaches and §E formulas were evaluated at the stated instants. This is not a feature test, not a DEVELOPMENT run and not repository code. Role-entity / transition rows were not machine-checked |
-| Planned tests | MS-T1 … MS-T20, invariants INV-1 … INV-15 | **Not implemented, not run** |
+| Planned tests | MS-T1 … MS-T23, invariants INV-1 … INV-16 | **Not implemented, not run** |
 | Executed tests | — | **None** for this feature family |
 
 ### I.1 Mathematical arguments (with assumptions)
@@ -1577,7 +1636,10 @@ fails.
 | MS-T8 | Same-observation confirmation excluded; admission at the classification close (H.4) |
 | MS-T9 | Several simultaneous confirmations (outside bar); anchor replacement in one batch; delayed plateau (H.3, H.3b); CHoCH reseed with historical anchor and target in one batch (H.5) |
 | MS-T10 | Wick versus close, equality, one tick, gap-open break; the M6 contrast (H.10) |
-| MS-T11 | Gap reset (missing bucket / session / incomplete); contract isolation. Contract-only onset and the combined case (H.11) are tested only after the roll review (N-2) |
+| MS-T11 | Gap reset (missing bucket / session / incomplete) on one contract; `opening_contract_changed = False` (H.11) |
+| MS-T21 | **CB-1** (synthetic): gap then new contract. `DATA_GAP` reset at the first missing observation's expected `bar_end`, with no contract flag. The new episode is `DATA_GAP_REESTABLISHMENT` with `opening_ref` = the gap reset ref, `previous_contract`, `opening_contract_changed = True` and `opening_contract_change_ref` = the first new-contract `BAR_SPAN`, all available at `first_bar_end`. The reset row is byte-identical in prefix runs ending before and after the roll evidence. Variants: a missing session, a missing bucket, an incomplete bar (H.11) |
+| MS-T22 | **CB-2** (synthetic): pure roll. `CONTRACT_CHANGE` reset and new-episode opening both at `e(first new-contract observation)`; `CONTRACT_CHANGE_REESTABLISHMENT` provenance. The first new-contract observation is not classified against old state: an old-contract target or protection it closes beyond yields **no** event or role change. M7A validation passes for both entities (H.11) |
+| MS-T23 | Contract isolation (both CB cases): no role, event, transition or reference crosses a contract. Old-contract swings are never eligible in the new episode. Bar materialization for new-contract bars never reads old-contract state |
 | MS-T12 | Prefix replay equivalence (G.5) |
 | MS-T13 | Iteration-order independence: shuffled swings / bars / breaks / admissions give byte-identical outputs |
 | MS-T14 | Cross-timeframe isolation (H.14) |
@@ -1602,7 +1664,7 @@ fails.
 - **INV-8:** no `swing_breaks` row with `bar_start < swing.available_at`
   (A-3 assumptions).
 - **INV-9:** every output's `available_at` ≥ all of its inputs'.
-- **INV-10:** no output crosses a segment or contract.
+- **INV-10:** no output crosses a segment or contract, and no structure reference crosses a contract (CB-1 / CB-2).
 - **INV-11:** M7A validity; no entity is created and exited at the same
   timestamp.
 - **INV-12:** pinned facts equal the run's input facts.
@@ -1612,6 +1674,13 @@ fails.
   occurs at a BOS without replacement (§C.4).
 - **INV-15:** no role is assigned to a swing breached at or before its
   `assigned_at` (K-6; covers §E.6a R1).
+- **INV-16 (CB-1 / CB-2):**
+  - every RESET row's fields are fixed at its `available_at`; no RESET
+    carries contract-change provenance;
+  - every episode with `opening_contract_changed = True` has a non-null
+    `opening_contract_change_ref` whose timestamp equals its
+    `first_bar_end`;
+  - `opening_ref` equals the predecessor's `reset_ref`.
 
 ### I.4 Visual validation (local, price-bearing, Git-ignored; tracked price-free manifest)
 
@@ -1645,7 +1714,7 @@ Each case shows the **causal sequence**, not retrospective labels:
 
 | Step | Content | Files (new unless noted) |
 |---|---|---|
-| MS-I0 | Approve this spec; register its D-numbers per the convention (§K.3) | docs |
+| MS-I0 | Final design approval of this spec; register its D-numbers per the convention (§K.3), including T-1, CB-1 and CB-2 | docs |
 | MS-I1 | `swing_breaks` and tests | `src/market_structure/swing_breaks.py`, `tests/test_swing_breaks.py` |
 | MS-I2 | Engine: definition, episodes, roles, events, anomalies, batch rescan and diff, M7A transitions, per-timeframe runner, run manifest | `src/market_structure/structure.py`, `tests/test_structure.py` |
 | MS-I3 | Audit, invariants, DEVELOPMENT runner, visual | `src/market_structure/structure_audit.py`, `src/experiments/market_structure_dev_validation.py`, `tests/test_structure_audit.py`, `reports/validation/market_structure_*` |
@@ -1665,8 +1734,9 @@ text, identity wording and examples (§K.2a).
 - N-1 refines the meaning of "earliest" within K-7 / D11 / D14. It does
   not change them.
 - N-3 refines K-10's entity-per-assignment rule with parent identity.
-- N-2 keeps K-5's approved rules. It defers only the combined-boundary
-  provenance.
+- N-2 kept K-5's approved rules and deferred only the combined-boundary
+  provenance. CB-1 / CB-2 (rev 2.4) resolve it within K-5. Rev 2.4 leaves
+  K-1 … K-14 intact.
 
 | K | Decision | Applied in |
 |---|---|---|
@@ -1701,7 +1771,7 @@ text, identity wording and examples (§K.2a).
   previously materialized assignments or classifications.
 - **Applied in:** §E.1; H.8.
 
-**N-2. Gap and contract change at the same boundary: DEFERRED.**
+**N-2. Gap and contract change at the same boundary: DEFERRED at rev 2.1; RESOLVED in rev 2.4 by CB-1 / CB-2 (§K.2c).** The text below is kept as history.
 
 - This stays open until the contract-roll treatment is reviewed.
 - The user's provisional preference is primary `DATA_GAP` plus an explicit
@@ -1766,7 +1836,7 @@ changed.**
 **Genuinely unresolved semantic choices after rev 2.2:**
 
 - **None within one contract.**
-- **Deferred (unchanged):** N-2 and the pure-roll onset (§G.0).
+- **Deferred at rev 2.2:** N-2 and the pure-roll onset. They are resolved in rev 2.4 (§K.2c).
 - **Same-batch target after a failed establishment:** T-1, APPROVED
   (final) in rev 2.3 (§K.2b). No longer open.
 
@@ -1777,8 +1847,8 @@ the spec at MS-I0. The approval covers this semantic only:
 
 - it does not approve or freeze the full specification;
 - it authorizes no implementation;
-- contract-roll treatment remains **DEFERRED** (§G.0: N-2 and the
-  pure-roll reset onset).
+- contract-roll treatment was then still deferred. It is resolved in
+  rev 2.4 (§K.2c).
 
 
 | Id | Confirmation | Basis | Applied in |
@@ -1789,9 +1859,30 @@ the spec at MS-I0. The approval covers this semantic only:
 
 - K-1 … K-14, N-1, N-3 and T-1 are intact.
 - No approved decision is changed.
-- **Remaining open items:**
-  - the contract-roll treatment (§G.0);
-  - final approval and D-number registration.
+
+### K.2c Rev 2.4 contract-boundary decisions: APPROVED (design authority, 2026-10-05)
+
+| Id | Decision | Applied in |
+|---|---|---|
+| CB-1 | **Gap followed by a contract change.** Reset as `DATA_GAP` at the first missing observation's expected completion. Record the contract change only when new-contract evidence becomes available, in the new episode's opening provenance at its `first_bar_end`. Never retroactively modify the earlier reset or its availability. The new episode's opening provenance references both the gap reset (`opening_ref`) and the subsequently observed contract change (`previous_contract`, `opening_contract_changed`, `opening_contract_change_ref`) | §C.3, §G.0, §G.2, §G.3, H.11, MS-T21, MS-T23, INV-16 |
+| CB-2 | **Pure contract change.** Reset at the first new-contract bar's close, under the completed-bar input model. Never classify a new-contract observation against old-contract state. Keep all state and references contract-specific | §C.3, §G.0, §G.2, §G.3, H.11, MS-T22, MS-T23, INV-10, INV-16 |
+
+- **Basis:** K-5, unchanged. A distinct `CONTRACT_CHANGE` reason, no
+  inheritance across contracts, and the scheduled-replay onset.
+- **Existing parts only:** shared continuity break rows (whose
+  `contract_changed` is recorded at the next valid bar) and the existing
+  `CONTINUITY_BREAK` / `BAR_SPAN` SourceRefs. There is no new provenance
+  framework.
+- **Not introduced:** stitching, price adjustment or a roll-calendar
+  system.
+
+**SEMANTIC REVIEW: COMPLETE** (within contracts and at contract
+boundaries).
+
+- K-1 … K-14, N-1, N-3, T-1, CB-1 and CB-2 are intact.
+- **Remaining:** final design approval and D-number registration (MS-I0),
+  then separately authorized implementation, validation and freeze. None
+  of these is granted.
 
 ### K.3 Governance reconciliation (K-12)
 

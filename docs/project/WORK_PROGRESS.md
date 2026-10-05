@@ -138,11 +138,19 @@ time with explicit approval (D-117).
     APPROVED.
 
 - **Generic Market Structure (Protected Swing, Structural Direction,
-  break, BOS, CHoCH): DESIGN DRAFT rev 2.3** (2026-10-05).
+  break, BOS, CHoCH): DESIGN DRAFT rev 2.4** (2026-10-05).
+  - **Semantic review is COMPLETE.**
+  - The contract-boundary decisions are approved:
+    - **CB-1:** a gap then a roll means a `DATA_GAP` reset at the gap
+      onset. The roll is recorded only in the new episode's opening
+      provenance once observed, and the reset is never modified.
+    - **CB-2:** a pure roll resets at the first new-contract bar's close.
+  - Final design approval, D-numbers, implementation and freeze are
+    pending.
   - Within-contract semantic review is COMPLETE.
   - T-1 (same-close target admission after a failed establishment) is
     APPROVED as final by the design authority (spec §K.2b).
-  - Contract-roll treatment stays DEFERRED. The spec is not frozen.
+  - Contract-roll treatment was resolved in rev 2.4 (CB-1 / CB-2). The spec is not frozen.
   - The spec stays a draft pending contract-roll treatment (N-2 and the
     pure-roll onset) and final approval.
   - Branch `market-structure-design`, uncommitted.

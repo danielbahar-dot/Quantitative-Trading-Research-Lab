@@ -945,6 +945,24 @@ repository. For D-101 onward the date is when it was recorded here
     frozen.
   - D-numbers are registered when the design is approved, following the
     Swing precedent (P-SW → D-135–D-138).
+- **Clarification 2026-10-05: Market Structure semantic review complete
+  (rev 2.4).** The design authority approved:
+  - **T-1:** same-close target admission after a failed establishment.
+  - **CB-1, gap followed by a contract change:**
+    - a `DATA_GAP` reset at the first missing observation's expected
+      completion;
+    - the contract change is recorded only when new-contract evidence
+      exists, in the new episode's opening provenance;
+    - the earlier reset is never retroactively modified.
+  - **CB-2, pure contract change:**
+    - reset at the first new-contract bar's close;
+    - no new-contract observation is ever classified against
+      old-contract state;
+    - all state and references stay contract-specific.
+  - No stitching, price adjustment or roll calendar is introduced.
+  - **Status:** final design approval, D-number registration,
+    implementation and freeze remain **pending**. Details are in
+    `MARKET_STRUCTURE_SPEC.md` §K.2b–§K.2c.
 
 ### D-134 — External Liquidity (static) final definition (clarifies D-104)
 - **Date:** 2026-10-03

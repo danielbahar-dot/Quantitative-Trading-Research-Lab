@@ -213,10 +213,14 @@ at a time with explicit approval (D-117).
       (24 cases: 13 REAL, 11 SYNTHETIC).
     - Next: 3.MS Generic Market Structure (draft numbering; sequenced
       before 3.3 Internal Liquidity, administrative N-4).
-    - That Market Structure workstream is now a **DESIGN DRAFT rev 2.3**.
-      Its within-contract semantic review is COMPLETE (T-1 timing
-      confirmed). It stays open only for the contract-roll treatment and
-      final approval. Spec (2026-10-05):
+    - That Market Structure workstream is now a **DESIGN DRAFT rev 2.4**.
+      - Its semantic review is COMPLETE, including T-1 and the
+        contract-boundary decisions CB-1 / CB-2.
+      - CB-1: a gap then a roll gives a `DATA_GAP` reset at the gap onset.
+        The roll is recorded later, in the opening provenance, and the
+        reset is never modified.
+      - CB-2: a pure roll resets at the first new-contract bar's close.
+      - Final approval, D-numbers, implementation and freeze are pending. Spec (2026-10-05):
       `docs/project/MARKET_STRUCTURE_SPEC.md`.
       - It applies D1–D17 and the approved K-1…K-14.
       - N-1 is approved: ties use first-eligible order.

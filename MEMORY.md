@@ -223,8 +223,9 @@ at a time with explicit approval (D-117).
       - The design was approved on 2026-10-05.
       - Spec `docs/project/MARKET_STRUCTURE_SPEC.md` rev 2.5; final
         review at `1b6d221`; **D-139–D-142**.
-      - Not implemented, not frozen. Each implementation step (MS-I1+)
-        needs separate authorization.
+      - MS-I1 to MS-I3 are implemented and not frozen. A freeze needs the
+        human visual approval and a separate decision. MS-I4 (the Signal
+        adapter) stays deferred.
       - BOS / CHoCH are generic; MSS is deferred.
       - Break evidence is native (`swing_breaks`): a close strictly beyond
         the level. M6 is unchanged.
@@ -285,7 +286,8 @@ at a time with explicit approval (D-117).
       - It is extracted unchanged from External; External keeps a
         compatibility wrapper and translates the error.
       - Frozen External parity is exact.
-      - The swing detector is not implemented yet.
+      - The swing detector followed in SW-I2 and is frozen with Swing
+        Structure 3.2.
     - Audit labels are not frozen.
     - Separated equal extremes are independent swings; EQ is downstream.
       A plateau is not consolidation or range.

@@ -329,7 +329,7 @@ def _check_agreement(episodes, obs, tf_spec, session_spec, source_interval, time
     for episode, segment in zip(episodes, segments):
         if list(_utc(episode.rows["bar_end"])) != list(_utc(segment["bar_end"])):
             raise ContinuityError(f"{timeframe}: adapter episode differs from its continuity segment")
-    if len(breaks) != len(episodes) - 1:
+    if len(breaks) != max(len(episodes) - 1, 0):   # zero episodes (no complete observation) -> zero break rows
         raise ContinuityError(f"{timeframe}: {len(breaks)} continuity break rows for {len(episodes)} episodes")
     for k, brk in enumerate(breaks.itertuples(index=False), start=1):
         before, after = episodes[k - 1], episodes[k]

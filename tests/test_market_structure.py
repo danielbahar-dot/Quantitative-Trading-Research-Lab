@@ -2,6 +2,7 @@
 
 import random
 import unittest
+from unittest import mock
 
 import pandas as pd
 
@@ -34,6 +35,8 @@ from src.market_structure.structure import (
     run_market_structure,
 )
 from src.market_structure.swing import bar_span_ref
+from src.data.continuity import ContinuityError, continuity_segments
+from src.market_structure import structure as structure_module
 from src.state.contract import materialize_state_to_bars, validate_transitions
 
 A, B = "MNQ 09-26", "MNQ 12-26"
@@ -345,6 +348,38 @@ class ResetAdapterTests(unittest.TestCase):
             got, want = restricted(run, cutoff), restricted(full, cutoff)
             for name in TABLES:
                 assert_same(got[name], want[name], f"{name}@{k}")
+
+    def test_only_incomplete_observations_give_zero_episodes(self):
+        rows = list(EX_A[:6])
+        run = run_structure(rows, incomplete=set(range(len(rows))))
+        self.assertEqual(len(run.observations), 6)                       # nonempty input
+        self.assertFalse(run.observations["is_complete"].any())
+        for name in TABLES:
+            self.assertTrue(getattr(run, name).empty, name)
+        self.assertTrue(run.swings.empty and run.direction_entities.empty and run.role_entities.empty)
+
+    def test_zero_episodes_still_fail_closed_on_continuity_mismatch(self):
+        rows = list(EX_A[:6])
+        bars = ohlc_bars(rows, incomplete=set(range(len(rows))))
+
+        def with_phantom_break(*args, **kwargs):
+            segments, breaks = continuity_segments(*args, **kwargs)
+            phantom = pd.DataFrame([{column: None for column in breaks.columns}])
+            return segments, pd.concat([breaks, phantom], ignore_index=True)
+
+        with mock.patch.object(structure_module, "continuity_segments", side_effect=with_phantom_break):
+            with self.assertRaises(ContinuityError):
+                build_market_structure(bars, "5m", SPEC, structure_definition(), instrument_id="MNQ",
+                                       replay_cutoff=slot_end(5))
+
+        def with_phantom_segment(*args, **kwargs):
+            segments, breaks = continuity_segments(*args, **kwargs)
+            return segments + [pd.DataFrame({"bar_end": [slot_end(0)]})], breaks
+
+        with mock.patch.object(structure_module, "continuity_segments", side_effect=with_phantom_segment):
+            with self.assertRaises(ContinuityError):
+                build_market_structure(bars, "5m", SPEC, structure_definition(), instrument_id="MNQ",
+                                       replay_cutoff=slot_end(5))
 
     def test_cutoff_is_required_and_timezone_aware(self):
         bars = ohlc_bars(EX_A)

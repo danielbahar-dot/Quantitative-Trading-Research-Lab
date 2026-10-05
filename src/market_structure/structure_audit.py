@@ -323,6 +323,8 @@ def structure_invariants(run: MarketStructureRun, session_spec: SessionSpec, *,
     tf = run.manifest["timeframe"]
     tick = float(run.manifest["tick_size"])
     cutoff = require_cutoff(pd.Timestamp(run.manifest["replay_cutoff"]))
+    if run.episodes.empty:
+        return _zero_episode_invariants(run, session_spec, cutoff, tf, source_interval)
     swings = run.swings.set_index("swing_id")
     breaks = run.swing_breaks.set_index("swing_id")
     roles, events, rt, dt = run.roles, run.events, run.role_transitions, run.direction_transitions
@@ -498,6 +500,41 @@ def structure_invariants(run: MarketStructureRun, session_spec: SessionSpec, *,
     v["INV-17 adapter episodes and boundaries agree with continuity"] = bad
 
     return pd.DataFrame([{"timeframe": tf, "invariant": key, "violations": int(value)} for key, value in v.items()])
+
+
+INVARIANT_NAMES = (
+    "INV-1 no structure_anomalies rows",
+    "INV-2 classified reference eligible at s(N) and broken at N",
+    "INV-3 sequence spans strictly ordered",
+    "INV-4 protection strictly tightened on replacement",
+    "INV-5 protection beyond-side of target while both active",
+    "INV-6 targets strictly progressive versus baseline",
+    "INV-7 active-role uniqueness",
+    "INV-8 no swing_breaks row with bar_start < available_at",
+    "INV-9 outputs available no earlier than inputs",
+    "INV-10 no output or reference crosses a contract",
+    "INV-11 M7A validity; no create-and-exit at one instant",
+    "INV-12 pinned facts equal input facts",
+    "INV-13 RESET onsets follow the schedule rule and are <= replay_cutoff",
+    "INV-14 protection exits only REPLACED/BROKEN/ENDED; untouched by BOS without replacement",
+    "INV-15 no role on a swing breached at or before assigned_at",
+    "INV-16 contract-boundary provenance (CB-1 / CB-2)",
+    "INV-17 adapter episodes and boundaries agree with continuity",
+)
+
+
+def _zero_episode_invariants(run, session_spec, cutoff, tf, source_interval) -> pd.DataFrame:
+    """No complete observation up to the cutoff: every structure output must be empty, and frozen continuity
+    must agree that there is no segment and no break row."""
+    outputs = (len(run.swings) + len(run.swing_breaks) + len(run.roles) + len(run.events) + len(run.anomalies)
+               + len(run.direction_transitions) + len(run.role_transitions))
+    tf_spec = TimeframeSpec("1m", 1) if tf == "1m" else tf
+    obs_cut = run.observations.loc[(pd.to_datetime(run.observations["bar_end"], utc=True) <= cutoff).to_numpy()]
+    segments, brk_rows = continuity_segments(obs_cut, tf_spec, session_spec, source_interval=source_interval)
+    counts = {name: outputs for name in INVARIANT_NAMES}
+    counts[INVARIANT_NAMES[0]] = len(run.anomalies)
+    counts[INVARIANT_NAMES[-1]] = len(segments) + len(brk_rows)
+    return pd.DataFrame([{"timeframe": tf, "invariant": key, "violations": int(value)} for key, value in counts.items()])
 
 
 def _spec(run: MarketStructureRun, factory):

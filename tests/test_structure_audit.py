@@ -7,7 +7,7 @@ import pandas as pd
 
 from ms_fixtures import EX_A, EX_B, EX_C, SPEC, run_structure, slot_end
 from src.market_structure.structure import RESET
-from src.market_structure.structure_audit import reconcile, reference_structure, structure_invariants
+from src.market_structure.structure_audit import INVARIANT_NAMES, reconcile, reference_structure, structure_invariants
 
 A, B = "MNQ 09-26", "MNQ 12-26"
 
@@ -73,6 +73,22 @@ class InvariantTests(unittest.TestCase):
             v = violations(run_structure(rows, **kwargs))
             self.assertEqual(len(v), 17)
             self.assertEqual(int(v.sum()), 0, v[v > 0])
+
+    def test_invariant_names_are_stable(self):
+        self.assertEqual(tuple(structure_invariants(run_structure(EX_A), SPEC)["invariant"]), INVARIANT_NAMES)
+
+    def test_zero_episode_run_audits_clean(self):
+        run = run_structure(list(EX_A[:6]), incomplete=set(range(6)))
+        inv = structure_invariants(run, SPEC)
+        self.assertEqual(tuple(inv["invariant"]), INVARIANT_NAMES)
+        self.assertEqual(int(inv["violations"].sum()), 0)
+        count, rec = mismatches(run)
+        self.assertEqual(count, 0, rec)
+
+    def test_zero_episode_run_with_output_is_a_violation(self):
+        run = run_structure(list(EX_A[:6]), incomplete=set(range(6)))
+        run.events = run_structure(EX_A).events
+        self.assertGreater(int(structure_invariants(run, SPEC)["violations"].sum()), 0)
 
     def test_inv1_anomaly_rows_fail(self):
         run = run_structure(EX_A)

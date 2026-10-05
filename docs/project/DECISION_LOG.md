@@ -929,6 +929,22 @@ repository. For D-101 onward the date is when it was recorded here
   The generic classification above is **unchanged**, and no External
   Liquidity rule (D-134) changes. The decision list above keeps its
   original order as the historical record.
+- **Clarification 2026-10-05: BOS / CHoCH classification (design review
+  K-12).** This resolves the "MSS / BOS classification stays open" point
+  above, for BOS and CHoCH only:
+  - The **neutral swing-referenced Structure Break, BOS, CHoCH, Protected
+    Swing and Structural Direction belong to Generic Market Structure.**
+    They are methodology-neutral and consume Swing Structure 3.2. They
+    are explicitly versioned classifications, not ICT features.
+  - **MSS stays deferred.** That includes any displacement, FVG or
+    liquidity dependency. Its generic-versus-methodology placement
+    remains open.
+  - The full design (approved semantics D1–D17 and the K-1 … K-14 design
+    decisions) is in `docs/project/MARKET_STRUCTURE_SPEC.md`. It is a
+    **design draft**: not approved as a whole, not implemented, not
+    frozen.
+  - D-numbers are registered when the design is approved, following the
+    Swing precedent (P-SW → D-135–D-138).
 
 ### D-134 — External Liquidity (static) final definition (clarifies D-104)
 - **Date:** 2026-10-03

@@ -137,6 +137,37 @@ time with explicit approval (D-117).
   - Decisions D-135–D-138 (promoted from P-SW-1…4) are ACTIVE — DESIGN
     APPROVED.
 
+- **Generic Market Structure (Protected Swing, Structural Direction,
+  break, BOS, CHoCH): DESIGN DRAFT rev 2.3** (2026-10-05).
+  - Within-contract semantic review is COMPLETE.
+  - T-1 (same-close target admission after a failed establishment) is
+    APPROVED as final by the design authority (spec §K.2b).
+  - Contract-roll treatment stays DEFERRED. The spec is not frozen.
+  - The spec stays a draft pending contract-roll treatment (N-2 and the
+    pure-roll onset) and final approval.
+  - Branch `market-structure-design`, uncommitted.
+  - Spec: `docs/project/MARKET_STRUCTURE_SPEC.md`. It applies D1–D17 and
+    the approved design-review decisions K-1…K-14.
+  - Rev 2.1 review outcomes:
+    - N-1 approved: first-eligible ties for anchors and targets.
+    - N-3 approved: parent-dependent target assignments.
+    - N-5 adopted: `BAR_SPAN` / `CONTINUITY_BREAK` trigger refs.
+    - N-4 administrative: 3.MS is sequenced before 3.3.
+    - **N-2 DEFERRED:** combined gap / contract-change provenance and
+      the pure-roll onset wait for the contract-roll review (spec §G.0).
+  - Rev 2.2 corrections (no semantic change):
+    - retained PROTECTION keeps its `role_id` / `assigned_at` / promotion
+      parent across BOS without replacement;
+    - H.8 is replaced: eligibility and source order cannot diverge (L0′);
+    - H.5 and H.6 are rebuilt on explicit OHLC;
+    - §E.6a proves there is no target resurrection after failed
+      establishment;
+    - the OHLC examples were checked by a scratch-only script using the
+      frozen swing core.
+  - D-133 has a K-12 clarification: BOS / CHoCH are generic and MSS is
+    deferred. ROADMAP has a "3.MS" design-draft row, sequenced before 3.3.
+  - Not approved, implemented or frozen. No implementation is authorized.
+
 ## Last completed work
 
 - **2026-10-05 — Swing Structure 3.2 APPROVED / FROZEN.**

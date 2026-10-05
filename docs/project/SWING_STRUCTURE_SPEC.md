@@ -1,11 +1,31 @@
 # Generic Swing Structure (3.2): Specification
 
-**Status: DESIGN APPROVED — IMPLEMENTATION IN PROGRESS (rev 3,
-2026-10-04; D-135 – D-138).**
+**Status: APPROVED / FROZEN (2026-10-05; rev 3 semantics; D-135 –
+D-138).**
 
-- The semantic design is approved for implementation. The feature is
-  **not frozen**.
-- Implementation state (repository state only; semantics unchanged):
+The design authority approved the freeze after implementation, machine
+validation and human visual review. Future semantic changes need a new
+decision; implementation refactors must preserve the frozen regression
+fingerprint.
+
+**Frozen facts:**
+
+- **Canonical timeframes:** 1m / 5m / 15m / 1H / 4H / 1D, with **one
+  common detector mechanism**. 1m uses the canonical 1m source bars
+  directly; 5m–1D use M3 `build_timeframe`.
+- **Reference validation definition:** `left_depth = 2`,
+  `right_depth = 2` (`swing-pivot-v1`). 2/2 is **not** a default, not an
+  optimized parameter and not a universal preferred scale.
+- **DEVELOPMENT canonical total:** 119,381 swings. Regression fingerprint
+  (overall SHA-256 of the sorted `swing_id`s):
+  `b6876266800d56b3421dbfb5e4a4aa50b83140acdd409390d28b5f75427c218f`.
+- **Full regression:** 647 passed / 0 failed / 493 subtests. All 14
+  machine gates PASS.
+- **Human visual review:** PASS, on 24 unique cases (13 REAL DEVELOPMENT,
+  11 SYNTHETIC). The tracked manifest has 33 rows because some cases
+  carry more than one record.
+
+**Implementation state** (repository state; semantics unchanged):
   - **SW-I0**, the shared continuity (D-137), is merged and complete
     (PR #12, `3b098f5`).
   - **SW-I1**, the canonical contract (`src/market_structure/swing.py`),
@@ -15,9 +35,14 @@
     (`src/market_structure/swing_detector.py`), is implemented, validated
     and design-authority approved, and committed on the active Swing
     implementation branch.
-  - SW-I3 (audit, DEVELOPMENT baseline, visual validation) is next.
-- Decisions **D-135 – D-138** (§26) are registered as ACTIVE — DESIGN
-  APPROVED.
+  - **SW-I3** is implemented, machine-validated and human visually
+    approved. It covers the independent candidate audit
+    (`src/market_structure/swing_audit.py`), the DEVELOPMENT 2/2
+    baseline (`src/experiments/swing_structure_dev_validation.py`),
+    invariants, `swing_id` fingerprints and visual validation.
+  - The tracked evidence is `reports/validation/swing_structure_*`.
+- Decisions **D-135 – D-138** (§26) are ACTIVE, and the implemented
+  primitive is APPROVED / FROZEN (2026-10-05).
 
 **Rev 3 changes (final design-authority decisions):**
 

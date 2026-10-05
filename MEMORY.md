@@ -200,9 +200,20 @@ at a time with explicit approval (D-117).
       incomplete bar.
     - Two tables (members + immutable structure versions), with full
       SHA-256 ids.
-  - **3.2 Swing Structure: DESIGN APPROVED — IMPLEMENTATION IN PROGRESS
-    (2026-10-04; spec rev 3; D-135–D-138 ACTIVE — DESIGN APPROVED). NOT
-    frozen.**
+  - **3.2 Swing Structure: APPROVED / FROZEN (2026-10-05; spec rev 3;
+    D-135–D-138).** Semantic changes need a new decision; refactors must
+    keep the fingerprint.
+    - One detector for 1m / 5m / 15m / 1H / 4H / 1D; canonical 1m
+      directly, M3 for 5m–1D.
+    - The 2/2 reference validation definition is explicit; it is not a
+      default, not optimized and not a universal scale.
+    - DEVELOPMENT: 119,381 swings; fingerprint
+      `b6876266800d56b3421dbfb5e4a4aa50b83140acdd409390d28b5f75427c218f`.
+    - Suite: 647 / 0 / 493. Machine gates and human visual review PASS
+      (24 cases: 13 REAL, 11 SYNTHETIC).
+    - Next: 3.3 Internal Liquidity. A separate generic Market Structure
+      workstream (Structural Direction / Protected Swing / Structure
+      Break / BOS / CHoCH / MSS) may later consume swings.
     - **SW-I2 (implemented, validated and design-authority approved;
       committed on `swing-structure-contract`):**
       `src/market_structure/swing_detector.py`
@@ -213,7 +224,17 @@ at a time with explicit approval (D-117).
         strict-exceed windows.
       - Plus the public `validate_source_bars` in M3.
       - Full suite: 629 / 0 / 474.
-      - Next is SW-I3 (audit and DEVELOPMENT baseline).
+    - **SW-I3 (implemented, machine-validated, human visually approved;
+      committed):**
+      - `src/market_structure/swing_audit.py` is the independent candidate
+        audit and invariants. It is audit-only, with statuses CONFIRMED /
+        INVALIDATED_STRICT_EXCEED / INSUFFICIENT_LEFT_HISTORY /
+        INSUFFICIENT_FUTURE_COVERAGE / CONTINUITY_BREAK.
+      - `src/experiments/swing_structure_dev_validation.py` is the
+        DEVELOPMENT 2/2 runner.
+      - All 13 machine gates PASS, with 119,381 swings matching the
+        baseline exactly.
+      - Human visual review: PASS (2026-10-05).
     - **SW-I1 (implemented, validated and design-authority approved;
       committed on the active Swing implementation branch
       `swing-structure-contract`; full suite 591 passed / 0 failed / 439

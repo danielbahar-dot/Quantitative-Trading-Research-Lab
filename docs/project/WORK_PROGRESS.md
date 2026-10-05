@@ -4,7 +4,7 @@ Answers: **"Where exactly are we now?"** Update this after every meaningful
 task. Keep entries short. History goes in [CHANGELOG](CHANGELOG.md) and
 rationale in [DECISION_LOG](DECISION_LOG.md).
 
-_Last updated: 2026-10-04_
+_Last updated: 2026-10-05_
 
 ## Current focus
 
@@ -59,8 +59,21 @@ time with explicit approval (D-117).
   - Next in the workstream (D-133 sequencing clarification): Swing
     Structure (3.2), Internal Liquidity (3.3), then the Shared Lifecycle
     (3.4).
-- **Swing Structure (ROADMAP 3.2): DESIGN APPROVED — IMPLEMENTATION IN
-  PROGRESS** (D-135–D-138). Nothing is frozen.
+- **Swing Structure (ROADMAP 3.2): DONE — APPROVED / FROZEN**
+  (2026-10-05; D-135–D-138).
+  - Committed on `swing-structure-contract` (SW-I1 to SW-I3) and in one
+    PR against `main` (not merged).
+  - **Frozen facts:**
+    - 1m / 5m / 15m / 1H / 4H / 1D with one common detector; canonical 1m
+      directly, M3 for 5m–1D;
+    - explicit 2/2 reference validation definition (not a default, not
+      optimized, not a universal scale);
+    - DEVELOPMENT total 119,381 swings;
+    - fingerprint
+      `b6876266800d56b3421dbfb5e4a4aa50b83140acdd409390d28b5f75427c218f`;
+    - full suite 647 passed / 0 failed / 493 subtests;
+    - all machine gates and the human visual review PASS (24 unique
+      cases: 13 REAL, 11 SYNTHETIC; the manifest has 33 rows).
   - The design was merged in PR #11 (`d4c0ce8`).
   - **SW-I0 (D-137) is merged and complete** (PR #12, `3b098f5`).
     - The shared `src/data/continuity.py` (`continuity_segments`, break
@@ -85,8 +98,28 @@ time with explicit approval (D-117).
     - It adds the public `validate_source_bars` wrapper in
       `src/data/timeframes.py`; M3 behaviour is unchanged.
     - Full suite: 629 passed / 0 failed / 474 subtests.
-  - Next: SW-I3, covering candidate audit, the DEVELOPMENT 2/2 baseline,
-    the regression baseline and visual-validation preparation.
+  - **SW-I3 (validation / audit / freeze package) is implemented,
+    machine-validated and human visually approved; committed.**
+    - Adds `src/market_structure/swing_audit.py`, an independent candidate
+      audit and invariants (audit-only).
+    - Adds `src/experiments/swing_structure_dev_validation.py`, the
+      DEVELOPMENT 2/2 runner (`python -m
+      src.experiments.swing_structure_dev_validation`).
+    - All 13 machine gates PASS:
+      - 119,381 swings, exact to baseline;
+      - continuity, plateau and equality counts exact; 67 / 367
+        truncated 4H sources;
+      - exact audit ↔ canonical reconciliation and 0 invariant
+        violations;
+      - the 1m direct path matches the M3 1m path exactly;
+      - the cross-timeframe study reproduces spec §23;
+      - 24 visual cases; tracked artifacts are price-free.
+    - Tracked price-free artifacts: `reports/validation/swing_structure_*`.
+      The candidate audit and HTML stay local.
+  - Next generic work: 3.3 Internal Liquidity.
+  - A separate generic Market Structure workstream may later consume
+    swings (Structural Direction, Protected Swing, Structure Break, BOS /
+    CHoCH / MSS). None of it is implemented.
   - Spec: `docs/project/SWING_STRUCTURE_SPEC.md`, **rev 3**, with the final
     design-authority decisions. It specifies:
     - a plateau-aware confirmed pivot, failing only on a strict exceed;
@@ -105,6 +138,21 @@ time with explicit approval (D-117).
     APPROVED.
 
 ## Last completed work
+
+- **2026-10-05 — Swing Structure 3.2 APPROVED / FROZEN.**
+  - The human visual review passed.
+  - SW-I3 was committed ("Freeze validated Swing Structure"), the branch
+    pushed, and one Swing PR opened against `main` (not merged).
+
+- **2026-10-04 — SW-I3 Swing machine validation.** All machine gates
+  PASS.
+  - Independent candidate audit with five operational, noncanonical
+    statuses.
+  - DEVELOPMENT 2/2 baseline on all six timeframes.
+  - 17 invariants, all 0.
+  - `swing_id` SHA-256 fingerprints.
+  - A 24-case visual (13 REAL, 11 SYNTHETIC).
+  - Tests: `tests/test_swing_audit.py`.
 
 - **2026-10-04 — SW-I2 generic multi-timeframe Swing detector.**
   Implemented, validated and design-authority approved; committed on

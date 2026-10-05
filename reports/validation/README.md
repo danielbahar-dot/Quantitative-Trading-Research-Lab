@@ -147,3 +147,77 @@ as of 2026-10-04. DEVELOPMENT only; the source is read, not modified.
   where DEVELOPMENT has no example, e.g. Daily EQ/REQ and merges).
 
 Findings: `docs/project/EXTERNAL_LIQUIDITY_SPEC.md` §18.
+
+## `swing_structure_*`
+
+Swing Structure 3.2 SW-I3 validation (2026-10-04). This is the **frozen
+validation baseline**: Swing Structure 3.2 is **APPROVED / FROZEN** as of
+2026-10-05.
+
+- All machine gates passed.
+- The human visual review passed on 24 unique cases (13 REAL DEVELOPMENT,
+  11 SYNTHETIC). The manifest has 33 rows because some cases carry more
+  than one timeframe, swing or candidate record; that is intentional.
+- The overall `swing_id` fingerprint is
+  `b6876266800d56b3421dbfb5e4a4aa50b83140acdd409390d28b5f75427c218f`.
+
+**Scope.**
+
+- DEVELOPMENT only: `data/processed/MNQ_raw_cleaned_ET_DEVELOPMENT.csv`,
+  337,815 canonical 1m bars, 248 sessions from 2024-06-21 to 2025-06-30.
+  The source is read, not modified.
+- Explicit **2/2 reference definition** (`swing-pivot-v1`,
+  `left_depth = right_depth = 2`). This is a validation configuration, not
+  a detector default.
+- All six timeframes: 1m (canonical bars) and 5m / 15m / 1H / 4H / 1D (M3).
+- **Reproduce with:**
+  `.\.venv\Scripts\python.exe -m src.experiments.swing_structure_dev_validation`
+- No PnL, strategy or optimization; no VALIDATION / OOS data.
+
+**Tracked files** (all price-free):
+
+- **`swing_structure_dev_summary.csv`** (`section, timeframe, orientation,
+  metric, value`):
+  - source facts, continuity (segments, segment bars, breaks by reason);
+  - canonical swing counts by orientation, adjacent-plateau swings,
+    separated-equal pairs, session-truncated 4H sources;
+  - candidate-audit status counts with invalidation side and break-reason
+    breakdowns;
+  - audit ↔ canonical reconciliation;
+  - the 1m direct-vs-M3 cross-check;
+  - SHA-256 `swing_id` fingerprints per timeframe / orientation and
+    overall (the regression fingerprint once frozen);
+  - machine-gate PASS / FAIL.
+- **`swing_structure_dev_invariants.csv`**: 17 independent invariants per
+  timeframe × orientation (204 rows), with the violation count and the
+  first violating `swing_id` as detail.
+- **`swing_structure_dev_continuity_breaks.csv`**: one row per shared
+  continuity break per timeframe.
+- **`swing_structure_dev_cross_timeframe.csv`**: the spec §23 as-of study
+  (4H→15m, 4H→5m, 1H→15m, 1H→5m) by orientation and ALL. It is
+  descriptive only and never detector input.
+- **`swing_structure_visual_validation_cases.csv`**: manifest of the 24
+  visual cases (13 REAL, 11 SYNTHETIC normative examples), with no prices.
+
+**Local, Git-ignored files** (they embed prices):
+
+- `swing_structure_dev_candidate_audit.csv.gz`: the full candidate audit,
+  one row per maximal plateau per orientation per timeframe.
+- `swing_structure_visual_validation.html`: production detector plus
+  candidate-audit charts.
+
+**Machine results.** All 13 machine gates PASS:
+
+- the continuity baseline is exact;
+- canonical counts are exact (119,381 swings);
+- plateau and separated-equal counts are exact;
+- 67 of 367 4H swings have a session-truncated source;
+- audit ↔ canonical reconciliation is exact;
+- all invariants are 0;
+- the 1m direct path matches the M3 1m path exactly;
+- the fingerprints are generated;
+- the cross-timeframe study reproduces spec §23;
+- all 24 visual cases are present;
+- the tracked artifacts are price-free.
+
+Spec: `docs/project/SWING_STRUCTURE_SPEC.md`.

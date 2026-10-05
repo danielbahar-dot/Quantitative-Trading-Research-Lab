@@ -18,8 +18,10 @@ from src.data.timeframes import (
     STANDARD_TIMEFRAMES,
     TimeframeError,
     TimeframeSpec,
+    _validate_source,
     build_timeframe,
     get_timeframe,
+    validate_source_bars,
 )
 
 TZ = "America/New_York"
@@ -277,6 +279,43 @@ class InvalidSourceTests(unittest.TestCase):
                     build_timeframe(frame, "5m", SPEC)
         with self.assertRaises(TimeframeError):
             build_timeframe(bars, "5m", SPEC, source_interval="2min")  # 2m does not divide 5m
+
+
+class PublicSourceValidationTests(unittest.TestCase):
+    """``validate_source_bars`` is a pure public wrapper over the builder's source check."""
+
+    def test_same_result_as_private_check(self):
+        bars = session_bars(WED).sample(frac=1, random_state=7)
+        public = validate_source_bars(bars)
+        pd.testing.assert_frame_equal(public, _validate_source(bars))
+        self.assertTrue(public.index.is_monotonic_increasing)
+        pd.testing.assert_frame_equal(bars.sort_index(), public)  # no values changed
+
+    def test_same_errors_as_private_check(self):
+        bars = session_bars(WED)
+        cases = {
+            "not a frame": bars.to_dict(),
+            "naive index": bars.tz_localize(None),
+            "missing column": bars.drop(columns=["volume"]),
+            "duplicate timestamps": pd.concat([bars.iloc[:3], bars.iloc[:1]]),
+            "nan price": bars.assign(close=np.where(np.arange(len(bars)) == 5, np.nan, bars["close"])),
+            "bad ohlc": bars.assign(high=bars["low"] - 1),
+            "empty contract": bars.assign(contract=" "),
+            "empty": bars.iloc[:0],
+        }
+        for name, frame in cases.items():
+            with self.subTest(name):
+                with self.assertRaises(TimeframeError) as private:
+                    _validate_source(frame)
+                with self.assertRaises(TimeframeError) as public:
+                    validate_source_bars(frame)
+                self.assertEqual(str(public.exception), str(private.exception))
+
+    def test_adds_no_rules_and_builder_is_unchanged(self):
+        bars = session_bars(WED).assign(session_date="2026-09-22")  # session_date is a builder check, not a source check
+        validate_source_bars(bars)
+        good = session_bars(WED)
+        pd.testing.assert_frame_equal(build_timeframe(validate_source_bars(good), "5m", SPEC), build_timeframe(good, "5m", SPEC))
 
 
 class VectorizedTradingDateTests(unittest.TestCase):

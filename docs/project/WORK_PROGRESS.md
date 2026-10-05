@@ -4,7 +4,7 @@ Answers: **"Where exactly are we now?"** Update this after every meaningful
 task. Keep entries short. History goes in [CHANGELOG](CHANGELOG.md) and
 rationale in [DECISION_LOG](DECISION_LOG.md).
 
-_Last updated: 2026-10-04_
+_Last updated: 2026-10-05_
 
 ## Current focus
 
@@ -59,17 +59,67 @@ time with explicit approval (D-117).
   - Next in the workstream (D-133 sequencing clarification): Swing
     Structure (3.2), Internal Liquidity (3.3), then the Shared Lifecycle
     (3.4).
-- **Swing Structure (ROADMAP 3.2): DESIGN APPROVED — IMPLEMENTATION
-  NEXT** (D-135–D-138). The swing detector is not implemented, and nothing
-  is frozen.
+- **Swing Structure (ROADMAP 3.2): DONE — APPROVED / FROZEN**
+  (2026-10-05; D-135–D-138).
+  - Committed on `swing-structure-contract` (SW-I1 to SW-I3) and in one
+    PR against `main` (not merged).
+  - **Frozen facts:**
+    - 1m / 5m / 15m / 1H / 4H / 1D with one common detector; canonical 1m
+      directly, M3 for 5m–1D;
+    - explicit 2/2 reference validation definition (not a default, not
+      optimized, not a universal scale);
+    - DEVELOPMENT total 119,381 swings;
+    - fingerprint
+      `b6876266800d56b3421dbfb5e4a4aa50b83140acdd409390d28b5f75427c218f`;
+    - full suite 647 passed / 0 failed / 493 subtests;
+    - all machine gates and the human visual review PASS (24 unique
+      cases: 13 REAL, 11 SYNTHETIC; the manifest has 33 rows).
   - The design was merged in PR #11 (`d4c0ce8`).
-  - **SW-I0 (D-137) is implemented, validated, committed (`0087e5d`) and
-    design-authority approved on `swing-structure-implementation`;
-    pending PR / merge.**
+  - **SW-I0 (D-137) is merged and complete** (PR #12, `3b098f5`).
     - The shared `src/data/continuity.py` (`continuity_segments`, break
       vocabulary, `ContinuityError`) is extracted unchanged from External.
     - External keeps a compatibility wrapper.
     - Frozen External parity is exact.
+  - **SW-I1 (D-138 canonical contract) is implemented, validated and
+    design-authority approved; it is committed on the active Swing
+    implementation branch `swing-structure-contract`.** Full suite: 591
+    passed / 0 failed / 439 subtests.
+    - `src/market_structure/swing.py` provides `SwingDefinitionSpec`,
+      `SWING_COLUMNS`, `bar_span_ref`, `swing_id`, `assign_swing_ids` and
+      `validate_swing_points`.
+    - There is no detection.
+  - **SW-I2 (generic multi-timeframe detector) is implemented, validated
+    and design-authority approved; it is committed on
+    `swing-structure-contract`.**
+    - `src/market_structure/swing_detector.py` provides
+      `build_swing_points`: one algorithm for 1m / 5m / 15m / 1H / 4H /
+      1D. 1m comes directly from canonical bars; 5m–1D come from M3
+      `build_timeframe`.
+    - It adds the public `validate_source_bars` wrapper in
+      `src/data/timeframes.py`; M3 behaviour is unchanged.
+    - Full suite: 629 passed / 0 failed / 474 subtests.
+  - **SW-I3 (validation / audit / freeze package) is implemented,
+    machine-validated and human visually approved; committed.**
+    - Adds `src/market_structure/swing_audit.py`, an independent candidate
+      audit and invariants (audit-only).
+    - Adds `src/experiments/swing_structure_dev_validation.py`, the
+      DEVELOPMENT 2/2 runner (`python -m
+      src.experiments.swing_structure_dev_validation`).
+    - All 13 machine gates PASS:
+      - 119,381 swings, exact to baseline;
+      - continuity, plateau and equality counts exact; 67 / 367
+        truncated 4H sources;
+      - exact audit ↔ canonical reconciliation and 0 invariant
+        violations;
+      - the 1m direct path matches the M3 1m path exactly;
+      - the cross-timeframe study reproduces spec §23;
+      - 24 visual cases; tracked artifacts are price-free.
+    - Tracked price-free artifacts: `reports/validation/swing_structure_*`.
+      The candidate audit and HTML stay local.
+  - Next generic work: 3.3 Internal Liquidity.
+  - A separate generic Market Structure workstream may later consume
+    swings (Structural Direction, Protected Swing, Structure Break, BOS /
+    CHoCH / MSS). None of it is implemented.
   - Spec: `docs/project/SWING_STRUCTURE_SPEC.md`, **rev 3**, with the final
     design-authority decisions. It specifies:
     - a plateau-aware confirmed pivot, failing only on a strict exceed;
@@ -86,14 +136,48 @@ time with explicit approval (D-117).
       prerequisite.
   - Decisions D-135–D-138 (promoted from P-SW-1…4) are ACTIVE — DESIGN
     APPROVED.
-  - Next, after the SW-I0 merge: the swing implementation (D-135, D-136,
-    D-138).
 
 ## Last completed work
 
+- **2026-10-05 — Swing Structure 3.2 APPROVED / FROZEN.**
+  - The human visual review passed.
+  - SW-I3 was committed ("Freeze validated Swing Structure"), the branch
+    pushed, and one Swing PR opened against `main` (not merged).
+
+- **2026-10-04 — SW-I3 Swing machine validation.** All machine gates
+  PASS.
+  - Independent candidate audit with five operational, noncanonical
+    statuses.
+  - DEVELOPMENT 2/2 baseline on all six timeframes.
+  - 17 invariants, all 0.
+  - `swing_id` SHA-256 fingerprints.
+  - A 24-case visual (13 REAL, 11 SYNTHETIC).
+  - Tests: `tests/test_swing_audit.py`.
+
+- **2026-10-04 — SW-I2 generic multi-timeframe Swing detector.**
+  Implemented, validated and design-authority approved; committed on
+  `swing-structure-contract`. Full suite: 629 passed / 0 failed / 474
+  subtests.
+  - Added `src/market_structure/swing_detector.py` and
+    `tests/test_swing_detector.py` (35 tests / 27 subtests).
+  - Added `validate_source_bars` to `src/data/timeframes.py`, with 3
+    wrapper tests in `tests/test_timeframes.py`.
+  - All six timeframes are exercised.
+  - There is no candidate audit, no DEVELOPMENT counts and no projection.
+
+- **2026-10-04 — SW-I1 canonical Swing contract.** Implemented, validated
+  and design-authority approved; committed on the active Swing
+  implementation branch `swing-structure-contract`.
+  - Tests: 28 new tests (57 subtests).
+  - Full suite: 591 passed / 0 failed / 439 subtests.
+  - Added `src/market_structure/{__init__,swing}.py` and
+    `tests/test_swing_contract.py`.
+  - The module covers the definition spec, exact schema, `BAR_SPAN`
+    provenance, the `sw_` identity and fact-envelope validation.
+  - There is no pivot logic and no source-bar adapter.
+
 - **2026-10-04 — SW-I0 shared continuity extraction.** Implemented,
-  validated, committed (`0087e5d`) and design-authority approved on
-  `swing-structure-implementation`; pending PR / merge.
+  validated, design-authority approved and merged (PR #12, `3b098f5`).
   - Added `src/data/continuity.py` and `tests/test_continuity.py` (20
     tests).
   - `src/features/external_liquidity.py` now uses a compatibility wrapper.

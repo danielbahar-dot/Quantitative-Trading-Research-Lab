@@ -52,6 +52,10 @@ reports/validation/m6a_level_interactions_visual_validation.html
 reports/validation/external_liquidity_visual_validation.html
 # Swing Structure 3.2 design-evidence chart embeds raw prices; keep it local.
 reports/validation/swing_structure_design_visual.html
+# Swing Structure SW-I3 implementation visual and full candidate audit embed raw
+# prices; the price-free swing_structure_dev_*.csv and *_cases.csv are tracked.
+reports/validation/swing_structure_visual_validation.html
+reports/validation/swing_structure_dev_candidate_audit.csv.gz
 
 # Experiment ledgers and run outputs are generated and remain local.
 experiments/experiment_ledger.sqlite

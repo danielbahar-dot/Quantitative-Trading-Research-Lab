@@ -200,9 +200,48 @@ at a time with explicit approval (D-117).
       incomplete bar.
     - Two tables (members + immutable structure versions), with full
       SHA-256 ids.
-  - **3.2 Swing Structure: DESIGN APPROVED — implementation next
-    (2026-10-04; spec rev 3; D-135–D-138 ACTIVE — DESIGN APPROVED). NOT
-    frozen, not implemented.**
+  - **3.2 Swing Structure: APPROVED / FROZEN (2026-10-05; spec rev 3;
+    D-135–D-138).** Semantic changes need a new decision; refactors must
+    keep the fingerprint.
+    - One detector for 1m / 5m / 15m / 1H / 4H / 1D; canonical 1m
+      directly, M3 for 5m–1D.
+    - The 2/2 reference validation definition is explicit; it is not a
+      default, not optimized and not a universal scale.
+    - DEVELOPMENT: 119,381 swings; fingerprint
+      `b6876266800d56b3421dbfb5e4a4aa50b83140acdd409390d28b5f75427c218f`.
+    - Suite: 647 / 0 / 493. Machine gates and human visual review PASS
+      (24 cases: 13 REAL, 11 SYNTHETIC).
+    - Next: 3.3 Internal Liquidity. A separate generic Market Structure
+      workstream (Structural Direction / Protected Swing / Structure
+      Break / BOS / CHoCH / MSS) may later consume swings.
+    - **SW-I2 (implemented, validated and design-authority approved;
+      committed on `swing-structure-contract`):**
+      `src/market_structure/swing_detector.py`
+      `build_swing_points`.
+      - One algorithm for all six timeframes; 1m comes directly from
+        canonical bars, 5m–1D from M3.
+      - Shared continuity, exact tick indices, maximal equal plateaus,
+        strict-exceed windows.
+      - Plus the public `validate_source_bars` in M3.
+      - Full suite: 629 / 0 / 474.
+    - **SW-I3 (implemented, machine-validated, human visually approved;
+      committed):**
+      - `src/market_structure/swing_audit.py` is the independent candidate
+        audit and invariants. It is audit-only, with statuses CONFIRMED /
+        INVALIDATED_STRICT_EXCEED / INSUFFICIENT_LEFT_HISTORY /
+        INSUFFICIENT_FUTURE_COVERAGE / CONTINUITY_BREAK.
+      - `src/experiments/swing_structure_dev_validation.py` is the
+        DEVELOPMENT 2/2 runner.
+      - All 13 machine gates PASS, with 119,381 swings matching the
+        baseline exactly.
+      - Human visual review: PASS (2026-10-05).
+    - **SW-I1 (implemented, validated and design-authority approved;
+      committed on the active Swing implementation branch
+      `swing-structure-contract`; full suite 591 passed / 0 failed / 439
+      subtests):** the canonical contract in
+      `src/market_structure/swing.py`, with no detection. It provides:
+      - `SwingDefinitionSpec`, `SWING_COLUMNS` and `bar_span_ref`;
+      - `swing_id`, `assign_swing_ids` and `validate_swing_points`.
     - A plateau-aware confirmed pivot: a maximal equal run over
       consecutive expected observations in one segment is one source (it
       may cross a session boundary), and only a strict exceed fails a
@@ -211,9 +250,8 @@ at a time with explicit approval (D-117).
       validation configuration on all timeframes.
     - The `BAR_SPAN` format and the `sw_` key are final.
     - D-137: `ContinuityError` and `continuity_segments` now live in
-      `src/data/continuity.py`. SW-I0 is implemented, validated,
-      committed (`0087e5d`) and design-authority approved on
-      `swing-structure-implementation`, pending PR / merge.
+      `src/data/continuity.py`. SW-I0 is merged and complete (PR #12,
+      `3b098f5`).
       - It is extracted unchanged from External; External keeps a
         compatibility wrapper and translates the error.
       - Frozen External parity is exact.
@@ -228,8 +266,7 @@ at a time with explicit approval (D-117).
       once `available_at ≤ bar_start`, with no copies.
     - Table `swing_points`, `UPPER` / `LOWER`.
     - First prerequisite (D-137): `src/data/continuity.py` extraction with
-      exact External parity. This is SW-I0: implemented and approved,
-      pending PR / merge.
+      exact External parity. This is SW-I0, merged (PR #12).
   - Next (D-133 sequencing clarification): 3.2 Swing Structure (frozen
     first), 3.3 Internal (static; may consume swings, but not every swing
     is liquidity), then 3.4 Shared Lifecycle.

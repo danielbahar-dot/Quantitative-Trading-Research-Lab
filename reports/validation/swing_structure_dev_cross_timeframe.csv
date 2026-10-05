@@ -1,0 +1,13 @@
+htf,ltf,orientation,htf_swing_count,same_price_match_count,same_price_match_rate,median_ltf_bars_between_source_and_confirmation,median_lead_minutes,median_ltf_swings_available_in_interval
+4H,15m,UPPER,180,180,1.0,30.0,570.0,9.0
+4H,15m,LOWER,187,187,1.0,28.0,555.0,8.0
+4H,15m,ALL,367,367,1.0,28.0,570.0,8.0
+4H,5m,UPPER,180,180,1.0,90.0,602.5,24.0
+4H,5m,LOWER,187,187,1.0,84.0,585.0,25.0
+4H,5m,ALL,367,367,1.0,84.0,595.0,24.0
+1H,15m,UPPER,716,716,1.0,8.0,120.0,2.0
+1H,15m,LOWER,736,736,1.0,8.0,120.0,2.0
+1H,15m,ALL,1452,1452,1.0,8.0,120.0,2.0
+1H,5m,UPPER,716,716,1.0,24.0,145.0,7.0
+1H,5m,LOWER,736,736,1.0,24.0,145.0,7.0
+1H,5m,ALL,1452,1452,1.0,24.0,145.0,7.0

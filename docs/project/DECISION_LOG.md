@@ -963,6 +963,8 @@ repository. For D-101 onward the date is when it was recorded here
   - **Status:** final design approval, D-number registration,
     implementation and freeze remain **pending**. Details are in
     `MARKET_STRUCTURE_SPEC.md` §K.2b–§K.2c.
+  - **Update 2026-10-05:** the design is approved and registered as
+    **D-139–D-142**. Implementation and freeze remain pending.
 
 ### D-134 — External Liquidity (static) final definition (clarifies D-104)
 - **Date:** 2026-10-03
@@ -1214,6 +1216,118 @@ repository. For D-101 onward the date is when it was recorded here
     `SwingDefinitionSpec`, `SWING_COLUMNS`, `bar_span_ref`, `swing_id`,
     `assign_swing_ids` and `validate_swing_points`.
   - There is no detection yet. The decision text is unchanged.
+
+### D-139 — Neutral Structure Break and BOS / CHoCH classification
+- **Date:** 2026-10-05
+- **Decision** (full rules in `docs/project/MARKET_STRUCTURE_SPEC.md`;
+  final review at `1b6d221f5b819a017940f7d3200352e6a76f96c4`):
+  - **Structure Break.** The first completed observation, in the swing's
+    own continuity segment with `bar_start ≥ swing.available_at`, whose
+    close is **strictly** beyond the swing price in exact ticks.
+    - Wicks and equality never break.
+    - A breach belongs to the `swing_id` and is permanent.
+    - Later equal-price swings are independent.
+  - **Evidence.** It is computed natively (`swing_breaks`, `sb_` ids) from
+    actual bar geometry. Frozen M6 is unchanged, because its
+    `close_through` is approach-relative and it assumes fixed-length bars.
+  - **Classification.** BOS (a close beyond the active TARGET) and CHoCH (a
+    close beyond the active PROTECTION) are explicitly versioned Generic
+    Market Structure classifications.
+    - Event direction is the break direction, with pre / post direction
+      recorded.
+    - No opposite establishment is implied.
+  - **MSS** stays deferred.
+- **Reason:** a methodology-neutral, causal, reproducible break primitive
+  consuming frozen Swing Structure (D-135–D-138).
+- **Status:** ACTIVE — DESIGN APPROVED. Not implemented, not frozen.
+
+### D-140 — Structural Direction, Protected Swing and causal selection
+- **Date:** 2026-10-05
+- **Decision** (spec §E):
+  - **Directions:** UNDEFINED / BULLISH / BEARISH, with no direct
+    BULLISH↔BEARISH edge.
+  - **Establishment** requires:
+    - a close beyond the candidate target;
+    - with the deepest pullback after it strictly beyond the anchor;
+    - and, after a CHoCH, that pullback must be fresh
+      (`source_at > e(X)`).
+    - The deepest is chosen first; a stale or non-qualifying deepest
+      blocks.
+  - **Failure:** the target is retired, the anchor is kept, and the side
+    waits.
+    - A target confirmed at the failing close may be assigned in the same
+      batch, but never classifies that close (T-1).
+  - **BOS** consumes the target and replaces protection only with a
+    different, strictly tighter deepest pullback. Otherwise the same
+    protection entity is retained.
+  - **CHoCH** returns the direction to UNDEFINED and rescopes historical
+    reuse to `source_at ≥ broken_protection.source_at`.
+  - **Selection** is a deterministic rescan:
+    - anchors and targets: the most extreme, then first eligible;
+    - pullbacks: the deepest, then earliest source.
+  - **Since-expansion targets:** straddlers are included; progression is
+    strict versus the consumed baseline.
+  - **Dual qualification** is argued unreachable. It falls back to
+    anomaly evidence and fails validation.
+- **Reason:** the D1–D16 handoff semantics as refined by design review
+  K-1 … K-4, K-7, K-8, K-11, N-1, T-1 and the rev 2.2 corrections.
+- **Status:** ACTIVE — DESIGN APPROVED. Not implemented, not frozen.
+
+### D-141 — Structure state representation, identity and provenance
+- **Date:** 2026-10-05
+- **Decision** (spec §C, §F):
+  - **Episodes** are M7A `structure.direction` entities.
+  - **Each role assignment** (anchor, candidate target, protection,
+    target) is a separate `structure.role` entity:
+    - a candidate target's parent is its anchor assignment;
+    - a protection's parent is its promotion event;
+    - a target's parent is its expansion leg.
+  - **Batch post-close processing per observation:**
+    1. classify against the pre-state;
+    2. breaches;
+    3. admissions;
+    4. rescan;
+    5. a set-based diff.
+    - No entity is created and exited at one timestamp.
+    - Each transition has one trigger: the observation `BAR_SPAN`, or the
+      reset's `CONTINUITY_BREAK`.
+  - **Identity:** natural ids (`sb_` / `se_` / `sr_` / `sx_`) are kept
+    separate from `run_id` and `fact_hash`. Facts are pinned, and
+    revisions create new runs.
+- **Reason:** design review K-10, K-13, N-3 and N-5; M7A compatibility.
+- **Status:** ACTIVE — DESIGN APPROVED. Not implemented, not frozen.
+
+### D-142 — Structure lifecycle, resets and contract boundaries
+- **Date:** 2026-10-05
+- **Decision** (spec §G):
+  - **Gap resets** (`DATA_GAP`) happen at the expected completion of the
+    first missing or incomplete observation (scheduled replay). Scheduled
+    closures never reset.
+  - **CB-1, gap followed by a contract change:**
+    - `DATA_GAP` reset at the gap onset;
+    - the change is recorded only when new-contract evidence exists, in
+      the new episode's opening provenance (`opening_ref`,
+      `previous_contract`, `opening_contract_changed`,
+      `opening_contract_change_ref`);
+    - the reset is never retroactively modified.
+  - **CB-2, pure contract change:**
+    - reset at the first new-contract bar's close;
+    - no cross-contract classification;
+    - everything contract-specific.
+  - **Reset-detection adapter (spec §G.2a).** Resets are detected from the
+    M3 expected schedule up to an explicit, required `replay_cutoff`
+    recorded in the run manifest.
+    - Frozen continuity (D-137) is unchanged and remains the segmentation
+      authority, checked fail-closed for agreement.
+    - Its retrospective break rows supply only the opening provenance at
+      `first_bar_end`.
+    - Trailing gaps reset without a break row.
+  - **Prefix equivalence:** a run at cutoff `C1` equals any later-cutoff
+    run restricted to `available_at ≤ C1`, including inside gaps.
+  - **Not introduced:** stitching, price adjustment or a roll calendar.
+- **Reason:** design review K-5, CB-1 and CB-2, plus the final-review
+  clarification of the gap-reset adapter (rev 2.5).
+- **Status:** ACTIVE — DESIGN APPROVED. Not implemented, not frozen.
 
 ### PROPOSED items awaiting design-authority approval (2026-09-28)
 Claude recommendations from the architecture closeout; **not decisions**:

@@ -1,26 +1,30 @@
 # Generic Market Structure: Protected Swing, Structural Direction, Breaks, BOS, CHoCH — Design
 
-**Status: DESIGN DRAFT rev 2.4 (2026-10-05). SEMANTIC REVIEW COMPLETE.
-Final design approval, D-number registration, implementation and freeze
-are PENDING.**
+**Status: DESIGN APPROVED, rev 2.5 (2026-10-05).** Implementation,
+validation and freeze are **separately pending**. This document authorizes
+no implementation.
 
-- **Semantic review: COMPLETE** (2026-10-05), both within contracts and at
-  contract boundaries.
-  - D1–D17, K-1 … K-14, N-1, N-3 and the rev 2.2 corrections apply.
-  - Same-close target admission after a failed establishment (T-1) is
-    **APPROVED (final, design authority, 2026-10-05)** (§E.6a, §K.2b).
-  - The contract-boundary decisions are **APPROVED** (rev 2.4; §G.0,
-    §G.2, §G.3, §K.2c):
-    - **CB-1:** a gap followed by a contract change;
-    - **CB-2:** a pure contract change.
-    - They resolve the former N-2 and the pure-roll onset.
-- **Pending:** final design approval and D-number registration (MS-I0).
-  No implementation or freeze is authorized.
+- **Final design review:** the GitHub review approved the structural
+  semantics at commit `1b6d221f5b819a017940f7d3200352e6a76f96c4`.
+- **Registered decisions:** D-139–D-142 (§K.4; `DECISION_LOG.md`).
+- **Rev 2.5** is a documentation correction only. It introduces no
+  semantic change.
+  - It specifies the schedule-based **gap-reset adapter** with an
+    explicit replay cutoff (§G.2a).
+  - Frozen continuity is unchanged.
+  - It adds planned cases for trailing incomplete observations and
+    cutoffs inside a gap.
+  - It removes stale "uncommitted" and "roll deferred" statements.
+- **Approved semantics:**
+  - D1–D17, K-1 … K-14 and N-1 / N-3;
+  - the rev 2.2 corrections;
+  - T-1 (§K.2b);
+  - CB-1 / CB-2 (§K.2c).
 - **Not introduced:** stitching, price adjustment, or a roll-calendar
   system. Every state and reference is contract-specific.
 
-**Rev 2.2 corrections** (review findings 1–5; approved semantics preserved;
-contract-roll treatment still deferred):
+**Rev 2.2 corrections** (review findings 1–5; approved semantics
+preserved):
 
 1. **Retained protection identity** (§C.4, §D.2, §E.7, §G.1, H.1).
    - PROTECTION keeps its `role_id`, `assigned_at` and promotion-event
@@ -53,11 +57,11 @@ contract-roll treatment still deferred):
   is administrative only.
 - **N-5:** the trigger reference is the completed observation's `BAR_SPAN`,
   or the continuity onset (§C.7).
-- §G.0 separates **closed within-contract semantics** from **deferred
-  contract-roll treatment**.
+- §G.0 (rev 2.4) records within-contract and contract-boundary semantics
+  as closed.
 
-- Not approved, not implemented and not frozen. No implementation is
-  authorized.
+- Historical rev-2 notes follow. They are kept for traceability; the
+  current status is at the top.
 - **Approved semantics:**
   - D1–D17 (handoff), unchanged except where refined by the approved
     K-decisions K-1 … K-14 (design review, 2026-10-05; mapping in §K.1);
@@ -95,7 +99,7 @@ contract-roll treatment still deferred):
 | Item | Observation |
 |---|---|
 | `main` | `0d7b7b18660b16d412a781a24bc7a417ebb5d437` (PR #13 merge) |
-| Working branch | `market-structure-design`, from `main`; design files uncommitted |
+| Working branch | `market-structure-design`, from `main`; design documentation committed and pushed (final review at `1b6d221`) |
 | Agent instructions | No `AGENTS.md`. `CLAUDE.md` is the operating file, with continuity set `MEMORY.md`, `docs/project/WORK_PROGRESS.md` and `docs/project/DECISION_LOG.md` |
 | **Swing Structure 3.2** | **APPROVED / FROZEN (2026-10-05), merged** (PR #13). Spec: `docs/project/SWING_STRUCTURE_SPEC.md`; D-135–D-138 |
 | Swing code | `src/market_structure/swing.py` (contract), `src/market_structure/swing_detector.py` (`build_swing_points`, 1m / 5m / 15m / 1H / 4H / 1D), `src/market_structure/swing_audit.py` (audit only) |
@@ -453,7 +457,8 @@ run. The run manifest records:
 - `StructureDefinitionSpec` and the Swing definition versions;
 - the session spec and calendar overrides (schedule) and the instrument
   metadata;
-- the code version.
+- the code version;
+- the explicit **`replay_cutoff`** (§G.2a).
 
 **Revisions.**
 
@@ -1007,8 +1012,11 @@ BATCH at e(N):
 The D1 data-quality gate stays deferred (D-123). The contract is known only
 from observed bars, never from a declared roll schedule.
 
-**Pending:** final design approval and D-number registration (MS-I0), then
-separately authorized implementation, validation and freeze.
+**Status:**
+
+- The design is approved and registered as D-139–D-142 (§K.4).
+- Implementation, validation and freeze are separately pending.
+- Reset detection follows the schedule-based adapter (§G.2a).
 
 ### G.1 Lifecycle
 
@@ -1027,7 +1035,12 @@ separately authorized implementation, validation and freeze.
 
 ### G.2 Resets for historical replay (K-5)
 
-**Breaks come from shared continuity only** (`src/data/continuity.py`).
+**Break semantics come from shared continuity** (`src/data/continuity.py`,
+unchanged): the reasons, the precedence, segment membership and the
+expected schedule. **Onsets** are detected causally from that same
+expected schedule by the reset-detection adapter, up to an explicit replay
+cutoff (§G.2a). The retrospective break rows are used only for the
+agreement check and for opening provenance.
 Scheduled closures, maintenance intervals, weekends and verified
 shortened sessions follow the M1 / M3 expected schedule and are **not**
 breaks.
@@ -1063,6 +1076,125 @@ There is no BOS / CHoCH inference across or inside the gap (D12).
 **Live operation:** feed lateness and timeout detection are **deferred**.
 The onset above is a property of scheduled historical replay. No claim is
 made that a live system could detect it at `t_r`.
+
+### G.2a Reset-detection adapter: schedule-based, with an explicit replay cutoff (rev 2.5)
+
+**Why an adapter is needed.** Frozen shared continuity
+(`src/data/continuity.py`, D-137) is correct for segmentation, but its
+break rows cannot drive causal resets directly:
+
+- **Break rows are retrospective.** A break row is written only when the
+  **next valid observation** arrives (`record_break(next_bar, …)`). Its
+  information is therefore available at `next_bar_end`, not at the gap
+  onset `t_r`.
+- **Trailing breaks are omitted.** Missing or incomplete observations
+  after the last valid observation of the input produce **no** break row.
+  Segments hold complete bars only, so a trailing incomplete observation
+  disappears.
+- **The schedule is bounded by observed dates.** It runs from the first
+  to the last *observed* trading date. Expected sessions after the last
+  observed date are invisible to it.
+
+Using break rows alone would place a reset either late (at
+`next_bar_end`) or not at all (trailing gaps). Prefix equivalence would
+also fail before a later valid bar arrives.
+
+**Decision (no semantic change; implements §G.2 / CB-1 / CB-2 exactly).**
+A Market Structure–owned adapter detects resets from the expected schedule
+up to an explicit cutoff.
+
+- **Frozen continuity is not modified.** The adapter only *reads*:
+  - `expected_timeframe_schedule` (M3);
+  - the target-timeframe observations, including incomplete ones, with
+    their `is_complete` and `contract`;
+  - `continuity_segments` for agreement checking.
+
+**Inputs.**
+
+- The target-timeframe observations: M3 output, or canonical 1m for the
+  1m timeframe.
+- The session spec and calendar overrides (the same schedule inputs as
+  continuity).
+- **`replay_cutoff`:** a timezone-aware instant.
+  - **Required, with no default.** It is never inferred from the last
+    observation.
+  - It is recorded in the run manifest (§C.8).
+
+**Visibility at the cutoff `C`.**
+
+- An observation is visible iff its `bar_end ≤ C`.
+- An expected schedule position is evaluated iff its expected
+  `bar_end ≤ C`.
+- The adapter generates the expected schedule over every trading date
+  that can contain an expected `bar_end ≤ C`, **including dates after the
+  last observed trading date**, and then keeps only positions with
+  `bar_end ≤ C`.
+
+**Walk** (expected positions in order; `v` = the last valid observation;
+`active` = whether an episode is open):
+
+| Expected position `p` (`bar_end(p) ≤ C`) | Episode state | Result at `bar_end(p)` |
+|---|---|---|
+| The first present, complete observation of the input | none | Open an episode: `DATA_START` |
+| Present, complete, same contract as `v` | active | Continue |
+| Missing, or present but incomplete | active | **RESET(`DATA_GAP`)** at `t_r = bar_end(p)`; `active := false`. Later missing / incomplete positions add nothing. **No contract flag** (CB-1) |
+| Missing or incomplete | inactive | Nothing |
+| Present, complete, **different** contract | active (no gap) | **CB-2:** RESET(`CONTRACT_CHANGE`) of the old episode **and** open the new episode, both at `bar_end(p)`, with `CONTRACT_CHANGE_REESTABLISHMENT` |
+| Present, complete, different contract | inactive (after a gap) | **CB-1:** open the new episode at `bar_end(p)`: `DATA_GAP_REESTABLISHMENT`, `previous_contract`, `opening_contract_changed = True`, `opening_contract_change_ref` = its `BAR_SPAN` |
+| Present, complete, same contract | inactive (after a gap) | Open the new episode: `DATA_GAP_REESTABLISHMENT`, `opening_contract_changed = False` |
+
+- **No reset or event at `C` itself.** The cutoff is not an event. The
+  last episode simply has no later rows.
+- **Leading** missing or incomplete positions before the first valid
+  observation open nothing and reset nothing.
+- An observed bar that is not an expected position fails closed with
+  `ContinuityError`, exactly like continuity.
+
+**Agreement check (fail closed; continuity remains the segmentation
+authority).** Run `continuity_segments` on the visible observations
+(`bar_end ≤ C`). Then:
+
+1. The adapter's episodes must contain exactly the observations of the
+   continuity segments, in order.
+2. **Every boundary with a later valid observation** (an opening that is
+   not `DATA_START`) must match exactly one break row:
+   - `previous_bar_end` = `bar_end(v)` before the boundary;
+   - `next_bar_end` = the new episode's `first_bar_end`;
+   - the reason maps as follows:
+     - MISSING_EXPECTED_SESSION / MISSING_EXPECTED_BUCKET / INCOMPLETE_BAR
+       ⇔ a preceding `DATA_GAP` reset;
+     - CONTRACT_CHANGE ⇔ a CB-2 reset;
+   - `contract_changed` = `opening_contract_changed`.
+3. **Trailing resets** (a `DATA_GAP` with no later valid observation
+   `≤ C`) are the only adapter boundaries allowed to have **no** break
+   row.
+4. Any mismatch raises `ContinuityError` (no silent repair).
+
+The break row's information is consumed only at `next_bar_end`, which is
+the new episode's `first_bar_end` (CB-1 provenance). The reset itself never
+reads the break row.
+
+**Prefix equivalence (normative).** For cutoffs `C1 ≤ C2` over the same
+input facts, the run at `C1` must equal the run at `C2` restricted to
+`available_at ≤ C1`, for every row and every M7A state at decision points
+`≤ C1`.
+
+- **Why it holds:**
+  - every adapter decision at instant `t` uses only observations with
+    `bar_end ≤ t` and schedule positions with `bar_end ≤ t`;
+  - a reset fires at the expected completion of the first missing or
+    incomplete position, **without waiting** for a later valid bar;
+  - openings fire at `first_bar_end`;
+  - all structure processing (§F) is already causal.
+- **Revised input facts** require a new `run_id` (K-13). They are outside
+  this property.
+
+**Scope.** The adapter is the only source of RESET onsets and episode
+openings in Market Structure. It introduces:
+
+- no continuity semantics beyond §G.2 / CB-1 / CB-2;
+- no change to `src/data/continuity.py`;
+- no stitching or roll calendar.
 
 ### G.3 Opening causes and contract isolation
 
@@ -1131,12 +1263,16 @@ from the shared break row.
   run.
 - No hindsight fields are used: no `valid_until`, and a RESET only at a
   known onset.
-- **The one boundary case:**
-  - a gap onset is placed at the schedule instant of the first missing
-    observation;
-  - a prefix ending exactly at the last valid observation therefore lacks
-    that RESET, which is identical to the full run restricted to
-    `≤ e(k)`.
+- **Replay cutoff (rev 2.5, §G.2a).** A prefix run is a run with an
+  earlier explicit `replay_cutoff`.
+  - It must equal the full run restricted to `available_at ≤ cutoff`.
+  - This holds **even when the cutoff lies inside a gap**, before any
+    later valid bar exists. In that case the RESET with `t_r ≤ cutoff` is
+    present, because the adapter detects it from the schedule, not from a
+    retrospective break row.
+  - A cutoff before `t_r` (including one exactly at the last valid
+    observation's end) has no RESET, which again equals the full run's
+    restriction.
 
 ### G.6 Revisions
 
@@ -1585,7 +1721,7 @@ fails.
 |---|---|---|
 | Mathematical arguments | A-1 … A-7 below (A-1′, A-6 and A-7 new in rev 2.2) | Written; **not machine-checked** |
 | Example consistency check (rev 2.2) | EX-A, EX-B, EX-C (§H.0) | **Scratch-only script, run 2026-10-05: all assertions pass.** Swing spans come from the frozen `_confirmed_plateaus`; breaches and §E formulas were evaluated at the stated instants. This is not a feature test, not a DEVELOPMENT run and not repository code. Role-entity / transition rows were not machine-checked |
-| Planned tests | MS-T1 … MS-T23, invariants INV-1 … INV-16 | **Not implemented, not run** |
+| Planned tests | MS-T1 … MS-T25, invariants INV-1 … INV-17 | **Not implemented, not run** |
 | Executed tests | — | **None** for this feature family |
 
 ### I.1 Mathematical arguments (with assumptions)
@@ -1639,8 +1775,10 @@ fails.
 | MS-T11 | Gap reset (missing bucket / session / incomplete) on one contract; `opening_contract_changed = False` (H.11) |
 | MS-T21 | **CB-1** (synthetic): gap then new contract. `DATA_GAP` reset at the first missing observation's expected `bar_end`, with no contract flag. The new episode is `DATA_GAP_REESTABLISHMENT` with `opening_ref` = the gap reset ref, `previous_contract`, `opening_contract_changed = True` and `opening_contract_change_ref` = the first new-contract `BAR_SPAN`, all available at `first_bar_end`. The reset row is byte-identical in prefix runs ending before and after the roll evidence. Variants: a missing session, a missing bucket, an incomplete bar (H.11) |
 | MS-T22 | **CB-2** (synthetic): pure roll. `CONTRACT_CHANGE` reset and new-episode opening both at `e(first new-contract observation)`; `CONTRACT_CHANGE_REESTABLISHMENT` provenance. The first new-contract observation is not classified against old state: an old-contract target or protection it closes beyond yields **no** event or role change. M7A validation passes for both entities (H.11) |
+| MS-T24 | **Trailing incomplete / missing observations** (synthetic). The input ends with an incomplete bar, or with missing expected buckets or sessions (including sessions after the last observed trading date). Continuity yields **no** break row and drops the incomplete bar. The adapter emits RESET(`DATA_GAP`) at the first such position's expected `bar_end` iff that `bar_end ≤ replay_cutoff`, and nothing otherwise. The agreement check accepts the trailing reset without a break row. When the same input is later extended by a valid bar, the earlier reset row is byte-identical (§G.2a) |
+| MS-T25 | **Replay cutoffs inside a gap** (synthetic). Cutoffs are placed before the first missing position's expected `bar_end`, exactly at it, inside the gap, inside a scheduled closure within the gap, and at and after the next valid bar's `bar_end`. Expected: the RESET appears iff `cutoff ≥ t_r`; the new episode appears iff `cutoff ≥ first_bar_end`; each run equals the largest-cutoff run restricted to its cutoff; the RESET row is byte-identical across all cutoffs `≥ t_r`. Variants: same contract, and CB-1 (new contract after the gap) |
 | MS-T23 | Contract isolation (both CB cases): no role, event, transition or reference crosses a contract. Old-contract swings are never eligible in the new episode. Bar materialization for new-contract bars never reads old-contract state |
-| MS-T12 | Prefix replay equivalence (G.5) |
+| MS-T12 | Prefix replay equivalence over a grid of explicit `replay_cutoff`s, including cutoffs inside gaps and scheduled closures (§G.2a, §G.5) |
 | MS-T13 | Iteration-order independence: shuffled swings / bars / breaks / admissions give byte-identical outputs |
 | MS-T14 | Cross-timeframe isolation (H.14) |
 | MS-T15 | Non-alternating and overlapping swings (H.13) |
@@ -1668,7 +1806,7 @@ fails.
 - **INV-11:** M7A validity; no entity is created and exited at the same
   timestamp.
 - **INV-12:** pinned facts equal the run's input facts.
-- **INV-13:** every RESET onset follows the schedule rules in §G.2.
+- **INV-13:** every RESET onset equals the adapter's schedule rule (§G.2, §G.2a) and is `≤ replay_cutoff`.
 - **INV-14:** a PROTECTION entity exits only as REPLACED (by a different,
   strictly tighter swing), BROKEN or ENDED. No protection transition
   occurs at a BOS without replacement (§C.4).
@@ -1681,6 +1819,11 @@ fails.
     `opening_contract_change_ref` whose timestamp equals its
     `first_bar_end`;
   - `opening_ref` equals the predecessor's `reset_ref`.
+- **INV-17 (adapter agreement, §G.2a):**
+  - adapter episodes equal the continuity segments;
+  - every non-trailing boundary matches exactly one shared break row
+    (bar ends, reason category, `contract_changed`);
+  - only trailing `DATA_GAP` resets lack a break row.
 
 ### I.4 Visual validation (local, price-bearing, Git-ignored; tracked price-free manifest)
 
@@ -1710,13 +1853,13 @@ Each case shows the **causal sequence**, not retrospective labels:
 
 ---
 
-## J. Proposed bounded implementation sequence (requires separate authorization)
+## J. Bounded implementation sequence (each step requires separate authorization)
 
 | Step | Content | Files (new unless noted) |
 |---|---|---|
-| MS-I0 | Final design approval of this spec; register its D-numbers per the convention (§K.3), including T-1, CB-1 and CB-2 | docs |
+| MS-I0 | **DONE (2026-10-05):** design approved (final review at `1b6d221`); D-139–D-142 registered (§K.4) | docs |
 | MS-I1 | `swing_breaks` and tests | `src/market_structure/swing_breaks.py`, `tests/test_swing_breaks.py` |
-| MS-I2 | Engine: definition, episodes, roles, events, anomalies, batch rescan and diff, M7A transitions, per-timeframe runner, run manifest | `src/market_structure/structure.py`, `tests/test_structure.py` |
+| MS-I2 | Engine: definition, reset-detection adapter with explicit `replay_cutoff` (§G.2a), episodes, roles, events, anomalies, batch rescan and diff, M7A transitions, per-timeframe runner, run manifest | `src/market_structure/structure.py`, `tests/test_structure.py` |
 | MS-I3 | Audit, invariants, DEVELOPMENT runner, visual | `src/market_structure/structure_audit.py`, `src/experiments/market_structure_dev_validation.py`, `tests/test_structure_audit.py`, `reports/validation/market_structure_*` |
 | MS-I4 (optional) | M7B adapter | `src/market_structure/structure_signals.py` |
 
@@ -1880,9 +2023,9 @@ the spec at MS-I0. The approval covers this semantic only:
 boundaries).
 
 - K-1 … K-14, N-1, N-3, T-1, CB-1 and CB-2 are intact.
-- **Remaining:** final design approval and D-number registration (MS-I0),
-  then separately authorized implementation, validation and freeze. None
-  of these is granted.
+- **Final design approval:** GitHub review at `1b6d221f5b819a017940f7d3200352e6a76f96c4`. The decisions are
+  registered as D-139–D-142 (§K.4).
+- Implementation, validation and freeze remain separately pending.
 
 ### K.3 Governance reconciliation (K-12)
 
@@ -1893,12 +2036,24 @@ Until then:
 - **`DECISION_LOG.md`:** a dated clarification is appended to D-133.
   - BOS / CHoCH are Generic Market Structure classifications, explicitly
     versioned (K-12). MSS stays deferred.
-  - The full design (D1–D17, K-1 … K-14) is pending design approval and
-    D-number registration.
+  - The full design was approved on 2026-10-05 and registered as
+    D-139–D-142 (§K.4).
 - **`ROADMAP.md`:**
   - row 4 no longer lists "MSS / BOS open"; MSS is deferred and BOS /
     CHoCH are generic;
-  - a "3.MS Generic Market Structure — DESIGN DRAFT" row is added.
-    Its draft numbering and its sequencing before 3.3 are administrative
+  - the "3.MS Generic Market Structure" row is now DESIGN APPROVED. Its
+    draft numbering and its sequencing before 3.3 are administrative
     (N-4).
-- **Status:** not approved, implemented or frozen.
+- **Status:** design approved; not implemented; not frozen.
+
+### K.4 Registered decisions (2026-10-05; final review at `1b6d221`)
+
+| D | Title | Covers (spec) |
+|---|---|---|
+| D-139 | Neutral Structure Break and BOS / CHoCH classification | D1, D17 (MSS deferred), K-6, K-9, K-12, K-14; §A.2, §C.2, §C.5, §D.1, §E.9 |
+| D-140 | Structural Direction, Protected Swing and causal selection | D2–D16, K-1 … K-4, K-7, K-8, K-11, N-1, T-1, rev 2.2 protection identity; §E.1–§E.8 |
+| D-141 | Structure state representation, identity and provenance | K-10, K-13, N-3, N-5; M7A namespaces, batch post-close processing, natural versus run identity; §C.1, §C.3–§C.8, §F |
+| D-142 | Structure lifecycle, resets and contract boundaries | K-5, CB-1, CB-2, the reset-detection adapter with explicit `replay_cutoff`, prefix equivalence; §G |
+
+The decision texts in `DECISION_LOG.md` summarize the rules. This
+specification is the normative detail.

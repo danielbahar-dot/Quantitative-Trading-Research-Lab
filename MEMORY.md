@@ -213,37 +213,31 @@ at a time with explicit approval (D-117).
       (24 cases: 13 REAL, 11 SYNTHETIC).
     - Next: 3.MS Generic Market Structure (draft numbering; sequenced
       before 3.3 Internal Liquidity, administrative N-4).
-    - That Market Structure workstream is now a **DESIGN DRAFT rev 2.4**.
-      - Its semantic review is COMPLETE, including T-1 and the
-        contract-boundary decisions CB-1 / CB-2.
-      - CB-1: a gap then a roll gives a `DATA_GAP` reset at the gap onset.
-        The roll is recorded later, in the opening provenance, and the
-        reset is never modified.
-      - CB-2: a pure roll resets at the first new-contract bar's close.
-      - Final approval, D-numbers, implementation and freeze are pending. Spec (2026-10-05):
-      `docs/project/MARKET_STRUCTURE_SPEC.md`.
-      - It applies D1–D17 and the approved K-1…K-14.
-      - N-1 is approved: ties use first-eligible order.
-      - N-3 is approved: parent-dependent target assignments.
-      - N-5 is adopted: the trigger is the batch observation's
-        `BAR_SPAN` or the reset's `CONTINUITY_BREAK`.
-      - **N-2 is DEFERRED:** combined gap + contract-change provenance
-        and the pure-roll onset wait for the contract-roll review.
-        - The provisional preference is `DATA_GAP` + flag, which is
-          **not approved**.
-        - See spec §G.0, which separates closed from deferred.
-      - Rev 2.2 corrected protection identity, so a BOS without
-        replacement creates no new entity.
-      - The rev 2.2 examples are verified OHLC (§H.0 EX-A/B/C), and
-        §E.6a proves there is no reselection after failure.
-      - BOS / CHoCH are generic (D-133 clarification); MSS is deferred.
-      - Selection is a deterministic rescan, with one post-close batch
+    - That Market Structure workstream is **DESIGN APPROVED**
+      (2026-10-05).
+      - Spec `docs/project/MARKET_STRUCTURE_SPEC.md` rev 2.5; final
+        review at `1b6d221`; **D-139–D-142**.
+      - Not implemented, not frozen. Each implementation step (MS-I1+)
+        needs separate authorization.
+      - BOS / CHoCH are generic; MSS is deferred.
+      - Break evidence is native (`swing_breaks`): a close strictly beyond
+        the level. M6 is unchanged.
+      - Direction lives in M7A `structure.direction`. Each role
+        assignment is its own `structure.role` entity.
+      - Selection is a deterministic rescan with one post-close batch
         diff per bar.
-      - Not approved or implemented.
-      - Break evidence is native (`swing_breaks`), because M6
-        `close_through` is approach-relative and assumes fixed-length bars.
-      - Direction lives in M7A `structure.direction`; Protected Swing and
-        other roles are per-assignment `structure.role` entities.
+      - T-1: a target confirmed at a failed close may be assigned at
+        `e(N)`, but never classifies N.
+      - CB-1 / CB-2: a gap then a roll gives a `DATA_GAP` reset at the
+        onset, with the roll recorded later in the opening provenance. A
+        pure roll resets at the first new-contract bar's close.
+      - **Gap-reset adapter (§G.2a):**
+        - resets come from the M3 schedule up to an explicit, required
+          `replay_cutoff`;
+        - frozen continuity is unchanged and is used only as a
+          fail-closed agreement check and for opening provenance;
+        - its break rows are retrospective and omit trailing gaps.
+      - No stitching or roll calendar.
     - **SW-I2 (implemented, validated and design-authority approved;
       committed on `swing-structure-contract`):**
       `src/market_structure/swing_detector.py`

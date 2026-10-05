@@ -138,43 +138,26 @@ time with explicit approval (D-117).
     APPROVED.
 
 - **Generic Market Structure (Protected Swing, Structural Direction,
-  break, BOS, CHoCH): DESIGN DRAFT rev 2.4** (2026-10-05).
-  - **Semantic review is COMPLETE.**
-  - The contract-boundary decisions are approved:
-    - **CB-1:** a gap then a roll means a `DATA_GAP` reset at the gap
-      onset. The roll is recorded only in the new episode's opening
-      provenance once observed, and the reset is never modified.
-    - **CB-2:** a pure roll resets at the first new-contract bar's close.
-  - Final design approval, D-numbers, implementation and freeze are
-    pending.
-  - Within-contract semantic review is COMPLETE.
-  - T-1 (same-close target admission after a failed establishment) is
-    APPROVED as final by the design authority (spec §K.2b).
-  - Contract-roll treatment was resolved in rev 2.4 (CB-1 / CB-2). The spec is not frozen.
-  - The spec stays a draft pending contract-roll treatment (N-2 and the
-    pure-roll onset) and final approval.
-  - Branch `market-structure-design`, uncommitted.
-  - Spec: `docs/project/MARKET_STRUCTURE_SPEC.md`. It applies D1–D17 and
-    the approved design-review decisions K-1…K-14.
-  - Rev 2.1 review outcomes:
-    - N-1 approved: first-eligible ties for anchors and targets.
-    - N-3 approved: parent-dependent target assignments.
-    - N-5 adopted: `BAR_SPAN` / `CONTINUITY_BREAK` trigger refs.
-    - N-4 administrative: 3.MS is sequenced before 3.3.
-    - **N-2 DEFERRED:** combined gap / contract-change provenance and
-      the pure-roll onset wait for the contract-roll review (spec §G.0).
-  - Rev 2.2 corrections (no semantic change):
-    - retained PROTECTION keeps its `role_id` / `assigned_at` / promotion
-      parent across BOS without replacement;
-    - H.8 is replaced: eligibility and source order cannot diverge (L0′);
-    - H.5 and H.6 are rebuilt on explicit OHLC;
-    - §E.6a proves there is no target resurrection after failed
-      establishment;
-    - the OHLC examples were checked by a scratch-only script using the
-      frozen swing core.
-  - D-133 has a K-12 clarification: BOS / CHoCH are generic and MSS is
-    deferred. ROADMAP has a "3.MS" design-draft row, sequenced before 3.3.
-  - Not approved, implemented or frozen. No implementation is authorized.
+  break, BOS, CHoCH): DESIGN APPROVED** (2026-10-05).
+  - Spec `docs/project/MARKET_STRUCTURE_SPEC.md` rev 2.5. The final
+    GitHub review approved the semantics at `1b6d221`.
+  - Registered as **D-139–D-142**.
+  - Branch `market-structure-design` is committed and pushed (not merged).
+  - **Approved semantics:**
+    - D1–D17, K-1…K-14, N-1 / N-3 and the rev 2.2 corrections;
+    - T-1 (same-close target admission after a failed establishment);
+    - CB-1 (gap then roll: `DATA_GAP` reset at the onset; the roll is
+      recorded later in the opening provenance; never retroactive);
+    - CB-2 (pure roll resets at the first new-contract bar's close).
+  - **Rev 2.5 (documentation correction):** the schedule-based gap-reset
+    adapter with an explicit `replay_cutoff` (§G.2a).
+    - Frozen continuity is unchanged.
+    - Trailing gaps reset without a break row, and prefix equivalence
+      holds inside gaps.
+    - Planned cases MS-T24 / MS-T25 and INV-17 are added.
+  - **No stitching, price adjustment or roll calendar.**
+  - **Next (requires separate authorization):** implementation MS-I1
+    (`swing_breaks`), then MS-I2 / MS-I3. Freeze is pending.
 
 ## Last completed work
 

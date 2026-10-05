@@ -1,8 +1,11 @@
 # Generic Market Structure: Protected Swing, Structural Direction, Breaks, BOS, CHoCH — Design
 
-**Status: DESIGN APPROVED, rev 2.5 (2026-10-05).** Implementation,
-validation and freeze are **separately pending**. This document authorizes
-no implementation.
+**Status: DESIGN APPROVED, rev 2.5 (2026-10-05).** The document text is
+unchanged since approval; this note is status only.
+
+**Implementation (2026-10-05):** MS-I1 to MS-I3 implemented on
+`market-structure-design`; **MACHINE VALIDATION PASSED — PENDING HUMAN
+VISUAL APPROVAL**. Not frozen (§I.0).
 
 - **Final design review:** the GitHub review approved the structural
   semantics at commit `1b6d221f5b819a017940f7d3200352e6a76f96c4`.
@@ -1721,8 +1724,10 @@ fails.
 |---|---|---|
 | Mathematical arguments | A-1 … A-7 below (A-1′, A-6 and A-7 new in rev 2.2) | Written; **not machine-checked** |
 | Example consistency check (rev 2.2) | EX-A, EX-B, EX-C (§H.0) | **Scratch-only script, run 2026-10-05: all assertions pass.** Swing spans come from the frozen `_confirmed_plateaus`; breaches and §E formulas were evaluated at the stated instants. This is not a feature test, not a DEVELOPMENT run and not repository code. Role-entity / transition rows were not machine-checked |
-| Planned tests | MS-T1 … MS-T25, invariants INV-1 … INV-17 | **Not implemented, not run** |
-| Executed tests | — | **None** for this feature family |
+| Planned tests | MS-T1 … MS-T25, invariants INV-1 … INV-17 | Implemented in MS-I1 – MS-I3 (below) |
+| Executed tests (2026-10-05) | `tests/test_swing_breaks.py` (17), `tests/test_market_structure.py` (22), `tests/test_structure_audit.py` (11) | **All pass.** They cover the spec examples (EX-A / EX-B / EX-C, now executed by the production engine with role and transition rows checked), T-1, retained protection, the outside bar, K-2, M7A validity, determinism, order independence, revisions, gap / CB-1 / CB-2, trailing observations, cutoffs inside gaps, prefix grids, the random-walk dual-establishment search, reference reconciliation and negative invariant cases |
+| DEVELOPMENT machine validation (2026-10-05) | `src.experiments.market_structure_dev_validation`; all six timeframes; replay cutoff 2025-06-30 17:00 ET | **All 10 gates PASS**: INV-1 … INV-17 = 0 on every timeframe; engine equals the independent reference; prefix replay inside a real roll gap is equivalent; swings equal the frozen Swing baseline; 0 anomalies (`reports/validation/README.md`) |
+| Human visual approval | `reports/validation/market_structure_visual_validation.html` (local); 20 cases | **PENDING** |
 
 ### I.1 Mathematical arguments (with assumptions)
 

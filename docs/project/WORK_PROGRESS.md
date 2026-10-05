@@ -138,26 +138,33 @@ time with explicit approval (D-117).
     APPROVED.
 
 - **Generic Market Structure (Protected Swing, Structural Direction,
-  break, BOS, CHoCH): DESIGN APPROVED** (2026-10-05).
-  - Spec `docs/project/MARKET_STRUCTURE_SPEC.md` rev 2.5. The final
-    GitHub review approved the semantics at `1b6d221`.
-  - Registered as **D-139–D-142**.
-  - Branch `market-structure-design` is committed and pushed (not merged).
-  - **Approved semantics:**
-    - D1–D17, K-1…K-14, N-1 / N-3 and the rev 2.2 corrections;
-    - T-1 (same-close target admission after a failed establishment);
-    - CB-1 (gap then roll: `DATA_GAP` reset at the onset; the roll is
-      recorded later in the opening provenance; never retroactive);
-    - CB-2 (pure roll resets at the first new-contract bar's close).
-  - **Rev 2.5 (documentation correction):** the schedule-based gap-reset
-    adapter with an explicit `replay_cutoff` (§G.2a).
-    - Frozen continuity is unchanged.
-    - Trailing gaps reset without a break row, and prefix equivalence
-      holds inside gaps.
-    - Planned cases MS-T24 / MS-T25 and INV-17 are added.
-  - **No stitching, price adjustment or roll calendar.**
-  - **Next (requires separate authorization):** implementation MS-I1
-    (`swing_breaks`), then MS-I2 / MS-I3. Freeze is pending.
+  break, BOS, CHoCH): IMPLEMENTED — MACHINE VALIDATION PASSED — PENDING
+  HUMAN VISUAL APPROVAL** (2026-10-05). Not frozen, not merged.
+  - Design: `docs/project/MARKET_STRUCTURE_SPEC.md` rev 2.5, approved,
+    D-139–D-142.
+  - Branch `market-structure-design`; draft PR #14.
+  - **Code:**
+    - MS-I1 `src/market_structure/swing_breaks.py`;
+    - MS-I2 `src/market_structure/structure.py` (reset adapter with an
+      explicit `replay_cutoff`, batch engine, M7A namespaces);
+    - MS-I3 `src/market_structure/structure_audit.py` (independent
+      reference replay plus INV-1…INV-17);
+    - `src/experiments/market_structure_dev_validation.py`.
+  - **Tests:** 17 + 22 + 11 new.
+  - **DEVELOPMENT (replay cutoff 2025-06-30 17:00 ET):** all 10 machine
+    gates PASS.
+    - All invariants are 0.
+    - The engine equals the independent reference (1m on 9 of 33
+      segments).
+    - Prefix replay inside a real roll gap is equivalent.
+    - Swings equal the frozen baseline.
+    - 0 anomalies.
+    - Every DEVELOPMENT roll is CB-1 (4 per timeframe); CB-2 is
+      synthetic only.
+  - **Visual package:** `reports/validation/market_structure_visual_validation.html`
+    (local), 20 cases (15 REAL, 5 SYNTHETIC).
+  - **Next:** human visual review, then a freeze decision. The Signal
+    adapter (MS-I4), MSS, liquidity and hierarchy stay deferred.
 
 ## Last completed work
 

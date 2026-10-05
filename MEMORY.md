@@ -213,8 +213,14 @@ at a time with explicit approval (D-117).
       (24 cases: 13 REAL, 11 SYNTHETIC).
     - Next: 3.MS Generic Market Structure (draft numbering; sequenced
       before 3.3 Internal Liquidity, administrative N-4).
-    - That Market Structure workstream is **DESIGN APPROVED**
-      (2026-10-05).
+    - That Market Structure workstream is **IMPLEMENTED — MACHINE
+      VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL** (2026-10-05).
+      It is on draft PR #14 and is not frozen.
+      - Code: `src/market_structure/{swing_breaks,structure,structure_audit}.py`
+        and the runner `src/experiments/market_structure_dev_validation.py`.
+      - DEVELOPMENT: all 10 gates PASS; INV-1…17 are 0; the engine equals
+        the independent reference.
+      - The design was approved on 2026-10-05.
       - Spec `docs/project/MARKET_STRUCTURE_SPEC.md` rev 2.5; final
         review at `1b6d221`; **D-139–D-142**.
       - Not implemented, not frozen. Each implementation step (MS-I1+)

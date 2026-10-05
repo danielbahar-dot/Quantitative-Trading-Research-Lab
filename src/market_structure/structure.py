@@ -267,6 +267,9 @@ def detect_structure_episodes(
         raise ContinuityError(f"{timeframe}: an observed bar is not in the expected schedule")
     by_pos = dict(zip(observed, range(len(obs))))
     ends = list(schedule["bar_end"])
+    complete = obs["is_complete"].astype(bool).to_numpy()
+    contracts = obs["contract"].to_numpy()
+    obs_ends = list(obs["bar_end"])
 
     episodes: list[Episode] = []
     active: list[int] | None = None
@@ -280,7 +283,7 @@ def detect_structure_episodes(
 
     for pos in range(min(observed), len(schedule)):
         row_index = by_pos.get(pos)
-        valid = row_index is not None and bool(obs["is_complete"].iloc[row_index])
+        valid = row_index is not None and bool(complete[row_index])
         if not valid:
             if active is not None:
                 current.reset_at = pd.Timestamp(ends[pos])
@@ -289,7 +292,7 @@ def detect_structure_episodes(
                 finish()
                 closed = current
             continue
-        contract = obs["contract"].iloc[row_index]
+        contract = contracts[row_index]
         if active is None:
             if not episodes:
                 current = Episode(contract=contract, rows=obs.iloc[[]], opening_cause=DATA_START)
@@ -300,7 +303,7 @@ def detect_structure_episodes(
             episodes.append(current)
             active = []
         elif contract != current.contract:
-            at = pd.Timestamp(obs["bar_end"].iloc[row_index])
+            at = pd.Timestamp(obs_ends[row_index])
             current.reset_at, current.reset_reason = at, CONTRACT_CHANGE
             current.reset_ref = continuity_ref(timeframe, current.contract, at)
             finish()

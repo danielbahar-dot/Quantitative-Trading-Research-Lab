@@ -1,0 +1,21 @@
+case_id,source,timeframe,area,case,refs,synthetic_reason
+R01,REAL,4H,Establishment,ESTABLISHMENT BULLISH,sx_7b7113dcb6a2126512a5d34ce5d78c66cc602e0211cfdc61da32fd20379f1f5d sb_0673256d4a1271cdd42595a819f9b1a3f8b5fce62871d140f7a58b65d5bb37d7,
+R02,REAL,4H,Establishment,ESTABLISHMENT BEARISH,sx_627baf8df05def6093b825ba592c3403463958dc14852a8534dd9aa2a29ad766 sb_ca3fc0f74f76050f88d94306f2b676f9d5d3976790d9e1dbe5a177e076f7c538,
+R03,REAL,1H,BOS,BOS BULLISH,sx_119f8ade0c3a7e4da276ba0c3d469914b8b53c183fc5e4dae02672b508f65556 sb_8ccb3b0e2f3772ea6a92c012410149e240d00e5ff38230dae80f715e9c36506b,
+R04,REAL,1H,BOS,BOS BULLISH,sx_45a36b2edfca21ebdf487c6d7d79fb6d6589e6d467477ce7d0aae1e85542e202 sb_7be2fe6ece7f5e7ffad1b046a8a48f38032456c4396eb430149f38a96a213f0f,
+R05,REAL,1H,CHoCH,CHOCH BEARISH,sx_7baf95011e001ac09b7adfe5e91f21cd955844517e06434e9a36a3367a1641c3 sb_56d4ba8538f92ba63b5cd7fcc58289c66bd86fe921ace7ad4c7c1db56101fcc7,
+R06,REAL,4H,CHoCH,CHOCH BEARISH,sx_628db48f6eae2e4f653e362e2030edce5ff8f91050739a3b8835cc7487b4d48e sb_f941a80a9718ce1446dff77f37dd7da36a010ac5d9437c071a4d67de1b87a8fb,
+R07,REAL,1H,Failed establishment,bull cand. target → RETIRED,sr_28c7cfad697deb0e57dde61e80d3bc0dd30299532902fb4821e85d247c521946,
+R08,REAL,1H,Failed establishment,bear cand. target → RETIRED,sr_0e11a37e3b08263f312ea8e74832d5ac490f53d2ce7670db82ca9d462e4a110f,
+R09,REAL,1H,Invalidation,bull anchor → BROKEN,sr_ddf92e715cffdf5916494980acf4544082a3f8a632c731f6fe43701824695e7f,
+R10,REAL,1H,Target progression,TARGET → SUPERSEDED,sr_4be58e2d5926ffe06e8998465ff69c46b795daa13290de632e429807a8ac2f0a,
+R11,REAL,15m,T-1 same-close target,bull cand. target → RETIRED,sr_6bc7ec7f8bcd9a13bf90fb68ea6b7e5c323e71057fa501daab70b7a8101fe13f,
+R12,REAL,1H,Simultaneous admission,outside bar replaces both anchors in one batch,sr_43eeab7d22e74f91199ad9742a7f414f399cbbe916240a07cd7b286a2ac7ba5f sr_b4d33f7a55564cc8bd128127a4422817486e343eb78f3342f9005f23b6ac6ad6,
+R13,REAL,1H,Lifecycle,"gap reset, same contract (DATA_GAP)",sx_20ee37a36948652cb727f27e88ab93bed9790de3a89e73b4c781dfef075a0831 se_5b779644e140374b6c668605028530aa90610e04a93deefbdf50a4db8adea04d,
+R14,REAL,4H,Lifecycle,roll during missing roll-week sessions (CB-1),sx_77699e9191fd36bb7e9ac71543ed7f06a53583b9f28d3df8b48d00266f4251b4 se_0bc52bf6557c90361f5661ba603dc461def628f0636a5fdfa6e28d46f09c60f7,
+R15,REAL,4H→5m,Cross-timeframe,HTF event first readable by LTF bar_start,sx_9ec1c28658618feedd79a9e527ede5c42f916c684280b44ee3ead5c0e7f7b2d7,
+S01,SYNTHETIC,5m,Normative example,"EX-A / H.1 — establishment, BOS without and with protection replacement",,exact normative example (spec §H) or contract boundary absent from DEVELOPMENT
+S02,SYNTHETIC,5m,Normative example,"EX-B / H.8 — equal targets, equal pullbacks",,exact normative example (spec §H) or contract boundary absent from DEVELOPMENT
+S03,SYNTHETIC,5m,Normative example,"EX-C / H.5–H.6 — CHoCH reseed, stale deepest, waiting without reselection",,exact normative example (spec §H) or contract boundary absent from DEVELOPMENT
+S04,SYNTHETIC,5m,Normative example,CB-2 — pure contract change (no DEVELOPMENT example: every roll coincides with a gap),,exact normative example (spec §H) or contract boundary absent from DEVELOPMENT
+S05,SYNTHETIC,5m,Normative example,Trailing incomplete observation — reset without a continuity break row (§G.2a),,exact normative example (spec §H) or contract boundary absent from DEVELOPMENT

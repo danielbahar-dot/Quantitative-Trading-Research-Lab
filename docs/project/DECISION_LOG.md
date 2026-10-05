@@ -1239,7 +1239,11 @@ repository. For D-101 onward the date is when it was recorded here
   - **MSS** stays deferred.
 - **Reason:** a methodology-neutral, causal, reproducible break primitive
   consuming frozen Swing Structure (D-135–D-138).
-- **Status:** ACTIVE — DESIGN APPROVED. Not implemented, not frozen.
+- **Status:** ACTIVE — DESIGN APPROVED. Not frozen.
+- **Implementation note 2026-10-05 (MS-I1 – MS-I3):** implemented on `market-structure-design`
+  (`src/market_structure/{swing_breaks,structure,structure_audit}.py`, DEVELOPMENT runner
+  `src/experiments/market_structure_dev_validation.py`). **MACHINE VALIDATION PASSED — PENDING
+  HUMAN VISUAL APPROVAL.** The decision text is unchanged.
 
 ### D-140 — Structural Direction, Protected Swing and causal selection
 - **Date:** 2026-10-05
@@ -1271,7 +1275,11 @@ repository. For D-101 onward the date is when it was recorded here
     anomaly evidence and fails validation.
 - **Reason:** the D1–D16 handoff semantics as refined by design review
   K-1 … K-4, K-7, K-8, K-11, N-1, T-1 and the rev 2.2 corrections.
-- **Status:** ACTIVE — DESIGN APPROVED. Not implemented, not frozen.
+- **Status:** ACTIVE — DESIGN APPROVED. Not frozen.
+- **Implementation note 2026-10-05 (MS-I1 – MS-I3):** implemented on `market-structure-design`
+  (`src/market_structure/{swing_breaks,structure,structure_audit}.py`, DEVELOPMENT runner
+  `src/experiments/market_structure_dev_validation.py`). **MACHINE VALIDATION PASSED — PENDING
+  HUMAN VISUAL APPROVAL.** The decision text is unchanged.
 
 ### D-141 — Structure state representation, identity and provenance
 - **Date:** 2026-10-05
@@ -1295,7 +1303,11 @@ repository. For D-101 onward the date is when it was recorded here
     separate from `run_id` and `fact_hash`. Facts are pinned, and
     revisions create new runs.
 - **Reason:** design review K-10, K-13, N-3 and N-5; M7A compatibility.
-- **Status:** ACTIVE — DESIGN APPROVED. Not implemented, not frozen.
+- **Status:** ACTIVE — DESIGN APPROVED. Not frozen.
+- **Implementation note 2026-10-05 (MS-I1 – MS-I3):** implemented on `market-structure-design`
+  (`src/market_structure/{swing_breaks,structure,structure_audit}.py`, DEVELOPMENT runner
+  `src/experiments/market_structure_dev_validation.py`). **MACHINE VALIDATION PASSED — PENDING
+  HUMAN VISUAL APPROVAL.** The decision text is unchanged.
 
 ### D-142 — Structure lifecycle, resets and contract boundaries
 - **Date:** 2026-10-05
@@ -1327,7 +1339,11 @@ repository. For D-101 onward the date is when it was recorded here
   - **Not introduced:** stitching, price adjustment or a roll calendar.
 - **Reason:** design review K-5, CB-1 and CB-2, plus the final-review
   clarification of the gap-reset adapter (rev 2.5).
-- **Status:** ACTIVE — DESIGN APPROVED. Not implemented, not frozen.
+- **Status:** ACTIVE — DESIGN APPROVED. Not frozen.
+- **Implementation note 2026-10-05 (MS-I1 – MS-I3):** implemented on `market-structure-design`
+  (`src/market_structure/{swing_breaks,structure,structure_audit}.py`, DEVELOPMENT runner
+  `src/experiments/market_structure_dev_validation.py`). **MACHINE VALIDATION PASSED — PENDING
+  HUMAN VISUAL APPROVAL.** The decision text is unchanged.
 
 ### PROPOSED items awaiting design-authority approval (2026-09-28)
 Claude recommendations from the architecture closeout; **not decisions**:

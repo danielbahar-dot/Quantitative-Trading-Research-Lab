@@ -221,3 +221,74 @@ validation baseline**: Swing Structure 3.2 is **APPROVED / FROZEN** as of
 - the tracked artifacts are price-free.
 
 Spec: `docs/project/SWING_STRUCTURE_SPEC.md`.
+
+## `market_structure_*`
+
+Generic Market Structure (3.MS) MS-I3 DEVELOPMENT validation (2026-10-05).
+Status: **MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL**. Not
+frozen.
+
+**Scope.**
+
+- DEVELOPMENT only (the same 337,815 canonical 1m bars as Swing). The source
+  is read, not modified.
+- Explicit definition `structure-v1` / `swing-break-v1` over the explicit 2/2
+  Swing reference (`swing-pivot-v1`).
+- All six timeframes.
+- Explicit `replay_cutoff` = 2025-06-30 17:00 ET, the close of the
+  DEVELOPMENT partition's declared last session.
+- **Reproduce with:**
+  `.\.venv\Scripts\python.exe -m src.experiments.market_structure_dev_validation`
+  (about 18 minutes; 1m dominates).
+- No PnL, strategy, backtest or optimization; no VALIDATION / OOS data.
+
+**Tracked files** (all price-free):
+
+- **`market_structure_dev_summary.csv`** (`section, timeframe, metric,
+  value`):
+  - counts of swings, breaks, episodes (by opening cause and contract
+    change), events (by kind / direction and reset reason), direction
+    transitions, and roles by kind and exit state;
+  - anomalies;
+  - SHA-256 fingerprints of the natural ids;
+  - `run_id` per timeframe;
+  - machine-gate PASS / FAIL.
+- **`market_structure_dev_invariants.csv`**: INV-1 … INV-17 per timeframe
+  (102 rows), with violation counts.
+- **`market_structure_dev_reconciliation.csv`**: engine versus the independent
+  reference replay (`structure_audit.reference_structure`).
+  - Covers role exits, roles active at segment end, events and direction
+    transitions.
+  - 1m replays every 4th continuity segment (9 of 33) to bound runtime; the
+    other timeframes replay all segments.
+- **`market_structure_dev_prefix_replay.csv`**: DEVELOPMENT prefix runs on
+  4H and 1H, with cutoffs placed:
+  - inside a contract-roll gap;
+  - at a gap-reset onset;
+  - one minute before that onset;
+  - mid-episode;
+  - at the new contract's first bar.
+- **`market_structure_dev_episodes.csv`**: every episode with its opening
+  cause, contract provenance and reset.
+- **`market_structure_dev_runtime.csv`**: engine, invariant and reference
+  seconds per timeframe.
+- **`market_structure_visual_validation_cases.csv`**: manifest of the 20
+  visual cases (15 REAL DEVELOPMENT, 5 SYNTHETIC).
+
+**Local, Git-ignored:** `market_structure_visual_validation.html`, which shows
+the production engine's role, event and reset charts with prices.
+
+**Machine results.** All 10 gates PASS:
+
+- swings equal the frozen Swing baseline;
+- episodes equal the continuity segments;
+- no DUAL_ESTABLISHMENT anomalies;
+- all invariants are 0;
+- the engine equals the independent reference;
+- DEVELOPMENT prefix replay is equivalent;
+- the visual cases are generated;
+- no VALIDATION / OOS data was read;
+- no strategy, PnL, backtest or optimization;
+- the tracked artifacts are price-free.
+
+Spec: `docs/project/MARKET_STRUCTURE_SPEC.md` rev 2.5 (D-139–D-142).

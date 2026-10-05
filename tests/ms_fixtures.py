@@ -95,3 +95,51 @@ def segments(bars, tf="5m", spec=SPEC):
 def slot_end(k, tf="5m", dates=DAYS, spec=SPEC):
     """UTC bar_end of expected target observation k."""
     return pd.Timestamp(schedule(tf, dates, spec)["bar_end"].iloc[k]).tz_convert("UTC")
+
+
+def structure_definition():
+    from src.market_structure.structure import StructureDefinitionSpec
+    from src.market_structure.swing import SwingDefinitionSpec
+
+    return StructureDefinitionSpec(definition_version="structure-v1", break_definition_version="swing-break-v1",
+                                   swing_definition=SwingDefinitionSpec(definition_version="swing-pivot-v1",
+                                                                        left_depth=2, right_depth=2))
+
+
+def run_structure(rows, *, cutoff_k=None, tf="5m", cutoff=None, **kwargs):
+    """Build bars from ``rows`` and run the engine with the cutoff at expected observation ``cutoff_k``."""
+    from src.market_structure.structure import build_market_structure
+
+    bars = ohlc_bars(rows, tf, **kwargs)
+    if cutoff is None:
+        cutoff = slot_end(len(rows) - 1 if cutoff_k is None else cutoff_k, tf)
+    return build_market_structure(bars, tf, SPEC, structure_definition(), instrument_id="MNQ", replay_cutoff=cutoff)
+
+
+def labels(run):
+    """Readable maps: bar_end ns -> expected position, swing_id -> 'U110@5' style label."""
+    sched = {pd.Timestamp(t).value: i for i, t in enumerate(schedule()["bar_end"])}
+    names = {s.swing_id: f"{s.orientation[0]}{s.price - BASE:g}@{sched[pd.Timestamp(s.source_at).value]}"
+             for s in run.swings.itertuples(index=False)}
+    return sched, names
+
+
+def role_story(run):
+    """[(kind, swing label, assigned position, exit state or None, exit position or None)] sorted."""
+    sched, names = labels(run)
+    exits = run.role_transitions.set_index("entity_id")
+    story = []
+    for role in run.roles.itertuples(index=False):
+        state = position = None
+        if role.role_id in exits.index:
+            row = exits.loc[role.role_id]
+            state, position = row["new_state"], sched[pd.Timestamp(row["transition_at"]).value]
+        story.append((role.role_kind, names[role.swing_id], sched[pd.Timestamp(role.assigned_at).value], state,
+                      position))
+    return sorted(story, key=lambda item: (item[2], item[0], item[1]))
+
+
+def event_story(run):
+    sched, names = labels(run)
+    return [(sched[pd.Timestamp(e.event_at).value], e.kind, e.direction, names.get(e.swing_id))
+            for e in run.events.itertuples(index=False)]

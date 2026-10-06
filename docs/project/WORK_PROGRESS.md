@@ -147,6 +147,14 @@ time with explicit approval (D-117).
     - `src/experiments/market_structure_{dev_validation,visual}.py`.
   - Deferred: Signal adapter (MS-I4), MSS, liquidity, hierarchy.
 
+- **Internal Liquidity (3.3): DESIGN APPROVED — IMPLEMENTATION AUTHORIZED; NOT IMPLEMENTED / NOT FROZEN** (2026-10-06).
+  - Spec `docs/project/INTERNAL_LIQUIDITY_DESIGN.md` rev 4 (approved);
+    D-143 – D-147.
+  - Branch `internal-liquidity-design`.
+  - Implementation IL-I1 – IL-I4 is authorized. Freeze and merge are not.
+  - The Market Structure freeze record (`25f95d9`) is published through its
+    own branch / PR, `market-structure-freeze-record`.
+
 ## Last completed work
 
 - **2026-10-06 — Generic Market Structure APPROVED / FROZEN.**

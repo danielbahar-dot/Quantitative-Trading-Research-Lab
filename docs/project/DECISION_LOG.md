@@ -1372,6 +1372,125 @@ repository. For D-101 onward the date is when it was recorded here
   (`src/market_structure/{swing_breaks,structure,structure_audit}.py`, DEVELOPMENT runner
   `src/experiments/market_structure_dev_validation.py`). **MACHINE VALIDATION PASSED; HUMAN VISUAL APPROVAL PASSED (2026-10-06).** The decision text is unchanged.
 
+### D-143 — Shared liquidity consumption contract
+- **Date:** 2026-10-06
+- **Decision** (`docs/project/INTERNAL_LIQUIDITY_DESIGN.md` rev 4 §3.1;
+  IL-D0, IL-D1/2, IL-D12, OI-1, A-19):
+  - **One narrow, shared consumption predicate** is used by Internal
+    Liquidity and by a derived lifecycle view over frozen External objects.
+    The broader 3.4 lifecycle stays deferred, and frozen formation facts are
+    unchanged.
+  - **Observation.** Canonical 1m bars. Bar `m` uses the object version
+    available at `s(m)`. Consumption is recorded at `e(m)`, with no intrabar
+    order.
+  - **Threshold.** UPPER `θ = p + t`, LOWER `θ = p − t`. Consumption requires
+    strict penetration (`h > θ` / `l < θ`); equality never consumes.
+  - **Tolerances `t`:**
+    - Internal 1H candle, 5m / 15m / 1H swing, EQ and REQ: 4 ticks.
+    - External Daily / 4H standalone, EQ and REQ: 6 ticks.
+    - EQ formation stays exact.
+  - **Clusters** are consumed beyond their current definitive price plus
+    tolerance. A within-tolerance excursion contributes only after a
+    qualifying confirmation, and later confirmation never undoes
+    consumption.
+  - **Boundary assignments** are consumable objects pinned to one version,
+    evaluated independently of their live cluster.
+  - **Evidence:** the consuming bar ref, o / h / l / c, `p`, `t`, `θ`,
+    excess ticks, gap-through, and the version evaluated.
+- **Reason:** design-authority approval of rev 4, 2026-10-06.
+- **Status:** ACTIVE — DESIGN APPROVED. Implementation authorized; not
+  implemented, not frozen.
+
+### D-144 — Internal formation atoms
+- **Date:** 2026-10-06
+- **Decision** (rev 4 §3.2; IL-D6/7/8, OI-1):
+  - Internal atoms reuse the frozen `liquidity_members` /
+    `liquidity_structures` envelope with `liquidity_class = INTERNAL`.
+  - **Families:**
+    - complete 1H candle highs / lows;
+    - confirmed swings on 5m, 15m and 1H, using the explicit frozen
+      `swing-pivot-v1` 2/2 definition;
+    - EQ / REQ clusters of confirmed swings, per side and timeframe.
+  - **Cluster grammar:** D-134 at the internal grain:
+    - EQ exact;
+    - REQ link ≤ 4 ticks with chain connectivity and ≥ 2 distinct prices;
+    - pair-outer barrier on the timeframe's bars;
+    - one continuity segment and contract;
+    - immutable FORMED / EXTENDED / MERGED versions, never back-dated.
+- **Reason:** design-authority approval of rev 4, 2026-10-06.
+- **Status:** ACTIVE — DESIGN APPROVED. Implementation authorized; not
+  implemented, not frozen.
+
+### D-145 — Internal levels, price records and grading
+- **Date:** 2026-10-06
+- **Decision** (rev 4 §3.3 – §3.5; IL-D9/10/11, OI-2, OI-6):
+  - **Definitive price:** a single source's price; the common exact price
+    for EQ; the outermost constituent for REQ.
+  - **One active internal level per (contract, side, price).** It
+    consolidates coincident candidates with multiple evidence references.
+  - **Identity:** `il_` anchored on the first evidence. A level is terminal
+    after consumption or termination. A genuinely new formation creates a
+    new id at the same price.
+  - **Versions:** immutable and prospective.
+  - **Price records.** Coincident internal and External objects share one
+    actionable price record (`lp_`) but keep separate lifecycles and
+    thresholds. Valid internal membership is not suppressed.
+  - **Confluence** counts distinct physical extremes once.
+  - **Grades:** an attribute profile with ordered tiers, timeframe first,
+    then family. Within a timeframe: ordinary H/L < REQ < EQ. Within 1H:
+    candle < swing < REQ < EQ. Proximity and direction are excluded.
+- **Reason:** design-authority approval of rev 4, 2026-10-06.
+- **Status:** ACTIVE — DESIGN APPROVED. Implementation authorized; not
+  implemented, not frozen.
+
+### D-146 — External ranges and pinned boundary assignments
+- **Date:** 2026-10-06
+- **Decision** (rev 4 §3.6; IL-D3/4/5, OI-4, OI-5, A-19):
+  - **Boundary candidates:**
+    - External Daily H/L member objects;
+    - External 4H / Daily EQ / REQ cluster lineages (`xc_`), priced at
+      their current version.
+  - **Establishment:** the closest eligible candidates. The upper side may be
+    unbounded; with no lower, the status is `INSUFFICIENT_BOUNDARY_DATA`.
+  - **Pinned assignments (`ba_`).** A selected boundary is pinned to its
+    formation version, price and threshold. Cluster extensions and merges
+    never move it.
+  - **At an assignment-consumption event:**
+    - the consumed side advances outward to the closest eligible candidate
+      beyond the pinned price;
+    - the opposite side is reselected to the closest eligible candidate only
+      if strictly closer, and otherwise retained;
+    - there is no reselection between events.
+  - **Membership:** strictly inside the pinned boundaries; equality is
+    excluded; historical, known, unconsumed levels qualify.
+- **Reason:** design-authority approval of rev 4, 2026-10-06.
+- **Status:** ACTIVE — DESIGN APPROVED. Implementation authorized; not
+  implemented, not frozen.
+
+### D-147 — Internal Liquidity lifecycle, gaps, causality and outputs
+- **Date:** 2026-10-06
+- **Decision** (rev 4 §3.7 – §3.9; IL-D13/14, OI-3):
+  - **Data gaps** (the 1m §G.2a onset) terminate every affected level,
+    External object, assignment and range as data uncertainty, not
+    consumption. Re-establishment uses post-gap formations only, and no
+    pre-gap identity revives.
+  - **Contracts stay isolated.**
+  - **Causal batch per 1m bar:** consumption first, then admissions, then the
+    range update, then memberships.
+  - **Outputs:**
+    - the reused formation tables;
+    - internal level versions;
+    - price records;
+    - range versions;
+    - boundary assignments;
+    - the `liquidity.consumption` and `liquidity.internal_range` M7A
+      lifecycle logs;
+    - a derived membership view and a causal active-level view;
+    - an explicit `replay_cutoff`, with prefix equivalence.
+- **Reason:** design-authority approval of rev 4, 2026-10-06.
+- **Status:** ACTIVE — DESIGN APPROVED. Implementation authorized; not
+  implemented, not frozen.
+
 ### PROPOSED items awaiting design-authority approval (2026-09-28)
 Claude recommendations from the architecture closeout; **not decisions**:
 ~~Market Context as tidy-DataFrame functions (no MarketContext object)~~

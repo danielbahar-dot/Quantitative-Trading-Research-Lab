@@ -211,8 +211,12 @@ at a time with explicit approval (D-117).
       `b6876266800d56b3421dbfb5e4a4aa50b83140acdd409390d28b5f75427c218f`.
     - Suite: 647 / 0 / 493. Machine gates and human visual review PASS
       (24 cases: 13 REAL, 11 SYNTHETIC).
-    - Next: 3.3 Internal Liquidity (design proposal on branch
-      `internal-liquidity-design`; 3.MS is done).
+    - Next: 3.3 Internal Liquidity: **DESIGN APPROVED — IMPLEMENTATION AUTHORIZED; NOT IMPLEMENTED / NOT FROZEN** (2026-10-06).
+      - Spec rev 4 on branch `internal-liquidity-design`; D-143 – D-147.
+      - Shared consumption predicate: strict beyond `p ± t` on 1m, with
+        `t` = 4 internal and 6 External.
+      - Pinned boundary assignments; price records with separate
+        lifecycles; post-gap-only re-establishment.
     - That Market Structure workstream is **APPROVED / FROZEN** (2026-10-06).
       It was merged via PR #14 (`434d919`); the frozen baseline is in the
       D-139 freeze note.

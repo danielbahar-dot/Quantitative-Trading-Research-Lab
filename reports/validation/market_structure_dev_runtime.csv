@@ -1,0 +1,7 @@
+timeframe,engine_seconds,invariants_seconds,reference_seconds
+1m,547.6,158.3,102.3
+5m,104.9,30.7,21.6
+15m,39.9,11.5,5.7
+1H,13.7,4.8,1.9
+4H,6.4,1.3,0.5
+1D,3.9,0.6,0.2

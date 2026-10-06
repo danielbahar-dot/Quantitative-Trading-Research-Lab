@@ -26,9 +26,10 @@ High-level only. No deadlines. Status vocabulary: `DONE`, `ACTIVE`, `NEXT`,
 | 3 | **Generic Market Structure & Liquidity**: methodology-neutral primitives usable by any strategy family (mean reversion, breakout, Wyckoff, SMC/ICT, order flow, statistical). Not ICT-specific (D-133). Continuity-aware; may proceed before D1 | **ACTIVE** |
 | 3.1 | External Liquidity (static): complete Daily H/L, selected session/reference H/L, Daily and 4H EQ/REQ structures (`docs/project/EXTERNAL_LIQUIDITY_SPEC.md`; D-134) | **DONE — APPROVED / FROZEN** (2026-10-04). `src/liquidity/contract.py` + `src/features/external_liquidity.py`; frozen DEVELOPMENT baseline in spec §18 / D-134 freeze note |
 | 3.2 | Swing Structure (generic market-structure primitive). Objectively defined and frozen **before** Internal Liquidity; not every swing is liquidity (D-133 clarification) | **DONE — APPROVED / FROZEN** (2026-10-05; `docs/project/SWING_STRUCTURE_SPEC.md` rev 3; D-135–D-138). `src/market_structure/{swing,swing_detector}.py`, 1m–1D with one detector; DEVELOPMENT 2/2 reference baseline 119,381 swings; fingerprint `b6876266…218f`; machine gates and human visual review PASS (SW-I0–SW-I3). May later be consumed by a separate generic Market Structure workstream (Structural Direction, Protected Swing, Structure Break, BOS / CHoCH / MSS), not implemented |
-| 3.3 | Internal Liquidity (static): may consume lower-timeframe EQ/REQ and generic Swing High/Low structures (3.2); decides which swings qualify. Same member/structure envelope | PLANNED (**next**; 3.2 is frozen) |
+| 3.3 | Internal Liquidity (static): may consume lower-timeframe EQ/REQ and generic Swing High/Low structures (3.2); decides which swings qualify. Same member/structure envelope | PLANNED (after 3.MS; administrative sequencing, N-4) |
 | 3.4 | Shared Liquidity Lifecycle: consumes External (3.1) and Internal (3.3) members, using M6 and M7. Designed only after both static representations exist | PLANNED |
-| 4 | Methodology-specific feature families, downstream of 3 (e.g. ICT/SMC: FVG, IFVG, Order Block, Rejection Block, Mitigation Block). MSS / BOS classification is open: the underlying structural shift may become a generic primitive with methodology-specific interpretation | PLANNED (after 3) |
+| 3.MS (draft numbering) | Generic Market Structure: neutral swing-referenced Structure Break, Protected Swing, Structural Direction, BOS, CHoCH (versioned classifications; consumes 3.2). MSS deferred (D-133 clarification 2026-10-05, K-12) | **IMPLEMENTED — MACHINE VALIDATION PASSED; HUMAN VISUAL APPROVAL PASSED (2026-10-06) — APPROVED, READY TO MERGE** (2026-10-05; spec rev 2.5; D-139–D-142). MS-I1 – MS-I3 on `market-structure-design` (draft PR #14). Not frozen. Contract boundaries resolved (CB-1 / CB-2) with no stitching. Sequenced before 3.3 (administrative, N-4) |
+| 4 | Methodology-specific feature families, downstream of 3 (e.g. ICT/SMC: FVG, IFVG, Order Block, Rejection Block, Mitigation Block). BOS / CHoCH are generic (3.MS, K-12). MSS stays deferred, including any displacement / FVG / liquidity qualification, and its placement remains open | PLANNED (after 3) |
 | 5 | Visual and programmatic validation of each primitive, then freeze | PLANNED (per primitive) |
 | 6 | Strategy/model construction (e.g. Turtle Soup / liquidity-raid candidate) | PLANNED; blocked on the required primitives. Final broad performance validation where roll periods matter needs D1 |
 | 7 | Broader experiment work (more families/instruments, experiment runner) | PLANNED |
@@ -81,8 +82,10 @@ future dedicated task.
   clarified):
   1. External Liquidity (3.1), static;
   2. Swing Structure (3.2);
-  3. Internal Liquidity (3.3), static;
-  4. the Shared Lifecycle (3.4), designed only after both static liquidity
+  3. Generic Market Structure (3.MS, draft numbering; administrative
+     sequencing, N-4);
+  4. Internal Liquidity (3.3), static;
+  5. the Shared Lifecycle (3.4), designed only after both static liquidity
      representations exist.
 - Strategy construction (6) does not start until the required primitives
   are `APPROVED`/`FROZEN` (see [QUALITY_CONTROL](QUALITY_CONTROL.md)).

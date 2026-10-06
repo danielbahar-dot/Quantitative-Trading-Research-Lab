@@ -211,9 +211,40 @@ at a time with explicit approval (D-117).
       `b6876266800d56b3421dbfb5e4a4aa50b83140acdd409390d28b5f75427c218f`.
     - Suite: 647 / 0 / 493. Machine gates and human visual review PASS
       (24 cases: 13 REAL, 11 SYNTHETIC).
-    - Next: 3.3 Internal Liquidity. A separate generic Market Structure
-      workstream (Structural Direction / Protected Swing / Structure
-      Break / BOS / CHoCH / MSS) may later consume swings.
+    - Next: 3.MS Generic Market Structure (draft numbering; sequenced
+      before 3.3 Internal Liquidity, administrative N-4).
+    - That Market Structure workstream is **IMPLEMENTED — MACHINE VALIDATION PASSED; HUMAN VISUAL APPROVAL PASSED (2026-10-06) — APPROVED, READY TO MERGE** (2026-10-05).
+      It is on draft PR #14 and is not frozen.
+      - Code: `src/market_structure/{swing_breaks,structure,structure_audit}.py`
+        and the runner `src/experiments/market_structure_dev_validation.py`.
+      - DEVELOPMENT: all 10 gates PASS; INV-1…17 are 0; the engine equals
+        the independent reference.
+      - The design was approved on 2026-10-05.
+      - Spec `docs/project/MARKET_STRUCTURE_SPEC.md` rev 2.5; final
+        review at `1b6d221`; **D-139–D-142**.
+      - MS-I1 to MS-I3 are implemented and approved: human visual
+        approval passed on 2026-10-06 at PR #14 head `e823224`. They are
+        ready to merge. They are not marked frozen; a freeze needs a
+        separate decision. MS-I4 (the Signal adapter) stays deferred.
+      - BOS / CHoCH are generic; MSS is deferred.
+      - Break evidence is native (`swing_breaks`): a close strictly beyond
+        the level. M6 is unchanged.
+      - Direction lives in M7A `structure.direction`. Each role
+        assignment is its own `structure.role` entity.
+      - Selection is a deterministic rescan with one post-close batch
+        diff per bar.
+      - T-1: a target confirmed at a failed close may be assigned at
+        `e(N)`, but never classifies N.
+      - CB-1 / CB-2: a gap then a roll gives a `DATA_GAP` reset at the
+        onset, with the roll recorded later in the opening provenance. A
+        pure roll resets at the first new-contract bar's close.
+      - **Gap-reset adapter (§G.2a):**
+        - resets come from the M3 schedule up to an explicit, required
+          `replay_cutoff`;
+        - frozen continuity is unchanged and is used only as a
+          fail-closed agreement check and for opening provenance;
+        - its break rows are retrospective and omit trailing gaps.
+      - No stitching or roll calendar.
     - **SW-I2 (implemented, validated and design-authority approved;
       committed on `swing-structure-contract`):**
       `src/market_structure/swing_detector.py`
@@ -255,7 +286,8 @@ at a time with explicit approval (D-117).
       - It is extracted unchanged from External; External keeps a
         compatibility wrapper and translates the error.
       - Frozen External parity is exact.
-      - The swing detector is not implemented yet.
+      - The swing detector followed in SW-I2 and is frozen with Swing
+        Structure 3.2.
     - Audit labels are not frozen.
     - Separated equal extremes are independent swings; EQ is downstream.
       A plateau is not consolidation or range.

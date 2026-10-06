@@ -1,0 +1,103 @@
+timeframe,invariant,violations
+1m,INV-1 no structure_anomalies rows,0
+1m,INV-2 classified reference eligible at s(N) and broken at N,0
+1m,INV-3 sequence spans strictly ordered,0
+1m,INV-4 protection strictly tightened on replacement,0
+1m,INV-5 protection beyond-side of target while both active,0
+1m,INV-6 targets strictly progressive versus baseline,0
+1m,INV-7 active-role uniqueness,0
+1m,INV-8 no swing_breaks row with bar_start < available_at,0
+1m,INV-9 outputs available no earlier than inputs,0
+1m,INV-10 no output or reference crosses a contract,0
+1m,INV-11 M7A validity; no create-and-exit at one instant,0
+1m,INV-12 pinned facts equal input facts,0
+1m,INV-13 RESET onsets follow the schedule rule and are <= replay_cutoff,0
+1m,INV-14 protection exits only REPLACED/BROKEN/ENDED; untouched by BOS without replacement,0
+1m,INV-15 no role on a swing breached at or before assigned_at,0
+1m,INV-16 contract-boundary provenance (CB-1 / CB-2),0
+1m,INV-17 adapter episodes and boundaries agree with continuity,0
+5m,INV-1 no structure_anomalies rows,0
+5m,INV-2 classified reference eligible at s(N) and broken at N,0
+5m,INV-3 sequence spans strictly ordered,0
+5m,INV-4 protection strictly tightened on replacement,0
+5m,INV-5 protection beyond-side of target while both active,0
+5m,INV-6 targets strictly progressive versus baseline,0
+5m,INV-7 active-role uniqueness,0
+5m,INV-8 no swing_breaks row with bar_start < available_at,0
+5m,INV-9 outputs available no earlier than inputs,0
+5m,INV-10 no output or reference crosses a contract,0
+5m,INV-11 M7A validity; no create-and-exit at one instant,0
+5m,INV-12 pinned facts equal input facts,0
+5m,INV-13 RESET onsets follow the schedule rule and are <= replay_cutoff,0
+5m,INV-14 protection exits only REPLACED/BROKEN/ENDED; untouched by BOS without replacement,0
+5m,INV-15 no role on a swing breached at or before assigned_at,0
+5m,INV-16 contract-boundary provenance (CB-1 / CB-2),0
+5m,INV-17 adapter episodes and boundaries agree with continuity,0
+15m,INV-1 no structure_anomalies rows,0
+15m,INV-2 classified reference eligible at s(N) and broken at N,0
+15m,INV-3 sequence spans strictly ordered,0
+15m,INV-4 protection strictly tightened on replacement,0
+15m,INV-5 protection beyond-side of target while both active,0
+15m,INV-6 targets strictly progressive versus baseline,0
+15m,INV-7 active-role uniqueness,0
+15m,INV-8 no swing_breaks row with bar_start < available_at,0
+15m,INV-9 outputs available no earlier than inputs,0
+15m,INV-10 no output or reference crosses a contract,0
+15m,INV-11 M7A validity; no create-and-exit at one instant,0
+15m,INV-12 pinned facts equal input facts,0
+15m,INV-13 RESET onsets follow the schedule rule and are <= replay_cutoff,0
+15m,INV-14 protection exits only REPLACED/BROKEN/ENDED; untouched by BOS without replacement,0
+15m,INV-15 no role on a swing breached at or before assigned_at,0
+15m,INV-16 contract-boundary provenance (CB-1 / CB-2),0
+15m,INV-17 adapter episodes and boundaries agree with continuity,0
+1H,INV-1 no structure_anomalies rows,0
+1H,INV-2 classified reference eligible at s(N) and broken at N,0
+1H,INV-3 sequence spans strictly ordered,0
+1H,INV-4 protection strictly tightened on replacement,0
+1H,INV-5 protection beyond-side of target while both active,0
+1H,INV-6 targets strictly progressive versus baseline,0
+1H,INV-7 active-role uniqueness,0
+1H,INV-8 no swing_breaks row with bar_start < available_at,0
+1H,INV-9 outputs available no earlier than inputs,0
+1H,INV-10 no output or reference crosses a contract,0
+1H,INV-11 M7A validity; no create-and-exit at one instant,0
+1H,INV-12 pinned facts equal input facts,0
+1H,INV-13 RESET onsets follow the schedule rule and are <= replay_cutoff,0
+1H,INV-14 protection exits only REPLACED/BROKEN/ENDED; untouched by BOS without replacement,0
+1H,INV-15 no role on a swing breached at or before assigned_at,0
+1H,INV-16 contract-boundary provenance (CB-1 / CB-2),0
+1H,INV-17 adapter episodes and boundaries agree with continuity,0
+4H,INV-1 no structure_anomalies rows,0
+4H,INV-2 classified reference eligible at s(N) and broken at N,0
+4H,INV-3 sequence spans strictly ordered,0
+4H,INV-4 protection strictly tightened on replacement,0
+4H,INV-5 protection beyond-side of target while both active,0
+4H,INV-6 targets strictly progressive versus baseline,0
+4H,INV-7 active-role uniqueness,0
+4H,INV-8 no swing_breaks row with bar_start < available_at,0
+4H,INV-9 outputs available no earlier than inputs,0
+4H,INV-10 no output or reference crosses a contract,0
+4H,INV-11 M7A validity; no create-and-exit at one instant,0
+4H,INV-12 pinned facts equal input facts,0
+4H,INV-13 RESET onsets follow the schedule rule and are <= replay_cutoff,0
+4H,INV-14 protection exits only REPLACED/BROKEN/ENDED; untouched by BOS without replacement,0
+4H,INV-15 no role on a swing breached at or before assigned_at,0
+4H,INV-16 contract-boundary provenance (CB-1 / CB-2),0
+4H,INV-17 adapter episodes and boundaries agree with continuity,0
+1D,INV-1 no structure_anomalies rows,0
+1D,INV-2 classified reference eligible at s(N) and broken at N,0
+1D,INV-3 sequence spans strictly ordered,0
+1D,INV-4 protection strictly tightened on replacement,0
+1D,INV-5 protection beyond-side of target while both active,0
+1D,INV-6 targets strictly progressive versus baseline,0
+1D,INV-7 active-role uniqueness,0
+1D,INV-8 no swing_breaks row with bar_start < available_at,0
+1D,INV-9 outputs available no earlier than inputs,0
+1D,INV-10 no output or reference crosses a contract,0
+1D,INV-11 M7A validity; no create-and-exit at one instant,0
+1D,INV-12 pinned facts equal input facts,0
+1D,INV-13 RESET onsets follow the schedule rule and are <= replay_cutoff,0
+1D,INV-14 protection exits only REPLACED/BROKEN/ENDED; untouched by BOS without replacement,0
+1D,INV-15 no role on a swing breached at or before assigned_at,0
+1D,INV-16 contract-boundary provenance (CB-1 / CB-2),0
+1D,INV-17 adapter episodes and boundaries agree with continuity,0

@@ -213,8 +213,7 @@ at a time with explicit approval (D-117).
       (24 cases: 13 REAL, 11 SYNTHETIC).
     - Next: 3.MS Generic Market Structure (draft numbering; sequenced
       before 3.3 Internal Liquidity, administrative N-4).
-    - That Market Structure workstream is **IMPLEMENTED — MACHINE
-      VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL** (2026-10-05).
+    - That Market Structure workstream is **IMPLEMENTED — MACHINE VALIDATION PASSED; HUMAN VISUAL APPROVAL PASSED (2026-10-06) — APPROVED, READY TO MERGE** (2026-10-05).
       It is on draft PR #14 and is not frozen.
       - Code: `src/market_structure/{swing_breaks,structure,structure_audit}.py`
         and the runner `src/experiments/market_structure_dev_validation.py`.
@@ -223,9 +222,10 @@ at a time with explicit approval (D-117).
       - The design was approved on 2026-10-05.
       - Spec `docs/project/MARKET_STRUCTURE_SPEC.md` rev 2.5; final
         review at `1b6d221`; **D-139–D-142**.
-      - MS-I1 to MS-I3 are implemented and not frozen. A freeze needs the
-        human visual approval and a separate decision. MS-I4 (the Signal
-        adapter) stays deferred.
+      - MS-I1 to MS-I3 are implemented and approved: human visual
+        approval passed on 2026-10-06 at PR #14 head `e823224`. They are
+        ready to merge. They are not marked frozen; a freeze needs a
+        separate decision. MS-I4 (the Signal adapter) stays deferred.
       - BOS / CHoCH are generic; MSS is deferred.
       - Break evidence is native (`swing_breaks`): a close strictly beyond
         the level. M6 is unchanged.

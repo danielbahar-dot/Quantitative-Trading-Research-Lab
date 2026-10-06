@@ -225,7 +225,7 @@ Spec: `docs/project/SWING_STRUCTURE_SPEC.md`.
 ## `market_structure_*`
 
 Generic Market Structure (3.MS) MS-I3 DEVELOPMENT validation (2026-10-05).
-Status: **MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL**. Not
+Status: **MACHINE VALIDATION PASSED; HUMAN VISUAL APPROVAL PASSED (2026-10-06) — APPROVED, READY TO MERGE**. Not
 frozen.
 
 **Scope.**

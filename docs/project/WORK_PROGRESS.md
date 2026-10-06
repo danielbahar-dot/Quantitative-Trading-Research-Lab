@@ -138,8 +138,7 @@ time with explicit approval (D-117).
     APPROVED.
 
 - **Generic Market Structure (Protected Swing, Structural Direction,
-  break, BOS, CHoCH): IMPLEMENTED — MACHINE VALIDATION PASSED — PENDING
-  HUMAN VISUAL APPROVAL** (2026-10-05). Not frozen, not merged.
+  break, BOS, CHoCH): IMPLEMENTED — MACHINE VALIDATION PASSED; HUMAN VISUAL APPROVAL PASSED (2026-10-06) — APPROVED, READY TO MERGE** (2026-10-05). Not frozen, not merged.
   - Design: `docs/project/MARKET_STRUCTURE_SPEC.md` rev 2.5, approved,
     D-139–D-142.
   - Branch `market-structure-design`; draft PR #14.
@@ -163,7 +162,10 @@ time with explicit approval (D-117).
       synthetic only.
   - **Visual package:** `reports/validation/market_structure_visual_validation.html`
     (local), 20 cases (15 REAL, 5 SYNTHETIC).
-  - **Next:** human visual review, then a freeze decision. The Signal
+  - **Human visual review:** PASSED (2026-10-06); approved and ready to
+    merge.
+  - **Next:** merge PR #14 when authorized; a freeze is a separate
+    decision. The Signal
     adapter (MS-I4), MSS, liquidity and hierarchy stay deferred.
 
 ## Last completed work

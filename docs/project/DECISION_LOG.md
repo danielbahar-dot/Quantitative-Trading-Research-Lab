@@ -1242,8 +1242,7 @@ repository. For D-101 onward the date is when it was recorded here
 - **Status:** ACTIVE — DESIGN APPROVED. Not frozen.
 - **Implementation note 2026-10-05 (MS-I1 – MS-I3):** implemented on `market-structure-design`
   (`src/market_structure/{swing_breaks,structure,structure_audit}.py`, DEVELOPMENT runner
-  `src/experiments/market_structure_dev_validation.py`). **MACHINE VALIDATION PASSED — PENDING
-  HUMAN VISUAL APPROVAL.** The decision text is unchanged.
+  `src/experiments/market_structure_dev_validation.py`). **MACHINE VALIDATION PASSED; HUMAN VISUAL APPROVAL PASSED (2026-10-06) — APPROVED, READY TO MERGE.** The decision text is unchanged.
 
 ### D-140 — Structural Direction, Protected Swing and causal selection
 - **Date:** 2026-10-05
@@ -1278,8 +1277,7 @@ repository. For D-101 onward the date is when it was recorded here
 - **Status:** ACTIVE — DESIGN APPROVED. Not frozen.
 - **Implementation note 2026-10-05 (MS-I1 – MS-I3):** implemented on `market-structure-design`
   (`src/market_structure/{swing_breaks,structure,structure_audit}.py`, DEVELOPMENT runner
-  `src/experiments/market_structure_dev_validation.py`). **MACHINE VALIDATION PASSED — PENDING
-  HUMAN VISUAL APPROVAL.** The decision text is unchanged.
+  `src/experiments/market_structure_dev_validation.py`). **MACHINE VALIDATION PASSED; HUMAN VISUAL APPROVAL PASSED (2026-10-06) — APPROVED, READY TO MERGE.** The decision text is unchanged.
 
 ### D-141 — Structure state representation, identity and provenance
 - **Date:** 2026-10-05
@@ -1306,8 +1304,7 @@ repository. For D-101 onward the date is when it was recorded here
 - **Status:** ACTIVE — DESIGN APPROVED. Not frozen.
 - **Implementation note 2026-10-05 (MS-I1 – MS-I3):** implemented on `market-structure-design`
   (`src/market_structure/{swing_breaks,structure,structure_audit}.py`, DEVELOPMENT runner
-  `src/experiments/market_structure_dev_validation.py`). **MACHINE VALIDATION PASSED — PENDING
-  HUMAN VISUAL APPROVAL.** The decision text is unchanged.
+  `src/experiments/market_structure_dev_validation.py`). **MACHINE VALIDATION PASSED; HUMAN VISUAL APPROVAL PASSED (2026-10-06) — APPROVED, READY TO MERGE.** The decision text is unchanged.
 
 ### D-142 — Structure lifecycle, resets and contract boundaries
 - **Date:** 2026-10-05
@@ -1342,8 +1339,7 @@ repository. For D-101 onward the date is when it was recorded here
 - **Status:** ACTIVE — DESIGN APPROVED. Not frozen.
 - **Implementation note 2026-10-05 (MS-I1 – MS-I3):** implemented on `market-structure-design`
   (`src/market_structure/{swing_breaks,structure,structure_audit}.py`, DEVELOPMENT runner
-  `src/experiments/market_structure_dev_validation.py`). **MACHINE VALIDATION PASSED — PENDING
-  HUMAN VISUAL APPROVAL.** The decision text is unchanged.
+  `src/experiments/market_structure_dev_validation.py`). **MACHINE VALIDATION PASSED; HUMAN VISUAL APPROVAL PASSED (2026-10-06) — APPROVED, READY TO MERGE.** The decision text is unchanged.
 
 ### PROPOSED items awaiting design-authority approval (2026-09-28)
 Claude recommendations from the architecture closeout; **not decisions**:

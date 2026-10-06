@@ -211,7 +211,10 @@ at a time with explicit approval (D-117).
       `b6876266800d56b3421dbfb5e4a4aa50b83140acdd409390d28b5f75427c218f`.
     - Suite: 647 / 0 / 493. Machine gates and human visual review PASS
       (24 cases: 13 REAL, 11 SYNTHETIC).
-    - Next: 3.3 Internal Liquidity: **DESIGN APPROVED — IMPLEMENTATION AUTHORIZED; NOT IMPLEMENTED / NOT FROZEN** (2026-10-06).
+    - Next: 3.3 Internal Liquidity: **IMPLEMENTED — MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL; NOT FROZEN** (2026-10-06).
+      - IL-I1 – IL-I4 on branch `internal-liquidity-design` (draft PR); all 11 DEVELOPMENT
+        machine gates PASS; runner `src.experiments.internal_liquidity_dev_validation` (~40 min).
+      - Awaiting human visual review; freeze and merge not authorized.
       - Spec rev 4 on branch `internal-liquidity-design`; D-143 – D-147.
       - Shared consumption predicate: strict beyond `p ± t` on 1m, with
         `t` = 4 internal and 6 External.

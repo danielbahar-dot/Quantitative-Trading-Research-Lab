@@ -1490,6 +1490,19 @@ repository. For D-101 onward the date is when it was recorded here
 - **Reason:** design-authority approval of rev 4, 2026-10-06.
 - **Status:** ACTIVE — DESIGN APPROVED. Implementation authorized; not
   implemented, not frozen.
+- **Implementation note (D-143 – D-147, 2026-10-06):** MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL.
+  - Implemented on branch `internal-liquidity-design` (IL-I1 `683da5a`,
+    IL-I2 `e6cfbec`, IL-I3 `617e983`, IL-I4) as separate modules; no frozen
+    module was changed (gate `frozen_sources_unchanged_vs_main`).
+  - DEVELOPMENT validation (`reports/validation/internal_liquidity_dev_*`):
+    11/11 machine gates PASS; IL-INV-1 – 20 all 0; engine equals the
+    independent per-bar reference; 7 prefix replays equivalent.
+  - Representation choices made without changing semantics (flagged for
+    review): candidate ties use version availability, then latest member
+    `source_at`, then id; membership rows are contiguous intervals per
+    (range, level), keyed by the range version where they began; the range
+    status view starts at each episode's first 1m bar end.
+  - Not frozen; freeze and merge are not authorized.
 
 ### PROPOSED items awaiting design-authority approval (2026-09-28)
 Claude recommendations from the architecture closeout; **not decisions**:

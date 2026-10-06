@@ -182,6 +182,11 @@ class _Context:
     ext_member: dict                    # External member id -> (ticks, source_at, reference_family)
     episode_open: dict                  # episode index -> ns of the opening onset (None for the first)
     audit: list = field(default_factory=list)
+    view_by_key: dict = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        for x in self.view:
+            self.view_by_key.setdefault((x.obj.contract, x.obj.side), []).append(x)
 
     def price(self, ticks) -> float | None:
         return None if ticks is None or pd.isna(ticks) else float(Decimal(int(ticks)) * self.tick)
@@ -223,6 +228,7 @@ class InternalLiquidityRun:
     audit: pd.DataFrame
     tape: MinuteTape = field(repr=False, default=None)
     external_view: list = field(repr=False, default_factory=list)
+    source_spans: dict = field(repr=False, default_factory=dict)   # physical source spans used for confluence
 
     @property
     def run_id(self) -> str:
@@ -336,7 +342,7 @@ def run_internal_liquidity(
         memberships=_frame(memberships, run_id), consumption_evidence=c_evidence, consumption_transitions=c_transitions,
         consumption_entities=c_entities, range_transitions=r_transitions, range_entities=r_entities,
         range_status=_range_status(ranges, range_versions, tape), audit=pd.DataFrame(ctx.audit), tape=tape,
-        external_view=view)
+        external_view=view, source_spans=ctx.spans)
 
 
 def _until(frame: pd.DataFrame, cutoff) -> pd.DataFrame:
@@ -394,6 +400,9 @@ def _build_levels(formation, ctx: _Context) -> list[Level]:
     terminated_atoms: dict = {}        # (contract, side, price) -> atom ids that were evidence of terminated levels
     holder: dict = {}                  # evidence_id -> Level holding it
     levels: list[Level] = []
+    source_refs = {}
+    if formation.members is not None and len(formation.members):
+        source_refs = dict(zip(formation.members["member_id"], formation.members["source_ref"]))
     for at in sorted(by_time):
         for key, level in list(active.items()):
             if level.ended_at is not None and level.ended_at <= at:   # (a) consumption at e(m) precedes (b)
@@ -429,7 +438,7 @@ def _build_levels(formation, ctx: _Context) -> list[Level]:
                 adds = fresh
                 first = adds[0]
                 level = Level(sha_id("il_", [DEFINITION_VERSION, ctx.instrument_id, SPECIFIC, key[0], key[1], int(key[2]),
-                                             _source_ref(first, formation)]), key[1], int(key[2]), key[0], at,
+                                             _source_ref(first, source_refs)]), key[1], int(key[2]), key[0], at,
                               first.evidence_id)
                 ctx.episode_of(at)
                 level.outcome = evaluate(ConsumableObject(level.level_id, INTERNAL_LEVEL, INTERNAL, key[1], key[0], (
@@ -450,10 +459,9 @@ def _build_levels(formation, ctx: _Context) -> list[Level]:
     return levels
 
 
-def _source_ref(ev: Evidence, formation) -> str:
+def _source_ref(ev: Evidence, source_refs: dict) -> str:
     if ev.family in (CANDLE, SWING):
-        members = formation.members
-        return members.loc[members["member_id"] == ev.evidence_id, "source_ref"].iloc[0]
+        return source_refs[ev.evidence_id]
     return f"LIQUIDITY_STRUCTURE:{ev.evidence_id}"
 
 
@@ -461,8 +469,8 @@ def _record_extremes(contract, side, price, at, internal_atoms, ctx: _Context):
     """Physical source spans at one price record: internal atoms at the price + active External atoms there."""
     intervals = [ctx.spans[a][:2] for a in internal_atoms if a in ctx.spans]
     coincident = []
-    for x in ctx.view:
-        if x.obj.contract != contract or x.obj.side != side or x.obj.available_at > at:
+    for x in ctx.view_by_key.get((contract, side), ()):
+        if x.obj.available_at > at:
             continue
         out = ctx.ext_outcomes[x.obj.object_id]
         if out.ended_at is not None and out.ended_at <= at:

@@ -154,9 +154,11 @@ def _candle_rows(obs: pd.DataFrame, instrument_id: str, spans: dict) -> list[dic
         for kind, orientation, price in ((INTERNAL_CANDLE_HIGH, UPPER, bar.high), (INTERNAL_CANDLE_LOW, LOWER, bar.low)):
             row = _member_row(kind, CANDLE_TIMEFRAME, orientation, price, ref, bar.bar_end, bar.bar_end, instrument_id,
                               bar.contract)
-            row["member_id"] = assign_member_ids(pd.DataFrame([row], columns=MEMBER_COLUMNS))["member_id"].iloc[0]
-            spans[row["member_id"]] = (pd.Timestamp(bar.bar_start).value, pd.Timestamp(bar.bar_end).value, CANDLE_TIMEFRAME)
+            row["_span"] = (pd.Timestamp(bar.bar_start).value, pd.Timestamp(bar.bar_end).value, CANDLE_TIMEFRAME)
             rows.append(row)
+    _assign_ids(rows)
+    for row in rows:
+        spans[row["member_id"]] = row.pop("_span")
     return rows
 
 
@@ -166,10 +168,18 @@ def _swing_rows(swings: pd.DataFrame, tf: str, instrument_id: str) -> list[dict]
         kind = INTERNAL_SWING_HIGH if s.orientation == UPPER else INTERNAL_SWING_LOW
         row = _member_row(kind, tf, s.orientation, s.price, s.source_ref, s.source_at, s.available_at, instrument_id,
                           s.contract)
-        row["member_id"] = assign_member_ids(pd.DataFrame([row], columns=MEMBER_COLUMNS))["member_id"].iloc[0]
         row["_swing_id"] = s.swing_id
         rows.append(row)
+    _assign_ids(rows)
     return rows
+
+
+def _assign_ids(rows: list[dict]) -> None:
+    """Frozen ``assign_member_ids`` over the whole batch (one call; identical ids)."""
+    if rows:
+        ids = assign_member_ids(pd.DataFrame(rows, columns=MEMBER_COLUMNS))["member_id"]
+        for row, mid in zip(rows, ids):
+            row["member_id"] = mid
 
 
 # ---------------------------------------------------------------------------

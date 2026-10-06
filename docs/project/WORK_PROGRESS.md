@@ -4,7 +4,7 @@ Answers: **"Where exactly are we now?"** Update this after every meaningful
 task. Keep entries short. History goes in [CHANGELOG](CHANGELOG.md) and
 rationale in [DECISION_LOG](DECISION_LOG.md).
 
-_Last updated: 2026-10-05_
+_Last updated: 2026-10-06_
 
 ## Current focus
 
@@ -147,15 +147,34 @@ time with explicit approval (D-117).
     - `src/experiments/market_structure_{dev_validation,visual}.py`.
   - Deferred: Signal adapter (MS-I4), MSS, liquidity, hierarchy.
 
-- **Internal Liquidity (3.3): DESIGN APPROVED — IMPLEMENTATION AUTHORIZED; NOT IMPLEMENTED / NOT FROZEN** (2026-10-06).
+- **Internal Liquidity (3.3): IMPLEMENTED — MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL; NOT FROZEN** (2026-10-06).
   - Spec `docs/project/INTERNAL_LIQUIDITY_DESIGN.md` rev 4 (approved);
     D-143 – D-147.
-  - Branch `internal-liquidity-design`.
-  - Implementation IL-I1 – IL-I4 is authorized. Freeze and merge are not.
+  - Branch `internal-liquidity-design`; checkpoints IL-I1 `683da5a`,
+    IL-I2 `e6cfbec`, IL-I3 `617e983`, IL-I4 (validation commit).
+  - Code: `src/liquidity/{consumption,internal_formation,internal_liquidity,internal_liquidity_audit}.py`;
+    `src/experiments/internal_liquidity_{dev_validation,visual}.py`.
+  - DEVELOPMENT (cutoff 2025-06-30 17:00 ET): 20,922 levels / 35,800
+    versions; 62 ranges / 117 range versions; 170 boundary assignments;
+    17,199 membership intervals.
+  - All 11 machine gates PASS: IL-INV-1 – 20 = 0 (IL-INV-15 via 7 prefix
+    replays, 0 mismatches); engine = independent reference (0 mismatches,
+    full coverage; membership by 25,531 sampled pairs); frozen External /
+    Swing / 1m continuity baselines and frozen sources unchanged.
+  - Full suite: 753 passed / 0 failed / 590 subtests.
+  - Next: human visual review of
+    `reports/validation/internal_liquidity_visual_validation.html` (local).
+    Freeze and merge are not authorized.
   - The Market Structure freeze record (`25f95d9`) is published through its
     own branch / PR, `market-structure-freeze-record`.
 
 ## Last completed work
+
+- **2026-10-06 — Internal Liquidity IL-I1 – IL-I4: MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL.**
+  - Design rev 4 approved and registered (D-143 – D-147).
+  - Shared consumption contract, formation atoms, engine, independent
+    audit, DEVELOPMENT validation and visual package (23 cases: 17 REAL, 6 SYNTHETIC).
+  - Draft PR opened; not merged; nothing frozen.
 
 - **2026-10-06 — Generic Market Structure APPROVED / FROZEN.**
   - Human visual review passed (20 cases).

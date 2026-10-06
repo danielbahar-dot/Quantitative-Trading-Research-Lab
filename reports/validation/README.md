@@ -292,3 +292,50 @@ the production engine's role, event and reset charts with prices.
 - the tracked artifacts are price-free.
 
 Spec: `docs/project/MARKET_STRUCTURE_SPEC.md` rev 2.5 (D-139–D-142).
+
+## `internal_liquidity_*`
+
+Internal Liquidity (3.3) IL-I4 DEVELOPMENT validation (2026-10-06).
+Status: **MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL**; not frozen (D-143 – D-147).
+
+**Scope.**
+
+- DEVELOPMENT only (337,815 canonical 1m bars); explicit `replay_cutoff` =
+  2025-06-30 17:00 ET.
+- Internal formations on 5m / 15m / 1H (explicit 2/2 Swing reference; 1H
+  candles), frozen External Daily / 4H objects, consumption on canonical 1m
+  bars (internal 4 ticks, External 6 ticks, strict beyond θ).
+- **Reproduce with:**
+  `.\.venv\Scripts\python.exe -m src.experiments.internal_liquidity_dev_validation`
+  (about 40 minutes; invariants and 7 prefix rebuilds dominate).
+- No PnL, strategy, backtest or optimization; no VALIDATION / OOS data.
+
+**Tracked files** (all price-free):
+
+- **`internal_liquidity_dev_summary.csv`** (`section, metric, value`):
+  baselines, level / version / grade counts, lifecycle exits by object kind,
+  range versions by change kind, assignments by selection kind, range-status
+  minutes, membership exits, price records, SHA-256 id fingerprints, `run_id`
+  and machine-gate PASS / FAIL.
+- **`internal_liquidity_dev_invariants.csv`**: IL-INV-1 … IL-INV-20 (IL-INV-15
+  is the prefix file), with checked and violation counts.
+- **`internal_liquidity_dev_reconciliation.csv`**: production versus the
+  independent per-bar reference (`internal_liquidity_audit`): External
+  outcomes, levels, level versions, range versions and terminations,
+  assignments, and membership at sampled instants (every range-version
+  instant plus seeded samples). Full coverage except membership sampling.
+- **`internal_liquidity_dev_prefix_replay.csv`**: 7 DEVELOPMENT prefix rebuilds
+  at / one minute before an admission and an assignment consumption, at a
+  gap onset, inside the gap, and at a range change.
+- **`internal_liquidity_dev_runtime.csv`**: stage seconds.
+- **`internal_liquidity_visual_validation_cases.csv`**: manifest of the visual
+  cases (ids and timestamps only).
+
+**Local, Git-ignored:** `internal_liquidity_visual_validation.html` (prices).
+
+**Coverage notes.** DEVELOPMENT contains no CONTRACT_CHANGE episode reset
+(every roll falls inside a data gap), no bar consuming both boundaries, no
+pinned assignment consumed while its live cluster stayed active, no
+same-close admission that the admitting bar exceeds, and no coincident
+internal / External pair with the internal consumed first; these paths are
+covered by synthetic visual cases (E4, E12, E19, E23 – E25) and unit tests.

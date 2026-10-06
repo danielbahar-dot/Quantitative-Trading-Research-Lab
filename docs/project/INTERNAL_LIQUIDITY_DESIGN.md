@@ -1,6 +1,9 @@
 # Internal Liquidity (ROADMAP 3.3): Consolidated Design (rev 4)
 
-**Status: DESIGN APPROVED — IMPLEMENTATION AUTHORIZED; NOT IMPLEMENTED / NOT FROZEN (2026-10-06).**
+**Status: IMPLEMENTED — MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL; NOT FROZEN (2026-10-06).**
+
+- IL-I1 – IL-I4 are implemented on branch `internal-liquidity-design`. All 11 DEVELOPMENT machine gates
+  PASS (`reports/validation/internal_liquidity_dev_summary.csv`). Freeze and merge are not authorized.
 
 - The design authority approved rev 4 as the implementation specification on
   2026-10-06. That covers IL-D0 – IL-D14, OI-1 – OI-6 and A-19 (pinned
@@ -910,7 +913,7 @@ VALIDATION / OOS data. It follows Market Structure MS-I3:
 | Step | Content |
 |---|---|
 | IL-I0 | **DONE (2026-10-06):** design approved; D-143 – D-147 registered |
-| IL-I1 | Shared consumption contract (§3.1) and External derived view, with tests |
-| IL-I2 | Internal formation atoms and EQ/REQ (§3.2), with tests |
-| IL-I3 | Levels, price records, grades, ranges, memberships, lifecycles, active view (§3.3 – §3.9), with tests (E1–E22) |
-| IL-I4 | Independent audit, invariants, DEVELOPMENT validation, visual package |
+| IL-I1 | **DONE (`683da5a`):** shared consumption contract (§3.1) and External derived view, with tests |
+| IL-I2 | **DONE (`e6cfbec`):** internal formation atoms and EQ/REQ (§3.2), with tests |
+| IL-I3 | **DONE (`617e983`):** levels, price records, grades, ranges, memberships, lifecycles, active view (§3.3 – §3.9), with tests (E1–E25) |
+| IL-I4 | **DONE — MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL:** independent reference, IL-INV-1 – IL-INV-20, DEVELOPMENT validation, prefix replays, visual package |

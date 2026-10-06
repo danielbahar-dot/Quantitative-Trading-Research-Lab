@@ -79,3 +79,6 @@ outputs/
 # Market Structure visual-validation chart embeds raw prices; the price-free
 # *_cases.csv manifest and summary CSVs are tracked.
 reports/validation/market_structure_visual_validation.html
+# Internal Liquidity visual-validation chart embeds raw prices; the price-free
+# *_cases.csv manifest and summary CSVs are tracked.
+reports/validation/internal_liquidity_visual_validation.html

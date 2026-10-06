@@ -137,38 +137,22 @@ time with explicit approval (D-117).
   - Decisions D-135–D-138 (promoted from P-SW-1…4) are ACTIVE — DESIGN
     APPROVED.
 
-- **Generic Market Structure (Protected Swing, Structural Direction,
-  break, BOS, CHoCH): IMPLEMENTED — MACHINE VALIDATION PASSED; HUMAN VISUAL APPROVAL PASSED (2026-10-06) — APPROVED, READY TO MERGE** (2026-10-05). Not frozen, not merged.
-  - Design: `docs/project/MARKET_STRUCTURE_SPEC.md` rev 2.5, approved,
-    D-139–D-142.
-  - Branch `market-structure-design`; draft PR #14.
-  - **Code:**
-    - MS-I1 `src/market_structure/swing_breaks.py`;
-    - MS-I2 `src/market_structure/structure.py` (reset adapter with an
-      explicit `replay_cutoff`, batch engine, M7A namespaces);
-    - MS-I3 `src/market_structure/structure_audit.py` (independent
-      reference replay plus INV-1…INV-17);
-    - `src/experiments/market_structure_dev_validation.py`.
-  - **Tests:** 17 + 22 + 11 new.
-  - **DEVELOPMENT (replay cutoff 2025-06-30 17:00 ET):** all 10 machine
-    gates PASS.
-    - All invariants are 0.
-    - The engine equals the independent reference (1m on 9 of 33
-      segments).
-    - Prefix replay inside a real roll gap is equivalent.
-    - Swings equal the frozen baseline.
-    - 0 anomalies.
-    - Every DEVELOPMENT roll is CB-1 (4 per timeframe); CB-2 is
-      synthetic only.
-  - **Visual package:** `reports/validation/market_structure_visual_validation.html`
-    (local), 20 cases (15 REAL, 5 SYNTHETIC).
-  - **Human visual review:** PASSED (2026-10-06); approved and ready to
-    merge.
-  - **Next:** merge PR #14 when authorized; a freeze is a separate
-    decision. The Signal
-    adapter (MS-I4), MSS, liquidity and hierarchy stay deferred.
+- **Generic Market Structure (3.MS): DONE — APPROVED / FROZEN** (2026-10-06).
+  - Merged to `main` via PR #14 (merge commit `434d919`).
+  - Spec `docs/project/MARKET_STRUCTURE_SPEC.md` rev 2.5; D-139–D-142.
+  - Frozen DEVELOPMENT baseline: D-139 freeze note; overall fingerprint
+    `03f0a2d92679c56f…`.
+  - Code:
+    - `src/market_structure/{swing_breaks,structure,structure_audit}.py`;
+    - `src/experiments/market_structure_{dev_validation,visual}.py`.
+  - Deferred: Signal adapter (MS-I4), MSS, liquidity, hierarchy.
 
 ## Last completed work
+
+- **2026-10-06 — Generic Market Structure APPROVED / FROZEN.**
+  - Human visual review passed (20 cases).
+  - PR #14 merged (`434d919`).
+  - Freeze recorded (D-139 freeze note).
 
 - **2026-10-05 — Swing Structure 3.2 APPROVED / FROZEN.**
   - The human visual review passed.

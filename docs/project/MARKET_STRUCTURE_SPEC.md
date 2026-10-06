@@ -3,8 +3,12 @@
 **Status: DESIGN APPROVED, rev 2.5 (2026-10-05).** The document text is
 unchanged since approval; this note is status only.
 
-**Implementation (2026-10-05):** MS-I1 to MS-I3 implemented on
-`market-structure-design`; **MACHINE VALIDATION PASSED; HUMAN VISUAL APPROVAL PASSED (2026-10-06) — APPROVED, READY TO MERGE**. Not frozen (§I.0).
+**Implementation: APPROVED / FROZEN (2026-10-06).**
+
+- MS-I1 to MS-I3 were merged to `main` via PR #14 (merge commit `434d919`).
+- Machine validation and human visual approval passed.
+- The frozen DEVELOPMENT baseline is recorded in the D-139 freeze note.
+- Future semantic changes require a new decision (§I.0).
 
 - **Final design review:** the GitHub review approved the structural
   semantics at commit `1b6d221f5b819a017940f7d3200352e6a76f96c4`.
@@ -1726,7 +1730,8 @@ fails.
 | Planned tests | MS-T1 … MS-T25, invariants INV-1 … INV-17 | Implemented in MS-I1 – MS-I3 (below) |
 | Executed tests (2026-10-05) | `tests/test_swing_breaks.py` (17), `tests/test_market_structure.py` (22), `tests/test_structure_audit.py` (11) | **All pass.** They cover the spec examples (EX-A / EX-B / EX-C, now executed by the production engine with role and transition rows checked), T-1, retained protection, the outside bar, K-2, M7A validity, determinism, order independence, revisions, gap / CB-1 / CB-2, trailing observations, cutoffs inside gaps, prefix grids, the random-walk dual-establishment search, reference reconciliation and negative invariant cases |
 | DEVELOPMENT machine validation (2026-10-05) | `src.experiments.market_structure_dev_validation`; all six timeframes; replay cutoff 2025-06-30 17:00 ET | **All 10 gates PASS**: INV-1 … INV-17 = 0 on every timeframe; engine equals the independent reference; prefix replay inside a real roll gap is equivalent; swings equal the frozen Swing baseline; 0 anomalies (`reports/validation/README.md`) |
-| Human visual approval | `reports/validation/market_structure_visual_validation.html` (local); 20 cases | **PASSED (2026-10-06)** at PR #14 head `e823224`; approved and ready to merge. A freeze is a separate decision |
+| Human visual approval | `reports/validation/market_structure_visual_validation.html` (local); 20 cases | **PASSED (2026-10-06)** at PR #14 head `e823224` |
+| Freeze | Merged via PR #14 (`434d919`) | **APPROVED / FROZEN (2026-10-06)**; baseline in D-139 freeze note |
 
 ### I.1 Mathematical arguments (with assumptions)
 

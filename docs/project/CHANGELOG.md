@@ -12,6 +12,15 @@ Areas: `ARCH`, `FEATURE`, `STATE`, `SIGNAL`, `EXECUTION`, `METHOD`, `DATA`,
 
 ## Unreleased
 
+- 2026-10-06 — [FEATURE] Generic Market Structure (3.MS) is **APPROVED /
+  FROZEN** (D-139 – D-142; D-139 freeze note; PR #14, `434d919`).
+  - Neutral swing breaks, structural direction, protected swing, BOS /
+    CHoCH, and the reset adapter with an explicit replay cutoff.
+  - Frozen DEVELOPMENT baseline: all six timeframes, INV-1 … INV-17 = 0, 0
+    anomalies, overall fingerprint `03f0a2d92679c56f…`.
+  - Suite: 702 passed / 493 subtests.
+  - Next is 3.3 Internal Liquidity (design proposal).
+
 - 2026-10-04 — [FEATURE] External Liquidity 3.1 is **APPROVED / FROZEN**
   (D-134 freeze note; spec §18).
   - Frozen DEVELOPMENT baseline:

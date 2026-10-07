@@ -1497,11 +1497,24 @@ repository. For D-101 onward the date is when it was recorded here
   - DEVELOPMENT validation (`reports/validation/internal_liquidity_dev_*`):
     11/11 machine gates PASS; IL-INV-1 – 20 all 0; engine equals the
     independent per-bar reference; 7 prefix replays equivalent.
-  - Representation choices made without changing semantics (flagged for
-    review): candidate ties use version availability, then latest member
-    `source_at`, then id; membership rows are contiguous intervals per
-    (range, level), keyed by the range version where they began; the range
-    status view starts at each episode's first 1m bar end.
+  - Boundary ties (§3.6.4) are resolved in the approved ascending order:
+    first `available_at`, then first `source_at`, then id. Reading applied
+    (flagged for confirmation): `available_at` is that of the candidate's
+    current formation version (the one that would be pinned); `source_at` is
+    a Daily member's own `source_at`, and for a cluster version, which has no
+    `source_at` in the frozen contract, the **earliest** `source_at` among its
+    members. (The first IL-I4 commit used the latest member `source_at`;
+    corrected 2026-10-07 with tie regression tests.) Every tie that is broken
+    is audited (`BOUNDARY_TIE_BROKEN`, with the deciding key).
+  - Consumption audit metric: `max_signed_excursion_ticks` (signed distance
+    beyond `p` before the object's end, per bar against the version in effect;
+    negative = price never reached `p`) and `max_penetration_ticks`
+    (nonnegative, `max(0, signed)`). These replace the earlier, misleadingly
+    named `max_excursion_ticks`.
+  - Other representation choices (no semantic change): membership rows are
+    contiguous intervals per (range, level), keyed by the range version where
+    they began; the range status view starts at each episode's first 1m bar
+    end.
   - Not frozen; freeze and merge are not authorized.
 
 ### PROPOSED items awaiting design-authority approval (2026-09-28)

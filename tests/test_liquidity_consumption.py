@@ -69,7 +69,18 @@ class PredicateTests(unittest.TestCase):
         self.assertEqual(out.threshold, ticks(51.00))
         self.assertEqual(out.excess_ticks, 1)
         self.assertFalse(out.gap_through)
-        self.assertEqual(out.max_excursion_ticks, 4)          # 51.00 equality reached before consumption
+        self.assertEqual(out.max_signed_excursion_ticks, 4)   # 51.00 equality reached before consumption
+        self.assertEqual(out.max_penetration_ticks, 4)
+
+    def test_excursion_is_signed_and_penetration_nonnegative(self):
+        t = tape(rows_with((3, (50, 50.75, 50, 50.5))))
+        far = evaluate(obj(UPPER, 55.00, at_k=1), t)               # price never reaches 20,055.00
+        self.assertEqual(far.status, ACTIVE)
+        self.assertEqual(far.max_signed_excursion_ticks, ticks(50.75) - ticks(55.00))   # -17
+        self.assertEqual(far.max_penetration_ticks, 0)
+        # versioned object: each bar is measured against the version available at its start
+        moved = evaluate(obj(UPPER, 50.00, at_k=1, versions=(("v1", 50.00, 4, 1), ("v2", 50.50, 4, 2))), t)
+        self.assertEqual(moved.max_signed_excursion_ticks, ticks(50.75) - ticks(50.50))
 
     def test_e2_lower_and_gap_through(self):
         t = tape(rows_with((3, (-50, -49.75, -51.00, -50)), (5, (-50.5, -50, -51.25, -50.5))), )

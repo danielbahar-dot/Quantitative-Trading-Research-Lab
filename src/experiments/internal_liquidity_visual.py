@@ -53,6 +53,8 @@ class Case:
     tables: list = field(default_factory=list)      # (caption, rows)
     refs: dict = field(default_factory=dict)        # price-free ids for the manifest
     window: tuple | None = None
+    spans: list = field(default_factory=list)       # (start, end, price, label): physical source spans
+    marks: list = field(default_factory=list)       # (at, label): available_at markers
 
 
 class Facts:
@@ -70,6 +72,23 @@ class Facts:
         self.levels_last = levels.groupby("level_id").tail(1).set_index("level_id")
         self.assign = run.assignments.set_index("boundary_assignment_id") if len(run.assignments) else None
         self.episodes = run.tape.episodes
+        f = run.formation
+        self.member = {} if f.members is None or not len(f.members) else {
+            r.member_id: r for r in f.members.itertuples(index=False)}
+        self.structure_members = {} if f.structures is None or not len(f.structures) else dict(
+            zip(f.structures["structure_id"], f.structures["member_ids"]))
+        self.source_spans = getattr(run, "source_spans", None) or f.spans
+        xm = run.external_members
+        self.ext_member = {} if xm is None or not len(xm) else {r.member_id: r for r in xm.itertuples(index=False)}
+
+    def available_at(self, object_id):
+        if object_id in self.levels_first.index:
+            return self.levels_first.loc[object_id, "level_available_at"]
+        if self.assign is not None and object_id in self.assign.index:
+            return self.assign.loc[object_id, "assigned_at"]
+        if object_id in self.view:
+            return self.view[object_id].obj.available_at
+        return None
 
     def p(self, ticks):
         return None if ticks is None or pd.isna(ticks) else float(Decimal(int(ticks)) * self.tick)
@@ -94,10 +113,54 @@ class Facts:
         return {"bar": fmt_time(at), "open": "absent"}
 
     def status_at(self, object_id, at):
+        """Lifecycle state at instant ``at`` only (never a later outcome)."""
+        avail = self.available_at(object_id)
+        if avail is not None and avail > at:
+            return "NOT YET AVAILABLE"
         e = self.end.get(object_id)
         if e is None or e[0] > at:
             return "ACTIVE"
         return f"{e[1]} ({e[2]}) @ {fmt_time(e[0])}"
+
+    def evidence_spans(self, level_id):
+        """Source spans (start, end, price, label) and available_at marks for every evidence atom of a level."""
+        spans, marks = [], []
+        versions = self.run.levels[self.run.levels["level_id"] == level_id]
+        seen = set()
+        for r in versions.itertuples(index=False):
+            marks.append((r.available_at, f"{r.change_kind}"))
+            atoms = list(r.evidence_member_ids)
+            for sid in r.evidence_structure_ids:
+                atoms += [a for a in self.structure_members.get(sid, ()) if a not in atoms]
+            for a in atoms:
+                if a in seen or a not in self.source_spans or a not in self.member:
+                    continue
+                seen.add(a)
+                m = self.member[a]
+                start, end, tf = self.source_spans[a]
+                kind = "candle" if "CANDLE" in m.member_kind else "swing"
+                spans.append((pd.Timestamp(start, tz="UTC"), pd.Timestamp(end, tz="UTC"), float(m.price),
+                              f"{tf} {kind} src"))
+                marks.append((pd.Timestamp(m.available_at).tz_convert("UTC"), f"{tf} {kind} avail"))
+        return spans, marks
+
+    def external_spans(self, object_id, at):
+        """Source spans of an External object's current version members at ``at``."""
+        x = self.view.get(object_id)
+        if x is None:
+            return [], []
+        vs = [v for v in x.obj.versions if v.available_at <= at] or list(x.obj.versions[:1])
+        spans, marks = [], [(vs[-1].available_at, "External avail")]
+        for m in x.version_members.get(vs[-1].version_ref, ()):
+            r = self.ext_member.get(m)
+            if r is None:
+                continue
+            key = ("bar", r.reference_family, pd.Timestamp(r.source_at).tz_convert("UTC").value)
+            if key in self.source_spans:
+                start, end, tf = self.source_spans[key]
+                spans.append((pd.Timestamp(start, tz="UTC"), pd.Timestamp(end, tz="UTC"), float(r.price),
+                              f"{tf} External src"))
+        return spans, marks
 
     def object_lines(self, object_id, kind_hint=None):
         """Lines for an internal level / External object / assignment, with thresholds."""
@@ -166,6 +229,20 @@ def chart(facts: Facts, case: Case, W=980, H=340) -> str:
         parts.append(f'<line x1="{cx:.1f}" x2="{cx:.1f}" y1="{y(h):.1f}" y2="{y(l):.1f}" class="wick {cls}"/>'
                      f'<rect x="{cx - bw / 2:.1f}" y="{min(y(o), y(c)):.1f}" width="{bw:.1f}" '
                      f'height="{max(abs(y(o) - y(c)), 1):.1f}" class="body {cls}"/>')
+    for s0, s1, price, label in case.spans:
+        if not lo <= price <= hi or s1 < t0 or s0 > t1:
+            continue
+        xa, xb = x(s0), x(s1)
+        parts.append(f'<rect x="{xa:.1f}" y="{y(price) - 4:.1f}" width="{max(xb - xa, 2):.1f}" height="8" class="srcspan"/>'
+                     f'<text x="{xa:.1f}" y="{y(price) - 6:.1f}" class="lab span">{html.escape(label)}</text>')
+    mark_rows = {}
+    for at, label in sorted(case.marks, key=lambda m: m[0]):
+        if not t0 <= at <= t1:
+            continue
+        xm = x(at)
+        row = mark_rows.setdefault(round(xm), len(mark_rows) % 3)
+        parts.append(f'<line x1="{xm:.1f}" x2="{xm:.1f}" y1="{T}" y2="{H - B}" class="avail"/>'
+                     f'<text x="{xm + 2:.1f}" y="{H - B - 6 - 11 * row:.1f}" class="lab avail">▲ {html.escape(label)}</text>')
     used = []
     edge = {"up": [], "dn": []}
     for ln in lines:
@@ -218,6 +295,8 @@ h1{font-size:22px}h2{font-size:17px;margin-top:34px;border-top:1px solid var(--g
 .dn{stroke:var(--dn);fill:var(--dn)} .ln{stroke-width:1.2} .ln.level{stroke:var(--lvl)} .ln.assignment{stroke:var(--asg);stroke-width:3}
 .ln.external{stroke:var(--ext);stroke-dasharray:6 3;stroke-width:1.6} .ln.threshold{stroke:var(--thr);stroke-dasharray:2 3}
 .lab{font-size:10px}.lab.level{fill:var(--lvl)}.lab.assignment{fill:var(--asg)}.lab.external{fill:var(--ext)}.lab.threshold{fill:var(--mute)}
+.srcspan{fill:var(--lvl);opacity:.28;stroke:var(--lvl)}.lab.span{fill:var(--lvl)}
+.avail{stroke:#0891b2;stroke-dasharray:1 3}.lab.avail{fill:#0891b2}
 .end{fill:var(--dn);font-size:10px}.lab.edge{fill:var(--asg);font-weight:600}.focus{stroke:var(--fg);stroke-dasharray:3 3;opacity:.6}
 .tw{overflow-x:auto} table{border-collapse:collapse;font-size:12px;margin-bottom:6px} td,th{border:1px solid var(--grid);padding:3px 6px;
 white-space:nowrap;text-align:left} th{background:var(--card)}
@@ -314,7 +393,10 @@ def _range_case(facts, case_id, title, category, v, note):
             aid = row[f"{side}_assignment_id"]
             if aid != "UNBOUNDED":
                 case.lines += facts.object_lines(aid)
-                case.lines += facts.object_lines(facts.assign.loc[aid, "external_object_id"])
+                oid = facts.assign.loc[aid, "external_object_id"]
+                case.lines += facts.object_lines(oid)
+                case.marks.append((facts.assign.loc[aid, "assigned_at"], f"assigned {side}"))
+                case.marks += [(t, f"{side} object avail") for t, _ in facts.external_spans(oid, at)[1]]
     evidence = []
     if facts.evidence is not None:
         hits = facts.evidence[facts.evidence["ended_at"] == at]
@@ -329,34 +411,87 @@ def _range_case(facts, case_id, title, category, v, note):
     return case
 
 
+def _price_theta(facts, oid, at):
+    """(price, θ) of an object as of instant ``at`` (its version current at ``at``)."""
+    if oid in facts.levels_first.index:
+        r = facts.levels_first.loc[oid]
+        return r["price"], r["consumption_threshold"]
+    x = facts.view.get(oid)
+    if x is not None:
+        vs = [v for v in x.obj.versions if v.available_at <= at] or list(x.obj.versions[:1])
+        v = vs[-1]
+        theta = v.price_ticks + v.tolerance_ticks if x.obj.side == "UPPER" else v.price_ticks - v.tolerance_ticks
+        return facts.p(v.price_ticks), facts.p(theta)
+    return None, None
+
+
 def _level_case(facts, case_id, title, category, level_id, note, focus=None, extra_lines=()):
+    """Tables strictly ordered: pre-state at s(m) → evidence at m → post-state at e(m) → later lifecycle (separate)."""
     run = facts.run
     versions = run.levels[run.levels["level_id"] == level_id]
     first = versions.iloc[0]
     end = facts.end.get(level_id)
     focus = focus if focus is not None else (end[0] if end else first["available_at"])
+    s_m = focus - pd.Timedelta(minutes=1)
     case = Case(case_id, title, category, focus, note, refs={"level_id": level_id})
     case.lines += facts.object_lines(level_id)
+    spans, marks = facts.evidence_spans(level_id)
     for oid in extra_lines:
         case.lines += facts.object_lines(oid)
-    case.tables.append(("Level versions", [
-        {"version": r.level_version_id[:14], "change": r.change_kind, "available": fmt_time(r.available_at),
-         "price": fmt_price(r.price), "θ": fmt_price(r.consumption_threshold), "tier": r.grade_tier,
-         "rank": r.grade_rank, "confluence": r.confluence,
-         "evidence": ",".join(x[:10] for x in tuple(r.evidence_member_ids) + tuple(r.evidence_structure_ids)),
-         "superseded": ",".join(x[:10] for x in r.superseded_evidence_ids), "explanation": r.grade_explanation}
-        for r in versions.itertuples()]))
+        xs, xmk = facts.external_spans(oid, focus)
+        spans += xs
+        marks += xmk
+    case.spans, case.marks = spans, marks
+    objects = (level_id, *extra_lines)
+
+    def version_row(r):
+        return {"version": r.level_version_id[:14], "change": r.change_kind, "available": fmt_time(r.available_at),
+                "price": fmt_price(r.price), "θ": fmt_price(r.consumption_threshold), "tier": r.grade_tier,
+                "rank": r.grade_rank, "confluence": r.confluence,
+                "evidence": ",".join(x[:10] for x in tuple(r.evidence_member_ids) + tuple(r.evidence_structure_ids)),
+                "superseded": ",".join(x[:10] for x in r.superseded_evidence_ids), "explanation": r.grade_explanation}
+
+    def state_row(oid, at):
+        price, theta = _price_theta(facts, oid, at)
+        return {"object": oid[:14], "available": fmt_time(facts.available_at(oid)), "p": fmt_price(price),
+                "θ": fmt_price(theta), "status": facts.status_at(oid, at)}
+
+    case.tables.append(("Pre-state S_m (at s(m), start of the focus bar)", [state_row(o, s_m) for o in objects]))
+    case.tables.append(("Level versions available by e(m)",
+                        [version_row(r) for r in versions.itertuples() if r.available_at <= focus]))
+    span_rows = [{"source span": f"{fmt_time(a)} → {fmt_time(b)}", "price": fmt_price(p), "atom": lab}
+                 for a, b, p, lab in spans]
+    case.tables.append(("Formation evidence: source spans (shaded) and availability (▲)", span_rows))
     case.tables.append(("Evidence: bar m", [facts.bar_at(focus)]))
-    rows = []
-    for oid in (level_id, *extra_lines):
-        if facts.evidence is not None and oid in facts.evidence.index:
+    post = []
+    for oid in objects:
+        row = state_row(oid, focus)
+        e = facts.end.get(oid)
+        if e is not None and e[0] == focus and facts.evidence is not None and oid in facts.evidence.index:
             r = facts.evidence.loc[oid]
-            rows.append({"object": oid[:14], "status": r["status"], "reason": r["reason"], "at": fmt_time(r["ended_at"]),
-                         "p": fmt_price(r["price"]), "θ": fmt_price(r["threshold"]), "bar o/h/l/c": r["bar_ohlc"],
-                         "excess ticks": r["excess_ticks"], "max excursion ticks": r["max_excursion_ticks"]})
+            row.update({"θ evaluated": fmt_price(r["threshold"]), "excess ticks": r["excess_ticks"],
+                        "gap through": r["gap_through"],
+                        "max penetration before m (ticks)": r["max_penetration_ticks"]})
+        post.append(row)
+    case.tables.append(("Post-state at e(m) (state at the focus instant only)", post))
+    later = [dict(version_row(r), object=level_id[:14], event="later level version")
+             for r in versions.itertuples() if r.available_at > focus]
+    for oid in objects:
+        e = facts.end.get(oid)
+        if e is not None and e[0] <= focus:
+            continue
+        row = {"object": oid[:14], "event": "outcome after e(m)"}
+        if e is None:
+            row.update({"status": "ACTIVE at replay cutoff"})
         else:
-            rows.append({"object": oid[:14], "status": facts.status_at(oid, focus)})
-    case.tables.append(("Post-state / consumption evidence", rows))
+            row.update({"status": f"{e[1]} ({e[2]})", "at": fmt_time(e[0])})
+            if facts.evidence is not None and oid in facts.evidence.index:
+                r = facts.evidence.loc[oid]
+                row.update({"θ evaluated": fmt_price(r["threshold"]), "bar o/h/l/c": r["bar_ohlc"],
+                            "excess ticks": r["excess_ticks"],
+                            "max signed excursion before end (ticks)": r["max_signed_excursion_ticks"]})
+        later.append(row)
+    case.tables.append(("Later lifecycle (after e(m); not part of the focus-bar state)", later))
     return case
 
 
@@ -445,11 +580,11 @@ def build_dev_cases(run) -> tuple[list[Case], Facts]:
     ev = run.consumption_evidence
     lev_ev = ev[ev["object_kind"] == "INTERNAL_LEVEL"] if len(ev) else ev
     if len(lev_ev):
-        eq = lev_ev[(lev_ev["status"] == "CONSUMED") & (lev_ev["max_excursion_ticks"] == 4)]
+        eq = lev_ev[(lev_ev["status"] == "CONSUMED") & (lev_ev["max_penetration_ticks"] == 4)]
         if len(eq):
             cases.append(_level_case(facts, "IL-V13", "Strict threshold: equality first, consumption later",
                                      "threshold", eq.iloc[0]["object_id"],
-                                     "Before consuming, the maximum excursion beyond p was exactly the 4-tick tolerance "
+                                     "Before consuming, the maximum penetration beyond p was exactly the 4-tick tolerance "
                                      "(equality with θ never consumes); the first bar strictly beyond θ consumes."))
     sup = L[L["change_kind"] == "EVIDENCE_SUPERSEDED"]
     if len(sup):

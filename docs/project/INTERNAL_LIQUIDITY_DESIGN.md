@@ -181,7 +181,8 @@ Equality with `θ` does not consume (A-1, A-13).
 - **Terminal.** Consumption is never undone (A-2).
 
 **Within-tolerance excursions.** A bar beyond `p` but not beyond `θ` does
-not consume. It is recorded as audit (`max_excursion_ticks`). It changes the
+not consume. It is recorded as audit (`max_penetration_ticks`, nonnegative;
+the signed form is `max_signed_excursion_ticks`). It changes the
 object only through a later qualifying confirmation, which creates a
 prospective version available at that confirmation (A-2).
 
@@ -631,7 +632,8 @@ stored as a mutable column.
 
 - **Consumption evidence** (local, price-bearing): object id, class, the
   consuming bar ref with o / h / l / c, `p`, `t`, `θ`, `excess_ticks`,
-  `gap_through`, the version evaluated, and `max_excursion_ticks`.
+  `gap_through`, the version evaluated, `max_penetration_ticks` and
+  `max_signed_excursion_ticks`.
 - **Membership view** (derived): `range_id`, `range_version_id`,
   `level_id`, `from_at`, `until_at`, `end_reason`.
 - **Causal active-level view for strategies** (A-12). For instant `t`

@@ -237,6 +237,62 @@ class RangeTests(unittest.TestCase):
         self.assertEqual(len(members(run)), 1)
 
 
+class TieBreakTests(unittest.TestCase):
+    """§3.6.4 ties at an equal price: first available_at, then first source_at, then id (all ascending)."""
+
+    def reselect(self, extra):
+        # established [-150, 100] at k1; the upper is consumed at k6 (c = 98); the lower is reselected among ties at -100
+        s = Scenario(flat_rows(10, {6: (50, 101.75, 49.75, 98)}))
+        s.daily("DL", LOWER, -150, 1)
+        s.daily("DH", UPPER, 100, 1)
+        extra(s)
+        run = s.run()
+        from src.liquidity.internal_liquidity_audit import reconcile, reference_internal_liquidity
+        rec = reconcile(run, reference_internal_liquidity(run))
+        self.assertEqual(int(rec["missing"].sum() + rec["extra"].sum()), 0, rec.to_string())
+        v2 = run.ranges.iloc[1]
+        a = run.assignments.set_index("boundary_assignment_id")
+        self.assertEqual(v2["lower_pinned_price_ticks"], ticks(-100))
+        tie = run.audit[run.audit["kind"] == "BOUNDARY_TIE_BROKEN"]
+        return a.loc[v2["lower_assignment_id"], "external_object_id"], tie
+
+    def test_earlier_available_at_wins_over_id(self):
+        def extra(s):
+            s.daily("ZZ_early", LOWER, -100, 3)
+            s.daily("AA_late", LOWER, -100, 4)
+        winner, tie = self.reselect(extra)
+        self.assertEqual(winner, "ZZ_early")
+        self.assertEqual(tie.iloc[-1]["decided_by"], "available_at")
+
+    def test_earlier_source_at_wins_when_available_at_ties(self):
+        def extra(s):
+            s.daily("ZZ_src1", LOWER, -100, 3, source_k=1)
+            s.daily("AA_src2", LOWER, -100, 3, source_k=2)
+        winner, tie = self.reselect(extra)
+        self.assertEqual(winner, "ZZ_src1")
+        self.assertEqual(tie.iloc[-1]["decided_by"], "source_at")
+
+    def test_cluster_source_at_is_its_earliest_member(self):
+        # cluster members sourced at k0 and k2; Daily sourced at k1: the cluster's first source (k0) wins.
+        # (a latest-member reading would give k2 and pick the Daily.)
+        def extra(s):
+            s.htf("L1", LOWER, -100, 3, source_k=0)
+            s.htf("L2", LOWER, -100, 3, source_k=2)
+            s.cluster("EQL", EQ, LOWER, ["L1", "L2"], 3)
+            s.daily("D_src1", LOWER, -100, 3, source_k=1)
+        winner, tie = self.reselect(extra)
+        self.assertTrue(winner.startswith("xc_"))
+        self.assertEqual(tie.iloc[-1]["decided_by"], "source_at")
+
+    def test_id_breaks_a_full_tie(self):
+        def extra(s):
+            s.daily("ZZ", LOWER, -100, 3, source_k=2)
+            s.daily("AA", LOWER, -100, 3, source_k=2)
+        winner, tie = self.reselect(extra)
+        self.assertEqual(winner, "AA")
+        self.assertEqual(tie.iloc[-1]["decided_by"], "id")
+
+
 class AssignmentTests(unittest.TestCase):
     """E23 / E24 / E25: pinned assignments vs. the live cluster (A-19)."""
 

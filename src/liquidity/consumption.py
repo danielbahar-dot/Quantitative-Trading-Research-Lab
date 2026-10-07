@@ -117,7 +117,12 @@ class ConsumptionOutcome:
     bar_ohlc_ticks: tuple | None
     excess_ticks: int | None
     gap_through: bool | None
-    max_excursion_ticks: int | None             # max penetration beyond p (ticks) before the end, audit only
+    max_signed_excursion_ticks: int | None      # audit only; see ``_excursion`` (signed; negative = never reached p)
+
+    @property
+    def max_penetration_ticks(self) -> int | None:
+        """Nonnegative depth beyond ``p`` before the end: ``max(0, max_signed_excursion_ticks)``."""
+        return None if self.max_signed_excursion_ticks is None else max(0, self.max_signed_excursion_ticks)
 
 
 # ---------------------------------------------------------------------------
@@ -280,13 +285,27 @@ def _ended(obj, status, at, reason, trigger, episode, tape) -> ConsumptionOutcom
 
 
 def _excursion(side, episode, lo, hi, versions) -> int | None:
-    """Max penetration beyond the first version's price before ``hi`` (ticks; may be <= 0). Audit only."""
+    """Max signed excursion beyond ``p`` over bars ``lo .. hi-1`` (before the end; the consuming bar excluded).
+
+    Each bar is measured against the version available at its start: UPPER ``high - p``, LOWER ``p - low``
+    (ticks).  Negative: price stayed short of ``p``; ``0 .. t``: reached ``p`` within tolerance (equality with
+    ``θ`` gives exactly ``t``).  It never exceeds ``t``, because the first bar beyond ``θ`` ends the object.
+    Audit only; ``max_penetration_ticks`` is its nonnegative form.
+    """
     if hi <= lo:
         return None
-    price = versions[0].price_ticks
-    if side == UPPER:
-        return int(episode.high[lo:hi].max() - price)
-    return int(price - episode.low[lo:hi].min())
+    starts = episode.bar_start
+    best = None
+    for k, version in enumerate(versions):
+        a = max(lo, int(np.searchsorted(starts, int(version.available_at.value), side="left")))
+        b = hi if k + 1 == len(versions) else min(hi, int(np.searchsorted(
+            starts, int(versions[k + 1].available_at.value), side="left")))
+        if b <= a:
+            continue
+        value = (int(episode.high[a:b].max()) - version.price_ticks if side == UPPER
+                 else version.price_ticks - int(episode.low[a:b].min()))
+        best = value if best is None else max(best, value)
+    return best
 
 
 # ---------------------------------------------------------------------------

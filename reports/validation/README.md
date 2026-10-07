@@ -332,6 +332,18 @@ Status: **MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL**; not fro
   cases (ids and timestamps only).
 
 **Local, Git-ignored:** `internal_liquidity_visual_validation.html` (prices).
+Formation / confirmation cases shade each evidence atom's physical source
+span and mark every `available_at` (▲). Tables separate the pre-state at
+s(m), the evidence at bar m, the post-state at e(m), and later lifecycle
+outcomes (after e(m)).
+
+**Audit metric.** Consumption evidence carries `max_penetration_ticks`
+(nonnegative depth beyond `p` before the end) and `max_signed_excursion_ticks`
+(signed; negative means price never reached `p`).
+
+**Boundary ties.** Resolved by first `available_at`, then first `source_at`
+(a cluster version's earliest member `source_at`), then id. Every broken tie
+is counted in the summary (`audit, BOUNDARY_TIE_BROKEN`).
 
 **Coverage notes.** DEVELOPMENT contains no CONTRACT_CHANGE episode reset
 (every roll falls inside a data gap), no bar consuming both boundaries, no

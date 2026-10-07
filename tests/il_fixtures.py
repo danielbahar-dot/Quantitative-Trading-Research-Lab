@@ -79,9 +79,9 @@ class Scenario:
         self._member(self.x_members, name, kind, "1D", side, price, k, EXTERNAL, source_k=source_k)
         return name
 
-    def htf(self, name, side, price, k, *, tf="4H"):
+    def htf(self, name, side, price, k, *, tf="4H", source_k=None):
         kind = "HTF_EQREQ_HIGH" if side == UPPER else "HTF_EQREQ_LOW"
-        self._member(self.x_members, name, kind, tf, side, price, k, EXTERNAL)
+        self._member(self.x_members, name, kind, tf, side, price, k, EXTERNAL, source_k=source_k)
         return name
 
     def cluster(self, name, stype, side, members, k, *, tf="4H", change=FORMED, supersedes=()):

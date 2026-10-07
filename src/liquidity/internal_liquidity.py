@@ -108,6 +108,41 @@ GRADE_RANK = {("5m", SWING): 1, ("5m", REQ): 2, ("5m", EQ): 3, ("15m", SWING): 4
 BOUNDARY_CLUSTER_FAMILY = "4H"
 _NEVER = np.iinfo(np.int64).max
 
+# stable output schemas (an empty table keeps its columns; run_id / fact_hash are appended)
+LEVEL_COLUMNS = (
+    "level_id", "level_version_id", "change_kind", "supersedes", "price_record_id", "side", "price", "price_ticks",
+    "tolerance_ticks", "consumption_threshold", "consumption_threshold_ticks", "evidence_member_ids",
+    "evidence_structure_ids", "superseded_evidence_ids", "constituent_prices", "primary_family", "primary_timeframe",
+    "timeframes", "level_available_at", "available_at", "grade_tier", "grade_rank", "confluence",
+    "distinct_timeframes", "external_coincidence", "grade_profile", "grade_explanation", "instrument_id",
+    "contract_scope", "contract", "definition_version")
+PRICE_RECORD_COLUMNS = (
+    "price_record_id", "side", "price", "price_ticks", "contract", "available_at", "internal_level_id",
+    "external_object_refs", "object_statuses", "confluence", "instrument_id", "contract_scope")
+PRICE_RECORD_LINK_COLUMNS = (
+    "price_record_id", "side", "price", "price_ticks", "contract", "object_id", "object_kind", "liquidity_class",
+    "version_ref", "tolerance_ticks", "threshold", "threshold_ticks", "linked_from", "linked_until", "unlink_reason")
+CLUSTER_OBJECT_COLUMNS = (
+    "external_object_id", "structure_id", "change_kind", "merged_from_object_ids", "reference_family",
+    "structure_type", "side", "price", "price_ticks", "threshold", "threshold_ticks", "available_at", "contract",
+    "instrument_id")
+RANGE_COLUMNS = (
+    "range_id", "range_version_id", "change_kind", "supersedes", "upper_assignment_id", "upper_pinned_price",
+    "upper_pinned_price_ticks", "upper_pinned_threshold", "upper_pinned_threshold_ticks", "lower_assignment_id",
+    "lower_pinned_price", "lower_pinned_price_ticks", "lower_pinned_threshold", "lower_pinned_threshold_ticks",
+    "available_at", "selection_close", "selection_close_ticks", "post_gap_restricted", "episode", "instrument_id",
+    "contract_scope", "contract", "definition_version")
+ASSIGNMENT_COLUMNS = (
+    "boundary_assignment_id", "range_id", "side", "external_object_id", "external_object_kind",
+    "pinned_formation_ref", "pinned_member_ids", "pinned_price", "pinned_price_ticks", "pinned_tolerance_ticks",
+    "pinned_threshold", "pinned_threshold_ticks", "assigned_at", "selection_kind", "selection_close",
+    "selection_close_ticks", "replaces_assignment_id", "price_record_id", "instrument_id", "contract_scope", "contract")
+MEMBERSHIP_COLUMNS = ("range_id", "range_version_id", "level_id", "from_at", "until_at", "end_reason")
+EVIDENCE_COLUMNS = (
+    "object_id", "object_kind", "liquidity_class", "side", "contract", "status", "reason", "ended_at", "trigger_ref",
+    "version_evaluated", "price", "price_ticks", "tolerance_ticks", "threshold", "threshold_ticks", "bar_ohlc",
+    "bar_ohlc_ticks", "excess_ticks", "gap_through", "max_signed_excursion_ticks", "max_penetration_ticks")
+
 
 class InternalLiquidityError(ValueError):
     """Raised for inconsistent engine inputs or a violated contract (fail closed)."""
@@ -183,6 +218,7 @@ class _Context:
     episode_open: dict                  # episode index -> ns of the opening onset (None for the first)
     audit: list = field(default_factory=list)
     view_by_key: dict = field(default_factory=dict)
+    candidates_by_episode: dict = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         for x in self.view:
@@ -323,7 +359,7 @@ def run_internal_liquidity(
     manifest["run_id"] = sha_id("ilr_", [manifest[k] for k in sorted(manifest)])
     run_id = manifest["run_id"]
 
-    level_frame = _frame([row for lv in levels for _, row, _ in lv.versions], run_id, hashed=True)
+    level_frame = _frame([row for lv in levels for _, row, _ in lv.versions], run_id, LEVEL_COLUMNS, hashed=True)
     links = _price_record_links(levels, assignments, ctx)
     records = _price_records(links, levels, ctx)
     objects = [(lv.level_id, INTERNAL_LEVEL, INTERNAL, lv.side, lv.contract, lv.available_at, lv.outcome)
@@ -336,10 +372,12 @@ def run_internal_liquidity(
     r_entities, r_transitions = _range_log(ranges, instrument_id, run_id)
     return InternalLiquidityRun(
         manifest=manifest, formation=formation, external_members=ext_members, external_structures=ext_structures,
-        levels=level_frame, price_records=_frame(records, run_id), price_record_links=_frame(links, run_id),
-        external_cluster_objects=_frame(_cluster_rows(ctx), run_id), ranges=_frame(range_versions, run_id, hashed=True),
-        assignments=_frame([a["row"] for a in assignments], run_id, hashed=True),
-        memberships=_frame(memberships, run_id), consumption_evidence=c_evidence, consumption_transitions=c_transitions,
+        levels=level_frame, price_records=_frame(records, run_id, PRICE_RECORD_COLUMNS),
+        price_record_links=_frame(links, run_id, PRICE_RECORD_LINK_COLUMNS),
+        external_cluster_objects=_frame(_cluster_rows(ctx), run_id, CLUSTER_OBJECT_COLUMNS),
+        ranges=_frame(range_versions, run_id, RANGE_COLUMNS, hashed=True),
+        assignments=_frame([a["row"] for a in assignments], run_id, ASSIGNMENT_COLUMNS, hashed=True),
+        memberships=_frame(memberships, run_id, MEMBERSHIP_COLUMNS), consumption_evidence=c_evidence, consumption_transitions=c_transitions,
         consumption_entities=c_entities, range_transitions=r_transitions, range_entities=r_entities,
         range_status=_range_status(ranges, range_versions, tape), audit=pd.DataFrame(ctx.audit), tape=tape,
         external_view=view, source_spans=ctx.spans)
@@ -560,7 +598,12 @@ class _Candidate:
 
 
 def _eligible(cands, side, at, ctx: _Context):
-    """Eligible candidates at ``at`` (post-batch): (price, version_at, source_at, id, candidate, version)."""
+    """Eligible candidates at ``at`` (post-batch): (price, available_at, source_at, id, candidate, version).
+
+    Tie keys (§3.6.4, ascending): ``available_at`` of the candidate's current formation version, then its
+    ``source_at`` (a Daily member's own ``source_at``; for a cluster version, the earliest ``source_at`` among
+    its members), then the object id.
+    """
     out = []
     for c in cands:
         if c.obj.side != side or c.obj.available_at > at:
@@ -573,13 +616,13 @@ def _eligible(cands, side, at, ctx: _Context):
         opened = ctx.episode_open[c.episode]
         if opened is not None and any(s.value <= opened for s in sources):
             continue
-        out.append((version.price_ticks, version.available_at, max(sources).value if sources else 0, c.obj.object_id,
+        out.append((version.price_ticks, version.available_at, min(sources).value if sources else 0, c.obj.object_id,
                     c, version))
     return out
 
 
 def _closest(items, side, *, reference=None, beyond=None):
-    """Closest candidate (UPPER lowest price, LOWER highest), ties by version availability, source, id."""
+    """Closest candidate (UPPER lowest price, LOWER highest); ties by first available_at, first source_at, id."""
     if side == UPPER:
         pool = [i for i in items if (reference is None or i[0] >= reference) and (beyond is None or i[0] > beyond)]
         return min(pool, key=lambda i: (i[0], i[1], i[2], i[3])) if pool else None
@@ -593,8 +636,11 @@ def _simulate_ranges(ctx: _Context):
     ranges: list[dict] = []
     assignments: list[dict] = []
     versions: list[dict] = []
+    ctx.candidates_by_episode = {}
+    for c in candidates:
+        ctx.candidates_by_episode.setdefault(c.episode, []).append(c)
     for episode in ctx.tape.episodes:
-        cands = [c for c in candidates if c.episode == episode.index]
+        cands = ctx.candidates_by_episode.get(episode.index, [])
         _episode_ranges(ctx, episode, cands, ranges, assignments, versions)
     return ranges, assignments, versions
 
@@ -691,6 +737,10 @@ def _episode_ranges(ctx, episode, cands, ranges, assignments, versions):
         rng["ended_at"], rng["end_reason"], rng["trigger"] = episode.reset_at, episode.reset_reason, episode.reset_ref
 
 
+def _episode_candidates(ctx, episode):
+    return ctx.candidates_by_episode.get(episode.index, [])
+
+
 def _find_establishment(ctx, episode, cands, start, change_times, only=None):
     """First bar ``m >= start`` whose close is >= the lowest eligible LOWER candidate price at ``e(m)``."""
     n = len(episode.bar_end)
@@ -713,6 +763,12 @@ def _find_establishment(ctx, episode, cands, start, change_times, only=None):
 
 def _assign(ctx, episode, rng, side, pick, at, close, kind, replaces, assignments):
     price, _, _, object_id, cand, version = pick
+    tied = sorted((i for i in _eligible(_episode_candidates(ctx, episode), side, at, ctx) if i[0] == price),
+                  key=lambda i: (i[1], i[2], i[3]))
+    if len(tied) > 1:
+        decided = "available_at" if tied[0][1] != tied[1][1] else ("source_at" if tied[0][2] != tied[1][2] else "id")
+        ctx.audit.append({"kind": "BOUNDARY_TIE_BROKEN", "object_id": object_id, "at": at, "side": side,
+                          "price_ticks": int(price), "tied_candidates": len(tied), "decided_by": decided})
     tolerance = version.tolerance_ticks
     threshold = threshold_ticks(side, int(price), tolerance)
     row = {
@@ -951,7 +1007,9 @@ def _consumption_log(objects, ctx: _Context, run_id):
                          "threshold_ticks": out.threshold,
                          "bar_ohlc": None if out.bar_ohlc_ticks is None else tuple(ctx.price(v) for v in out.bar_ohlc_ticks),
                          "bar_ohlc_ticks": out.bar_ohlc_ticks, "excess_ticks": out.excess_ticks,
-                         "gap_through": out.gap_through, "max_excursion_ticks": out.max_excursion_ticks})
+                         "gap_through": out.gap_through,
+                         "max_signed_excursion_ticks": out.max_signed_excursion_ticks,
+                         "max_penetration_ticks": out.max_penetration_ticks})
     ent = _entity_frame(entities)
     tr = _transition_frame(transitions)
     if len(tr):
@@ -961,7 +1019,7 @@ def _consumption_log(objects, ctx: _Context, run_id):
             tr[column] = tr[column].astype(dtype)
         tr = validate_transitions(tr, consumption_namespace(), ent)
     tr["run_id"] = run_id
-    return ent, tr, _frame(evidence, run_id)
+    return ent, tr, _frame(evidence, run_id, EVIDENCE_COLUMNS)
 
 
 def _range_log(ranges, instrument_id, run_id):
@@ -1042,9 +1100,9 @@ def _range_status(ranges, versions, tape) -> pd.DataFrame:
     return frame
 
 
-def _frame(rows: list[dict], run_id: str, *, hashed: bool = False) -> pd.DataFrame:
-    frame = pd.DataFrame(rows)
-    if hashed and len(frame):
+def _frame(rows: list[dict], run_id: str, columns: tuple, *, hashed: bool = False) -> pd.DataFrame:
+    frame = pd.DataFrame(rows, columns=list(columns))
+    if hashed:
         frame["fact_hash"] = [hashlib.sha256(json.dumps(row, default=str, sort_keys=True).encode()).hexdigest()
                               for row in rows]
     frame["run_id"] = run_id

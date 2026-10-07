@@ -1,8 +1,8 @@
 case,replay_cutoff,mismatches,mismatch_levels,mismatch_ranges,mismatch_assignments,mismatch_memberships,mismatch_consumption_transitions,mismatch_range_transitions,seconds
-admission_at,2024-12-20T12:00:00-05:00,0,0,0,0,0,0,0,164.7
-admission_minus_1m,2024-12-20T11:59:00-05:00,0,0,0,0,0,0,0,156.8
-assignment_consumption_at,2024-12-30T07:44:00-05:00,0,0,0,0,0,0,0,166.6
-assignment_consumption_minus_1m,2024-12-30T07:43:00-05:00,0,0,0,0,0,0,0,172.5
-gap_onset,2025-01-09T09:31:00-05:00,0,0,0,0,0,0,0,171.9
-inside_gap,2025-01-09T10:01:00-05:00,0,0,0,0,0,0,0,173.1
-range_change_at,2024-10-09T11:22:00-04:00,0,0,0,0,0,0,0,88.2
+admission_at,2024-12-20T12:00:00-05:00,0,0,0,0,0,0,0,275.2
+admission_minus_1m,2024-12-20T11:59:00-05:00,0,0,0,0,0,0,0,247.9
+assignment_consumption_at,2024-12-30T07:44:00-05:00,0,0,0,0,0,0,0,202.7
+assignment_consumption_minus_1m,2024-12-30T07:43:00-05:00,0,0,0,0,0,0,0,175.3
+gap_onset,2025-01-09T09:31:00-05:00,0,0,0,0,0,0,0,189.9
+inside_gap,2025-01-09T10:01:00-05:00,0,0,0,0,0,0,0,214.9
+range_change_at,2024-10-09T11:22:00-04:00,0,0,0,0,0,0,0,116.9

@@ -270,7 +270,7 @@ def _reference_ranges(run, bars, ext, inst) -> dict:
             opened = bars.open_at[o["episode"]]
             if opened is not None and any(s <= opened for s in sources):
                 continue
-            out.append((v[1], v[0], max(sources), o["id"], o, v))
+            out.append((v[1], v[0], min(sources), o["id"], o, v))      # ties: first available_at, first source_at, id
         return out
 
     def closest(items, side, ref=None, beyond=None):

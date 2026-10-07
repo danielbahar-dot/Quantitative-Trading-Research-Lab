@@ -1539,6 +1539,90 @@ repository. For D-101 onward the date is when it was recorded here
   - The decision texts of D-143 – D-147 are unchanged (plus the confirmed tie
     order above). Future semantic changes require a new decision.
 
+### D-148 — FVG formation and immutable zone facts
+- **Date:** 2026-10-07
+- **Decision** (`docs/project/FVG_IFVG_BPR_DESIGN.md` rev 2.1 §3.1 – §3.3, §3.13):
+  - Six timeframes processed independently (1m canonical; 5m–1D via M3);
+    three consecutive complete observations of one continuity segment.
+  - **Wick gap** of at least one tick (bullish `low(C3) > high(C1)`, bearish
+    `high(C3) < low(C1)`); equality is not an FVG.
+  - **C2 directional body spans the gap** (bullish `close > open`,
+    `open ≤ high(C1)`, `close ≥ low(C3)`; bearish mirrored). C1 / C3 any
+    colour; a doji C2 fails. Rejections are audited. No size or
+    displacement threshold.
+  - Available at C3 close; never tested by its formation bars. Exact bounds,
+    original width, exact (half-tick) midpoint; source-span evidence;
+    `fz_` source-based identity.
+  - **Normalized gap strength** = width / simple ATR of the 14 observations
+    before C1 (15 consecutive observations of the segment required);
+    exact rational; `INSUFFICIENT_HISTORY` / `ZERO_BASELINE` statuses with
+    null strength.
+- **Reason:** design-authority authorization of rev 2, 2026-10-07 (ICT
+  wick-gap geometry; C2 rule as the approved operational rule).
+- **Status:** ACTIVE — DESIGN APPROVED — IMPLEMENTATION AUTHORIZED; NOT IMPLEMENTED / NOT VALIDATED / NOT FROZEN.
+
+### D-149 — FVG interaction and lifecycle
+- **Date:** 2026-10-07
+- **Decision** (rev 2.1 §3.4 – §3.6):
+  - Lifecycle `FVG → IFVG → RETIRED` on own-timeframe complete closes
+    strictly beyond the far bound; no repeated inversion; IFVG inherits the
+    bounds and reverses direction.
+  - Mitigation on canonical 1m by observation class (`ZONE_TRADE`,
+    `SPANNING`, `FAR_CONTACT`, `NEAR_CONTACT`, `BEYOND`); strict initial
+    penetration, inclusive midpoint / full reach; `GAP_THROUGH` evidence
+    without inference; stage-separated records.
+  - Causal batch: step-0 resets and basis guards, then 1m mitigation,
+    close classification, admissions, relationship reassessment,
+    associations, grades. One exit per entity and instant.
+- **Reason:** design-authority authorization of rev 2, 2026-10-07.
+- **Status:** ACTIVE — DESIGN APPROVED — IMPLEMENTATION AUTHORIZED; NOT IMPLEMENTED / NOT VALIDATED / NOT FROZEN.
+
+### D-150 — FVG relationships, BPR and grading
+- **Date:** 2026-10-07
+- **Decision** (rev 2.1 §3.7 – §3.9):
+  - Relationship episodes keyed by parent stage identities, positive-width
+    intersections only; labels `FVG_OVERLAP` / `BPR` / `MTF_BPR`.
+  - Admission- and conversion-created BPRs; the unique mover fixes BPR
+    direction and governing timeframe; two movers → `UNDEFINED`
+    (descriptive). Final-batch reassessment; no transient episodes.
+  - BPR lifecycle independent of parents (governing-timeframe strict close
+    beyond its far bound).
+  - Zone priority: timeframe → same-direction formation-group overlap
+    contribution (source-span connected components) → normalized strength
+    (nulls below values) → original width → `available_at`, `zone_id`.
+    BPRs ranked separately (governing timeframe → width → `available_at`,
+    `bpr_id`).
+- **Reason:** design-authority authorization of rev 2, 2026-10-07.
+- **Status:** ACTIVE — DESIGN APPROVED — IMPLEMENTATION AUTHORIZED; NOT IMPLEMENTED / NOT VALIDATED / NOT FROZEN.
+
+### D-151 — First FVG in a directional swing leg
+- **Date:** 2026-10-07
+- **Decision** (rev 2.1 §3.10): same-timeframe frozen 2/2 swings; C2
+  anchor; origin = most extreme same-side swing since the last opposite
+  swing (a higher low / lower high does not restart, a more extreme origin
+  does); exact candidate-resolution deadline; separate formation and
+  association availability; marker active only in the FVG stage, ends at
+  conversion, never on the IFVG, no promotion.
+- **Reason:** design-authority authorization of rev 2, 2026-10-07.
+- **Status:** ACTIVE — DESIGN APPROVED — IMPLEMENTATION AUTHORIZED; NOT IMPLEMENTED / NOT VALIDATED / NOT FROZEN.
+
+### D-152 — FVG data quality, price basis and outputs
+- **Date:** 2026-10-07
+- **Decision** (rev 2.1 §3.11 – §3.12):
+  - 1m `DATA_GAP` onsets terminate every active FVG object; nothing is
+    inferred inside gaps; post-gap re-establishment only.
+  - Pure rolls (CB-2): old-contract objects become `PENDING_ADJUSTMENT`;
+    the first new-contract bar never evaluates them.
+  - Raw values with source contract and `basis_id`; no raw cross-contract
+    comparison; explicit pending comparisons. The shared adjustment method
+    is deferred; the compatibility contract (P1 – P5 plus the rev 2.1
+    clarification on midpoints, widths, normalization and intersections)
+    governs any future adjusted basis.
+  - Fixed output schemas; empty zone-dependent outputs when no zone forms;
+    data warnings and the manifest are always written.
+- **Reason:** design-authority authorization of rev 2, 2026-10-07.
+- **Status:** ACTIVE — DESIGN APPROVED — IMPLEMENTATION AUTHORIZED; NOT IMPLEMENTED / NOT VALIDATED / NOT FROZEN.
+
 ### PROPOSED items awaiting design-authority approval (2026-09-28)
 Claude recommendations from the architecture closeout; **not decisions**:
 ~~Market Context as tidy-DataFrame functions (no MarketContext object)~~

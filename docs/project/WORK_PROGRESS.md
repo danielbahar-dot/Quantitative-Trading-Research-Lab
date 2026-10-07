@@ -166,8 +166,10 @@ time with explicit approval (D-117).
     in the D-143 freeze note (overall fingerprint `3727767b77fc0cd0…`).
   - The Market Structure freeze record (`25f95d9`) landed on `main` with
     PR #16.
-- **FVG / IFVG / overlap / BPR: DESIGN REVISED (rev 2) — READY FOR FINAL
-  DESIGN APPROVAL** (2026-10-07).
+- **FVG / IFVG / overlap / BPR: DESIGN APPROVED — IMPLEMENTATION AUTHORIZED**
+  (2026-10-07; D-148 – D-152; rev 2.1 adds the §3.11.4 adjustment
+  clarification). Implementation FVG-I1 – FVG-I5 in progress on
+  `fvg-design`; not validated or frozen.
   - `docs/project/FVG_IFVG_BPR_DESIGN.md` rev 2 on branch `fvg-design`
     (rev 1 `49717c2`). Design only; not approved, implemented or frozen.
   - All decision outcomes are applied:
@@ -187,7 +189,7 @@ time with explicit approval (D-117).
     - empty-output wording.
   - Worked examples W1–W12 and the DEVELOPMENT evidence (§5.14) were
     re-executed with a scratch prototype on frozen M3 / continuity / Swing.
-  - No open user-facing decision remains. Next: final design approval.
+  - No open user-facing decision remains.
 
 ## Last completed work
 

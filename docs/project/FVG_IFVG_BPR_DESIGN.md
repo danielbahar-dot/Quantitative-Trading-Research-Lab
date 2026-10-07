@@ -1,6 +1,12 @@
 # FVG / IFVG / Overlap / BPR (ROADMAP 4, ICT family): Consolidated Design (rev 2)
 
-**Status: DESIGN REVISED — READY FOR FINAL DESIGN APPROVAL; NOT APPROVED, NOT IMPLEMENTED, NOT FROZEN (2026-10-07).**
+**Status: DESIGN APPROVED — IMPLEMENTATION AUTHORIZED; NOT IMPLEMENTED / NOT VALIDATED / NOT FROZEN (2026-10-07).**
+
+- The design authority authorized implementation of rev 2 (FVG-I1 – FVG-I5) on 2026-10-07; the decisions are
+  registered as **D-148 – D-152**. Design approval is distinct from implementation validation (machine checks
+  plus human visual review) and from feature freeze; neither has happened.
+- Rev 2.1 (same date) adds only the §3.11.4 adjustment-compatibility clarification; no formation, interaction,
+  lifecycle, relationship, grading or association rule changed.
 
 - Branch `fvg-design` (from `main` `6c3c909`, after the Internal Liquidity
   freeze). Rev 1: `49717c2`. This revision applies every confirmed
@@ -709,6 +715,36 @@ only if the shared process declares, per `(contract, adjustment_version)`:
 - No age limit and no same-contract-only eligibility rule exists. Basis
   comparability is the only cross-contract condition.
 
+**Clarification (rev 2.1, 2026-10-07; no rule change).**
+
+- **Order is not enough.** Strict order preservation (P2) alone does not
+  preserve arithmetic midpoints or volatility-normalized width under an
+  arbitrary nonlinear transformation: for a monotone `f`,
+  `f((a + b) / 2) ≠ (f(a) + f(b)) / 2` and ratios of differences change in
+  general. P2 guarantees only the truth values of comparisons.
+- **Explicit declarations.** A future compatibility declaration must state,
+  explicitly and separately, how it treats:
+  - **midpoint geometry** (adjusted midpoint = midpoint of the adjusted
+    bounds, or a transformed raw midpoint, and that the two agree);
+  - **widths** (ticks and points) and the tick-count semantics of the
+    formation threshold;
+  - **normalized strength** (whether the baseline ATR and the width are
+    transformed consistently so the ratio is preserved, or the raw ratio is
+    carried as formation evidence);
+  - **cross-contract intersection construction** (below).
+- **Intersections.** Cross-contract intersections (FVG_OVERLAP, BPR,
+  MTF_BPR) are computed from the compatible adjusted **parent bounds** on
+  the shared basis (`max` of adjusted lowers, `min` of adjusted uppers). A
+  raw intersection is never transformed as though it belonged to one
+  parent contract.
+- **Unsupported** declarations remain pending with `BASIS_UNSUPPORTED`; no
+  value is rounded or approximated.
+- **Current production scope** is raw-basis processing only, with explicit
+  pending-comparison behavior at pure contract changes. The shared
+  adjustment method remains deferred and is not selected or implemented
+  locally; adjusted-basis support is an integration contract for the future
+  shared process.
+
 #### 3.11.5 Pending comparisons
 
 `fvg_pending_comparisons(object_id, pending_object_id, reason ∈
@@ -1286,7 +1322,7 @@ It is reconciled against production (the Internal Liquidity pattern).
 
 | Step | Content |
 |---|---|
-| FVG-I0 | Final design approval; D-number registration |
+| FVG-I0 | **DONE (2026-10-07):** implementation of rev 2 authorized; D-148 – D-152 registered; §3.11.4 clarified (rev 2.1) |
 | FVG-I1 | Formation (wick gap + C2), rejection audit, normalization, zone facts, price basis, ids, empty schemas; tests |
 | FVG-I2 | 1m mitigation classes, own-timeframe lifecycle, step-0 resets and basis guard, single-exit check, M7A logs; tests |
 | FVG-I3 | Relationship episodes (admission- and conversion-created), BPR objects and lifecycle, formation groups, grade versions, rankings, views; tests |

@@ -166,13 +166,28 @@ time with explicit approval (D-117).
     in the D-143 freeze note (overall fingerprint `3727767b77fc0cd0…`).
   - The Market Structure freeze record (`25f95d9`) landed on `main` with
     PR #16.
-- **FVG / IFVG / overlap / BPR: DESIGN DRAFT FOR REVIEW** (2026-10-07).
-  - `docs/project/FVG_IFVG_BPR_DESIGN.md` rev 1 on branch `fvg-design`
-    (from `main` `6c3c909`); design only, nothing implemented or approved.
-  - Worked examples verified against frozen M3 / continuity / Swing with a
-    scratch prototype; DEVELOPMENT formation evidence in §5.9.
-  - Eight open decisions for the design authority (§9: M-1, O-1, O-2, O-3,
-    F-2, F-1, V-1, A-1).
+- **FVG / IFVG / overlap / BPR: DESIGN REVISED (rev 2) — READY FOR FINAL
+  DESIGN APPROVAL** (2026-10-07).
+  - `docs/project/FVG_IFVG_BPR_DESIGN.md` rev 2 on branch `fvg-design`
+    (rev 1 `49717c2`). Design only; not approved, implemented or frozen.
+  - All decision outcomes are applied:
+    - C2 directional-body formation;
+    - inclusive midpoint / full reach;
+    - same-direction formation-group overlap;
+    - conversion-created BPRs via stage-keyed relationship episodes;
+    - descriptive undefined-direction BPRs;
+    - C2 anchor and most-extreme leg origin;
+    - pre-C1 ATR(14) normalized gap strength;
+    - adjustment method deferred, with stated compatibility properties.
+  - Rev 1 defects are corrected:
+    - mitigation vs gap-through classes;
+    - BPR independence conditions;
+    - step-0 contract / basis guard and single-exit precedence;
+    - a true equality fixture;
+    - empty-output wording.
+  - Worked examples W1–W12 and the DEVELOPMENT evidence (§5.14) were
+    re-executed with a scratch prototype on frozen M3 / continuity / Swing.
+  - No open user-facing decision remains. Next: final design approval.
 
 ## Last completed work
 

@@ -1,9 +1,11 @@
 # Internal Liquidity (ROADMAP 3.3): Consolidated Design (rev 4)
 
-**Status: IMPLEMENTED — MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL; NOT FROZEN (2026-10-06).**
+**Status: APPROVED / FROZEN (2026-10-07).** Human visual approval passed on the corrected package at
+checkpoint `9dd62ca`; merged to `main` via PR #16. Frozen DEVELOPMENT baseline: DECISION_LOG D-143
+freeze note. Future semantic changes require a new decision.
 
-- IL-I1 – IL-I4 are implemented on branch `internal-liquidity-design`. All 11 DEVELOPMENT machine gates
-  PASS (`reports/validation/internal_liquidity_dev_summary.csv`). Freeze and merge are not authorized.
+- IL-I1 – IL-I4 implemented (`683da5a`, `e6cfbec`, `617e983`, `52291d1`, review fixes `9dd62ca`).
+  All 11 DEVELOPMENT machine gates PASS (`reports/validation/internal_liquidity_dev_summary.csv`).
 
 - The design authority approved rev 4 as the implementation specification on
   2026-10-06. That covers IL-D0 – IL-D14, OI-1 – OI-6 and A-19 (pinned
@@ -448,7 +450,7 @@ cluster extended (A-3, A-19).
     `≥ c(m)`, else `UNBOUNDED`;
   - **lower** = the closest eligible LOWER candidate with current price
     `≤ c(m)`;
-  - **ties:** first `available_at`, then `source_at`, then id;
+  - **ties** (confirmed by the design authority, 2026-10-07): first ascending `available_at` of the candidate's current formation version; then ascending `source_at` (a Daily member's own `source_at`; for a cluster version, the earliest constituent member `source_at`); then ascending stable candidate id;
   - **no lower:** no range; report `INSUFFICIENT_BOUNDARY_DATA` (A-17).
 
   Each selected side gets a new assignment pinned to the candidate's current
@@ -918,4 +920,4 @@ VALIDATION / OOS data. It follows Market Structure MS-I3:
 | IL-I1 | **DONE (`683da5a`):** shared consumption contract (§3.1) and External derived view, with tests |
 | IL-I2 | **DONE (`e6cfbec`):** internal formation atoms and EQ/REQ (§3.2), with tests |
 | IL-I3 | **DONE (`617e983`):** levels, price records, grades, ranges, memberships, lifecycles, active view (§3.3 – §3.9), with tests (E1–E25) |
-| IL-I4 | **DONE — MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL:** independent reference, IL-INV-1 – IL-INV-20, DEVELOPMENT validation, prefix replays, visual package |
+| IL-I4 | **DONE — APPROVED / FROZEN (`52291d1`, review fixes `9dd62ca`; human visual approval 2026-10-07):** independent reference, IL-INV-1 – IL-INV-20, DEVELOPMENT validation, prefix replays, visual package |

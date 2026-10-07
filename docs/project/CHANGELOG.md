@@ -12,6 +12,17 @@ Areas: `ARCH`, `FEATURE`, `STATE`, `SIGNAL`, `EXECUTION`, `METHOD`, `DATA`,
 
 ## Unreleased
 
+- 2026-10-07 — [FEATURE] Internal Liquidity (3.3) is **APPROVED / FROZEN** (D-143 – D-147;
+  D-143 freeze note; PR #16).
+  - Shared tolerance consumption contract (internal 4 / External 6 ticks),
+    5m / 15m / 1H formation atoms, price-anchored levels with grades, price
+    records, External ranges with pinned boundary assignments, M7A lifecycles.
+  - Human visual approval on the corrected package (`9dd62ca`); boundary tie
+    order confirmed.
+  - Frozen DEVELOPMENT baseline: IL-INV-1 … IL-INV-20 = 0, engine = reference,
+    overall fingerprint `3727767b77fc0cd0…`. Suite: 758 passed / 590 subtests.
+  - Next is FVG / IFVG / BPR (design).
+
 - 2026-10-06 — [FEATURE] Generic Market Structure (3.MS) is **APPROVED /
   FROZEN** (D-139 – D-142; D-139 freeze note; PR #14, `434d919`).
   - Neutral swing breaks, structural direction, protected swing, BOS /

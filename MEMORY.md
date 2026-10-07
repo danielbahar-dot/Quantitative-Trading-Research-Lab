@@ -211,10 +211,11 @@ at a time with explicit approval (D-117).
       `b6876266800d56b3421dbfb5e4a4aa50b83140acdd409390d28b5f75427c218f`.
     - Suite: 647 / 0 / 493. Machine gates and human visual review PASS
       (24 cases: 13 REAL, 11 SYNTHETIC).
-    - Next: 3.3 Internal Liquidity: **IMPLEMENTED — MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL; NOT FROZEN** (2026-10-06).
-      - IL-I1 – IL-I4 on branch `internal-liquidity-design` (draft PR); all 11 DEVELOPMENT
-        machine gates PASS; runner `src.experiments.internal_liquidity_dev_validation` (~40 min).
-      - Awaiting human visual review; freeze and merge not authorized.
+    - 3.3 Internal Liquidity: **APPROVED / FROZEN** (2026-10-07; merged via PR #16; D-143 freeze note).
+      - Runner `src.experiments.internal_liquidity_dev_validation` (~40 min); frozen overall
+        fingerprint `3727767b77fc0cd0…`.
+      - Boundary ties: first ascending `available_at` of the candidate's current formation version; then ascending `source_at` (a Daily member's own `source_at`; for a cluster version, the earliest constituent member `source_at`); then ascending stable candidate id.
+      - Next: FVG / IFVG / BPR design (design only).
       - Spec rev 4 on branch `internal-liquidity-design`; D-143 – D-147.
       - Shared consumption predicate: strict beyond `p ± t` on 1m, with
         `t` = 4 internal and 6 External.

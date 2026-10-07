@@ -296,7 +296,8 @@ Spec: `docs/project/MARKET_STRUCTURE_SPEC.md` rev 2.5 (D-139–D-142).
 ## `internal_liquidity_*`
 
 Internal Liquidity (3.3) IL-I4 DEVELOPMENT validation (2026-10-06).
-Status: **MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL**; not frozen (D-143 – D-147).
+Status: **APPROVED / FROZEN** (2026-10-07; human visual approval on the corrected package at
+`9dd62ca`; merged via PR #16). This is the frozen validation baseline (D-143 freeze note).
 
 **Scope.**
 

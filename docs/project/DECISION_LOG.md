@@ -1398,8 +1398,7 @@ repository. For D-101 onward the date is when it was recorded here
   - **Evidence:** the consuming bar ref, o / h / l / c, `p`, `t`, `θ`,
     excess ticks, gap-through, and the version evaluated.
 - **Reason:** design-authority approval of rev 4, 2026-10-06.
-- **Status:** ACTIVE — DESIGN APPROVED. Implementation authorized; not
-  implemented, not frozen.
+- **Status:** ACTIVE. Part of the **APPROVED / FROZEN** Internal Liquidity (2026-10-07; merged via PR #16).
 
 ### D-144 — Internal formation atoms
 - **Date:** 2026-10-06
@@ -1418,8 +1417,7 @@ repository. For D-101 onward the date is when it was recorded here
     - one continuity segment and contract;
     - immutable FORMED / EXTENDED / MERGED versions, never back-dated.
 - **Reason:** design-authority approval of rev 4, 2026-10-06.
-- **Status:** ACTIVE — DESIGN APPROVED. Implementation authorized; not
-  implemented, not frozen.
+- **Status:** ACTIVE. Part of the **APPROVED / FROZEN** Internal Liquidity (2026-10-07; merged via PR #16).
 
 ### D-145 — Internal levels, price records and grading
 - **Date:** 2026-10-06
@@ -1440,8 +1438,7 @@ repository. For D-101 onward the date is when it was recorded here
     then family. Within a timeframe: ordinary H/L < REQ < EQ. Within 1H:
     candle < swing < REQ < EQ. Proximity and direction are excluded.
 - **Reason:** design-authority approval of rev 4, 2026-10-06.
-- **Status:** ACTIVE — DESIGN APPROVED. Implementation authorized; not
-  implemented, not frozen.
+- **Status:** ACTIVE. Part of the **APPROVED / FROZEN** Internal Liquidity (2026-10-07; merged via PR #16).
 
 ### D-146 — External ranges and pinned boundary assignments
 - **Date:** 2026-10-06
@@ -1464,8 +1461,7 @@ repository. For D-101 onward the date is when it was recorded here
   - **Membership:** strictly inside the pinned boundaries; equality is
     excluded; historical, known, unconsumed levels qualify.
 - **Reason:** design-authority approval of rev 4, 2026-10-06.
-- **Status:** ACTIVE — DESIGN APPROVED. Implementation authorized; not
-  implemented, not frozen.
+- **Status:** ACTIVE. Part of the **APPROVED / FROZEN** Internal Liquidity (2026-10-07; merged via PR #16).
 
 ### D-147 — Internal Liquidity lifecycle, gaps, causality and outputs
 - **Date:** 2026-10-06
@@ -1488,24 +1484,20 @@ repository. For D-101 onward the date is when it was recorded here
     - a derived membership view and a causal active-level view;
     - an explicit `replay_cutoff`, with prefix equivalence.
 - **Reason:** design-authority approval of rev 4, 2026-10-06.
-- **Status:** ACTIVE — DESIGN APPROVED. Implementation authorized; not
-  implemented, not frozen.
-- **Implementation note (D-143 – D-147, 2026-10-06):** MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL.
+- **Status:** ACTIVE. Part of the **APPROVED / FROZEN** Internal Liquidity (2026-10-07; merged via PR #16).
+- **Implementation note (D-143 – D-147, 2026-10-06):** MACHINE VALIDATION PASSED; HUMAN VISUAL APPROVAL PASSED (2026-10-07).
   - Implemented on branch `internal-liquidity-design` (IL-I1 `683da5a`,
-    IL-I2 `e6cfbec`, IL-I3 `617e983`, IL-I4) as separate modules; no frozen
-    module was changed (gate `frozen_sources_unchanged_vs_main`).
+    IL-I2 `e6cfbec`, IL-I3 `617e983`, IL-I4 `52291d1`, review fixes
+    `9dd62ca`) as separate modules; no frozen module was changed (gate
+    `frozen_sources_unchanged_vs_main`).
   - DEVELOPMENT validation (`reports/validation/internal_liquidity_dev_*`):
     11/11 machine gates PASS; IL-INV-1 – 20 all 0; engine equals the
     independent per-bar reference; 7 prefix replays equivalent.
-  - Boundary ties (§3.6.4) are resolved in the approved ascending order:
-    first `available_at`, then first `source_at`, then id. Reading applied
-    (flagged for confirmation): `available_at` is that of the candidate's
-    current formation version (the one that would be pinned); `source_at` is
-    a Daily member's own `source_at`, and for a cluster version, which has no
-    `source_at` in the frozen contract, the **earliest** `source_at` among its
-    members. (The first IL-I4 commit used the latest member `source_at`;
-    corrected 2026-10-07 with tie regression tests.) Every tie that is broken
-    is audited (`BOUNDARY_TIE_BROKEN`, with the deciding key).
+  - **Boundary tie order (D-146; confirmed by the design authority,
+    2026-10-07):** first ascending `available_at` of the candidate's current formation version; then ascending `source_at` (a Daily member's own `source_at`; for a cluster version, the earliest constituent member `source_at`); then ascending stable candidate id. (The first IL-I4 commit used the latest member
+    `source_at`; corrected in `9dd62ca` with tie regression tests.) Every
+    broken tie is audited (`BOUNDARY_TIE_BROKEN`, with the deciding key); 5
+    on DEVELOPMENT (4 by `available_at`, 1 by `source_at`).
   - Consumption audit metric: `max_signed_excursion_ticks` (signed distance
     beyond `p` before the object's end, per bar against the version in effect;
     negative = price never reached `p`) and `max_penetration_ticks`
@@ -1515,7 +1507,37 @@ repository. For D-101 onward the date is when it was recorded here
     contiguous intervals per (range, level), keyed by the range version where
     they began; the range status view starts at each episode's first 1m bar
     end.
-  - Not frozen; freeze and merge are not authorized.
+- **Freeze note 2026-10-07 (Internal Liquidity, D-143 – D-147):**
+  - Human visual review passed (2026-10-07) on the corrected 23-case package
+    (17 REAL DEVELOPMENT, 6 SYNTHETIC) at checkpoint `9dd62ca`, the reviewed
+    PR #16 head; merged to `main` via PR #16. No change after the reviewed
+    checkpoint other than this closure documentation.
+  - Machine validation: all 11 gates PASS; IL-INV-1 … IL-INV-20 = 0; engine =
+    independent reference (0 mismatches); 7 DEVELOPMENT prefix replays
+    equivalent. Full suite at `9dd62ca`: 758 passed / 0 failed / 590 subtests.
+  - **Frozen DEVELOPMENT baseline** (cutoff 2025-06-30 17:00 ET; `run_id`
+    `ilr_b1c4387b5b9f6515c5af7054babf556e9d4b9f2767a979ad11a077301e53e239`;
+    includes the tie-corrected boundary selection):
+
+    | metric | value |
+    |---|---|
+    | levels / level versions | 20,922 / 35,800 |
+    | ranges / range versions | 62 / 117 |
+    | boundary assignments | 170 (cluster: 10 ESTABLISHED, 1 ADVANCED_OUTWARD, 3 OPPOSITE_RESELECTED; Daily: 111 / 31 / 14) |
+    | membership intervals | 17,199 |
+    | price records | 17,939 |
+    | broken boundary ties | 5 |
+    | `level_id` SHA-256 | `64851d729e4729af…` |
+    | `level_version_id` SHA-256 | `9ff34459f4cbd974…` |
+    | `range_version_id` SHA-256 | `af1576c11f650f61…` |
+    | `boundary_assignment_id` SHA-256 | `8696e8e0cc687e9c…` |
+    | consumption `transition_id` SHA-256 | `2fb4f2fe71fc8f59…` |
+
+    - Full fingerprints: `reports/validation/internal_liquidity_dev_summary.csv`.
+    - Overall fingerprint = SHA-256 of the five identity values in the order
+      above, joined by newlines: `3727767b77fc0cd07bc4d28a76fccd8238cad7849a54b6e484b87bb52d4bd212`.
+  - The decision texts of D-143 – D-147 are unchanged (plus the confirmed tie
+    order above). Future semantic changes require a new decision.
 
 ### PROPOSED items awaiting design-authority approval (2026-09-28)
 Claude recommendations from the architecture closeout; **not decisions**:

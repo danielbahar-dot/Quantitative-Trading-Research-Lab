@@ -4,7 +4,7 @@ Answers: **"Where exactly are we now?"** Update this after every meaningful
 task. Keep entries short. History goes in [CHANGELOG](CHANGELOG.md) and
 rationale in [DECISION_LOG](DECISION_LOG.md).
 
-_Last updated: 2026-10-06_
+_Last updated: 2026-10-07_
 
 ## Current focus
 
@@ -147,11 +147,11 @@ time with explicit approval (D-117).
     - `src/experiments/market_structure_{dev_validation,visual}.py`.
   - Deferred: Signal adapter (MS-I4), MSS, liquidity, hierarchy.
 
-- **Internal Liquidity (3.3): IMPLEMENTED — MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL; NOT FROZEN** (2026-10-06).
+- **Internal Liquidity (3.3): DONE — APPROVED / FROZEN** (2026-10-07; merged via PR #16).
   - Spec `docs/project/INTERNAL_LIQUIDITY_DESIGN.md` rev 4 (approved);
     D-143 – D-147.
   - Branch `internal-liquidity-design`; checkpoints IL-I1 `683da5a`,
-    IL-I2 `e6cfbec`, IL-I3 `617e983`, IL-I4 (validation commit).
+    IL-I2 `e6cfbec`, IL-I3 `617e983`, IL-I4 `52291d1`, review fixes `9dd62ca`.
   - Code: `src/liquidity/{consumption,internal_formation,internal_liquidity,internal_liquidity_audit}.py`;
     `src/experiments/internal_liquidity_{dev_validation,visual}.py`.
   - DEVELOPMENT (cutoff 2025-06-30 17:00 ET): 20,922 levels / 35,800
@@ -161,20 +161,23 @@ time with explicit approval (D-117).
     replays, 0 mismatches); engine = independent reference (0 mismatches,
     full coverage; membership by 25,531 sampled pairs); frozen External /
     Swing / 1m continuity baselines and frozen sources unchanged.
-  - Full suite: 753 passed / 0 failed / 590 subtests.
-  - Next: human visual review of
-    `reports/validation/internal_liquidity_visual_validation.html` (local).
-    Freeze and merge are not authorized.
-  - The Market Structure freeze record (`25f95d9`) is published through its
-    own branch / PR, `market-structure-freeze-record`.
+  - Full suite at `9dd62ca`: 758 passed / 0 failed / 590 subtests.
+  - Human visual approval passed (2026-10-07; 23 cases); frozen baseline
+    in the D-143 freeze note (overall fingerprint `3727767b77fc0cd0…`).
+  - The Market Structure freeze record (`25f95d9`) landed on `main` with
+    PR #16.
+- **Next: FVG / IFVG / BPR (design only)** on a fresh design branch.
 
 ## Last completed work
 
-- **2026-10-06 — Internal Liquidity IL-I1 – IL-I4: MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL.**
+- **2026-10-07 — Internal Liquidity APPROVED / FROZEN.**
+  - Human visual review passed on the corrected package (`9dd62ca`); boundary
+    tie order confirmed; PR #16 merged; freeze recorded (D-143 freeze note).
+
+- **2026-10-06 — Internal Liquidity IL-I1 – IL-I4: machine validation passed.**
   - Design rev 4 approved and registered (D-143 – D-147).
   - Shared consumption contract, formation atoms, engine, independent
     audit, DEVELOPMENT validation and visual package (23 cases: 17 REAL, 6 SYNTHETIC).
-  - Draft PR opened; not merged; nothing frozen.
 
 - **2026-10-06 — Generic Market Structure APPROVED / FROZEN.**
   - Human visual review passed (20 cases).

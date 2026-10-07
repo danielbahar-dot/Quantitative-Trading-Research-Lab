@@ -1239,10 +1239,41 @@ repository. For D-101 onward the date is when it was recorded here
   - **MSS** stays deferred.
 - **Reason:** a methodology-neutral, causal, reproducible break primitive
   consuming frozen Swing Structure (D-135–D-138).
-- **Status:** ACTIVE — DESIGN APPROVED. Not frozen.
+- **Status:** ACTIVE. Part of the **APPROVED / FROZEN** Generic Market Structure (2026-10-06; merged via PR #14, `434d919`).
 - **Implementation note 2026-10-05 (MS-I1 – MS-I3):** implemented on `market-structure-design`
   (`src/market_structure/{swing_breaks,structure,structure_audit}.py`, DEVELOPMENT runner
-  `src/experiments/market_structure_dev_validation.py`). **MACHINE VALIDATION PASSED; HUMAN VISUAL APPROVAL PASSED (2026-10-06) — APPROVED, READY TO MERGE.** The decision text is unchanged.
+  `src/experiments/market_structure_dev_validation.py`). **MACHINE VALIDATION PASSED; HUMAN VISUAL APPROVAL PASSED (2026-10-06).** The decision text is unchanged.
+
+- **Freeze note 2026-10-06 (Generic Market Structure, D-139 – D-142):**
+  - Implemented MS-I1 to MS-I3, merged to `main` via PR #14 (merge commit
+    `434d919`).
+  - Machine validation passed (all 10 gates). Human visual review passed on
+    20 cases (15 REAL DEVELOPMENT, 5 SYNTHETIC).
+  - Full suite: 702 passed / 0 failed / 493 subtests.
+  - **Frozen DEVELOPMENT baseline:**
+    - definition `structure-v1` / `swing-break-v1` over the 2/2 `swing-pivot-v1`
+      reference;
+    - replay cutoff 2025-06-30 17:00 ET;
+    - INV-1 … INV-17 = 0 on every timeframe;
+    - 0 anomalies.
+
+    | tf | swings | breaks | episodes | event_id SHA-256 | role_id SHA-256 |
+    |---|---|---|---|---|---|
+    | 1m | 93335 | 90199 | 33 | b34169379d5c44bd… | bd309e5f11cf8807… |
+    | 5m | 18158 | 16783 | 32 | 74f85aa49b6a13d8… | 10d6b5d5081d7b2b… |
+    | 15m | 6037 | 5269 | 31 | 1a3c962c09e4af43… | ee1195006646d553… |
+    | 1H | 1452 | 1102 | 29 | 986aca1d5c522916… | 3a6222df0218179e… |
+    | 4H | 367 | 215 | 29 | 2c79e6f1d5b5e5ab… | 8e4001f3677e4ed6… |
+    | 1D | 32 | 10 | 23 | fa741ccbececa209… | d53669f3e5875c55… |
+
+    - The full per-timeframe fingerprints (episode, role, event and
+      break_id) are in `reports/validation/market_structure_dev_summary.csv`.
+    - Overall fingerprint = SHA-256 of the 24 per-timeframe identity values,
+      ordered by timeframe (1m, 5m, 15m, 1H, 4H, 1D) then by `episode_id`,
+      `role_id`, `event_id`, `break_id`, joined by newlines:
+      `03f0a2d92679c56f97600c6e54934a38b5f86981e60266befbf2bb5f2a05163d`.
+  - The decision texts of D-139 – D-142 are unchanged. Future semantic changes
+    require a new decision.
 
 ### D-140 — Structural Direction, Protected Swing and causal selection
 - **Date:** 2026-10-05
@@ -1274,10 +1305,10 @@ repository. For D-101 onward the date is when it was recorded here
     anomaly evidence and fails validation.
 - **Reason:** the D1–D16 handoff semantics as refined by design review
   K-1 … K-4, K-7, K-8, K-11, N-1, T-1 and the rev 2.2 corrections.
-- **Status:** ACTIVE — DESIGN APPROVED. Not frozen.
+- **Status:** ACTIVE. Part of the **APPROVED / FROZEN** Generic Market Structure (2026-10-06; merged via PR #14, `434d919`).
 - **Implementation note 2026-10-05 (MS-I1 – MS-I3):** implemented on `market-structure-design`
   (`src/market_structure/{swing_breaks,structure,structure_audit}.py`, DEVELOPMENT runner
-  `src/experiments/market_structure_dev_validation.py`). **MACHINE VALIDATION PASSED; HUMAN VISUAL APPROVAL PASSED (2026-10-06) — APPROVED, READY TO MERGE.** The decision text is unchanged.
+  `src/experiments/market_structure_dev_validation.py`). **MACHINE VALIDATION PASSED; HUMAN VISUAL APPROVAL PASSED (2026-10-06).** The decision text is unchanged.
 
 ### D-141 — Structure state representation, identity and provenance
 - **Date:** 2026-10-05
@@ -1301,10 +1332,10 @@ repository. For D-101 onward the date is when it was recorded here
     separate from `run_id` and `fact_hash`. Facts are pinned, and
     revisions create new runs.
 - **Reason:** design review K-10, K-13, N-3 and N-5; M7A compatibility.
-- **Status:** ACTIVE — DESIGN APPROVED. Not frozen.
+- **Status:** ACTIVE. Part of the **APPROVED / FROZEN** Generic Market Structure (2026-10-06; merged via PR #14, `434d919`).
 - **Implementation note 2026-10-05 (MS-I1 – MS-I3):** implemented on `market-structure-design`
   (`src/market_structure/{swing_breaks,structure,structure_audit}.py`, DEVELOPMENT runner
-  `src/experiments/market_structure_dev_validation.py`). **MACHINE VALIDATION PASSED; HUMAN VISUAL APPROVAL PASSED (2026-10-06) — APPROVED, READY TO MERGE.** The decision text is unchanged.
+  `src/experiments/market_structure_dev_validation.py`). **MACHINE VALIDATION PASSED; HUMAN VISUAL APPROVAL PASSED (2026-10-06).** The decision text is unchanged.
 
 ### D-142 — Structure lifecycle, resets and contract boundaries
 - **Date:** 2026-10-05
@@ -1336,10 +1367,177 @@ repository. For D-101 onward the date is when it was recorded here
   - **Not introduced:** stitching, price adjustment or a roll calendar.
 - **Reason:** design review K-5, CB-1 and CB-2, plus the final-review
   clarification of the gap-reset adapter (rev 2.5).
-- **Status:** ACTIVE — DESIGN APPROVED. Not frozen.
+- **Status:** ACTIVE. Part of the **APPROVED / FROZEN** Generic Market Structure (2026-10-06; merged via PR #14, `434d919`).
 - **Implementation note 2026-10-05 (MS-I1 – MS-I3):** implemented on `market-structure-design`
   (`src/market_structure/{swing_breaks,structure,structure_audit}.py`, DEVELOPMENT runner
-  `src/experiments/market_structure_dev_validation.py`). **MACHINE VALIDATION PASSED; HUMAN VISUAL APPROVAL PASSED (2026-10-06) — APPROVED, READY TO MERGE.** The decision text is unchanged.
+  `src/experiments/market_structure_dev_validation.py`). **MACHINE VALIDATION PASSED; HUMAN VISUAL APPROVAL PASSED (2026-10-06).** The decision text is unchanged.
+
+### D-143 — Shared liquidity consumption contract
+- **Date:** 2026-10-06
+- **Decision** (`docs/project/INTERNAL_LIQUIDITY_DESIGN.md` rev 4 §3.1;
+  IL-D0, IL-D1/2, IL-D12, OI-1, A-19):
+  - **One narrow, shared consumption predicate** is used by Internal
+    Liquidity and by a derived lifecycle view over frozen External objects.
+    The broader 3.4 lifecycle stays deferred, and frozen formation facts are
+    unchanged.
+  - **Observation.** Canonical 1m bars. Bar `m` uses the object version
+    available at `s(m)`. Consumption is recorded at `e(m)`, with no intrabar
+    order.
+  - **Threshold.** UPPER `θ = p + t`, LOWER `θ = p − t`. Consumption requires
+    strict penetration (`h > θ` / `l < θ`); equality never consumes.
+  - **Tolerances `t`:**
+    - Internal 1H candle, 5m / 15m / 1H swing, EQ and REQ: 4 ticks.
+    - External Daily / 4H standalone, EQ and REQ: 6 ticks.
+    - EQ formation stays exact.
+  - **Clusters** are consumed beyond their current definitive price plus
+    tolerance. A within-tolerance excursion contributes only after a
+    qualifying confirmation, and later confirmation never undoes
+    consumption.
+  - **Boundary assignments** are consumable objects pinned to one version,
+    evaluated independently of their live cluster.
+  - **Evidence:** the consuming bar ref, o / h / l / c, `p`, `t`, `θ`,
+    excess ticks, gap-through, and the version evaluated.
+- **Reason:** design-authority approval of rev 4, 2026-10-06.
+- **Status:** ACTIVE. Part of the **APPROVED / FROZEN** Internal Liquidity (2026-10-07; merged via PR #16).
+
+### D-144 — Internal formation atoms
+- **Date:** 2026-10-06
+- **Decision** (rev 4 §3.2; IL-D6/7/8, OI-1):
+  - Internal atoms reuse the frozen `liquidity_members` /
+    `liquidity_structures` envelope with `liquidity_class = INTERNAL`.
+  - **Families:**
+    - complete 1H candle highs / lows;
+    - confirmed swings on 5m, 15m and 1H, using the explicit frozen
+      `swing-pivot-v1` 2/2 definition;
+    - EQ / REQ clusters of confirmed swings, per side and timeframe.
+  - **Cluster grammar:** D-134 at the internal grain:
+    - EQ exact;
+    - REQ link ≤ 4 ticks with chain connectivity and ≥ 2 distinct prices;
+    - pair-outer barrier on the timeframe's bars;
+    - one continuity segment and contract;
+    - immutable FORMED / EXTENDED / MERGED versions, never back-dated.
+- **Reason:** design-authority approval of rev 4, 2026-10-06.
+- **Status:** ACTIVE. Part of the **APPROVED / FROZEN** Internal Liquidity (2026-10-07; merged via PR #16).
+
+### D-145 — Internal levels, price records and grading
+- **Date:** 2026-10-06
+- **Decision** (rev 4 §3.3 – §3.5; IL-D9/10/11, OI-2, OI-6):
+  - **Definitive price:** a single source's price; the common exact price
+    for EQ; the outermost constituent for REQ.
+  - **One active internal level per (contract, side, price).** It
+    consolidates coincident candidates with multiple evidence references.
+  - **Identity:** `il_` anchored on the first evidence. A level is terminal
+    after consumption or termination. A genuinely new formation creates a
+    new id at the same price.
+  - **Versions:** immutable and prospective.
+  - **Price records.** Coincident internal and External objects share one
+    actionable price record (`lp_`) but keep separate lifecycles and
+    thresholds. Valid internal membership is not suppressed.
+  - **Confluence** counts distinct physical extremes once.
+  - **Grades:** an attribute profile with ordered tiers, timeframe first,
+    then family. Within a timeframe: ordinary H/L < REQ < EQ. Within 1H:
+    candle < swing < REQ < EQ. Proximity and direction are excluded.
+- **Reason:** design-authority approval of rev 4, 2026-10-06.
+- **Status:** ACTIVE. Part of the **APPROVED / FROZEN** Internal Liquidity (2026-10-07; merged via PR #16).
+
+### D-146 — External ranges and pinned boundary assignments
+- **Date:** 2026-10-06
+- **Decision** (rev 4 §3.6; IL-D3/4/5, OI-4, OI-5, A-19):
+  - **Boundary candidates:**
+    - External Daily H/L member objects;
+    - External 4H / Daily EQ / REQ cluster lineages (`xc_`), priced at
+      their current version.
+  - **Establishment:** the closest eligible candidates. The upper side may be
+    unbounded; with no lower, the status is `INSUFFICIENT_BOUNDARY_DATA`.
+  - **Pinned assignments (`ba_`).** A selected boundary is pinned to its
+    formation version, price and threshold. Cluster extensions and merges
+    never move it.
+  - **At an assignment-consumption event:**
+    - the consumed side advances outward to the closest eligible candidate
+      beyond the pinned price;
+    - the opposite side is reselected to the closest eligible candidate only
+      if strictly closer, and otherwise retained;
+    - there is no reselection between events.
+  - **Membership:** strictly inside the pinned boundaries; equality is
+    excluded; historical, known, unconsumed levels qualify.
+- **Reason:** design-authority approval of rev 4, 2026-10-06.
+- **Status:** ACTIVE. Part of the **APPROVED / FROZEN** Internal Liquidity (2026-10-07; merged via PR #16).
+
+### D-147 — Internal Liquidity lifecycle, gaps, causality and outputs
+- **Date:** 2026-10-06
+- **Decision** (rev 4 §3.7 – §3.9; IL-D13/14, OI-3):
+  - **Data gaps** (the 1m §G.2a onset) terminate every affected level,
+    External object, assignment and range as data uncertainty, not
+    consumption. Re-establishment uses post-gap formations only, and no
+    pre-gap identity revives.
+  - **Contracts stay isolated.**
+  - **Causal batch per 1m bar:** consumption first, then admissions, then the
+    range update, then memberships.
+  - **Outputs:**
+    - the reused formation tables;
+    - internal level versions;
+    - price records;
+    - range versions;
+    - boundary assignments;
+    - the `liquidity.consumption` and `liquidity.internal_range` M7A
+      lifecycle logs;
+    - a derived membership view and a causal active-level view;
+    - an explicit `replay_cutoff`, with prefix equivalence.
+- **Reason:** design-authority approval of rev 4, 2026-10-06.
+- **Status:** ACTIVE. Part of the **APPROVED / FROZEN** Internal Liquidity (2026-10-07; merged via PR #16).
+- **Implementation note (D-143 – D-147, 2026-10-06):** MACHINE VALIDATION PASSED; HUMAN VISUAL APPROVAL PASSED (2026-10-07).
+  - Implemented on branch `internal-liquidity-design` (IL-I1 `683da5a`,
+    IL-I2 `e6cfbec`, IL-I3 `617e983`, IL-I4 `52291d1`, review fixes
+    `9dd62ca`) as separate modules; no frozen module was changed (gate
+    `frozen_sources_unchanged_vs_main`).
+  - DEVELOPMENT validation (`reports/validation/internal_liquidity_dev_*`):
+    11/11 machine gates PASS; IL-INV-1 – 20 all 0; engine equals the
+    independent per-bar reference; 7 prefix replays equivalent.
+  - **Boundary tie order (D-146; confirmed by the design authority,
+    2026-10-07):** first ascending `available_at` of the candidate's current formation version; then ascending `source_at` (a Daily member's own `source_at`; for a cluster version, the earliest constituent member `source_at`); then ascending stable candidate id. (The first IL-I4 commit used the latest member
+    `source_at`; corrected in `9dd62ca` with tie regression tests.) Every
+    broken tie is audited (`BOUNDARY_TIE_BROKEN`, with the deciding key); 5
+    on DEVELOPMENT (4 by `available_at`, 1 by `source_at`).
+  - Consumption audit metric: `max_signed_excursion_ticks` (signed distance
+    beyond `p` before the object's end, per bar against the version in effect;
+    negative = price never reached `p`) and `max_penetration_ticks`
+    (nonnegative, `max(0, signed)`). These replace the earlier, misleadingly
+    named `max_excursion_ticks`.
+  - Other representation choices (no semantic change): membership rows are
+    contiguous intervals per (range, level), keyed by the range version where
+    they began; the range status view starts at each episode's first 1m bar
+    end.
+- **Freeze note 2026-10-07 (Internal Liquidity, D-143 – D-147):**
+  - Human visual review passed (2026-10-07) on the corrected 23-case package
+    (17 REAL DEVELOPMENT, 6 SYNTHETIC) at checkpoint `9dd62ca`, the reviewed
+    PR #16 head; merged to `main` via PR #16. No change after the reviewed
+    checkpoint other than this closure documentation.
+  - Machine validation: all 11 gates PASS; IL-INV-1 … IL-INV-20 = 0; engine =
+    independent reference (0 mismatches); 7 DEVELOPMENT prefix replays
+    equivalent. Full suite at `9dd62ca`: 758 passed / 0 failed / 590 subtests.
+  - **Frozen DEVELOPMENT baseline** (cutoff 2025-06-30 17:00 ET; `run_id`
+    `ilr_b1c4387b5b9f6515c5af7054babf556e9d4b9f2767a979ad11a077301e53e239`;
+    includes the tie-corrected boundary selection):
+
+    | metric | value |
+    |---|---|
+    | levels / level versions | 20,922 / 35,800 |
+    | ranges / range versions | 62 / 117 |
+    | boundary assignments | 170 (cluster: 10 ESTABLISHED, 1 ADVANCED_OUTWARD, 3 OPPOSITE_RESELECTED; Daily: 111 / 31 / 14) |
+    | membership intervals | 17,199 |
+    | price records | 17,939 |
+    | broken boundary ties | 5 |
+    | `level_id` SHA-256 | `64851d729e4729af…` |
+    | `level_version_id` SHA-256 | `9ff34459f4cbd974…` |
+    | `range_version_id` SHA-256 | `af1576c11f650f61…` |
+    | `boundary_assignment_id` SHA-256 | `8696e8e0cc687e9c…` |
+    | consumption `transition_id` SHA-256 | `2fb4f2fe71fc8f59…` |
+
+    - Full fingerprints: `reports/validation/internal_liquidity_dev_summary.csv`.
+    - Overall fingerprint = SHA-256 of the five identity values in the order
+      above, joined by newlines: `3727767b77fc0cd07bc4d28a76fccd8238cad7849a54b6e484b87bb52d4bd212`.
+  - The decision texts of D-143 – D-147 are unchanged (plus the confirmed tie
+    order above). Future semantic changes require a new decision.
 
 ### PROPOSED items awaiting design-authority approval (2026-09-28)
 Claude recommendations from the architecture closeout; **not decisions**:

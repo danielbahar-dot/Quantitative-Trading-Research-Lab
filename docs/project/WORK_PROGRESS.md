@@ -4,7 +4,7 @@ Answers: **"Where exactly are we now?"** Update this after every meaningful
 task. Keep entries short. History goes in [CHANGELOG](CHANGELOG.md) and
 rationale in [DECISION_LOG](DECISION_LOG.md).
 
-_Last updated: 2026-10-05_
+_Last updated: 2026-10-07_
 
 ## Current focus
 
@@ -137,38 +137,52 @@ time with explicit approval (D-117).
   - Decisions D-135–D-138 (promoted from P-SW-1…4) are ACTIVE — DESIGN
     APPROVED.
 
-- **Generic Market Structure (Protected Swing, Structural Direction,
-  break, BOS, CHoCH): IMPLEMENTED — MACHINE VALIDATION PASSED; HUMAN VISUAL APPROVAL PASSED (2026-10-06) — APPROVED, READY TO MERGE** (2026-10-05). Not frozen, not merged.
-  - Design: `docs/project/MARKET_STRUCTURE_SPEC.md` rev 2.5, approved,
-    D-139–D-142.
-  - Branch `market-structure-design`; draft PR #14.
-  - **Code:**
-    - MS-I1 `src/market_structure/swing_breaks.py`;
-    - MS-I2 `src/market_structure/structure.py` (reset adapter with an
-      explicit `replay_cutoff`, batch engine, M7A namespaces);
-    - MS-I3 `src/market_structure/structure_audit.py` (independent
-      reference replay plus INV-1…INV-17);
-    - `src/experiments/market_structure_dev_validation.py`.
-  - **Tests:** 17 + 22 + 11 new.
-  - **DEVELOPMENT (replay cutoff 2025-06-30 17:00 ET):** all 10 machine
-    gates PASS.
-    - All invariants are 0.
-    - The engine equals the independent reference (1m on 9 of 33
-      segments).
-    - Prefix replay inside a real roll gap is equivalent.
-    - Swings equal the frozen baseline.
-    - 0 anomalies.
-    - Every DEVELOPMENT roll is CB-1 (4 per timeframe); CB-2 is
-      synthetic only.
-  - **Visual package:** `reports/validation/market_structure_visual_validation.html`
-    (local), 20 cases (15 REAL, 5 SYNTHETIC).
-  - **Human visual review:** PASSED (2026-10-06); approved and ready to
-    merge.
-  - **Next:** merge PR #14 when authorized; a freeze is a separate
-    decision. The Signal
-    adapter (MS-I4), MSS, liquidity and hierarchy stay deferred.
+- **Generic Market Structure (3.MS): DONE — APPROVED / FROZEN** (2026-10-06).
+  - Merged to `main` via PR #14 (merge commit `434d919`).
+  - Spec `docs/project/MARKET_STRUCTURE_SPEC.md` rev 2.5; D-139–D-142.
+  - Frozen DEVELOPMENT baseline: D-139 freeze note; overall fingerprint
+    `03f0a2d92679c56f…`.
+  - Code:
+    - `src/market_structure/{swing_breaks,structure,structure_audit}.py`;
+    - `src/experiments/market_structure_{dev_validation,visual}.py`.
+  - Deferred: Signal adapter (MS-I4), MSS, liquidity, hierarchy.
+
+- **Internal Liquidity (3.3): DONE — APPROVED / FROZEN** (2026-10-07; merged via PR #16).
+  - Spec `docs/project/INTERNAL_LIQUIDITY_DESIGN.md` rev 4 (approved);
+    D-143 – D-147.
+  - Branch `internal-liquidity-design`; checkpoints IL-I1 `683da5a`,
+    IL-I2 `e6cfbec`, IL-I3 `617e983`, IL-I4 `52291d1`, review fixes `9dd62ca`.
+  - Code: `src/liquidity/{consumption,internal_formation,internal_liquidity,internal_liquidity_audit}.py`;
+    `src/experiments/internal_liquidity_{dev_validation,visual}.py`.
+  - DEVELOPMENT (cutoff 2025-06-30 17:00 ET): 20,922 levels / 35,800
+    versions; 62 ranges / 117 range versions; 170 boundary assignments;
+    17,199 membership intervals.
+  - All 11 machine gates PASS: IL-INV-1 – 20 = 0 (IL-INV-15 via 7 prefix
+    replays, 0 mismatches); engine = independent reference (0 mismatches,
+    full coverage; membership by 25,531 sampled pairs); frozen External /
+    Swing / 1m continuity baselines and frozen sources unchanged.
+  - Full suite at `9dd62ca`: 758 passed / 0 failed / 590 subtests.
+  - Human visual approval passed (2026-10-07; 23 cases); frozen baseline
+    in the D-143 freeze note (overall fingerprint `3727767b77fc0cd0…`).
+  - The Market Structure freeze record (`25f95d9`) landed on `main` with
+    PR #16.
+- **Next: FVG / IFVG / BPR (design only)** on a fresh design branch.
 
 ## Last completed work
+
+- **2026-10-07 — Internal Liquidity APPROVED / FROZEN.**
+  - Human visual review passed on the corrected package (`9dd62ca`); boundary
+    tie order confirmed; PR #16 merged; freeze recorded (D-143 freeze note).
+
+- **2026-10-06 — Internal Liquidity IL-I1 – IL-I4: machine validation passed.**
+  - Design rev 4 approved and registered (D-143 – D-147).
+  - Shared consumption contract, formation atoms, engine, independent
+    audit, DEVELOPMENT validation and visual package (23 cases: 17 REAL, 6 SYNTHETIC).
+
+- **2026-10-06 — Generic Market Structure APPROVED / FROZEN.**
+  - Human visual review passed (20 cases).
+  - PR #14 merged (`434d919`).
+  - Freeze recorded (D-139 freeze note).
 
 - **2026-10-05 — Swing Structure 3.2 APPROVED / FROZEN.**
   - The human visual review passed.

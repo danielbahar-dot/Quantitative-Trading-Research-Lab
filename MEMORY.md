@@ -211,10 +211,19 @@ at a time with explicit approval (D-117).
       `b6876266800d56b3421dbfb5e4a4aa50b83140acdd409390d28b5f75427c218f`.
     - Suite: 647 / 0 / 493. Machine gates and human visual review PASS
       (24 cases: 13 REAL, 11 SYNTHETIC).
-    - Next: 3.MS Generic Market Structure (draft numbering; sequenced
-      before 3.3 Internal Liquidity, administrative N-4).
-    - That Market Structure workstream is **IMPLEMENTED — MACHINE VALIDATION PASSED; HUMAN VISUAL APPROVAL PASSED (2026-10-06) — APPROVED, READY TO MERGE** (2026-10-05).
-      It is on draft PR #14 and is not frozen.
+    - 3.3 Internal Liquidity: **APPROVED / FROZEN** (2026-10-07; merged via PR #16; D-143 freeze note).
+      - Runner `src.experiments.internal_liquidity_dev_validation` (~40 min); frozen overall
+        fingerprint `3727767b77fc0cd0…`.
+      - Boundary ties: first ascending `available_at` of the candidate's current formation version; then ascending `source_at` (a Daily member's own `source_at`; for a cluster version, the earliest constituent member `source_at`); then ascending stable candidate id.
+      - Next: FVG / IFVG / BPR design (design only).
+      - Spec rev 4 on branch `internal-liquidity-design`; D-143 – D-147.
+      - Shared consumption predicate: strict beyond `p ± t` on 1m, with
+        `t` = 4 internal and 6 External.
+      - Pinned boundary assignments; price records with separate
+        lifecycles; post-gap-only re-establishment.
+    - That Market Structure workstream is **APPROVED / FROZEN** (2026-10-06).
+      It was merged via PR #14 (`434d919`); the frozen baseline is in the
+      D-139 freeze note.
       - Code: `src/market_structure/{swing_breaks,structure,structure_audit}.py`
         and the runner `src/experiments/market_structure_dev_validation.py`.
       - DEVELOPMENT: all 10 gates PASS; INV-1…17 are 0; the engine equals
@@ -222,10 +231,8 @@ at a time with explicit approval (D-117).
       - The design was approved on 2026-10-05.
       - Spec `docs/project/MARKET_STRUCTURE_SPEC.md` rev 2.5; final
         review at `1b6d221`; **D-139–D-142**.
-      - MS-I1 to MS-I3 are implemented and approved: human visual
-        approval passed on 2026-10-06 at PR #14 head `e823224`. They are
-        ready to merge. They are not marked frozen; a freeze needs a
-        separate decision. MS-I4 (the Signal adapter) stays deferred.
+      - MS-I1 to MS-I3 are frozen; semantic changes need a new decision.
+        MS-I4 (the Signal adapter) stays deferred.
       - BOS / CHoCH are generic; MSS is deferred.
       - Break evidence is native (`swing_breaks`): a close strictly beyond
         the level. M6 is unchanged.

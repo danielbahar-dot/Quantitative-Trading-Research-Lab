@@ -2,10 +2,23 @@
 
 Command (repository root)::
 
-    .\\.venv\\Scripts\\python.exe -m src.experiments.fvg_dev_validation
+    .\\.venv\\Scripts\\python.exe -m src.experiments.fvg_dev_validation            # FULL tier (final evidence)
+    .\\.venv\\Scripts\\python.exe -m src.experiments.fvg_dev_validation --fast     # FAST tier (one DEV week)
+    .\\.venv\\Scripts\\python.exe -m src.experiments.fvg_dev_validation --start 2024-08-01 --end 2024-08-31
 
-DEVELOPMENT partition only; explicit ``replay_cutoff`` = close of the
-partition's last session (2025-06-30 17:00 ET).  Production path:
+Tiers:
+
+- FULL (default): the whole DEVELOPMENT partition, explicit ``replay_cutoff`` = close of its last session
+  (2025-06-30 17:00 ET); writes the tracked price-free evidence to ``reports/validation``.  Required for final
+  evidence: HTF / long-episode coverage, frozen-baseline and scratch reconciliation, runtime and memory.
+- FAST (``--fast`` or ``--start/--end``): the same checks on a DEVELOPMENT date window (cutoff = the window's last
+  bar), for iteration.  Windows outside DEVELOPMENT are refused.  Full-DEV-only gates are reported as SKIPPED,
+  never PASS; the naive subset reference covers every episode of the window by default; missing DEVELOPMENT
+  visual cases are listed; outputs go to the Git-ignored ``reports/validation/fvg_fast/<start>_<end>``.
+- ``--out`` redirects outputs (e.g. a full-tier verification run that must not touch tracked evidence).
+- Every run reports stage timings and flags single-pass stages slower than the production build.
+
+Production path:
 ``build_fvg`` (six timeframes, canonical 1m interaction, frozen 2/2 swings).
 
 Evidence classes (kept distinct in the outputs):
@@ -111,14 +124,73 @@ def provenance() -> dict:
             "fvg_source_sha256": h.hexdigest(), "fvg_source_files": len(files)}
 
 
-def main() -> int:
+FAST_WINDOW = ("2024-08-05", "2024-08-09")          # default fast tier: one full DEVELOPMENT trading week
+FULL_DEV_ONLY = ("swings_equal_frozen_swing_baseline", "minute_episodes_equal_continuity_segments",
+                 "scratch_evidence_reconciled")
+EXPECTED_DEV_CASES = (
+    "FVG-1m-CONV", "FVG-5m-CONV", "FVG-15m-CONV", "FVG-1H-CONV", "FVG-4H-CONV", "FVG-1D-CONV", "MIT-SPAN", "MIT-FAR",
+    "MIT-GAP", "MIT-MID", "LIFE-RETIRE", "LIFE-IFVG-RETEST", "DATA-GAP", "NORM-OK", "NORM-INSUFFICIENT", "OVL-GROUP",
+    "BPR-ADMIT", "MTF-BPR-ADMIT", "BPR-CONV", "MTF-BPR-CONV", "ASSOC-IMMEDIATE", "ASSOC-DELAYED-ACTIVE",
+    "ASSOC-DELAYED-NEVER-ACTIVE")
+SYNTHETIC_CASES = 11
+
+
+def parse_args(argv=None):
+    import argparse
+    p = argparse.ArgumentParser(description="FVG DEVELOPMENT validation (full tier by default).")
+    p.add_argument("--fast", action="store_true",
+                   help=f"fast tier on the default window {FAST_WINDOW[0]} .. {FAST_WINDOW[1]} (ET dates, inclusive)")
+    p.add_argument("--start", help="fast tier: first ET date of the window (inside DEVELOPMENT)")
+    p.add_argument("--end", help="fast tier: last ET date of the window, inclusive (inside DEVELOPMENT)")
+    p.add_argument("--out", help="output directory (default: reports/validation for the full tier, "
+                                 "reports/validation/fvg_fast/<start>_<end> for the fast tier)")
+    p.add_argument("--reference-max-bars", type=int, default=None,
+                   help="naive subset reference: max 1m bars per episode (default: 3,600 full tier, unlimited fast tier)")
+    a = p.parse_args(argv)
+    if (a.start is None) != (a.end is None):
+        p.error("--start and --end go together")
+    if a.fast and a.start is None:
+        a.start, a.end = FAST_WINDOW
+    return a
+
+
+def select_window(bars: pd.DataFrame, start: str, end: str) -> pd.DataFrame:
+    """DEVELOPMENT bars whose ET bar-end date lies in [start, end]; refuses windows outside DEVELOPMENT."""
+    lo, hi = pd.Timestamp(start, tz=NY), pd.Timestamp(end, tz=NY) + pd.Timedelta(days=1)
+    if lo >= hi:
+        raise ValueError(f"empty window {start} .. {end}")
+    if lo < bars.index.min().normalize() or hi - pd.Timedelta(days=1) > bars.index.max().normalize():
+        raise ValueError(f"window {start} .. {end} is not inside DEVELOPMENT "
+                         f"({bars.index.min().date()} .. {bars.index.max().date()})")
+    out = bars.loc[(bars.index > lo) & (bars.index <= hi)]
+    if out.empty:
+        raise ValueError(f"no DEVELOPMENT bars in {start} .. {end}")
+    return out
+
+
+def main(argv=None) -> int:
+    args = parse_args(argv)
+    fast = args.start is not None
     started = time.perf_counter()
     mem = PeakMemory()
     spec = load_session_spec()
     bars = load_development_bars()
+    global OUT, REPLAY_CUTOFF, REFERENCE_MAX_BARS
+    if fast:
+        bars = select_window(bars, args.start, args.end)
+        REPLAY_CUTOFF = bars.index.max()
+        OUT = PROJECT_ROOT / "reports" / "validation" / "fvg_fast" / f"{args.start}_{args.end}"
+        REFERENCE_MAX_BARS = args.reference_max_bars if args.reference_max_bars is not None else 10 ** 9
+    elif args.reference_max_bars is not None:
+        REFERENCE_MAX_BARS = args.reference_max_bars
+    if args.out:
+        OUT = Path(args.out).resolve()
+    tier = f"FAST {args.start} .. {args.end}" if fast else "FULL DEVELOPMENT"
+    print(f"tier {tier}; outputs {OUT}", flush=True)
     rows, gates, timings = [], {}, []
     add = lambda section, tf, metric, value: rows.append({"section": section, "timeframe": tf, "metric": metric,  # noqa: E731
                                                           "value": value})
+    add("source", "", "tier", tier)
     add("source", "", "canonical_1m_rows", len(bars))
     add("source", "", "replay_cutoff", REPLAY_CUTOFF.isoformat())
     prov = provenance()
@@ -143,9 +215,13 @@ def main() -> int:
     _summarize(run, add)
 
     # --- scratch reconciliation ------------------------------------------------------------------
-    scratch_rows = _scratch_reconciliation(run)
-    scratch = pd.DataFrame(scratch_rows)
-    gates["scratch_evidence_reconciled"] = bool((scratch["status"] == "EQUAL").all())
+    if fast:      # the scratch figures and frozen baselines describe the whole DEVELOPMENT partition
+        scratch = pd.DataFrame(columns=["timeframe", "metric", "scratch", "production", "difference", "status", "note"])
+        for name in FULL_DEV_ONLY:
+            gates[name] = None
+    else:
+        scratch = pd.DataFrame(_scratch_reconciliation(run))
+        gates["scratch_evidence_reconciled"] = bool((scratch["status"] == "EQUAL").all())
 
     # --- invariants and independent reference ----------------------------------------------------
     t0 = time.perf_counter()
@@ -208,13 +284,24 @@ def main() -> int:
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "fvg_visual_validation.html").write_text(page(cases, {"dev": Facts(run), **syn_facts}, header), encoding="utf-8")
     timings.append({"stage": "visual", "seconds": round(time.perf_counter() - t0, 1), "peak_rss_mb": mem.mb()})
-    gates["visual_cases_generated"] = len(cases) >= 24
+    dev_ids = {c.case_id for c in dev_cases}
+    missing = [c for c in EXPECTED_DEV_CASES if c not in dev_ids]
+    add("visual", "", "dev_cases_missing", ",".join(missing) or "none")
+    if fast:      # a short window need not contain every DEVELOPMENT case; synthetic cases are window-independent
+        gates["visual_cases_generated"] = len(syn_cases) == SYNTHETIC_CASES and len(dev_cases) >= 1
+    else:
+        gates["visual_cases_generated"] = not missing and len(syn_cases) == SYNTHETIC_CASES
     add("visual", "", "cases", len(cases))
     add("visual", "", "timeframes_covered", ",".join(sorted({c.case_id.split("-")[1] for c in dev_cases if c.category == "timeframe"})))
 
     gates["no_validation_or_oos_data"] = True
     gates["no_strategy_pnl_backtest_or_optimization"] = True
     timings.append({"stage": "total", "seconds": round(time.perf_counter() - started, 1), "peak_rss_mb": mem.mb()})
+    # smoke signal for performance regressions: a single-pass stage slower than the production build itself
+    build_s = timings[0]["seconds"]
+    slow = [t["stage"] for t in timings if t["stage"] not in ("build_fvg_full", "prefix_replays", "total")
+            and t["seconds"] > max(build_s, 30)]
+    add("runtime", "", "stages_slower_than_build", ",".join(slow) or "none")
     tracked = {
         "fvg_dev_invariants.csv": inv,
         "fvg_dev_reconciliation.csv": rec,
@@ -231,14 +318,21 @@ def main() -> int:
                                                 for f in tracked.values())
     for name, ok in gates.items():
         summary.loc[len(summary)] = {"section": "machine_gate", "timeframe": "", "metric": name,
-                                     "value": "PASS" if ok else "FAIL"}
+                                     "value": _gate(ok)}
     tracked["fvg_dev_summary.csv"] = summary
+    OUT.mkdir(parents=True, exist_ok=True)
     for name, frame_ in tracked.items():
         frame_.to_csv(OUT / name, index=False)
     print(f"total {round(time.perf_counter() - started, 1)}s peak {mem.mb()} MB")
     for name, ok in gates.items():
-        print(f"GATE {name}: {'PASS' if ok else 'FAIL'}")
-    return 0 if all(gates.values()) else 1
+        print(f"GATE {name}: {_gate(ok)}")
+    if slow:
+        print(f"WARNING stages slower than the build: {', '.join(slow)}")
+    return 1 if any(ok is False for ok in gates.values()) else 0
+
+
+def _gate(ok) -> str:
+    return "SKIPPED (full DEVELOPMENT only)" if ok is None else "PASS" if ok else "FAIL"
 
 
 def _fp(values) -> str:

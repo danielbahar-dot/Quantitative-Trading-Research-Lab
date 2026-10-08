@@ -85,3 +85,5 @@ reports/validation/internal_liquidity_visual_validation.html
 # FVG / IFVG / BPR visual-validation chart embeds raw prices; the price-free
 # fvg_visual_validation_cases.csv manifest is tracked.
 reports/validation/fvg_visual_validation.html
+# FVG fast validation tier (window runs) is local scratch evidence; only full-DEVELOPMENT evidence is tracked.
+reports/validation/fvg_fast/

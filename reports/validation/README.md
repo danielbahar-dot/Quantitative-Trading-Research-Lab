@@ -368,11 +368,25 @@ D-148 – D-152.
   2025-06-30 17:00 ET. Six timeframes (1m, 5m, 15m, 1H, 4H, 1D), raw price
   basis, canonical 1m interaction, explicit 2/2 Swing reference for leg
   association. No age cutoffs; no history discarded.
-- **Reproduce with:**
+- **Reproduce with (FULL tier, final evidence):**
   `.\.venv\Scripts\python.exe -m src.experiments.fvg_dev_validation`
-  (about 3.1 hours at `4887537`, of which about 2 hours is the visual case
-  selection — a known performance issue, fix pending; peak about 5.2 GB RSS;
-  run it alone, not beside the test suite).
+  (about 45 minutes and 4.6 GB peak RSS since `6bc7490`; 3.1 hours at
+  `4887537` before the visual case-selection fix; run it alone, not beside
+  the test suite).
+- **FAST tier (iteration only):** `--fast` (DEVELOPMENT week 2024-08-05 –
+  2024-08-09: about 4 minutes, under 300 MB) or `--start / --end` for any
+  DEVELOPMENT window (windows outside DEVELOPMENT are refused). Same checks;
+  full-DEV-only gates (frozen Swing / continuity baselines, scratch §5.14) are
+  reported SKIPPED, never PASS; the naive subset reference covers every
+  episode of the window; missing DEVELOPMENT visual cases are listed; outputs
+  go to the Git-ignored `reports/validation/fvg_fast/`. Fast-tier output is
+  never committed evidence.
+- **Re-verification at `6bc7490`** (full tier, `--out` to the Git-ignored
+  folder): all 12 gates PASS; every tracked CSV is identical to the frozen
+  evidence except runtime seconds and the provenance rows (run_id and all
+  identity fingerprints identical); the HTML is identical to the approved
+  package outside its provenance header. The frozen files were not
+  regenerated.
 - No PnL, strategy, backtest or optimization; no VALIDATION / OOS data.
 
 **Evidence classes** (kept distinct; `method` column where applicable):

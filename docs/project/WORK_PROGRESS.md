@@ -195,8 +195,13 @@ time with explicit approval (D-117).
     windows (see MEMORY).
   - Human visual approval passed (2026-10-08; 34 cases from `4887537`);
     overall fingerprint `4c182a8c9fc0eae3…`.
+  - Validation tooling (2026-10-08, branch `fvg-validation-speedup`,
+    `6bc7490`): visual case selection 2 h → 33 s (byte-identical output);
+    fast tier `--fast` / `--start --end` (~4 min per DEV week; full-DEV-only
+    gates SKIPPED); full tier now ~45 min; re-verified identical to the
+    frozen evidence.
   - **Next:** Order Block / Breaker / Mitigation design (on hold until the
-    design authority resumes it); FVG visual case-selection performance fix.
+    design authority resumes it).
 
 ## Last completed work
 

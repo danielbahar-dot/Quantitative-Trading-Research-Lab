@@ -87,3 +87,7 @@ reports/validation/internal_liquidity_visual_validation.html
 reports/validation/fvg_visual_validation.html
 # FVG fast validation tier (window runs) is local scratch evidence; only full-DEVELOPMENT evidence is tracked.
 reports/validation/fvg_fast/
+# Order Block visual-validation chart embeds raw prices; the price-free ob_visual_validation_cases.csv is tracked.
+reports/validation/ob_visual_validation.html
+# OB fast validation tier (window runs) is local scratch evidence.
+reports/validation/ob_fast/

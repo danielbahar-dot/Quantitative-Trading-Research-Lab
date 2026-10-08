@@ -8,15 +8,20 @@ DEVELOPMENT partition only; explicit ``replay_cutoff`` = close of the
 partition's last session (2025-06-30 17:00 ET).  Production path:
 ``build_fvg`` (six timeframes, canonical 1m interaction, frozen 2/2 swings).
 
-Independent checks: ``src.fvg.audit.reference`` / ``reconcile`` on every 1m
-episode of at most ``REFERENCE_MAX_BARS`` bars (an exact restriction, because
-every FVG object is confined to its 1m episode; coverage is reported),
-``invariants`` on the full run, and DEVELOPMENT prefix rebuilds at cutoffs
-around admissions, mitigation, conversions, conversion-created BPRs,
-relationship changes, BPR retirement, gaps and association deadlines.
-Frozen baselines (Swing counts, 1m continuity, frozen sources) are
-reconciled; the design's scratch evidence (§5.14) is reconciled against the
-production counts.  Writes price-free tracked CSVs and a local, Git-ignored
+Evidence classes (kept distinct in the outputs):
+
+- FULL RUN: ``invariants`` (FVG-INV-1 … 27) and ``src.fvg.audit_full`` — an independent recomputation of
+  formation, zone lifecycle and mitigation, relationship episodes, BPR lifecycle and mitigation, grade versions,
+  groups and associations over every episode and timeframe (exact per-object restrictions; no truncation);
+- SUBSET: ``src.fvg.audit.reference`` (naive all-pairs replay) on the 1m episodes of at most
+  ``REFERENCE_MAX_BARS`` bars, with coverage reported per category and timeframe (zero-covered rows kept);
+- PREFIX: DEVELOPMENT rebuilds at cutoffs around admissions, mitigation, conversions, conversion-created BPRs,
+  relationship changes, BPR retirement, gaps and association deadlines, compared payload for payload
+  (all tables, as-of projection of later exits, duplicates, strategy views and ranks);
+- SYNTHETIC: unit tests and synthetic visual cases (contract change, zero baseline: absent from DEVELOPMENT).
+
+Frozen baselines (Swing counts, 1m continuity, frozen sources) are reconciled; the design's scratch evidence
+(§5.14) is reconciled against the production counts.  Writes price-free tracked CSVs and a local, Git-ignored
 visual HTML.  No PnL, strategy, optimization, backtest, VALIDATION or OOS
 data.  It freezes nothing.
 """
@@ -38,6 +43,7 @@ from src.data.sessions import load_session_spec
 from src.experiments.fvg_visual import Facts, build_dev_cases, manifest_rows, page, synthetic_cases
 from src.experiments.swing_structure_dev_validation import EXPECTED_CONTINUITY, EXPECTED_COUNTS, load_development_bars
 from src.fvg.audit import invariants, prefix_mismatches, reconcile, reference
+from src.fvg.audit_full import full_reconcile, full_reference, subset_coverage
 from src.fvg.pipeline import build_fvg
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -84,6 +90,27 @@ class PeakMemory:
         return round(self.peak / 2 ** 20)
 
 
+def provenance() -> dict:
+    """Source revision, worktree state and a hash of the FVG sources, so evidence and HTML match the code."""
+    def git(*args):
+        return subprocess.run(["git", *args], cwd=PROJECT_ROOT, capture_output=True, text=True).stdout.strip()
+    raw = subprocess.run(["git", "status", "--porcelain"], cwd=PROJECT_ROOT, capture_output=True, text=True).stdout
+    status = [line for line in raw.splitlines() if line.strip()]      # no strip: the XY column may start with a space
+    tracked = sorted(line[3:] for line in status if not line.startswith("??"))
+    untracked = sorted(line[3:] for line in status if line.startswith("??"))
+    files = sorted(PROJECT_ROOT.glob("src/fvg/*.py")) + sorted(PROJECT_ROOT.glob("src/experiments/fvg_*.py"))
+    h = hashlib.sha256()
+    for path in files:
+        text = path.read_bytes().replace(b"\r\n", b"\n")      # line-ending independent
+        h.update(path.relative_to(PROJECT_ROOT).as_posix().encode() + b"\0" + text + b"\0")
+    code_dirty = [x for x in tracked + untracked if x.startswith(("src/", "tests/", "config/"))]
+    return {"git_head": git("rev-parse", "HEAD"), "git_branch": git("rev-parse", "--abbrev-ref", "HEAD"),
+            "worktree_code_state": "CLEAN" if not code_dirty else "DIRTY: " + ", ".join(code_dirty),
+            "worktree_other_changes": ", ".join([x for x in tracked if x not in code_dirty]
+                                                + [f"?? {x}" for x in untracked if x not in code_dirty]) or "none",
+            "fvg_source_sha256": h.hexdigest(), "fvg_source_files": len(files)}
+
+
 def main() -> int:
     started = time.perf_counter()
     mem = PeakMemory()
@@ -94,6 +121,10 @@ def main() -> int:
                                                           "value": value})
     add("source", "", "canonical_1m_rows", len(bars))
     add("source", "", "replay_cutoff", REPLAY_CUTOFF.isoformat())
+    prov = provenance()
+    for k, v in prov.items():
+        add("provenance", "", k, v)
+    print("provenance", prov, flush=True)
 
     t0 = time.perf_counter()
     run = build_fvg(bars, spec, instrument_id=INSTRUMENT, replay_cutoff=REPLAY_CUTOFF)
@@ -122,16 +153,36 @@ def main() -> int:
     timings.append({"stage": "invariants", "seconds": round(time.perf_counter() - t0, 1), "peak_rss_mb": mem.mb()})
     gates["all_invariants_zero"] = int(inv["violations"].sum()) == 0
     print(f"invariants {timings[-1]['seconds']}s violations {int(inv['violations'].sum())}", flush=True)
+    # full-run independent recomputation (every episode, every timeframe; exact per-object restrictions)
+    t0 = time.perf_counter()
+    fref = full_reference(run, log=lambda m: print(m, flush=True))
+    full_rec = full_reconcile(run, fref)
+    off_grid = fref["off_grid_closes"]
+    del fref
+    timings.append({"stage": "full_run_reference", "seconds": round(time.perf_counter() - t0, 1), "peak_rss_mb": mem.mb()})
+    full_bad = int(full_rec[["missing", "extra"]].to_numpy().sum())
+    gates["full_run_engine_equals_independent_recomputation"] = full_bad == 0 and off_grid == 0
+    add("full_reference", "", "categories", full_rec["category"].nunique())
+    add("full_reference", "", "rows_compared", int(full_rec["reference"].sum()))
+    add("full_reference", "", "mismatches", full_bad)
+    add("full_reference", "", "off_grid_timeframe_closes", off_grid)
+    print(f"full reference {timings[-1]['seconds']}s mismatches {full_bad} off-grid {off_grid}", flush=True)
+
+    # naive all-pairs reference on the short 1m episodes only (subset; coverage reported per category / timeframe)
     ref_eps = [e.index for e in eps if len(e.end) <= REFERENCE_MAX_BARS]
     t0 = time.perf_counter()
     rec = reconcile(run, reference(run, ref_eps))
-    timings.append({"stage": "reference_reconcile", "seconds": round(time.perf_counter() - t0, 1), "peak_rss_mb": mem.mb()})
-    gates["engine_equals_independent_reference"] = int(rec[["missing", "extra"]].to_numpy().sum()) == 0
+    rec.insert(1, "method", "EPISODE_SUBSET_REFERENCE")
+    timings.append({"stage": "subset_reference", "seconds": round(time.perf_counter() - t0, 1), "peak_rss_mb": mem.mb()})
+    gates["subset_engine_equals_naive_reference"] = int(rec[["missing", "extra"]].to_numpy().sum()) == 0
+    coverage = subset_coverage(run, ref_eps)
     covered_bars = sum(len(eps[i].end) for i in ref_eps)
-    add("reference", "", "episodes_checked", len(ref_eps))
-    add("reference", "", "episodes_total", len(eps))
-    add("reference", "", "minute_bars_checked_share", round(covered_bars / sum(len(e.end) for e in eps), 4))
-    print(f"reference {timings[-1]['seconds']}s mismatches {int(rec[['missing', 'extra']].to_numpy().sum())}", flush=True)
+    add("subset_reference", "", "episodes_checked", len(ref_eps))
+    add("subset_reference", "", "episodes_total", len(eps))
+    add("subset_reference", "", "minute_bars_checked_share", round(covered_bars / sum(len(e.end) for e in eps), 4))
+    add("subset_reference", "", "zero_covered_category_timeframes", int((coverage["covered"] == 0).sum()))
+    print(f"subset reference {timings[-1]['seconds']}s mismatches {int(rec[['missing', 'extra']].to_numpy().sum())}",
+          flush=True)
 
     # --- prefix replays ----------------------------------------------------------------------------
     prefix_rows = []
@@ -153,7 +204,7 @@ def main() -> int:
     syn_cases, syn_facts = synthetic_cases(spec)
     cases = dev_cases + syn_cases
     header = [{"run_id": run.run_id, "replay_cutoff": REPLAY_CUTOFF.isoformat(), "zones": len(run.zones),
-               "bprs": len(run.engine.bprs), "cases": len(cases)}]
+               "bprs": len(run.engine.bprs), "cases": len(cases), **prov}]
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "fvg_visual_validation.html").write_text(page(cases, {"dev": Facts(run), **syn_facts}, header), encoding="utf-8")
     timings.append({"stage": "visual", "seconds": round(time.perf_counter() - t0, 1), "peak_rss_mb": mem.mb()})
@@ -167,6 +218,8 @@ def main() -> int:
     tracked = {
         "fvg_dev_invariants.csv": inv,
         "fvg_dev_reconciliation.csv": rec,
+        "fvg_dev_full_reconciliation.csv": full_rec,
+        "fvg_dev_reference_coverage.csv": coverage,
         "fvg_dev_prefix_replay.csv": prefix,
         "fvg_dev_runtime.csv": pd.DataFrame(timings),
         "fvg_dev_scratch_reconciliation.csv": scratch,

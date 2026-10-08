@@ -94,8 +94,8 @@ def _utc(t) -> pd.Timestamp:
 def active_fvg_zones(run: FvgRun, at: Any) -> pd.DataFrame:
     """Zones in stage FVG / IFVG at ``at`` with stage-scoped mitigation summary, marker, grade and priority rank."""
     t = _utc(at)
-    st = run.engine.stages
-    live = st[(st["stage_start"] <= t) & (st["stage_end"].isna() | (st["stage_end"] > t))]
+    st = stages_as_of(run, t)
+    live = st[st["stage_end"].isna()]
     live = live[live["stage"].isin([FVG, IFVG])]
     if live.empty:
         return pd.DataFrame(columns=VIEW_COLUMNS)
@@ -103,7 +103,8 @@ def active_fvg_zones(run: FvgRun, at: Any) -> pd.DataFrame:
     mit = run.engine.mitigation
     mit = mit[(mit["object_kind"] == "ZONE") & (mit["at"] <= t)]
     grades = run.engine.grades
-    grades = grades[grades["available_at"] <= t].groupby("zone_id").tail(1).set_index("zone_id")
+    grades = grades[grades["available_at"] <= t].sort_values("available_at", kind="mergesort")
+    grades = grades.groupby("zone_id").tail(1).set_index("zone_id")
     assoc = run.associations
     assoc = assoc[assoc["is_first"] & ~assoc["marker_never_active"] & (assoc["association_available_at"] <= t)]
     marked = set(assoc["zone_id"])
@@ -155,15 +156,55 @@ def rank_zones(view: pd.DataFrame) -> pd.DataFrame:
     return v.drop(columns=["_has", "_s"]).reset_index(drop=True)
 
 
-def active_bprs(run: FvgRun, at: Any, *, include_undefined: bool = False) -> pd.DataFrame:
-    """Active BPR objects at ``at``; defined-direction ones ranked (§3.9.3); UNDEFINED ones only descriptively."""
+# Lifecycle columns that describe a later exit; an as-of projection nulls them while the exit lies after ``at``.
+FUTURE_LIFECYCLE = {
+    "bprs": ("exit_at", ("exit_state", "exit_at", "exit_reason")),
+    "episodes": ("ended_at", ("ended_at", "end_reason")),
+    "stages": ("stage_end", ("stage_end", "end_kind")),
+}
+AVAILABILITY = {"bprs": "available_at", "episodes": "created_at", "stages": "stage_start"}
+
+
+def as_of(frame: pd.DataFrame, kind: str, at: Any) -> pd.DataFrame:
+    """Rows of a lifecycle table (``bprs`` / ``episodes`` / ``stages``) as knowable at ``at``.
+
+    Keeps rows available at or before ``at`` and nulls the exit metadata of every exit that happens after
+    ``at``.  The engine tables themselves keep the complete audit history."""
     t = _utc(at)
-    b = run.engine.bprs
-    live = b[(b["available_at"] <= t) & (b["exit_at"].isna() | (b["exit_at"] > t))].copy()
+    out = frame[frame[AVAILABILITY[kind]] <= t].copy()
+    when, cols = FUTURE_LIFECYCLE[kind]
+    future = (out[when] > t).to_numpy()
+    if future.any():
+        for c in cols:
+            out[c] = out[c].astype(object)
+            out.loc[future, c] = None
+        out[when] = pd.to_datetime(out[when], utc=True)
+    return out.reset_index(drop=True)
+
+
+def bprs_as_of(run: FvgRun, at: Any) -> pd.DataFrame:
+    return as_of(run.engine.bprs, "bprs", at)
+
+
+def episodes_as_of(run: FvgRun, at: Any) -> pd.DataFrame:
+    return as_of(run.engine.episodes, "episodes", at)
+
+
+def stages_as_of(run: FvgRun, at: Any) -> pd.DataFrame:
+    return as_of(run.engine.stages, "stages", at)
+
+
+def active_bprs(run: FvgRun, at: Any, *, include_undefined: bool = False) -> pd.DataFrame:
+    """Active BPR objects at ``at``; defined-direction ones ranked (§3.9.3); UNDEFINED ones only descriptively.
+
+    Causal: built from the as-of projection, so no exit metadata after ``at`` is visible (an active object
+    has no exit yet; the exit columns are dropped)."""
+    live = bprs_as_of(run, at)
+    live = live[live["exit_at"].isna()].drop(columns=list(FUTURE_LIFECYCLE["bprs"][1]))
     undefined = live["direction"] == UNDEFINED
     if include_undefined:
         return live[undefined].reset_index(drop=True)
-    live = live[~undefined]
+    live = live[~undefined].copy()
     live["_rank"] = live["governing_timeframe"].map(TF_RANK)
     live = live.sort_values(["_rank", "width_ticks", "available_at", "bpr_id"], ascending=[False, False, True, True],
                             kind="mergesort")
@@ -172,6 +213,6 @@ def active_bprs(run: FvgRun, at: Any, *, include_undefined: bool = False) -> pd.
 
 
 def active_overlaps(run: FvgRun, at: Any) -> pd.DataFrame:
-    t = _utc(at)
-    e = run.engine.episodes
-    return e[(e["created_at"] <= t) & (e["ended_at"].isna() | (e["ended_at"] > t))].reset_index(drop=True)
+    """Open relationship episodes at ``at`` (as-of projection; end metadata dropped)."""
+    e = episodes_as_of(run, at)
+    return e[e["ended_at"].isna()].drop(columns=list(FUTURE_LIFECYCLE["episodes"][1])).reset_index(drop=True)

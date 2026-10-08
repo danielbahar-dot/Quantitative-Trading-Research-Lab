@@ -197,6 +197,29 @@ def table(caption, rows) -> str:
     return f"<h4>{html.escape(caption)}</h4><div class='tw'><table><tr>{head}</tr>{body}</table></div>"
 
 
+def capped(caption, rows, limit, focal=lambda r: False):
+    """At most ``limit`` rows plus every focal row; the caption states displayed / total counts."""
+    n = len(rows)
+    if n <= limit:
+        return f"{caption} (all {n})", rows
+    shown = [r for i, r in enumerate(rows) if i < limit or focal(r)]
+    return f"{caption} (showing {len(shown)} of {n}; focal rows always included; history truncated)", shown
+
+
+def episode_provenance(run, ep) -> str:
+    """ADMISSION / CONVERSION / MIXED from mover provenance (each mover's admission or conversion instant)."""
+    exits, z = run.engine.zone_exits, run.zones.set_index("zone_id")
+    kinds = set()
+    for m in ep["movers"]:
+        if z.loc[m, "available_at"] == ep["created_at"]:
+            kinds.add("ADMISSION")
+        elif exits[m]["conv_ns"] == ep["created_at"].value:
+            kinds.add("CONVERSION")
+        else:
+            kinds.add("UNKNOWN")
+    return kinds.pop() if len(kinds) == 1 else "MIXED"
+
+
 # ---------------------------------------------------------------------------
 # Standard tables for a zone case
 # ---------------------------------------------------------------------------
@@ -246,38 +269,94 @@ def zone_tables(f: Facts, case: Case) -> list:
              "trigger": r.trigger_ref} for r in tr.itertuples()]))
     tables.append(("Post-state at e(m)", [{"zone": zid[:14], "stage": st_post, "direction": d_post}]))
     allm = f.e.mitigation[f.e.mitigation["object_id"] == zid].sort_values(["stage", "at"])
-    tables.append(("Stage-separated mitigation (complete history)", [
+    tables.append(capped("Stage-separated mitigation records", [
         {"stage": r.stage, "kind": r.kind, "at": fmt_t(r.at), "class": r.observation_class,
          "depth": r.penetration_depth_ticks, "in-zone": r.in_zone_depth_ticks,
          "1m H/L": f"{fmt_p(f.p(r.bar_high_ticks))} / {fmt_p(f.p(r.bar_low_ticks))}",
-         "relative to focus": "≤ e(m)" if r.at <= t else "later"} for r in allm.itertuples()][:40]))
+         "relative to focus": "at e(m)" if r.at == t else ("before e(m)" if r.at < t else "later")}
+        for r in allm.itertuples()], 40, focal=lambda r: r["relative to focus"] == "at e(m)"))
     later = f.e.zone_transitions[(f.e.zone_transitions["entity_id"] == zid) & (f.e.zone_transitions["transition_at"] > t)]
     tables.append(("Later lifecycle (after e(m))", [
         {"to": r.new_state, "at": fmt_t(r.transition_at), "reason": r.reason_code} for r in later.itertuples()]))
-    g = f.e.grades[f.e.grades["zone_id"] == zid]
-    tables.append(("Grade versions (components)", [
-        {"at": fmt_t(r.available_at), "tf rank": r.timeframe_rank, "overlap contribution": r.overlap_contribution,
-         "partners": len(r.partner_zone_ids), "strength": r.normalization_status if pd.isna(r.normalized_gap_strength)
-         else f"{r.normalized_gap_strength:.4f}", "width": r.original_width_ticks, "stage": r.stage,
-         "actionable": r.actionable} for r in g.itertuples()][:20]))
+    g = f.e.grades[f.e.grades["zone_id"] == zid].sort_values("available_at", kind="mergesort")
+    known = g[g["available_at"] <= t]
+    focal_gid = known["grade_version_id"].iloc[-1] if len(known) else None
+    tables.append(capped("Grade versions (components)", [
+        {"grade version": r.grade_version_id[:12], "at": fmt_t(r.available_at), "tf rank": r.timeframe_rank,
+         "overlap contribution": r.overlap_contribution, "partners": len(r.partner_zone_ids),
+         "strength": r.normalization_status if pd.isna(r.normalized_gap_strength) else f"{r.normalized_gap_strength:.4f}",
+         "width": r.original_width_ticks, "stage": r.stage, "actionable": r.actionable,
+         "in force at e(m)": r.grade_version_id == focal_gid} for r in g.itertuples()], 20,
+        focal=lambda r: r["in force at e(m)"]))
     grp = f.e.groups[f.e.groups["zone_id"] == zid]
     if len(grp):
-        tables.append(("Formation groups (each counted once)", [
+        tables.append(capped("Formation groups (each counted once)", [
             {"grade version": r.grade_version_id[:12], "group": r.group_index, "representative": r.representative_zone_id[:12],
-             "members": ", ".join(m[:10] for m in r.member_zone_ids)} for r in grp.itertuples()][:20]))
+             "members": ", ".join(m[:10] for m in r.member_zone_ids), "in force at e(m)": r.grade_version_id == focal_gid}
+            for r in grp.itertuples()], 20, focal=lambda r: r["in force at e(m)"]))
+    fg = g.set_index("grade_version_id").loc[focal_gid] if focal_gid is not None else None
+    if fg is not None and len(fg["partner_zone_ids"]):
+        members = {}
+        for r in grp[grp["grade_version_id"] == focal_gid].itertuples():
+            for m_ in r.member_zone_ids:
+                members[m_] = (r.group_index, r.representative_zone_id == m_)
+        rows = []
+        for pz in fg["partner_zone_ids"]:
+            zp = f.z.loc[pz]
+            gi, rep = members.get(pz, (None, False))
+            rows.append({"partner": pz[:14], "timeframe": zp["timeframe"], "direction": zp["original_direction"],
+                         "source span start (C1 start)": fmt_t(zp["span_start"]),
+                         "source span end (C3 close)": fmt_t(zp["available_at"]), "width ticks": zp["width_ticks"],
+                         "group": gi, "representative": rep})
+        tables.append((f"Partner source spans of the grade version in force at e(m) (all {len(rows)} partners, "
+                       f"{fg['overlap_contribution']} group(s); positive-duration span overlap joins a group)", rows))
     a = f.run.associations[f.run.associations["zone_id"] == zid]
     if len(a):
-        tables.append(("First-FVG association", [
-            {"is first": r.is_first, "formation available": fmt_t(r.formation_available_at),
-             "association available": fmt_t(r.association_available_at), "deadline rule": r.deadline_rule,
-             "marker never active": r.marker_never_active, "reason": r.reason} for r in a.itertuples()]))
+        mt = f.run.marker_transitions
+        rows = []
+        for r in a.itertuples():
+            ended = mt[mt["entity_id"] == r.association_id]
+            active = r.is_first and not r.marker_never_active
+            rows.append({"is first": r.is_first, "formation available": fmt_t(r.formation_available_at),
+                         "association recorded": fmt_t(r.association_available_at), "deadline rule": r.deadline_rule,
+                         "first-FVG marker": ("ACTIVE from the association instant" if active else
+                                              "NEVER ACTIVE (FVG stage ended at or before the association instant)"
+                                              if r.is_first else "not first (no marker)"),
+                         "marker ended": fmt_t(ended["transition_at"].iloc[0]) if len(ended) else "—",
+                         "marker end reason": ended["reason_code"].iloc[0] if len(ended) else (r.reason or "—")})
+        tables.append(("First-FVG association recorded vs marker activation", rows))
     return tables
+
+
+def bpr_exit_table(f: Facts, b) -> tuple:
+    """The governing-timeframe exit bar and the retirement predicate (or the reset that ended the BPR)."""
+    if pd.isna(b["exit_state"]):
+        return ("BPR exit", [{"exit": "none within the run (active at the cutoff)"}])
+    if b["exit_state"] != "RETIRED":
+        return ("BPR exit (reset)", [{"exit": b["exit_state"], "at": fmt_t(b["exit_at"]), "reason": b["exit_reason"],
+                                      "predicate": "1m episode reset ends every active object"}])
+    tf = b["governing_timeframe"]
+    bar = [x for x in f.tf_bars(tf, b["exit_at"], b["exit_at"]) if x[1] == b["exit_at"].value]
+    s_, _e, o, h, l, c = bar[0]
+    if b["direction"] == "BULLISH":
+        pred = f"close {fmt_p(c)} < lower {fmt_p(b['lower'])} → {c < b['lower']}"
+    else:
+        pred = f"close {fmt_p(c)} > upper {fmt_p(b['upper'])} → {c > b['upper']}"
+    return (f"BPR exit: governing {tf} exit bar and retirement predicate (strict close beyond the far bound)", [
+        {"exit": "RETIRED", "governing bar": f"{fmt_t(pd.Timestamp(s_, tz='UTC'))} → {fmt_t(b['exit_at'])}",
+         "O": fmt_p(o), "H": fmt_p(h), "L": fmt_p(l), "C": fmt_p(c), "predicate": pred}])
 
 
 def bpr_tables(f: Facts, case: Case, bid: str) -> list:
     b = f.e.bprs.set_index("bpr_id").loc[bid]
     ep = f.e.episodes.set_index("relationship_id").loc[b["relationship_id"]]
-    return [("BPR object", [{"bpr": bid[:14], "label": b["label"], "direction": b["direction"],
+    prov = episode_provenance(f.run, ep)
+    zz, ex = f.z, f.e.zone_exits
+    mover_rows = [{"mover": m[:14], "timeframe": zz.loc[m, "timeframe"], "admitted at": fmt_t(zz.loc[m, "available_at"]),
+                   "converted at": "—" if ex[m]["conv_ns"] is None else fmt_t(pd.Timestamp(ex[m]["conv_ns"], tz="UTC")),
+                   "event at episode creation": "ADMISSION" if zz.loc[m, "available_at"] == ep["created_at"] else "CONVERSION"}
+                  for m in ep["movers"]]
+    return [(f"Mover provenance: {prov}-created episode", mover_rows), bpr_exit_table(f, b), ("BPR object", [{"bpr": bid[:14], "label": b["label"], "direction": b["direction"],
                              "governing tf": b["governing_timeframe"], "lower": fmt_p(b["lower"]), "upper": fmt_p(b["upper"]),
                              "midpoint": fmt_p(b["midpoint"]), "available_at": fmt_t(b["available_at"]),
                              "exit": b["exit_state"], "exit at": fmt_t(b["exit_at"])}]),
@@ -318,7 +397,8 @@ def page(cases, facts_by_key, header) -> str:
 synthetic worked examples. Chart: own-timeframe candles; amber shading = C1–C3 source span; amber outline = C2 body; blue box = zone
 bounds from availability to stage end (dashed = exact midpoint); purple box = BPR; ▲ = availability / lifecycle markers; dashed
 vertical = focus instant e(m). Tables: immutable facts → formation candles → pre-state at s(m) → evidence at m → post-state at e(m)
-→ later lifecycle. Machine evidence only; human visual approval pending.</p>
+→ later lifecycle. Capped tables state displayed / total counts and always include the focal rows. Machine evidence
+only; human visual approval pending.</p>
 {table("Run", header)}<ol>{toc}</ol>{''.join(secs)}</body></html>"""
 
 
@@ -397,31 +477,53 @@ def build_dev_cases(run) -> list:
               r["available_at"], f"{len(r['partner_zone_ids'])} partners form {r['overlap_contribution']} group(s).",
               extra=list(r["partner_zone_ids"])[:3])
     b = E.bprs
-    for label, cid in (("BPR", "BPR-ADMIT"), ("MTF_BPR", "MTF-BPR")):
-        cand = b[(b["label"] == label) & (b["direction"] != "UNDEFINED")]
-        if len(cand):
-            r = cand.iloc[len(cand) // 3]
-            zcase(cid, f"{label} (admission-created)", "bpr", r["parent_a"], r["available_at"],
-                  "Intersection of the parents; direction and governing timeframe from the unique mover.",
-                  extra=[r["parent_b"]], bprs=[r["bpr_id"]])
-    exits = E.zone_exits
-    conv_eps = e[(e["label"] != "FVG_OVERLAP") & (e["movers"].map(len) == 1)
-                 & e.apply(lambda r: exits[r["movers"][0]]["conv_ns"] == r["created_at"].value, axis=1)] if len(e) else e
-    if len(conv_eps):
-        r = conv_eps.iloc[0]
+    retired = set(b.loc[b["exit_state"] == "RETIRED", "relationship_id"])
+    opp = e[(e["label"] != "FVG_OVERLAP") & (e["movers"].map(len) == 1) & e["relationship_id"].isin(retired)]
+    prov = pd.Series([episode_provenance(run, r) for _, r in opp.iterrows()], index=opp.index, dtype=object)
+    for label, want, cid, title, note in (
+            ("BPR", "ADMISSION", "BPR-ADMIT", "Same-timeframe BPR (admission-created)",
+             "The unique mover is a newly admitted zone; direction and governing timeframe come from it."),
+            ("MTF_BPR", "ADMISSION", "MTF-BPR-ADMIT", "MTF_BPR (admission-created)",
+             "The unique mover is a newly admitted zone overlapping an opposite zone of another timeframe."),
+            ("BPR", "CONVERSION", "BPR-CONV", "Same-timeframe BPR (conversion-created)",
+             "A conversion made a same-direction pair opposite: new BPR with the converting parent's direction, its "
+             "timeframe and the conversion instant; usable only after it."),
+            ("MTF_BPR", "CONVERSION", "MTF-BPR-CONV", "MTF_BPR (conversion-created)",
+             "A conversion made a cross-timeframe same-direction pair opposite; the converting parent governs.")):
+        cand = opp[(opp["label"] == label) & (prov == want)]
+        if not len(cand):
+            continue
+        r = cand.iloc[len(cand) // 3]
+        assert r["label"] == label and episode_provenance(run, r) == want, (cid, r["relationship_id"])
         bid = b[b["relationship_id"] == r["relationship_id"]]["bpr_id"].iloc[0]
-        zcase("BPR-CONV", "Conversion-created BPR", "bpr", r["movers"][0], r["created_at"],
-              "A conversion made a same-direction pair opposite: new BPR with the converting parent's direction, its "
-              "timeframe and the conversion instant; usable only after it.", extra=[x for x in (r["zone_a"], r["zone_b"]) if x != r["movers"][0]],
-              bprs=[bid])
+        mover = r["movers"][0]
+        zcase(cid, title, "bpr", mover, r["created_at"], note + f" Mover provenance asserted: {want}.",
+              extra=[x for x in (r["zone_a"], r["zone_b"]) if x != mover], bprs=[bid])
     a = run.associations
-    for rule, cid, title in (("NO_PENDING_CANDIDATE", "ASSOC-IMMEDIATE", "First FVG associated at formation"),
-                             ("PENDING_CANDIDATE_AT_C2", "ASSOC-DELAYED", "First FVG associated after the C2 deadline")):
-        r = _first(a, a["is_first"] & (a["deadline_rule"] == rule) & (a["timeframe"] == "5m"))
-        if r is not None:
-            zcase(cid, title, "association", r["zone_id"], r["association_available_at"],
-                  "C2 anchor; most extreme origin since the last opposite swing; the marker is visible only from the "
-                  "association instant.")
+    first5 = a[a["is_first"] & (a["timeframe"] == "5m")]
+    later = first5["association_available_at"] > first5["formation_available_at"]
+    never = first5["marker_never_active"].astype(bool)
+    for cid, title, mask, check, note in (
+            ("ASSOC-IMMEDIATE", "First FVG associated at formation; marker active", ~later & ~never,
+             lambda r: r["association_available_at"] == r["formation_available_at"] and not r["marker_never_active"],
+             "No pending candidate at C2: association and marker activation at the formation instant."),
+            ("ASSOC-DELAYED-ACTIVE", "First FVG associated after the C2 deadline; marker becomes active while still FVG",
+             later & ~never,
+             lambda r: r["association_available_at"] > r["formation_available_at"] and not r["marker_never_active"]
+             and f.stage_at(r["zone_id"], r["association_available_at"])[0] == "FVG",
+             "C2 ended a pending equal-extreme candidate, so the association waits for e(C2+2); the zone is still in "
+             "the FVG stage then, so the marker becomes active at that instant."),
+            ("ASSOC-DELAYED-NEVER-ACTIVE", "Association recorded after the deadline; first-FVG marker NEVER ACTIVE",
+             later & never,
+             lambda r: r["association_available_at"] > r["formation_available_at"] and r["marker_never_active"],
+             "The association is recorded, but the FVG stage ended at or before the association instant, so the "
+             "first-FVG marker is never actionable (and no later zone is promoted).")):
+        cand = first5[mask]
+        if not len(cand):
+            continue
+        r = cand.iloc[0]
+        assert check(r), (cid, r["association_id"])
+        zcase(cid, title, "association", r["zone_id"], r["association_available_at"], note)
     return cases
 
 
@@ -495,12 +597,21 @@ def synthetic_cases(spec) -> tuple[list, dict]:
         else:
             tr = run.engine.zone_transitions
             focus = tr[tr["entity_id"] == z["zone_id"]]["transition_at"].iloc[0]
-        bprs = list(run.engine.bprs["bpr_id"])
+        bb = run.engine.bprs
+        if cid == "SYN-W7":
+            ep_ = run.engine.episodes.set_index("relationship_id")
+            keep = [episode_provenance(run, ep_.loc[x]) == "CONVERSION" and ep_.loc[x, "label"] == "MTF_BPR"
+                    for x in bb["relationship_id"]]
+            bb = bb[keep]
+            assert len(bb), "SYN-W7 needs a conversion-created MTF_BPR"
+        bprs = list(bb["bpr_id"])
         others = [x for x in run.zones["zone_id"] if x != z["zone_id"]][:3]
         c = Case(cid, title, "synthetic", "SYNTHETIC (design §5)", cid, z["zone_id"], pd.Timestamp(focus),
                  "Executed on the production pipeline with an isolated synthetic fixture.", others, bprs[:2],
                  refs={"fixture": cid})
         c.tables = zone_tables(f, c)
+        if len(bprs) > 2:
+            c.note += f" BPR tables show 2 of {len(bprs)} BPR objects of this fixture."
         for b in bprs[:2]:
             c.tables += bpr_tables(f, c, b)
         cases.append(c)

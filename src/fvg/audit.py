@@ -563,29 +563,120 @@ def invariants(run) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 
 
-def prefix_mismatches(full, part) -> dict:
-    """Part (cutoff run) vs full restricted to the cutoff; also counts part rows after the cutoff."""
-    cut = pd.Timestamp(part.manifest["replay_cutoff"])
-    out = {}
+def canonical(value):
+    """Order- and dtype-independent canonical form of one cell (semantic payload comparison)."""
+    if value is None or value is pd.NaT or value is pd.NA:
+        return None
+    if isinstance(value, (bool, np.bool_)):
+        return bool(value)
+    if isinstance(value, pd.Timestamp):
+        return ("T", value.value)
+    if isinstance(value, np.datetime64):
+        return None if np.isnat(value) else ("T", pd.Timestamp(value).value)
+    if isinstance(value, (int, np.integer)):
+        return int(value)
+    if isinstance(value, (float, np.floating)):
+        if np.isnan(value):
+            return None
+        return int(value) if float(value).is_integer() else float(value)
+    if isinstance(value, (list, tuple, np.ndarray)):
+        return tuple(canonical(v) for v in value)
+    if isinstance(value, (set, frozenset)):
+        return tuple(sorted(canonical(v) for v in value))
+    return str(value)          # str, categorical values, Decimal, Fraction
 
-    def cmp(name, fa, fb, key, time_col):
-        a = fa[fa[time_col] <= cut]
-        ka = set(map(tuple, a[key].astype(str).to_numpy())) if len(a) else set()
-        kb = set(map(tuple, fb[key].astype(str).to_numpy())) if len(fb) else set()
-        out[name] = len(ka ^ kb)
-        out[name + "_future_rows"] = int((fb[time_col] > cut).sum()) if len(fb) else 0
-    cmp("zones", full.zones, part.zones, ["zone_id", "normalization_status"], "available_at")
-    cmp("rejections", full.rejections, part.rejections, ["triple_ref", "reason"], "c3_end")
-    cmp("zone_transitions", full.engine.zone_transitions, part.engine.zone_transitions, ["transition_id"], "transition_at")
-    cmp("mitigation", full.engine.mitigation, part.engine.mitigation, ["event_id"], "at")
-    fe, pe = full.engine.episodes.copy(), part.engine.episodes.copy()
-    fe["ended_cut"] = fe["ended_at"].where(fe["ended_at"] <= cut)
-    pe["ended_cut"] = pe["ended_at"]
-    cmp("episodes", fe, pe, ["relationship_id", "label", "direction", "ended_cut"], "created_at")
-    cmp("bprs", full.engine.bprs, part.engine.bprs, ["bpr_id", "direction"], "available_at")
-    cmp("bpr_transitions", full.engine.bpr_transitions, part.engine.bpr_transitions, ["transition_id"], "transition_at")
-    cmp("grades", full.engine.grades, part.engine.grades, ["grade_version_id"], "available_at")
-    cmp("associations", full.associations, part.associations, ["association_id", "is_first", "marker_never_active"],
-        "association_available_at")
-    cmp("marker_transitions", full.marker_transitions, part.marker_transitions, ["transition_id"], "transition_at")
+
+def canonical_rows(frame: pd.DataFrame, exclude=()) -> list:
+    """Every row as a tuple of (column, canonical value) pairs, in frame order."""
+    cols = sorted(c for c in frame.columns if c not in exclude)
+    if frame.empty:
+        return []
+    values = [[canonical(v) for v in frame[c].tolist()] for c in cols]
+    return [tuple(zip(cols, row)) for row in zip(*values)]
+
+
+# Each table: time column used to restrict the full run, identity key (duplicate check), as-of kind (or None).
+PREFIX_TABLES = {
+    "zones": ("available_at", ["zone_id"], None),
+    "rejections": ("c3_end", ["triple_ref"], None),
+    "zone_transitions": ("transition_at", ["transition_id"], None),
+    "zone_entities": ("available_at", ["entity_id"], None),
+    "mitigation": ("at", ["event_id"], None),
+    "stages": ("stage_start", ["zone_id", "stage"], "stages"),
+    "episodes": ("created_at", ["relationship_id"], "episodes"),
+    "episode_transitions": ("transition_at", ["transition_id"], None),
+    "episode_entities": ("available_at", ["entity_id"], None),
+    "bprs": ("available_at", ["bpr_id"], "bprs"),
+    "bpr_transitions": ("transition_at", ["transition_id"], None),
+    "bpr_entities": ("available_at", ["entity_id"], None),
+    "grades": ("available_at", ["grade_version_id"], None),
+    "groups": (None, ["grade_version_id", "group_index"], None),
+    "warnings": ("at", ["at", "reason"], None),
+    "pending": ("since_at", ["object_id"], None),
+    "associations": ("association_available_at", ["association_id"], None),
+    "marker_transitions": ("transition_at", ["transition_id"], None),
+    "marker_entities": ("available_at", ["entity_id"], None),
+}
+# Justified run-specific bookkeeping excluded from the payload comparison (none at present: every column of
+# every table is a causal fact; the manifest's cutoff / fingerprint / run_id are not table columns).
+PREFIX_EXCLUDE: dict = {}
+
+
+def run_tables(run) -> dict:
+    E = run.engine
+    return {"zones": run.zones, "rejections": run.rejections, "zone_transitions": E.zone_transitions,
+            "zone_entities": E.zone_entities, "mitigation": E.mitigation, "stages": E.stages, "episodes": E.episodes,
+            "episode_transitions": E.episode_transitions, "episode_entities": E.episode_entities, "bprs": E.bprs,
+            "bpr_transitions": E.bpr_transitions, "bpr_entities": E.bpr_entities, "grades": E.grades,
+            "groups": E.groups, "warnings": E.warnings, "pending": E.pending, "associations": run.associations,
+            "marker_transitions": run.marker_transitions, "marker_entities": run.marker_entities}
+
+
+def project_as_of(run, cut) -> dict:
+    """Every output table of ``run`` restricted to what is knowable at ``cut`` (explicit as-of projection)."""
+    from src.fvg.pipeline import as_of
+    tables, out = run_tables(run), {}
+    for name, (tcol, _key, kind) in PREFIX_TABLES.items():
+        f = tables[name]
+        if kind is not None:
+            out[name] = as_of(f, kind, cut)
+        elif tcol is not None:
+            out[name] = f[f[tcol] <= cut] if len(f) else f
+    g = out["grades"]
+    groups = tables["groups"]
+    out["groups"] = groups[groups["grade_version_id"].isin(set(g["grade_version_id"]))] if len(groups) else groups
+    return out
+
+
+def view_tables(run, at) -> dict:
+    from src.fvg.pipeline import active_bprs, active_fvg_zones, active_overlaps
+    return {"view_active_fvg_zones": active_fvg_zones(run, at), "view_active_bprs": active_bprs(run, at),
+            "view_active_bprs_undefined": active_bprs(run, at, include_undefined=True),
+            "view_active_overlaps": active_overlaps(run, at)}
+
+
+def prefix_mismatches(full, part) -> dict:
+    """FVG-INV-21: the cutoff run equals the full run's as-of projection at the cutoff, payload for payload.
+
+    For every table: ``<t>`` = size of the multiset symmetric difference of canonical row payloads (all
+    columns; ids alone are not enough); ``<t>_future_rows`` = cutoff-run rows after the cutoff;
+    ``<t>_duplicate_ids`` / ``<t>_duplicate_rows`` = repeated identities / repeated rows in either side
+    (counted separately, never hidden by set conversion).  Strategy views (with ranks) are compared at the
+    cutoff in row order."""
+    from collections import Counter
+    cut = pd.Timestamp(part.manifest["replay_cutoff"])
+    exp, got_all = project_as_of(full, cut), run_tables(part)
+    out = {}
+    for name, (tcol, key, _kind) in PREFIX_TABLES.items():
+        a, b = exp[name], got_all[name]
+        out[name + "_future_rows"] = int((b[tcol] > cut).sum()) if tcol is not None and len(b) else 0
+        ex = PREFIX_EXCLUDE.get(name, ())
+        ra, rb = Counter(canonical_rows(a, ex)), Counter(canonical_rows(b, ex))
+        out[name] = sum(((ra - rb) + (rb - ra)).values())
+        out[name + "_duplicate_ids"] = sum(int(f.duplicated(key).sum()) for f in (a, b) if len(f))
+        out[name + "_duplicate_rows"] = sum(n - 1 for c in (ra, rb) for n in c.values() if n > 1)
+    va, vb = view_tables(full, cut), view_tables(part, cut)
+    for name in va:
+        ra, rb = canonical_rows(va[name]), canonical_rows(vb[name])
+        out[name] = sum(x != y for x, y in zip(ra, rb)) + abs(len(ra) - len(rb))
     return out

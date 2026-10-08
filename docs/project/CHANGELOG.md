@@ -12,6 +12,16 @@ Areas: `ARCH`, `FEATURE`, `STATE`, `SIGNAL`, `EXECUTION`, `METHOD`, `DATA`,
 
 ## Unreleased
 
+- 2026-10-08 — [VALIDATION-TOOLING] FVG validation runner: fast tier and
+  visual speed-up (`6bc7490`; no semantic change).
+  - Visual case selection builds mover-provenance lookups once per run:
+    7,303 s → 33 s on full DEVELOPMENT; output byte-identical.
+  - `--fast` / `--start --end` run the same checks on a DEVELOPMENT window
+    (full-DEV-only gates SKIPPED, not PASS; outputs Git-ignored); `--out`
+    redirects outputs. Full tier unchanged (default), now ~45 minutes.
+  - Full-tier re-verification: identical to the frozen FVG evidence except
+    runtime and provenance rows.
+
 - 2026-10-08 — [FEATURE] FVG / IFVG / FVG_OVERLAP / BPR / MTF_BPR (ROADMAP 4)
   is **APPROVED / FROZEN** (D-148 – D-152; D-148 freeze note; PR #17).
   - Human visual approval on the 34-case package from `4887537`.

@@ -217,8 +217,10 @@ at a time with explicit approval (D-117).
       - Boundary ties: first ascending `available_at` of the candidate's current formation version; then ascending `source_at` (a Daily member's own `source_at`; for a cluster version, the earliest constituent member `source_at`); then ascending stable candidate id.
       - FVG / IFVG / BPR: **APPROVED / FROZEN** (2026-10-08; D-148 – D-152, D-148 freeze note; PR #17;
         overall fingerprint `4c182a8c9fc0eae3…`; `src/fvg/`). Raw-basis scope,
-        adjustment method deferred. Runner `src.experiments.fvg_dev_validation` (~3.1 h at `4887537`, ~2 h of it slow visual case selection; ~5.2 GB
-        peak) must run alone: running it beside the full suite exhausted memory. The naive reference
+        adjustment method deferred. Runner `src.experiments.fvg_dev_validation`: FULL tier ~45 min since
+        `6bc7490` (~4.6 GB); `--fast` ~4 min on one DEV week for iteration (full-DEV-only gates SKIPPED;
+        Git-ignored outputs); `--out` for verification runs. The full tier must run alone: running it
+        beside the full suite exhausted memory. The naive reference
         is quadratic, so it covers only the 1m episodes of ≤ 3,600 bars (4.48 % of bars); the full-run
         check is `src.fvg.audit_full` (exact per-object restrictions). Strategy views must stay as-of
         projections (no future exit columns); prefix checks compare payloads, not ids.

@@ -1689,6 +1689,67 @@ repository. For D-101 onward the date is when it was recorded here
   - The decision texts of D-148 – D-152 are unchanged. Future semantic changes
     require a new decision.
 
+### D-153 — Order Block scope, source and geometry
+- **Date:** 2026-10-08
+- **Decision** (`docs/project/ORDER_BLOCK_BREAKER_MITIGATION_DESIGN.md` rev 3 §1, §5, §20, §22):
+  - Independent ICT feature layer (`src/ict_blocks/`): ordinary OB, BREAKER, MITIGATION only; rejection,
+    morning/evening star, reclaimed, propulsion and vacuum blocks deferred.
+  - Dependencies: Swing (public detector, OB default left_depth = right_depth = 1, configurable) and raw accepted
+    FVG facts (`fvg-v1`). No liquidity, generic BOS/CHoCH/MSS or strategy inputs.
+  - One last source candle: the terminal member of the anchor swing's source span. Bullish OB needs a bearish
+    candle, bearish OB a bullish candle; body ≥ 4 ticks (exactly 4 qualifies); no earlier substitute, no
+    aggregation, no morning-star exception.
+  - Geometry: bullish [source.low, source.open]; bearish [source.open, source.high]; exact ticks, half-tick zone
+    midpoint distinct from the source-body midpoint; successors inherit the exact interval.
+- **Reason:** design-authority revision 3 with user-confirmed requirements.
+- **Status:** ACTIVE — DESIGN APPROVED — IMPLEMENTATION AUTHORIZED; NOT VALIDATED / NOT FROZEN.
+
+### D-154 — Order Block discovery and ordinary formation
+- **Date:** 2026-10-08
+- **Decision** (rev 3 §6, §22):
+  - Swing-episode driven: each confirmed LOWER swing opens one bullish episode, each UPPER swing one bearish
+    episode; opposing ordinary OBs coexist; an admitted episode is latched (later FVGs never restart source
+    selection or duplicate); lifecycle monitoring continues.
+  - Departure window (user decision 2026-10-08): from the source to the source end of the first opposite swing
+    after it, inclusive (and before a new same-side swing's span). First same-timeframe FVG in the OB direction
+    with source < C2 ≤ window end (no adjacency or price overlap required); a strict close beyond the source's
+    far wick (bullish: above source.high) within the same window; no adverse close through admission.
+  - ordinary_available_at = max(swing, FVG, validation close, ownership deadline); rejection only when knowable.
+- **Reason:** design-authority revision 3 plus the 2026-10-08 window clarification.
+- **Status:** ACTIVE — DESIGN APPROVED — IMPLEMENTATION AUTHORIZED; NOT VALIDATED / NOT FROZEN.
+
+### D-155 — Order Block lifecycle, Breaker and Mitigation
+- **Date:** 2026-10-08
+- **Decision** (rev 3 §7, §8, §22):
+  - One persistent block_id; immutable stage epochs. BREAKER / MITIGATION are alternative successors of an
+    admitted ordinary parent (no direct-motif admission; NO_ORDINARY_PARENT is audit only).
+  - Ordinary failure: strict own-timeframe close beyond the far boundary; actionability ends immediately.
+  - Motif for a bearish successor (bullish mirrored): B = pinned anchor; A = latest opposite swing strictly before
+    B; C = most extreme opposite swing strictly between B and the reversal close x; raid = a high strictly above A
+    after B through x. C > A → BREAKER; C < A without raid → MITIGATION; otherwise FAILED_FINAL with reason.
+  - successor_available_at = max(x, A/B/C availability, resolution); FAILED_AWAITING_CLASSIFICATION while unresolved
+    (unreachable at N = 1); invalid-before-admission recorded; no backdating, same-close retest or re-inversion;
+    successors retire on a strict close beyond their own far boundary.
+- **Reason:** design-authority revision 3.
+- **Status:** ACTIVE — DESIGN APPROVED — IMPLEMENTATION AUTHORIZED; NOT VALIDATED / NOT FROZEN.
+
+### D-156 — Order Block interactions
+- **Date:** 2026-10-08
+- **Decision** (rev 3 §9): canonical 1m observations from each stage's availability; touch (closed interval),
+  interior penetration, midpoint / distal / full-span observed (inclusive, doubled ticks), interior depth and
+  uncapped adverse excursion, gap-beyond evidence, visits (contiguous intersecting minutes; a scheduled closure
+  breaks a visit); touches never retire a stage; no inferred intrabar order.
+- **Reason:** design-authority revision 3.
+- **Status:** ACTIVE — DESIGN APPROVED — IMPLEMENTATION AUTHORIZED; NOT VALIDATED / NOT FROZEN.
+
+### D-157 — Order Block data quality, basis and outputs
+- **Date:** 2026-10-08
+- **Decision** (rev 3 §10 – §13): causal batch order; 1m DATA_GAP onsets terminate active stages, waiting
+  episodes and motifs; pure rolls → PENDING_ADJUSTMENT with explicit pending comparisons; raw basis only
+  (adjustment deferred); fixed schemas, natural ids, M7A lifecycle, as-of causal views; no age limits.
+- **Reason:** design-authority revision 3.
+- **Status:** ACTIVE — DESIGN APPROVED — IMPLEMENTATION AUTHORIZED; NOT VALIDATED / NOT FROZEN.
+
 ### PROPOSED items awaiting design-authority approval (2026-09-28)
 Claude recommendations from the architecture closeout; **not decisions**:
 ~~Market Context as tidy-DataFrame functions (no MarketContext object)~~

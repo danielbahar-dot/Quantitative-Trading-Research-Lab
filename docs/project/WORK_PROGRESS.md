@@ -200,8 +200,12 @@ time with explicit approval (D-117).
     fast tier `--fast` / `--start --end` (~4 min per DEV week; full-DEV-only
     gates SKIPPED); full tier now ~45 min; re-verified identical to the
     frozen evidence.
-  - **Next:** Order Block / Breaker / Mitigation design (on hold until the
-    design authority resumes it).
+  - Validation tooling merged via PR #18 (`f4beabc`).
+- **Order Block / Breaker / Mitigation: DESIGN APPROVED — IMPLEMENTATION
+  AUTHORIZED** (2026-10-08; rev 3; D-153 – D-157; branch `ob-design` from
+  `f4beabc`). OB-I0 done (spec §22: FVG `fvg-v1` binding, N = 1 Swing,
+  departure-window clarification); OB-I1 – OB-I5 in progress; not validated
+  or frozen.
 
 ## Last completed work
 

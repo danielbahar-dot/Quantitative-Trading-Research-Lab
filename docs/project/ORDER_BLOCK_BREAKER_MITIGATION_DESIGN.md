@@ -4,7 +4,7 @@ Research and implementation design for the Quantitative Trading Research Lab
 
 Version 3.0 | 7 October 2026 | Revised to Daniel’s OB-layer requirements
 
-**Status (2026-10-08): DESIGN APPROVED — IMPLEMENTATION AUTHORIZED (D-153 – D-157; OB-I0 binding §22); NOT VALIDATED / NOT FROZEN.** Original status line: USER DEFINITIONS SETTLED; IMPLEMENTATION HANDOFF AUTHORIZED; FEATURE NOT IMPLEMENTED OR FROZEN. This revision supersedes v1/v2 and the earlier PDF. The current task updates the document and prepares Claude’s handoff; it does not execute repository implementation. Prior fixture results are historical and do not validate this revision.
+**Status (2026-10-08): DESIGN APPROVED — IMPLEMENTED (`src/ict_blocks/`) — MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL; NOT FROZEN** (D-153 – D-157; OB-I0 binding §22; implementation evidence §23). Original status line: USER DEFINITIONS SETTLED; IMPLEMENTATION HANDOFF AUTHORIZED; FEATURE NOT IMPLEMENTED OR FROZEN. This revision supersedes v1/v2 and the earlier PDF. The current task updates the document and prepares Claude’s handoff; it does not execute repository implementation. Prior fixture results are historical and do not validate this revision.
 
 ## 1 Purpose, scope and revision authority
 
@@ -515,3 +515,22 @@ N = 1 is expected to report zero waiting states. This is a consequence of the se
   be a bullish and a bearish source; alias handling is implemented as a guard.
 - One M7A lifecycle entity per block (namespace `ict.block`) with the §8 edges; stage epochs are separate immutable rows.
 - Strategy views are as-of projections (no future exit metadata), as for FVG.
+
+## 23 Implementation status (OB-I1 – OB-I5, 2026-10-08)
+
+| Step | Status |
+|---|---|
+| OB-I0 | DONE — §22 binding and clarifications; D-153 – D-157 |
+| OB-I1 – OB-I4 | DONE — `src/ict_blocks/` (`inputs`, `engine`, `pipeline`, `audit`); tests `tests/test_ob_*.py` (24 tests, 202 subtests) |
+| OB-I5 | MACHINE VALIDATION PASSED — `src.experiments.ob_dev_validation`; evidence `reports/validation/ob_dev_*.csv`; local visual package `reports/validation/ob_visual_validation.html` |
+| OB-I6 | PENDING — human visual review; freeze / merge only when authorized |
+
+DEVELOPMENT (N = 1, six timeframes, full partition): 192,642 discovery episodes (one per confirmed swing), 17,926
+ordinary blocks, 16,550 ordinary failures → 14,689 BREAKER, 1,761 MITIGATION, 100 FAILED_FINAL; 0
+FAILED_AWAITING_CLASSIFICATION (as derived in §22). The independent causal reference reproduces every episode,
+block, lifecycle change, motif, stage, interaction, visit and depth version on every timeframe (0 mismatches);
+OB-INV-1 … 13 = 0; 9 payload-level DEVELOPMENT prefix rebuilds equivalent; shuffled dependency rows deterministic;
+FVG dependency fingerprint equal to the frozen FVG baseline. The motif distribution (BREAKER ≫ MITIGATION at N = 1)
+is reported, not tuned. DEVELOPMENT contains no pure contract change: pending adjustment, N = 2 delayed successors and
+the remaining motif edge cases are covered by synthetic fixtures. The 98 arithmetic assertions of §18 remain limited
+fixture evidence, not feature validation.

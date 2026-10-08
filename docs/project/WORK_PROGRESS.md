@@ -201,13 +201,25 @@ time with explicit approval (D-117).
     gates SKIPPED); full tier now ~45 min; re-verified identical to the
     frozen evidence.
   - Validation tooling merged via PR #18 (`f4beabc`).
-- **Order Block / Breaker / Mitigation: DESIGN APPROVED — IMPLEMENTATION
-  AUTHORIZED** (2026-10-08; rev 3; D-153 – D-157; branch `ob-design` from
-  `f4beabc`). OB-I0 done (spec §22: FVG `fvg-v1` binding, N = 1 Swing,
-  departure-window clarification); OB-I1 – OB-I5 in progress; not validated
-  or frozen.
+- **Order Block / Breaker / Mitigation: IMPLEMENTED — MACHINE VALIDATION
+  PASSED — PENDING HUMAN VISUAL APPROVAL** (2026-10-08; rev 3; D-153 – D-157;
+  branch `ob-design` from `f4beabc`; not frozen, not merged).
+  - Code `src/ict_blocks/`; runner `src.experiments.ob_dev_validation` (full
+    ~34 min / 1.6 GB; `--fast` ~2 min); visual `src.experiments.ob_visual`.
+  - DEVELOPMENT: 17,926 ordinary blocks; 14,689 BREAKER; 1,761 MITIGATION;
+    100 FAILED_FINAL; 0 waiting classifications (N = 1); 32 data-gap
+    warnings; 0 pure rolls (synthetic coverage only).
+  - All 12 gates PASS incl. independent reference on every timeframe (0
+    mismatches), OB-INV-1 … 13 = 0, 9 prefix rebuilds, shuffle determinism.
+  - Full suite: 842 passed / 0 failed / 6,547 subtests (24 new OB tests).
+  - **Next:** human review of `reports/validation/ob_visual_validation.html`
+    (local, Git-ignored).
 
 ## Last completed work
+
+- **2026-10-08 — Order Block OB-I0 – OB-I5: machine validation passed.**
+  - Rev 3 registered (D-153 – D-157); implementation, tests, DEVELOPMENT
+    validation and visual package (pending human approval).
 
 - **2026-10-08 — FVG / IFVG / BPR APPROVED / FROZEN.** Human visual review
   passed; PR #17 merged; freeze recorded (D-148 freeze note).

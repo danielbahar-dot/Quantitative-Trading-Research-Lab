@@ -12,6 +12,16 @@ Areas: `ARCH`, `FEATURE`, `STATE`, `SIGNAL`, `EXECUTION`, `METHOD`, `DATA`,
 
 ## Unreleased
 
+- 2026-10-08 — [FEATURE] Order Block / Breaker / Mitigation (ROADMAP 4, ICT
+  family) implemented in `src/ict_blocks/` (D-153 – D-157; design rev 3 + §22).
+  - Swing-episode discovery (N = 1), single terminal source candle (body ≥ 4
+    ticks, no fallback), open-to-wick geometry, FVG departure within the
+    inclusive window, persistent block lifecycle with parent-pinned BB / MB
+    motifs, 1m stage interactions, gap / roll resets, M7A `ict.block` log.
+  - DEVELOPMENT machine validation passed (independent reference on every
+    timeframe, 0 mismatches; OB-INV-* = 0; prefix and shuffle checks).
+    Pending human visual approval; not frozen.
+
 - 2026-10-08 — [VALIDATION-TOOLING] FVG validation runner: fast tier and
   visual speed-up (`6bc7490`; no semantic change).
   - Visual case selection builds mover-provenance lookups once per run:

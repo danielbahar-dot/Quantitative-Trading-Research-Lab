@@ -1702,7 +1702,7 @@ repository. For D-101 onward the date is when it was recorded here
   - Geometry: bullish [source.low, source.open]; bearish [source.open, source.high]; exact ticks, half-tick zone
     midpoint distinct from the source-body midpoint; successors inherit the exact interval.
 - **Reason:** design-authority revision 3 with user-confirmed requirements.
-- **Status:** ACTIVE — DESIGN APPROVED — IMPLEMENTATION AUTHORIZED; NOT VALIDATED / NOT FROZEN.
+- **Status:** ACTIVE — IMPLEMENTED — MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL; NOT FROZEN.
 
 ### D-154 — Order Block discovery and ordinary formation
 - **Date:** 2026-10-08
@@ -1716,7 +1716,7 @@ repository. For D-101 onward the date is when it was recorded here
     far wick (bullish: above source.high) within the same window; no adverse close through admission.
   - ordinary_available_at = max(swing, FVG, validation close, ownership deadline); rejection only when knowable.
 - **Reason:** design-authority revision 3 plus the 2026-10-08 window clarification.
-- **Status:** ACTIVE — DESIGN APPROVED — IMPLEMENTATION AUTHORIZED; NOT VALIDATED / NOT FROZEN.
+- **Status:** ACTIVE — IMPLEMENTED — MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL; NOT FROZEN.
 
 ### D-155 — Order Block lifecycle, Breaker and Mitigation
 - **Date:** 2026-10-08
@@ -1731,7 +1731,7 @@ repository. For D-101 onward the date is when it was recorded here
     (unreachable at N = 1); invalid-before-admission recorded; no backdating, same-close retest or re-inversion;
     successors retire on a strict close beyond their own far boundary.
 - **Reason:** design-authority revision 3.
-- **Status:** ACTIVE — DESIGN APPROVED — IMPLEMENTATION AUTHORIZED; NOT VALIDATED / NOT FROZEN.
+- **Status:** ACTIVE — IMPLEMENTED — MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL; NOT FROZEN.
 
 ### D-156 — Order Block interactions
 - **Date:** 2026-10-08
@@ -1740,7 +1740,7 @@ repository. For D-101 onward the date is when it was recorded here
   uncapped adverse excursion, gap-beyond evidence, visits (contiguous intersecting minutes; a scheduled closure
   breaks a visit); touches never retire a stage; no inferred intrabar order.
 - **Reason:** design-authority revision 3.
-- **Status:** ACTIVE — DESIGN APPROVED — IMPLEMENTATION AUTHORIZED; NOT VALIDATED / NOT FROZEN.
+- **Status:** ACTIVE — IMPLEMENTED — MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL; NOT FROZEN.
 
 ### D-157 — Order Block data quality, basis and outputs
 - **Date:** 2026-10-08
@@ -1748,7 +1748,16 @@ repository. For D-101 onward the date is when it was recorded here
   episodes and motifs; pure rolls → PENDING_ADJUSTMENT with explicit pending comparisons; raw basis only
   (adjustment deferred); fixed schemas, natural ids, M7A lifecycle, as-of causal views; no age limits.
 - **Reason:** design-authority revision 3.
-- **Status:** ACTIVE — DESIGN APPROVED — IMPLEMENTATION AUTHORIZED; NOT VALIDATED / NOT FROZEN.
+- **Status:** ACTIVE — IMPLEMENTED — MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL; NOT FROZEN.
+
+- **Implementation note (D-153 – D-157, 2026-10-08):** OB-I1 – OB-I5 implemented on `ob-design` in
+  `src/ict_blocks/` (inputs, engine, pipeline, audit) with tests `tests/test_ob_*.py`.
+  - DEVELOPMENT machine validation (`src.experiments.ob_dev_validation`, code `7e53b43`): all 12 gates PASS —
+    Swing parity with the public detector at 1/1, FVG zone fingerprint = frozen FVG baseline, 1m continuity
+    baseline, frozen sources unchanged, OB-INV-1 … 13 = 0, independent reference = production on every
+    timeframe (0 mismatches), 9 prefix rebuilds equivalent, shuffled-input determinism.
+  - 17,926 ordinary blocks; 14,689 BREAKER, 1,761 MITIGATION, 100 FAILED_FINAL; 0 waiting classifications at N = 1.
+  - Human visual approval of `ob_visual_validation.html` is pending; nothing is frozen.
 
 ### PROPOSED items awaiting design-authority approval (2026-09-28)
 Claude recommendations from the architecture closeout; **not decisions**:

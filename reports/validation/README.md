@@ -475,3 +475,60 @@ fixtures and unit tests only. DEVELOPMENT prefix rebuilds are early cutoffs
 (the full-run recomputation and the synthetic every-cutoff prefix tests cover
 later behaviour). The naive subset reference does not reach 1D, 4H BPRs or
 the long episodes; the full-run recomputation does.
+
+## `ob_*`
+
+Order Block / Breaker / Mitigation (ROADMAP 4, ICT family) OB-I5 DEVELOPMENT
+validation (2026-10-08). Status: **MACHINE VALIDATION PASSED — PENDING HUMAN
+VISUAL APPROVAL**. Not frozen. Design:
+`docs/project/ORDER_BLOCK_BREAKER_MITIGATION_DESIGN.md` rev 3 (+ §22 binding,
+§23 status); D-153 – D-157.
+
+**Scope.** DEVELOPMENT only (337,815 canonical 1m bars); explicit
+`replay_cutoff` 2025-06-30 17:00 ET; six timeframes; OB Swing depths 1/1
+(public detector); raw `fvg-v1` formations; raw basis. Code `7e53b43` (clean
+worktree; provenance in the summary and the HTML header).
+
+- **Reproduce (FULL tier):** `.\.venv\Scripts\python.exe -m src.experiments.ob_dev_validation`
+  (about 34 minutes, 1.6 GB peak RSS).
+- **FAST tier:** `--fast` (DEVELOPMENT week 2024-08-05 – 2024-08-09, about 2
+  minutes) or `--start / --end`; full-DEV-only gates (FVG fingerprint, 1m
+  continuity) SKIPPED; outputs Git-ignored under `reports/validation/ob_fast/`.
+- No PnL, strategy, backtest or optimization; no VALIDATION / OOS data.
+
+**Tracked files** (price-free):
+
+- **`ob_dev_summary.csv`**: provenance, dependency counts and fingerprints,
+  counters (source searches, admissions, failures, successors), episodes by
+  status and reason, blocks by direction, stages, lifecycle changes, motif
+  outcomes, interaction counts, data warnings, identity fingerprints, run_id,
+  machine gates.
+- **`ob_dev_invariants.csv`**: OB-INV-1 … 13.
+- **`ob_dev_reconciliation.csv`**: FULL RUN — production vs the independent
+  causal reference (episodes, blocks, lifecycle, motifs, stages, interactions,
+  visits, depth versions) on every timeframe.
+- **`ob_dev_prefix_replay.csv`**: 9 DEVELOPMENT prefix rebuilds (5m admission
+  and one minute before, 15m swing confirmation, ordinary failure / successor
+  admission and one minute before, mitigation admission, successor
+  retirement, gap onset, inside the gap), payload-level against the full run's
+  as-of projection, plus the active-block and discovery views.
+- **`ob_dev_runtime.csv`**: stage seconds and peak RSS.
+- **`ob_visual_validation_cases.csv`**: case manifest (ids and timestamps).
+
+**Results.** All 12 gates PASS; 17,926 ordinary blocks; 14,689 BREAKER,
+1,761 MITIGATION, 100 FAILED_FINAL; 0 FAILED_AWAITING_CLASSIFICATION at N = 1
+(derived in the design §22); shuffled dependency rows (DEVELOPMENT
+2024-09-02 – 2024-09-30, two seeds) produce identical outputs.
+
+**Local, Git-ignored:** `ob_visual_validation.html` — 25 DEVELOPMENT cases
+(ordinary OB on all six timeframes, BB / MB in both directions, every
+failure reason present on DEV, concurrent independent ordinary vs successor,
+every rejection reason, supersession, gap-beyond, zone midpoint, data gap) and
+9 synthetic cases (Breaker, Mitigation, equal extreme, outside reversal bar,
+N = 2 delayed successor, N = 2 invalid before admission, concurrent objects,
+3-tick source, pure roll).
+
+**Limits.** DEVELOPMENT has no pure contract change (synthetic only); prefix
+rebuilds are early cutoffs (the full-coverage reference and every-cutoff
+synthetic prefix tests cover later behaviour); at N = 1 a raid with a less
+extreme eligible C only occurs on the break bar (design §22 / tests).

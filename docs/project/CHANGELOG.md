@@ -12,6 +12,21 @@ Areas: `ARCH`, `FEATURE`, `STATE`, `SIGNAL`, `EXECUTION`, `METHOD`, `DATA`,
 
 ## Unreleased
 
+- 2026-10-08 — [VALIDATION-TOOLING] FVG review corrections (PR #17 at `ee6eb27`).
+  - Strategy views (`active_bprs`, `active_overlaps`, `active_fvg_zones`) are
+    causal as-of projections; `bprs_as_of` / `episodes_as_of` /
+    `stages_as_of` added; active views carry no exit metadata.
+  - Prefix equivalence compares canonical payloads of every table plus the
+    strategy views and ranks; duplicates counted separately; negative tests.
+  - `src.fvg.audit_full`: full-run independent recomputation (0 mismatches on
+    4,199,171 DEVELOPMENT rows); subset-reference coverage reported per
+    category and timeframe.
+  - Visual package: BPR / MTF_BPR cases selected and asserted by mover
+    provenance (admission- and conversion-created separated); association
+    record vs marker activation; capped tables labelled; BPR exit predicate;
+    partner source spans; source provenance header. Evidence regenerated from
+    `4887537`. Still pending human visual approval.
+
 - 2026-10-07 — [FEATURE] FVG / IFVG / FVG_OVERLAP / BPR / MTF_BPR (ROADMAP 4,
   ICT family) implemented in `src/fvg/` (D-148 – D-152; design rev 2.1).
   - Formation with C2 body rule and rejection audit, normalized strength,

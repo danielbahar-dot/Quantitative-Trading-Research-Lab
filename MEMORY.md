@@ -217,9 +217,11 @@ at a time with explicit approval (D-117).
       - Boundary ties: first ascending `available_at` of the candidate's current formation version; then ascending `source_at` (a Daily member's own `source_at`; for a cluster version, the earliest constituent member `source_at`); then ascending stable candidate id.
       - Next: FVG / IFVG / BPR — implemented in `src/fvg/` (D-148 – D-152; branch `fvg-design`);
         machine validation PASSED, human visual approval PENDING, not frozen. Raw-basis scope,
-        adjustment method deferred. Runner `src.experiments.fvg_dev_validation` (~35 min, ~5.6 GB
+        adjustment method deferred. Runner `src.experiments.fvg_dev_validation` (~3.1 h at `4887537`, ~2 h of it slow visual case selection; ~5.2 GB
         peak) must run alone: running it beside the full suite exhausted memory. The naive reference
-        is quadratic, so DEV reconciliation covers the 1m episodes of ≤ 3,600 bars only.
+        is quadratic, so it covers only the 1m episodes of ≤ 3,600 bars (4.48 % of bars); the full-run
+        check is `src.fvg.audit_full` (exact per-object restrictions). Strategy views must stay as-of
+        projections (no future exit columns); prefix checks compare payloads, not ids.
       - Spec rev 4 on branch `internal-liquidity-design`; D-143 – D-147.
       - Shared consumption predicate: strict beyond `p ± t` on 1m, with
         `t` = 4 internal and 6 External.

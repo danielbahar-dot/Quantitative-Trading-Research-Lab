@@ -1626,12 +1626,21 @@ repository. For D-101 onward the date is when it was recorded here
 - **Implementation note (D-148 – D-152, 2026-10-07):** FVG-I1 – FVG-I5
   implemented on `fvg-design` in `src/fvg/` (`formation`, `engine`,
   `association`, `pipeline`, `audit`) with tests `tests/test_fvg_*.py`.
-  - DEVELOPMENT machine validation (`src.experiments.fvg_dev_validation`):
-    FVG-INV-1 … 27 = 0; engine = independent reference on the 12 of 33 1m
-    episodes of at most 3,600 bars (exact restriction; 4.5 % of 1m bars);
-    13 prefix rebuilds with 0 mismatches; frozen Swing / continuity
-    baselines and frozen sources unchanged; scratch §5.14 evidence
-    reproduced metric by metric.
+  - DEVELOPMENT machine validation (`src.experiments.fvg_dev_validation`;
+    corrected 2026-10-08 after review of PR #17 at `ee6eb27`):
+    - FULL RUN: FVG-INV-1 … 27 = 0; independent recomputation
+      (`src.fvg.audit_full`) equals production on every episode and
+      timeframe (4,199,171 rows in 10 categories, 0 mismatches).
+    - SUBSET: naive all-pairs reference on 12 of 33 1m episodes (4.48 % of
+      1m bars), 0 mismatches; 14 category × timeframe cells uncovered.
+    - PREFIX: 13 early DEVELOPMENT rebuilds, payload-level comparison against
+      the as-of projection, 0 mismatches.
+    - Frozen Swing / continuity baselines and frozen sources unchanged;
+      scratch §5.14 evidence reproduced (91 / 91).
+  - Strategy views are causal as-of projections (no future exit metadata);
+    the engine tables keep the full audit history.
+  - Evidence and the visual package (34 cases) were regenerated from code
+    commit `4887537` with a clean code worktree (provenance recorded).
   - Implementation validation is distinct from feature freeze: human visual
     approval of `fvg_visual_validation.html` is pending; nothing is frozen.
   - No trading-definition decision changed.

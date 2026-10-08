@@ -170,20 +170,38 @@ time with explicit approval (D-117).
   PENDING HUMAN VISUAL APPROVAL** (2026-10-07; D-148 – D-152; design rev 2.1;
   branch `fvg-design`; not frozen, not merged).
   - Code: `src/fvg/` (`formation`, `engine`, `association`, `pipeline`,
-    `audit`); runner `src.experiments.fvg_dev_validation` (~35 min, ~5.6 GB
-    peak; run alone); visual `src.experiments.fvg_visual`.
+    `audit`, `audit_full`); runner `src.experiments.fvg_dev_validation`
+    (~3.1 h incl. ~2 h visual case selection, ~5.2 GB peak; run alone);
+    visual `src.experiments.fvg_visual`.
+  - Corrected 2026-10-08 after review of PR #17 (`ee6eb27`): causal as-of
+    views; payload-level prefix comparison with duplicates and views;
+    full-run independent recomputation; coverage by category / timeframe.
   - DEVELOPMENT: 77,558 zones (1m 59,661; 5m 12,268; 15m 4,223; 1H 1,090;
     4H 285; 1D 31); 472,007 relationship episodes; 211,112 BPR objects;
     68,680 associations; 32 data-gap warnings; 0 pending adjustments.
-  - Machine gates PASS: FVG-INV-1 … 27 = 0; engine = independent reference
-    (12 of 33 1m episodes ≤ 3,600 bars, 4.5 % of 1m bars; exact restriction);
-    13 prefix rebuilds, 0 mismatches; frozen Swing / continuity baselines and
-    frozen sources unchanged; scratch §5.14 reproduced.
-  - Full suite: 793 passed / 0 failed / 731 subtests (35 new FVG tests).
+  - Machine gates PASS (12): FVG-INV-1 … 27 = 0; full-run recomputation =
+    production (4,199,171 rows, 0 mismatches); naive subset reference = 0
+    mismatches (12 / 33 episodes, 4.48 % of 1m bars); 13 payload-level
+    prefix rebuilds, 0 mismatches; frozen baselines unchanged; scratch §5.14
+    reproduced.
+  - Evidence and visual regenerated from code commit `4887537` (code
+    worktree CLEAN; recorded in the HTML header and summary `provenance`).
+  - Visual package: 34 cases (23 DEVELOPMENT, 11 synthetic); BPR cases
+    selected and asserted by mover provenance; association record vs marker
+    activation separated; capped tables labelled with displayed / total.
+  - Tests: full suite 808 passed / 0 failed / 6,345 subtests (before the
+    visual-helper tests); `tests/test_fvg_visual.py` 3 passed separately.
+  - Known follow-up: the visual case selection is slow on full DEV
+    (~2 h of the ~3.1 h run); fix after visual approval, and iterate on short
+    windows (see MEMORY).
   - **Next:** human review of `reports/validation/fvg_visual_validation.html`
     (local, Git-ignored). Freeze and merge only after approval.
 
 ## Last completed work
+
+- **2026-10-08 — FVG review corrections (PR #17):** causal views, payload
+  prefix comparison, full-run independent recomputation; DEVELOPMENT evidence
+  regenerated; still pending human visual approval.
 
 - **2026-10-07 — FVG / IFVG / BPR FVG-I1 – FVG-I5: machine validation passed.**
   - Implementation, tests, DEVELOPMENT validation and visual package (pending

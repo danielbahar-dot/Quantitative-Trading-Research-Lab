@@ -12,6 +12,38 @@ Areas: `ARCH`, `FEATURE`, `STATE`, `SIGNAL`, `EXECUTION`, `METHOD`, `DATA`,
 
 ## Unreleased
 
+- 2026-10-08 — [FEATURE] FVG / IFVG / FVG_OVERLAP / BPR / MTF_BPR (ROADMAP 4)
+  is **APPROVED / FROZEN** (D-148 – D-152; D-148 freeze note; PR #17).
+  - Human visual approval on the 34-case package from `4887537`.
+  - Frozen DEVELOPMENT baseline: FVG-INV-1 … 27 = 0, full-run recomputation =
+    production, overall fingerprint `4c182a8c9fc0eae3…`. Suite: 808 passed /
+    6,345 subtests (+3 visual-helper tests).
+
+- 2026-10-08 — [VALIDATION-TOOLING] FVG review corrections (PR #17 at `ee6eb27`).
+  - Strategy views (`active_bprs`, `active_overlaps`, `active_fvg_zones`) are
+    causal as-of projections; `bprs_as_of` / `episodes_as_of` /
+    `stages_as_of` added; active views carry no exit metadata.
+  - Prefix equivalence compares canonical payloads of every table plus the
+    strategy views and ranks; duplicates counted separately; negative tests.
+  - `src.fvg.audit_full`: full-run independent recomputation (0 mismatches on
+    4,199,171 DEVELOPMENT rows); subset-reference coverage reported per
+    category and timeframe.
+  - Visual package: BPR / MTF_BPR cases selected and asserted by mover
+    provenance (admission- and conversion-created separated); association
+    record vs marker activation; capped tables labelled; BPR exit predicate;
+    partner source spans; source provenance header. Evidence regenerated from
+    `4887537`. Still pending human visual approval.
+
+- 2026-10-07 — [FEATURE] FVG / IFVG / FVG_OVERLAP / BPR / MTF_BPR (ROADMAP 4,
+  ICT family) implemented in `src/fvg/` (D-148 – D-152; design rev 2.1).
+  - Formation with C2 body rule and rejection audit, normalized strength,
+    1m mitigation by observation class, FVG → IFVG → RETIRED lifecycle,
+    stage-keyed relationship episodes, independent BPR lifecycle, formation
+    groups and grades, first-FVG leg association, M7A logs.
+  - DEVELOPMENT machine validation passed (FVG-INV-1 … 27 = 0; engine =
+    reference on 12 / 33 1m episodes; 13 prefix rebuilds, 0 mismatches).
+    Pending human visual approval; not frozen.
+
 - 2026-10-07 — [FEATURE] Internal Liquidity (3.3) is **APPROVED / FROZEN** (D-143 – D-147;
   D-143 freeze note; PR #16).
   - Shared tolerance consumption contract (internal 4 / External 6 ticks),

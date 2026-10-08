@@ -3,7 +3,7 @@
 import unittest
 
 from fvg_fixtures import W1, W7, run
-from src.experiments.fvg_visual import capped, episode_provenance
+from src.experiments.fvg_visual import capped, episode_provenance, episode_provenances
 
 
 class VisualHelperTests(unittest.TestCase):
@@ -24,6 +24,11 @@ class VisualHelperTests(unittest.TestCase):
             conv = r.engine.zone_exits[mover]["conv_ns"]
             expected = "CONVERSION" if conv == row["created_at"].value else "ADMISSION"
             self.assertEqual(episode_provenance(r, row), expected)
+
+    def test_batch_provenance_equals_single(self):
+        for r in (run(W1), run(W7, timeframes=("5m", "15m"))):
+            e = r.engine.episodes
+            self.assertEqual(episode_provenances(r, e).tolist(), [episode_provenance(r, row) for _, row in e.iterrows()])
 
     def test_capped_labels_counts_and_keeps_focal_rows(self):
         rows = [{"i": i, "focal": i == 57} for i in range(100)]

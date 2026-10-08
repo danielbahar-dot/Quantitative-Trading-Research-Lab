@@ -206,18 +206,38 @@ def capped(caption, rows, limit, focal=lambda r: False):
     return f"{caption} (showing {len(shown)} of {n}; focal rows always included; history truncated)", shown
 
 
-def episode_provenance(run, ep) -> str:
-    """ADMISSION / CONVERSION / MIXED from mover provenance (each mover's admission or conversion instant)."""
-    exits, z = run.engine.zone_exits, run.zones.set_index("zone_id")
+def _zone_admission_ns(run) -> dict:
+    """zone_id -> admission (availability) instant in ns; built once per run and cached on it."""
+    cached = getattr(run, "_visual_admission_ns", None)
+    if cached is None:
+        cached = dict(zip(run.zones["zone_id"], run.zones["available_at"].astype("int64").tolist()))
+        run._visual_admission_ns = cached
+    return cached
+
+
+def _provenance(movers, created_ns: int, admission_ns: dict, exits: dict) -> str:
     kinds = set()
-    for m in ep["movers"]:
-        if z.loc[m, "available_at"] == ep["created_at"]:
+    for m in movers:
+        if admission_ns[m] == created_ns:
             kinds.add("ADMISSION")
-        elif exits[m]["conv_ns"] == ep["created_at"].value:
+        elif exits[m]["conv_ns"] == created_ns:
             kinds.add("CONVERSION")
         else:
             kinds.add("UNKNOWN")
     return kinds.pop() if len(kinds) == 1 else "MIXED"
+
+
+def episode_provenance(run, ep) -> str:
+    """ADMISSION / CONVERSION / MIXED from mover provenance (each mover's admission or conversion instant)."""
+    return _provenance(ep["movers"], pd.Timestamp(ep["created_at"]).value, _zone_admission_ns(run), run.engine.zone_exits)
+
+
+def episode_provenances(run, episodes: pd.DataFrame) -> pd.Series:
+    """``episode_provenance`` for every row of ``episodes`` (same rule; lookups built once)."""
+    adm, exits = _zone_admission_ns(run), run.engine.zone_exits
+    created = episodes["created_at"].astype("int64").tolist() if len(episodes) else []
+    return pd.Series([_provenance(m, c, adm, exits) for m, c in zip(episodes["movers"], created)],
+                     index=episodes.index, dtype=object)
 
 
 # ---------------------------------------------------------------------------
@@ -479,7 +499,7 @@ def build_dev_cases(run) -> list:
     b = E.bprs
     retired = set(b.loc[b["exit_state"] == "RETIRED", "relationship_id"])
     opp = e[(e["label"] != "FVG_OVERLAP") & (e["movers"].map(len) == 1) & e["relationship_id"].isin(retired)]
-    prov = pd.Series([episode_provenance(run, r) for _, r in opp.iterrows()], index=opp.index, dtype=object)
+    prov = episode_provenances(run, opp)
     for label, want, cid, title, note in (
             ("BPR", "ADMISSION", "BPR-ADMIT", "Same-timeframe BPR (admission-created)",
              "The unique mover is a newly admitted zone; direction and governing timeframe come from it."),

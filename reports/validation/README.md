@@ -357,8 +357,9 @@ covered by synthetic visual cases (E4, E12, E19, E23 – E25) and unit tests.
 
 FVG / IFVG / FVG_OVERLAP / BPR / MTF_BPR (ROADMAP 4, ICT family) FVG-I5
 DEVELOPMENT validation (2026-10-07; corrected 2026-10-08 after review of PR #17
-at `ee6eb27`). Status: **MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL
-APPROVAL**. Not frozen. Design: `docs/project/FVG_IFVG_BPR_DESIGN.md` rev 2.1;
+at `ee6eb27`). Status: **APPROVED / FROZEN** (2026-10-08; human visual approval on the
+34-case package from `4887537`; merged via PR #17). This is the frozen
+validation baseline (D-148 freeze note). Design: `docs/project/FVG_IFVG_BPR_DESIGN.md` rev 2.1;
 D-148 – D-152.
 
 **Scope.**

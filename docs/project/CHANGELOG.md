@@ -12,6 +12,13 @@ Areas: `ARCH`, `FEATURE`, `STATE`, `SIGNAL`, `EXECUTION`, `METHOD`, `DATA`,
 
 ## Unreleased
 
+- 2026-10-08 — [FEATURE] FVG / IFVG / FVG_OVERLAP / BPR / MTF_BPR (ROADMAP 4)
+  is **APPROVED / FROZEN** (D-148 – D-152; D-148 freeze note; PR #17).
+  - Human visual approval on the 34-case package from `4887537`.
+  - Frozen DEVELOPMENT baseline: FVG-INV-1 … 27 = 0, full-run recomputation =
+    production, overall fingerprint `4c182a8c9fc0eae3…`. Suite: 808 passed /
+    6,345 subtests (+3 visual-helper tests).
+
 - 2026-10-08 — [VALIDATION-TOOLING] FVG review corrections (PR #17 at `ee6eb27`).
   - Strategy views (`active_bprs`, `active_overlaps`, `active_fvg_zones`) are
     causal as-of projections; `bprs_as_of` / `episodes_as_of` /

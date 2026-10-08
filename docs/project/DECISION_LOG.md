@@ -1559,7 +1559,7 @@ repository. For D-101 onward the date is when it was recorded here
     null strength.
 - **Reason:** design-authority authorization of rev 2, 2026-10-07 (ICT
   wick-gap geometry; C2 rule as the approved operational rule).
-- **Status:** ACTIVE — IMPLEMENTED — MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL; NOT FROZEN.
+- **Status:** ACTIVE — APPROVED / FROZEN (2026-10-08; D-148 freeze note).
 
 ### D-149 — FVG interaction and lifecycle
 - **Date:** 2026-10-07
@@ -1575,7 +1575,7 @@ repository. For D-101 onward the date is when it was recorded here
     close classification, admissions, relationship reassessment,
     associations, grades. One exit per entity and instant.
 - **Reason:** design-authority authorization of rev 2, 2026-10-07.
-- **Status:** ACTIVE — IMPLEMENTED — MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL; NOT FROZEN.
+- **Status:** ACTIVE — APPROVED / FROZEN (2026-10-08; D-148 freeze note).
 
 ### D-150 — FVG relationships, BPR and grading
 - **Date:** 2026-10-07
@@ -1593,7 +1593,7 @@ repository. For D-101 onward the date is when it was recorded here
     BPRs ranked separately (governing timeframe → width → `available_at`,
     `bpr_id`).
 - **Reason:** design-authority authorization of rev 2, 2026-10-07.
-- **Status:** ACTIVE — IMPLEMENTED — MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL; NOT FROZEN.
+- **Status:** ACTIVE — APPROVED / FROZEN (2026-10-08; D-148 freeze note).
 
 ### D-151 — First FVG in a directional swing leg
 - **Date:** 2026-10-07
@@ -1604,7 +1604,7 @@ repository. For D-101 onward the date is when it was recorded here
   association availability; marker active only in the FVG stage, ends at
   conversion, never on the IFVG, no promotion.
 - **Reason:** design-authority authorization of rev 2, 2026-10-07.
-- **Status:** ACTIVE — IMPLEMENTED — MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL; NOT FROZEN.
+- **Status:** ACTIVE — APPROVED / FROZEN (2026-10-08; D-148 freeze note).
 
 ### D-152 — FVG data quality, price basis and outputs
 - **Date:** 2026-10-07
@@ -1621,7 +1621,7 @@ repository. For D-101 onward the date is when it was recorded here
   - Fixed output schemas; empty zone-dependent outputs when no zone forms;
     data warnings and the manifest are always written.
 - **Reason:** design-authority authorization of rev 2, 2026-10-07.
-- **Status:** ACTIVE — IMPLEMENTED — MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL; NOT FROZEN.
+- **Status:** ACTIVE — APPROVED / FROZEN (2026-10-08; D-148 freeze note).
 
 - **Implementation note (D-148 – D-152, 2026-10-07):** FVG-I1 – FVG-I5
   implemented on `fvg-design` in `src/fvg/` (`formation`, `engine`,
@@ -1644,6 +1644,50 @@ repository. For D-101 onward the date is when it was recorded here
   - Implementation validation is distinct from feature freeze: human visual
     approval of `fvg_visual_validation.html` is pending; nothing is frozen.
   - No trading-definition decision changed.
+
+- **Freeze note 2026-10-08 (FVG / IFVG / FVG_OVERLAP / BPR / MTF_BPR, D-148 – D-152):**
+  - Human visual review passed (2026-10-08) on the corrected 34-case package
+    (23 DEVELOPMENT, 11 SYNTHETIC) generated from code commit `4887537` (code
+    worktree clean; evidence commit `ec2d47d`, the reviewed PR #17 head);
+    merged to `main` via PR #17. No change after the reviewed checkpoint other
+    than this closure documentation.
+  - Machine validation: all 12 gates PASS; FVG-INV-1 … 27 = 0; full-run
+    independent recomputation = production (4,199,171 rows, 0 mismatches);
+    naive subset reference = production (12 / 33 1m episodes); 13 payload-level
+    DEVELOPMENT prefix rebuilds equivalent; scratch §5.14 reproduced. Full suite:
+    808 passed / 0 failed / 6,345 subtests, plus `tests/test_fvg_visual.py` 3
+    passed.
+  - **Frozen DEVELOPMENT baseline** (cutoff 2025-06-30 17:00 ET; `run_id`
+    `fvr_8c45a0a5008696fcfafa679aa9edf06563928bc1e85f062976bd95ab1b06ff28`;
+    FVG source SHA-256 `99642ca9e22a6e37…`):
+
+    | metric | value |
+    |---|---|
+    | zones | 77,558 (1m 59,661 · 5m 12,268 · 15m 4,223 · 1H 1,090 · 4H 285 · 1D 31) |
+    | rejected wick gaps | 7,548 |
+    | zone transitions | 151,460 |
+    | mitigation records | 2,020,702 (zones 868,797; BPRs 1,151,905) |
+    | relationship episodes | 472,007 |
+    | BPR objects | 211,112 |
+    | grade versions | 595,052 |
+    | associations | 68,680 |
+    | `zone_id` SHA-256 | `735995a88d72336e…` |
+    | `relationship_id` SHA-256 | `e95164b7b9826c2c…` |
+    | `bpr_id` SHA-256 | `aed25f755b578f91…` |
+    | zone `transition_id` SHA-256 | `57bb761b90e08daa…` |
+    | mitigation `event_id` SHA-256 | `8e8cedecadf00094…` |
+    | `grade_version_id` SHA-256 | `36c9157923606ba9…` |
+    | `association_id` SHA-256 | `ad2568f4f80d2db7…` |
+
+    - Full fingerprints: `reports/validation/fvg_dev_summary.csv`.
+    - Overall fingerprint = SHA-256 of the seven identity values in the order
+      above, joined by newlines: `4c182a8c9fc0eae3af811cee19bedaaf8e89d4b98cd8db5fff66b12ed6276f3a`.
+  - Known limits at freeze: no CONTRACT_CHANGE reset or ZERO_BASELINE on
+    DEVELOPMENT (synthetic coverage only); adjustment method deferred (raw
+    basis only); visual case selection is slow on full DEVELOPMENT
+    (performance-only follow-up, no semantic change).
+  - The decision texts of D-148 – D-152 are unchanged. Future semantic changes
+    require a new decision.
 
 ### PROPOSED items awaiting design-authority approval (2026-09-28)
 Claude recommendations from the architecture closeout; **not decisions**:

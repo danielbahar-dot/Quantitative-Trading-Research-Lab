@@ -1,17 +1,13 @@
 # FVG / IFVG / Overlap / BPR (ROADMAP 4, ICT family): Consolidated Design (rev 2)
 
-**Status: DESIGN APPROVED — IMPLEMENTED — MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL; NOT FROZEN (2026-10-07).**
+**Status: APPROVED / FROZEN (2026-10-08; D-148 freeze note; merged via PR #17).**
 
 - The design authority authorized implementation of rev 2 (FVG-I1 – FVG-I5) on 2026-10-07; the decisions are
   registered as **D-148 – D-152**. Design approval is distinct from implementation validation (machine checks
   plus human visual review) and from feature freeze.
-- **Implementation status (2026-10-07):** FVG-I1 – FVG-I5 implemented in `src/fvg/`; DEVELOPMENT machine
-  validation passed (`reports/validation/fvg_dev_*.csv`; README section `fvg_*`), corrected on 2026-10-08 after
-  review of PR #17 (causal as-of views, payload-level prefix comparison, full-run independent recomputation with
-  per-category coverage). Human visual approval of the
-  local package `reports/validation/fvg_visual_validation.html` is **pending**; the feature is **not frozen**.
-- Rev 2.1 (same date) adds only the §3.11.4 adjustment-compatibility clarification; no formation, interaction,
-  lifecycle, relationship, grading or association rule changed.
+- **Implementation status:** FVG-I1 – FVG-I5 implemented in `src/fvg/`; DEVELOPMENT machine validation passed
+  and corrected after review of PR #17; human visual approval passed on 2026-10-08; **APPROVED / FROZEN**
+  (D-148 freeze note; overall fingerprint `4c182a8c9fc0eae3…`).
 
 - Branch `fvg-design` (from `main` `6c3c909`, after the Internal Liquidity
   freeze). Rev 1: `49717c2`. This revision applies every confirmed
@@ -1332,7 +1328,7 @@ It is reconciled against production (the Internal Liquidity pattern).
 | FVG-I2 | **DONE (2026-10-07):** 1m mitigation classes, own-timeframe lifecycle, step-0 resets and basis guard, single-exit check, M7A logs; tests |
 | FVG-I3 | **DONE (2026-10-07):** Relationship episodes (admission- and conversion-created), BPR objects and lifecycle, formation groups, grade versions, rankings, views; tests |
 | FVG-I4 | **DONE (2026-10-07):** Swing-leg association with the exact deadline and markers; tests |
-| FVG-I5 | **MACHINE VALIDATION PASSED (2026-10-07); HUMAN VISUAL APPROVAL PENDING:** independent reference, invariants, DEVELOPMENT validation, prefix replays (incl. conversion-created relationships), visual package |
+| FVG-I5 | **DONE — APPROVED / FROZEN (2026-10-08):** independent reference, invariants, DEVELOPMENT validation, prefix replays (incl. conversion-created relationships), visual package |
 
 New module family `src/fvg/` (ICT family; not an extension of ORB or the
 liquidity modules). Frozen M3, continuity, the §G.2a adapter, the Swing
@@ -1377,5 +1373,5 @@ All are closed (§1.3). No open user-facing semantic decision remains.
 | Production machine validation, full run (2026-10-08; `src/fvg/`) | §6 invariants (0 violations); independent full-run recomputation (`src.fvg.audit_full`) of formation, lifecycle, mitigation, episodes, BPRs, grades, groups and associations on every episode and timeframe (4,199,171 rows, 0 mismatches); §5.14 scratch evidence reproduced |
 | Production machine validation, subset | Naive all-pairs reference on 12 of 33 1m episodes (4.48 % of 1m bars; coverage per category / timeframe incl. zero-covered cells in `fvg_dev_reference_coverage.csv`) |
 | Prefix | 13 early DEVELOPMENT rebuilds and every-cutoff synthetic rebuilds, compared payload for payload against the as-of projection (duplicates counted separately; strategy views and ranks included) |
-| Pending | Human visual approval of the local visual package; feature freeze |
+| Human visual approval | Passed 2026-10-08 on the 34-case package from `4887537`; frozen (D-148 freeze note) |
 | Not covered on DEVELOPMENT | CONTRACT_CHANGE resets and ZERO_BASELINE (absent from the data); synthetic fixtures and unit tests only |

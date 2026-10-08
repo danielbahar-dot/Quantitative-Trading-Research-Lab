@@ -166,9 +166,8 @@ time with explicit approval (D-117).
     in the D-143 freeze note (overall fingerprint `3727767b77fc0cd0…`).
   - The Market Structure freeze record (`25f95d9`) landed on `main` with
     PR #16.
-- **FVG / IFVG / overlap / BPR: IMPLEMENTED — MACHINE VALIDATION PASSED —
-  PENDING HUMAN VISUAL APPROVAL** (2026-10-07; D-148 – D-152; design rev 2.1;
-  branch `fvg-design`; not frozen, not merged).
+- **FVG / IFVG / overlap / BPR: APPROVED / FROZEN** (2026-10-08; D-148 –
+  D-152; D-148 freeze note; design rev 2.1; merged via PR #17).
   - Code: `src/fvg/` (`formation`, `engine`, `association`, `pipeline`,
     `audit`, `audit_full`); runner `src.experiments.fvg_dev_validation`
     (~3.1 h incl. ~2 h visual case selection, ~5.2 GB peak; run alone);
@@ -194,10 +193,15 @@ time with explicit approval (D-117).
   - Known follow-up: the visual case selection is slow on full DEV
     (~2 h of the ~3.1 h run); fix after visual approval, and iterate on short
     windows (see MEMORY).
-  - **Next:** human review of `reports/validation/fvg_visual_validation.html`
-    (local, Git-ignored). Freeze and merge only after approval.
+  - Human visual approval passed (2026-10-08; 34 cases from `4887537`);
+    overall fingerprint `4c182a8c9fc0eae3…`.
+  - **Next:** Order Block / Breaker / Mitigation design (on hold until the
+    design authority resumes it); FVG visual case-selection performance fix.
 
 ## Last completed work
+
+- **2026-10-08 — FVG / IFVG / BPR APPROVED / FROZEN.** Human visual review
+  passed; PR #17 merged; freeze recorded (D-148 freeze note).
 
 - **2026-10-08 — FVG review corrections (PR #17):** causal views, payload
   prefix comparison, full-run independent recomputation; DEVELOPMENT evidence

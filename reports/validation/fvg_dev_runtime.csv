@@ -1,0 +1,7 @@
+stage,seconds,peak_rss_mb
+build_fvg_full,935.6,4948
+invariants,258.1,5584
+reference_reconcile,135.5,5584
+prefix_replays,607.8,5584
+visual,27.2,5584
+total,2006.8,5584

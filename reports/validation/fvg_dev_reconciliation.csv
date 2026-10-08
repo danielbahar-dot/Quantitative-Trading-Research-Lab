@@ -1,0 +1,9 @@
+category,reference,production,missing,extra
+zones,3411,3411,0,0
+rejections,352,352,0,0
+zone_transitions,6423,6423,0,0
+mitigation,61338,61338,0,0
+episodes,12415,12415,0,0
+bpr_exits,5250,5250,0,0
+grades,19740,19740,0,0
+associations,2977,2977,0,0

@@ -1,0 +1,22 @@
+invariant,checked,violations
+"FVG-INV-1/2/5 consecutive complete triple, wick bounds, C2 rule, width, exact midpoint",77558,0
+FVG-INV-3 nothing at or before availability,77558,0
+FVG-INV-4 unique ids,2781379,0
+FVG-INV-6 milestones only from zone trades; gap-through only from beyond bars,868797,0
+"FVG-INV-7 milestone order, depth growth, gap-through before first trade",868797,0
+FVG-INV-11 no stage evidence from bars starting before the stage,868797,0
+FVG-INV-12 basis: evidence bars share the object's contract,868797,0
+FVG-INV-8/18/19 grade components consistent with immutable facts,595052,0
+FVG-INV-9 conversions / retirements are strict own-timeframe closes beyond the far bound,151460,0
+FVG-INV-10 stage sequences,77392,0
+FVG-INV-27 one exit per entity and instant,151460,0
+FVG-INV-13 positive intersection of parent bounds,472007,0
+FVG-INV-14 labels from current directions; at least one mover,472007,0
+FVG-INV-15 directional event,472007,0
+FVG-INV-16 one episode per stage pair; at most three per pair,472007,0
+FVG-INV-17 BPR exits only by its own predicate or a reset,211112,0
+FVG-INV-20 gap onset terminates every active zone; nothing inside the gap,33,0
+FVG-INV-22 association uses only swings known at the association instant,68680,0
+FVG-INV-23 markers end only at conversion or reset,43792,0
+FVG-INV-24 at most one first marker per leg,44295,0
+FVG-INV-26 M7A validity of all namespaces,4,0

@@ -352,3 +352,66 @@ pinned assignment consumed while its live cluster stayed active, no
 same-close admission that the admitting bar exceeds, and no coincident
 internal / External pair with the internal consumed first; these paths are
 covered by synthetic visual cases (E4, E12, E19, E23 – E25) and unit tests.
+
+## `fvg_*`
+
+FVG / IFVG / FVG_OVERLAP / BPR / MTF_BPR (ROADMAP 4, ICT family) FVG-I5
+DEVELOPMENT validation (2026-10-07). Status: **MACHINE VALIDATION PASSED —
+PENDING HUMAN VISUAL APPROVAL**. Not frozen. Design:
+`docs/project/FVG_IFVG_BPR_DESIGN.md` rev 2.1; D-148 – D-152.
+
+**Scope.**
+
+- DEVELOPMENT only (337,815 canonical 1m bars); explicit `replay_cutoff` =
+  2025-06-30 17:00 ET. Six timeframes (1m, 5m, 15m, 1H, 4H, 1D), raw price
+  basis, canonical 1m interaction, explicit 2/2 Swing reference for leg
+  association. No age cutoffs; no history discarded.
+- **Reproduce with:**
+  `.\.venv\Scripts\python.exe -m src.experiments.fvg_dev_validation`
+  (about 35 minutes, peak about 5.6 GB RSS; run it alone).
+- No PnL, strategy, backtest or optimization; no VALIDATION / OOS data.
+
+**Tracked files** (all price-free):
+
+- **`fvg_dev_summary.csv`** (`section, timeframe, metric, value`): formation
+  counts, rejection reasons, normalization statuses and strength quantiles,
+  lifecycle transitions, mitigation by stage / event / observation class,
+  relationship episodes (admission- vs conversion-created) and end reasons,
+  BPR objects by label / direction / exit, grade versions, associations and
+  first markers, data-gap warnings, SHA-256 id fingerprints, `run_id`,
+  reference coverage and machine-gate PASS / FAIL.
+- **`fvg_dev_invariants.csv`**: FVG-INV-1 … FVG-INV-27 (INV-21 is the prefix
+  file; INV-25, empty input, is a unit test) with checked and violation counts.
+- **`fvg_dev_reconciliation.csv`**: production versus the independent naive
+  per-bar reference (`src.fvg.audit.reference`): zones, rejections, zone
+  transitions, mitigation, relationship episodes, BPR exits, grade versions
+  and associations. **Coverage:** the 12 of 33 1m episodes with at most 3,600
+  bars (4.5 % of 1m bars), because the naive reference is quadratic on large
+  episodes. The restriction is exact (every FVG object is confined to its 1m
+  episode). The full run is covered by the invariants.
+- **`fvg_dev_prefix_replay.csv`**: 13 DEVELOPMENT prefix rebuilds at / one
+  minute before a 5m admission, a mitigation, a conversion, a
+  conversion-created BPR, a relationship change, a BPR retirement, a gap
+  onset, inside the gap, and at / one bar before an association deadline;
+  each also checks that no row lies after the cutoff.
+- **`fvg_dev_scratch_reconciliation.csv`**: production versus the design's
+  scratch evidence (§5.14), metric by metric. "Pending candidates" uses the
+  scratch scope (all zones); the summary also reports the in-leg subset.
+- **`fvg_dev_runtime.csv`**: stage seconds and peak RSS.
+- **`fvg_visual_validation_cases.csv`**: manifest of the visual cases (ids and
+  timestamps only).
+
+**Local, Git-ignored:** `fvg_visual_validation.html` (prices). Each case
+shows the own-timeframe candles, formation candles C1 – C3 with the C2 body
+outlined, shaded source spans, exact bounds and midpoint, availability markers
+(▲), and tables separating pre-state, evidence, post-state and later
+lifecycle. DEVELOPMENT cases cover all six timeframes, mitigation classes,
+retirement, IFVG retest, a data gap, normalization statuses, an overlap group,
+BPR, MTF_BPR, a conversion-created BPR and immediate / delayed association;
+synthetic cases (isolated fixtures, no frozen calendar altered) cover the
+worked examples W1, W2, W4a – c, W5, W7, W9D, W10 – W12.
+
+**Coverage notes.** DEVELOPMENT contains no CONTRACT_CHANGE episode reset
+(every roll falls inside a data gap) and no ZERO_BASELINE normalization; the
+pure-roll guard, pending adjustment and those paths are covered by synthetic
+cases and unit tests only.

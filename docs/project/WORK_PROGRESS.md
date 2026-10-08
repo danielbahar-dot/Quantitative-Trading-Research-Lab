@@ -166,32 +166,28 @@ time with explicit approval (D-117).
     in the D-143 freeze note (overall fingerprint `3727767b77fc0cd0…`).
   - The Market Structure freeze record (`25f95d9`) landed on `main` with
     PR #16.
-- **FVG / IFVG / overlap / BPR: DESIGN APPROVED — IMPLEMENTATION AUTHORIZED**
-  (2026-10-07; D-148 – D-152; rev 2.1 adds the §3.11.4 adjustment
-  clarification). Implementation FVG-I1 – FVG-I5 in progress on
-  `fvg-design`; not validated or frozen.
-  - `docs/project/FVG_IFVG_BPR_DESIGN.md` rev 2 on branch `fvg-design`
-    (rev 1 `49717c2`). Design only; not approved, implemented or frozen.
-  - All decision outcomes are applied:
-    - C2 directional-body formation;
-    - inclusive midpoint / full reach;
-    - same-direction formation-group overlap;
-    - conversion-created BPRs via stage-keyed relationship episodes;
-    - descriptive undefined-direction BPRs;
-    - C2 anchor and most-extreme leg origin;
-    - pre-C1 ATR(14) normalized gap strength;
-    - adjustment method deferred, with stated compatibility properties.
-  - Rev 1 defects are corrected:
-    - mitigation vs gap-through classes;
-    - BPR independence conditions;
-    - step-0 contract / basis guard and single-exit precedence;
-    - a true equality fixture;
-    - empty-output wording.
-  - Worked examples W1–W12 and the DEVELOPMENT evidence (§5.14) were
-    re-executed with a scratch prototype on frozen M3 / continuity / Swing.
-  - No open user-facing decision remains.
+- **FVG / IFVG / overlap / BPR: IMPLEMENTED — MACHINE VALIDATION PASSED —
+  PENDING HUMAN VISUAL APPROVAL** (2026-10-07; D-148 – D-152; design rev 2.1;
+  branch `fvg-design`; not frozen, not merged).
+  - Code: `src/fvg/` (`formation`, `engine`, `association`, `pipeline`,
+    `audit`); runner `src.experiments.fvg_dev_validation` (~35 min, ~5.6 GB
+    peak; run alone); visual `src.experiments.fvg_visual`.
+  - DEVELOPMENT: 77,558 zones (1m 59,661; 5m 12,268; 15m 4,223; 1H 1,090;
+    4H 285; 1D 31); 472,007 relationship episodes; 211,112 BPR objects;
+    68,680 associations; 32 data-gap warnings; 0 pending adjustments.
+  - Machine gates PASS: FVG-INV-1 … 27 = 0; engine = independent reference
+    (12 of 33 1m episodes ≤ 3,600 bars, 4.5 % of 1m bars; exact restriction);
+    13 prefix rebuilds, 0 mismatches; frozen Swing / continuity baselines and
+    frozen sources unchanged; scratch §5.14 reproduced.
+  - Full suite: 793 passed / 0 failed / 731 subtests (35 new FVG tests).
+  - **Next:** human review of `reports/validation/fvg_visual_validation.html`
+    (local, Git-ignored). Freeze and merge only after approval.
 
 ## Last completed work
+
+- **2026-10-07 — FVG / IFVG / BPR FVG-I1 – FVG-I5: machine validation passed.**
+  - Implementation, tests, DEVELOPMENT validation and visual package (pending
+    human approval).
 
 - **2026-10-07 — Internal Liquidity APPROVED / FROZEN.**
   - Human visual review passed on the corrected package (`9dd62ca`); boundary

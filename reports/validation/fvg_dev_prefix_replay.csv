@@ -1,0 +1,14 @@
+case,replay_cutoff,mismatches,m_zones,m_zones_future_rows,m_rejections,m_rejections_future_rows,m_zone_transitions,m_zone_transitions_future_rows,m_mitigation,m_mitigation_future_rows,m_episodes,m_episodes_future_rows,m_bprs,m_bprs_future_rows,m_bpr_transitions,m_bpr_transitions_future_rows,m_grades,m_grades_future_rows,m_associations,m_associations_future_rows,m_marker_transitions,m_marker_transitions_future_rows,seconds
+admission_5m_at,2024-07-15T10:10:00-04:00,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,57.5
+admission_5m_minus_1m,2024-07-15T10:09:00-04:00,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,54.1
+mitigation_at,2024-07-15T12:09:00-04:00,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,54.4
+conversion_at,2024-07-14T21:20:00-04:00,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,51.1
+conversion_minus_1m,2024-07-14T21:19:00-04:00,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,52.6
+conversion_created_bpr_at,2024-07-15T20:35:00-04:00,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,55.1
+conversion_created_bpr_plus_1m,2024-07-15T20:36:00-04:00,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56.7
+relationship_change_at,2024-07-15T21:02:00-04:00,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,59.9
+bpr_retirement_at,2024-07-15T19:04:00-04:00,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,57.7
+gap_onset,2024-06-23T18:01:00-04:00,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4.3
+inside_gap,2024-06-23T18:31:00-04:00,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4.2
+association_deadline_at,2024-07-12T08:19:00-04:00,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,50.0
+association_deadline_minus_1_bar,2024-07-12T08:14:00-04:00,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,50.2

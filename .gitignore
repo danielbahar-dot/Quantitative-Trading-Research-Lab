@@ -82,3 +82,6 @@ reports/validation/market_structure_visual_validation.html
 # Internal Liquidity visual-validation chart embeds raw prices; the price-free
 # *_cases.csv manifest and summary CSVs are tracked.
 reports/validation/internal_liquidity_visual_validation.html
+# FVG / IFVG / BPR visual-validation chart embeds raw prices; the price-free
+# fvg_visual_validation_cases.csv manifest is tracked.
+reports/validation/fvg_visual_validation.html

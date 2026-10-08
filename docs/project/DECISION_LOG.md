@@ -1559,7 +1559,7 @@ repository. For D-101 onward the date is when it was recorded here
     null strength.
 - **Reason:** design-authority authorization of rev 2, 2026-10-07 (ICT
   wick-gap geometry; C2 rule as the approved operational rule).
-- **Status:** ACTIVE — DESIGN APPROVED — IMPLEMENTATION AUTHORIZED; NOT IMPLEMENTED / NOT VALIDATED / NOT FROZEN.
+- **Status:** ACTIVE — IMPLEMENTED — MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL; NOT FROZEN.
 
 ### D-149 — FVG interaction and lifecycle
 - **Date:** 2026-10-07
@@ -1575,7 +1575,7 @@ repository. For D-101 onward the date is when it was recorded here
     close classification, admissions, relationship reassessment,
     associations, grades. One exit per entity and instant.
 - **Reason:** design-authority authorization of rev 2, 2026-10-07.
-- **Status:** ACTIVE — DESIGN APPROVED — IMPLEMENTATION AUTHORIZED; NOT IMPLEMENTED / NOT VALIDATED / NOT FROZEN.
+- **Status:** ACTIVE — IMPLEMENTED — MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL; NOT FROZEN.
 
 ### D-150 — FVG relationships, BPR and grading
 - **Date:** 2026-10-07
@@ -1593,7 +1593,7 @@ repository. For D-101 onward the date is when it was recorded here
     BPRs ranked separately (governing timeframe → width → `available_at`,
     `bpr_id`).
 - **Reason:** design-authority authorization of rev 2, 2026-10-07.
-- **Status:** ACTIVE — DESIGN APPROVED — IMPLEMENTATION AUTHORIZED; NOT IMPLEMENTED / NOT VALIDATED / NOT FROZEN.
+- **Status:** ACTIVE — IMPLEMENTED — MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL; NOT FROZEN.
 
 ### D-151 — First FVG in a directional swing leg
 - **Date:** 2026-10-07
@@ -1604,7 +1604,7 @@ repository. For D-101 onward the date is when it was recorded here
   association availability; marker active only in the FVG stage, ends at
   conversion, never on the IFVG, no promotion.
 - **Reason:** design-authority authorization of rev 2, 2026-10-07.
-- **Status:** ACTIVE — DESIGN APPROVED — IMPLEMENTATION AUTHORIZED; NOT IMPLEMENTED / NOT VALIDATED / NOT FROZEN.
+- **Status:** ACTIVE — IMPLEMENTED — MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL; NOT FROZEN.
 
 ### D-152 — FVG data quality, price basis and outputs
 - **Date:** 2026-10-07
@@ -1621,7 +1621,20 @@ repository. For D-101 onward the date is when it was recorded here
   - Fixed output schemas; empty zone-dependent outputs when no zone forms;
     data warnings and the manifest are always written.
 - **Reason:** design-authority authorization of rev 2, 2026-10-07.
-- **Status:** ACTIVE — DESIGN APPROVED — IMPLEMENTATION AUTHORIZED; NOT IMPLEMENTED / NOT VALIDATED / NOT FROZEN.
+- **Status:** ACTIVE — IMPLEMENTED — MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL; NOT FROZEN.
+
+- **Implementation note (D-148 – D-152, 2026-10-07):** FVG-I1 – FVG-I5
+  implemented on `fvg-design` in `src/fvg/` (`formation`, `engine`,
+  `association`, `pipeline`, `audit`) with tests `tests/test_fvg_*.py`.
+  - DEVELOPMENT machine validation (`src.experiments.fvg_dev_validation`):
+    FVG-INV-1 … 27 = 0; engine = independent reference on the 12 of 33 1m
+    episodes of at most 3,600 bars (exact restriction; 4.5 % of 1m bars);
+    13 prefix rebuilds with 0 mismatches; frozen Swing / continuity
+    baselines and frozen sources unchanged; scratch §5.14 evidence
+    reproduced metric by metric.
+  - Implementation validation is distinct from feature freeze: human visual
+    approval of `fvg_visual_validation.html` is pending; nothing is frozen.
+  - No trading-definition decision changed.
 
 ### PROPOSED items awaiting design-authority approval (2026-09-28)
 Claude recommendations from the architecture closeout; **not decisions**:

@@ -1,17 +1,20 @@
 # FVG / IFVG / Overlap / BPR (ROADMAP 4, ICT family): Consolidated Design (rev 2)
 
-**Status: DESIGN APPROVED — IMPLEMENTATION AUTHORIZED; NOT IMPLEMENTED / NOT VALIDATED / NOT FROZEN (2026-10-07).**
+**Status: DESIGN APPROVED — IMPLEMENTED — MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL; NOT FROZEN (2026-10-07).**
 
 - The design authority authorized implementation of rev 2 (FVG-I1 – FVG-I5) on 2026-10-07; the decisions are
   registered as **D-148 – D-152**. Design approval is distinct from implementation validation (machine checks
-  plus human visual review) and from feature freeze; neither has happened.
+  plus human visual review) and from feature freeze.
+- **Implementation status (2026-10-07):** FVG-I1 – FVG-I5 implemented in `src/fvg/`; DEVELOPMENT machine
+  validation passed (`reports/validation/fvg_dev_*.csv`; README section `fvg_*`). Human visual approval of the
+  local package `reports/validation/fvg_visual_validation.html` is **pending**; the feature is **not frozen**.
 - Rev 2.1 (same date) adds only the §3.11.4 adjustment-compatibility clarification; no formation, interaction,
   lifecycle, relationship, grading or association rule changed.
 
 - Branch `fvg-design` (from `main` `6c3c909`, after the Internal Liquidity
   freeze). Rev 1: `49717c2`. This revision applies every confirmed
   decision (§1.3) and corrects the defects found in rev 1 (§1.4).
-- Design only. No FVG code exists. No frozen module changes: M3,
+- Implemented in `src/fvg/` (FVG-I1 – FVG-I5, 2026-10-07). No frozen module changes: M3,
   continuity, the §G.2a reset adapter, Swing, Market Structure,
   External / Internal Liquidity and M7.
 - No user-facing semantic choice remains open. Routine representation
@@ -1318,16 +1321,16 @@ It is reconciled against production (the Internal Liquidity pattern).
 
 ---
 
-## 8. Integration and implementation milestones (not authorized)
+## 8. Integration and implementation milestones
 
 | Step | Content |
 |---|---|
 | FVG-I0 | **DONE (2026-10-07):** implementation of rev 2 authorized; D-148 – D-152 registered; §3.11.4 clarified (rev 2.1) |
-| FVG-I1 | Formation (wick gap + C2), rejection audit, normalization, zone facts, price basis, ids, empty schemas; tests |
-| FVG-I2 | 1m mitigation classes, own-timeframe lifecycle, step-0 resets and basis guard, single-exit check, M7A logs; tests |
-| FVG-I3 | Relationship episodes (admission- and conversion-created), BPR objects and lifecycle, formation groups, grade versions, rankings, views; tests |
-| FVG-I4 | Swing-leg association with the exact deadline and markers; tests |
-| FVG-I5 | Independent reference, invariants, DEVELOPMENT validation, prefix replays (incl. conversion-created relationships), visual package |
+| FVG-I1 | **DONE (2026-10-07):** Formation (wick gap + C2), rejection audit, normalization, zone facts, price basis, ids, empty schemas; tests |
+| FVG-I2 | **DONE (2026-10-07):** 1m mitigation classes, own-timeframe lifecycle, step-0 resets and basis guard, single-exit check, M7A logs; tests |
+| FVG-I3 | **DONE (2026-10-07):** Relationship episodes (admission- and conversion-created), BPR objects and lifecycle, formation groups, grade versions, rankings, views; tests |
+| FVG-I4 | **DONE (2026-10-07):** Swing-leg association with the exact deadline and markers; tests |
+| FVG-I5 | **MACHINE VALIDATION PASSED (2026-10-07); HUMAN VISUAL APPROVAL PENDING:** independent reference, invariants, DEVELOPMENT validation, prefix replays (incl. conversion-created relationships), visual package |
 
 New module family `src/fvg/` (ICT family; not an extension of ORB or the
 liquidity modules). Frozen M3, continuity, the §G.2a adapter, the Swing
@@ -1369,5 +1372,6 @@ All are closed (§1.3). No open user-facing semantic decision remains.
 | Approved operational rules | C2 directional body; ≥ 1 tick; strict penetration / closes; inclusive reach; strength; priority; groups; episodes; leg rule; data / basis rules (§1.2, §1.3) |
 | Arguments (not tests) | Single direction per triple; C2 lemmas; mitigation coherence; single exit per instant; episode reachability (§3.7.5); BPR independence conditions (§3.8.2); deadline exactness (§3.10); normalization invariance (§3.3) |
 | Executed scratch checks (2026-10-07; prototype not committed) | W1–W12 (§5); DEVELOPMENT formation, normalization, nesting and association evidence with a causal self-check (§5.14) |
-| Not executed | No FVG code, tests or validation exist. The repository suite was not re-run (documentation-only change) |
-| Planned | §6 invariants; §7 tests, independent reference, prefix replays, visual cases |
+| Production machine validation (2026-10-07; `src/fvg/`) | §6 invariants on the full DEVELOPMENT run (0 violations); independent reference on 12 of 33 1m episodes (exact restriction); 13 DEVELOPMENT prefix rebuilds; §7 unit tests on mirrored fixtures; §5.14 scratch evidence reproduced (`reports/validation/fvg_dev_*.csv`) |
+| Pending | Human visual approval of the local visual package; feature freeze |
+| Not covered on DEVELOPMENT | CONTRACT_CHANGE resets and ZERO_BASELINE (absent from the data); synthetic fixtures and unit tests only |

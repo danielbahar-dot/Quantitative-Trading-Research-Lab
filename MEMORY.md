@@ -215,8 +215,11 @@ at a time with explicit approval (D-117).
       - Runner `src.experiments.internal_liquidity_dev_validation` (~40 min); frozen overall
         fingerprint `3727767b77fc0cd0…`.
       - Boundary ties: first ascending `available_at` of the candidate's current formation version; then ascending `source_at` (a Daily member's own `source_at`; for a cluster version, the earliest constituent member `source_at`); then ascending stable candidate id.
-      - Next: FVG / IFVG / BPR — design rev 2.1 approved and implementation authorized (D-148 – D-152;
-        branch `fvg-design`); raw-basis production scope, adjustment method deferred.
+      - Next: FVG / IFVG / BPR — implemented in `src/fvg/` (D-148 – D-152; branch `fvg-design`);
+        machine validation PASSED, human visual approval PENDING, not frozen. Raw-basis scope,
+        adjustment method deferred. Runner `src.experiments.fvg_dev_validation` (~35 min, ~5.6 GB
+        peak) must run alone: running it beside the full suite exhausted memory. The naive reference
+        is quadratic, so DEV reconciliation covers the 1m episodes of ≤ 3,600 bars only.
       - Spec rev 4 on branch `internal-liquidity-design`; D-143 – D-147.
       - Shared consumption predicate: strict beyond `p ± t` on 1m, with
         `t` = 4 internal and 6 External.

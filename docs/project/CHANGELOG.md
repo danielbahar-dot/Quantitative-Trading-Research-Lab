@@ -12,6 +12,16 @@ Areas: `ARCH`, `FEATURE`, `STATE`, `SIGNAL`, `EXECUTION`, `METHOD`, `DATA`,
 
 ## Unreleased
 
+- 2026-10-07 — [FEATURE] FVG / IFVG / FVG_OVERLAP / BPR / MTF_BPR (ROADMAP 4,
+  ICT family) implemented in `src/fvg/` (D-148 – D-152; design rev 2.1).
+  - Formation with C2 body rule and rejection audit, normalized strength,
+    1m mitigation by observation class, FVG → IFVG → RETIRED lifecycle,
+    stage-keyed relationship episodes, independent BPR lifecycle, formation
+    groups and grades, first-FVG leg association, M7A logs.
+  - DEVELOPMENT machine validation passed (FVG-INV-1 … 27 = 0; engine =
+    reference on 12 / 33 1m episodes; 13 prefix rebuilds, 0 mismatches).
+    Pending human visual approval; not frozen.
+
 - 2026-10-07 — [FEATURE] Internal Liquidity (3.3) is **APPROVED / FROZEN** (D-143 – D-147;
   D-143 freeze note; PR #16).
   - Shared tolerance consumption contract (internal 4 / External 6 ticks),

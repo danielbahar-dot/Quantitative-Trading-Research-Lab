@@ -205,13 +205,18 @@ time with explicit approval (D-117).
   PASSED — PENDING HUMAN VISUAL APPROVAL** (2026-10-08; rev 3; D-153 – D-157;
   branch `ob-design` from `f4beabc`; not frozen, not merged).
   - Code `src/ict_blocks/`; runner `src.experiments.ob_dev_validation` (full
-    ~34 min / 1.6 GB; `--fast` ~2 min); visual `src.experiments.ob_visual`.
-  - DEVELOPMENT: 17,926 ordinary blocks; 14,689 BREAKER; 1,761 MITIGATION;
-    100 FAILED_FINAL; 0 waiting classifications (N = 1); 32 data-gap
+    ~46 min / 1.7 GB; `--fast` ~1.5 min); visual `src.experiments.ob_visual`.
+  - Corrected 2026-10-09 (review of PR #19 at `ae8a462`): exact ownership
+    deadlines, evidence timing (OB-INV-14), causal visit prefix comparison,
+    per-cell coverage, visual corrections; evidence regenerated from
+    `ae1462e`.
+  - DEVELOPMENT: 17,929 ordinary blocks; 14,690 BREAKER; 1,761 MITIGATION;
+    102 FAILED_FINAL; 0 waiting classifications (N = 1); 32 data-gap
     warnings; 0 pure rolls (synthetic coverage only).
   - All 12 gates PASS incl. independent reference on every timeframe (0
-    mismatches), OB-INV-1 … 13 = 0, 9 prefix rebuilds, shuffle determinism.
-  - Full suite: 842 passed / 0 failed / 6,547 subtests (24 new OB tests).
+    mismatches over 48 cells), OB-INV-1 … 14 = 0, 9 prefix rebuilds, shuffle
+    determinism.
+  - Full suite at `ae1462e`: 859 passed / 0 failed / 6,908 subtests.
   - **Next:** human review of `reports/validation/ob_visual_validation.html`
     (local, Git-ignored).
 

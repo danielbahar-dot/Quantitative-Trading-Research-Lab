@@ -12,6 +12,12 @@ Areas: `ARCH`, `FEATURE`, `STATE`, `SIGNAL`, `EXECUTION`, `METHOD`, `DATA`,
 
 ## Unreleased
 
+- 2026-10-09 — [VALIDATION-TOOLING] Order Block review corrections (PR #19 at `ae8a462`): exact ownership
+  deadlines (only left-qualified swing candidates wait; §22 prose corrected), evidence never known before its
+  episode (OB-INV-14), causally reconstructed visit prefix comparison, per category × timeframe reference coverage
+  and an evidence-coverage CSV, visual package corrections. DEVELOPMENT evidence regenerated from `ae1462e`;
+  pending human visual approval.
+
 - 2026-10-08 — [FEATURE] Order Block / Breaker / Mitigation (ROADMAP 4, ICT
   family) implemented in `src/ict_blocks/` (D-153 – D-157; design rev 3 + §22).
   - Swing-episode discovery (N = 1), single terminal source candle (body ≥ 4

@@ -1,0 +1,195 @@
+evidence_class,item,timeframe,count,note
+FULL_DEV,ORDINARY_ADMITTED,1m,13303.0,
+FULL_DEV,ORDINARY_ADMITTED,5m,3204.0,
+FULL_DEV,ORDINARY_ADMITTED,15m,1104.0,
+FULL_DEV,ORDINARY_ADMITTED,1H,251.0,
+FULL_DEV,ORDINARY_ADMITTED,4H,63.0,
+FULL_DEV,ORDINARY_ADMITTED,1D,4.0,
+SYNTHETIC,ORDINARY_ADMITTED,5m,,"EX151 (+ mirrored), PLATEAU_OK, RALLY, HIGHER_LOW, INTERACT, LONG_VISIT"
+FULL_DEV,BREAKER,1m,11244.0,
+FULL_DEV,BREAKER,5m,2506.0,
+FULL_DEV,BREAKER,15m,777.0,
+FULL_DEV,BREAKER,1H,138.0,
+FULL_DEV,BREAKER,4H,25.0,
+FULL_DEV,BREAKER,1D,0.0,
+SYNTHETIC,BREAKER,5m,,"BREAKER (+ mirrored), CONCURRENT, NO_PRIOR source episodes, N2_DELAYED"
+FULL_DEV,MITIGATION,1m,1311.0,
+FULL_DEV,MITIGATION,5m,303.0,
+FULL_DEV,MITIGATION,15m,115.0,
+FULL_DEV,MITIGATION,1H,26.0,
+FULL_DEV,MITIGATION,4H,6.0,
+FULL_DEV,MITIGATION,1D,0.0,
+SYNTHETIC,MITIGATION,5m,,MITIGATION (+ mirrored)
+FULL_DEV,FAILED_FINAL|EQUAL_EXTREME,1m,58.0,
+FULL_DEV,FAILED_FINAL|EQUAL_EXTREME,5m,4.0,
+FULL_DEV,FAILED_FINAL|EQUAL_EXTREME,15m,0.0,
+FULL_DEV,FAILED_FINAL|EQUAL_EXTREME,1H,0.0,
+FULL_DEV,FAILED_FINAL|EQUAL_EXTREME,4H,0.0,
+FULL_DEV,FAILED_FINAL|EQUAL_EXTREME,1D,0.0,
+SYNTHETIC,FAILED_FINAL|EQUAL_EXTREME,5m,,EQUAL (+ mirrored)
+FULL_DEV,FAILED_FINAL|RAID_WITH_LESS_EXTREME_C,1m,4.0,
+FULL_DEV,FAILED_FINAL|RAID_WITH_LESS_EXTREME_C,5m,3.0,
+FULL_DEV,FAILED_FINAL|RAID_WITH_LESS_EXTREME_C,15m,1.0,
+FULL_DEV,FAILED_FINAL|RAID_WITH_LESS_EXTREME_C,1H,0.0,
+FULL_DEV,FAILED_FINAL|RAID_WITH_LESS_EXTREME_C,4H,0.0,
+FULL_DEV,FAILED_FINAL|RAID_WITH_LESS_EXTREME_C,1D,0.0,
+SYNTHETIC,FAILED_FINAL|RAID_WITH_LESS_EXTREME_C,5m,,RAID_LOWER_C (+ mirrored; raid on the break bar)
+FULL_DEV,FAILED_FINAL|NO_PRIOR_EXTREME,1m,2.0,
+FULL_DEV,FAILED_FINAL|NO_PRIOR_EXTREME,5m,2.0,
+FULL_DEV,FAILED_FINAL|NO_PRIOR_EXTREME,15m,2.0,
+FULL_DEV,FAILED_FINAL|NO_PRIOR_EXTREME,1H,5.0,
+FULL_DEV,FAILED_FINAL|NO_PRIOR_EXTREME,4H,0.0,
+FULL_DEV,FAILED_FINAL|NO_PRIOR_EXTREME,1D,0.0,
+SYNTHETIC,FAILED_FINAL|NO_PRIOR_EXTREME,5m,,NO_PRIOR (+ mirrored)
+FULL_DEV,FAILED_FINAL|NO_REVERSAL_SWING,1m,12.0,
+FULL_DEV,FAILED_FINAL|NO_REVERSAL_SWING,5m,2.0,
+FULL_DEV,FAILED_FINAL|NO_REVERSAL_SWING,15m,5.0,
+FULL_DEV,FAILED_FINAL|NO_REVERSAL_SWING,1H,1.0,
+FULL_DEV,FAILED_FINAL|NO_REVERSAL_SWING,4H,0.0,
+FULL_DEV,FAILED_FINAL|NO_REVERSAL_SWING,1D,0.0,
+SYNTHETIC,FAILED_FINAL|NO_REVERSAL_SWING,5m,,EARLY_RAID (+ mirrored)
+FULL_DEV,FAILED_AWAITING_CLASSIFICATION,1m,0.0,
+FULL_DEV,FAILED_AWAITING_CLASSIFICATION,5m,0.0,
+FULL_DEV,FAILED_AWAITING_CLASSIFICATION,15m,0.0,
+FULL_DEV,FAILED_AWAITING_CLASSIFICATION,1H,0.0,
+FULL_DEV,FAILED_AWAITING_CLASSIFICATION,4H,0.0,
+FULL_DEV,FAILED_AWAITING_CLASSIFICATION,1D,0.0,
+SYNTHETIC,FAILED_AWAITING_CLASSIFICATION,5m,,"N2_DELAYED, N2_INVALID (N = 2 only; unreachable at N = 1)"
+FULL_DEV,FAILED_FINAL|QUALIFIED_BUT_INVALID_BEFORE_ADMISSION,1m,0.0,
+FULL_DEV,FAILED_FINAL|QUALIFIED_BUT_INVALID_BEFORE_ADMISSION,5m,0.0,
+FULL_DEV,FAILED_FINAL|QUALIFIED_BUT_INVALID_BEFORE_ADMISSION,15m,0.0,
+FULL_DEV,FAILED_FINAL|QUALIFIED_BUT_INVALID_BEFORE_ADMISSION,1H,0.0,
+FULL_DEV,FAILED_FINAL|QUALIFIED_BUT_INVALID_BEFORE_ADMISSION,4H,0.0,
+FULL_DEV,FAILED_FINAL|QUALIFIED_BUT_INVALID_BEFORE_ADMISSION,1D,0.0,
+SYNTHETIC,FAILED_FINAL|QUALIFIED_BUT_INVALID_BEFORE_ADMISSION,5m,,N2_INVALID (N = 2 only)
+FULL_DEV,TERMINATED_DATA_GAP,1m,1129.0,
+FULL_DEV,TERMINATED_DATA_GAP,5m,593.0,
+FULL_DEV,TERMINATED_DATA_GAP,15m,303.0,
+FULL_DEV,TERMINATED_DATA_GAP,1H,123.0,
+FULL_DEV,TERMINATED_DATA_GAP,4H,43.0,
+FULL_DEV,TERMINATED_DATA_GAP,1D,4.0,
+SYNTHETIC,TERMINATED_DATA_GAP,5m,,BREAKER with a missing bar (gap)
+FULL_DEV,PENDING_ADJUSTMENT,1m,0.0,
+FULL_DEV,PENDING_ADJUSTMENT,5m,0.0,
+FULL_DEV,PENDING_ADJUSTMENT,15m,0.0,
+FULL_DEV,PENDING_ADJUSTMENT,1H,0.0,
+FULL_DEV,PENDING_ADJUSTMENT,4H,0.0,
+FULL_DEV,PENDING_ADJUSTMENT,1D,0.0,
+SYNTHETIC,PENDING_ADJUSTMENT,5m,,BREAKER with a pure roll (roll); none on DEVELOPMENT
+FULL_DEV,SUPERSEDED,1m,18166.0,
+FULL_DEV,SUPERSEDED,5m,4077.0,
+FULL_DEV,SUPERSEDED,15m,1472.0,
+FULL_DEV,SUPERSEDED,1H,338.0,
+FULL_DEV,SUPERSEDED,4H,101.0,
+FULL_DEV,SUPERSEDED,1D,9.0,
+SYNTHETIC,SUPERSEDED,5m,,test_ob_deadlines candidate_confirmed / plateau_confirmed
+FULL_DEV,REJECTED|SOURCE_BODY_LT_4_TICKS,1m,31299.0,
+FULL_DEV,REJECTED|SOURCE_BODY_LT_4_TICKS,5m,2816.0,
+FULL_DEV,REJECTED|SOURCE_BODY_LT_4_TICKS,15m,503.0,
+FULL_DEV,REJECTED|SOURCE_BODY_LT_4_TICKS,1H,61.0,
+FULL_DEV,REJECTED|SOURCE_BODY_LT_4_TICKS,4H,8.0,
+FULL_DEV,REJECTED|SOURCE_BODY_LT_4_TICKS,1D,0.0,
+SYNTHETIC,REJECTED|SOURCE_BODY_LT_4_TICKS,5m,,"with_source 0 / 1 / 3 ticks, PLATEAU_DOJI"
+FULL_DEV,REJECTED|SOURCE_DIRECTION_MISMATCH,1m,54632.0,
+FULL_DEV,REJECTED|SOURCE_DIRECTION_MISMATCH,5m,12199.0,
+FULL_DEV,REJECTED|SOURCE_DIRECTION_MISMATCH,15m,4391.0,
+FULL_DEV,REJECTED|SOURCE_DIRECTION_MISMATCH,1H,1213.0,
+FULL_DEV,REJECTED|SOURCE_DIRECTION_MISMATCH,4H,277.0,
+FULL_DEV,REJECTED|SOURCE_DIRECTION_MISMATCH,1D,45.0,
+SYNTHETIC,REJECTED|SOURCE_DIRECTION_MISMATCH,5m,,with_source bullish candle
+FULL_DEV,REJECTED|NO_DEPARTURE_FVG_IN_WINDOW,1m,31553.0,
+FULL_DEV,REJECTED|NO_DEPARTURE_FVG_IN_WINDOW,5m,7547.0,
+FULL_DEV,REJECTED|NO_DEPARTURE_FVG_IN_WINDOW,15m,2549.0,
+FULL_DEV,REJECTED|NO_DEPARTURE_FVG_IN_WINDOW,1H,611.0,
+FULL_DEV,REJECTED|NO_DEPARTURE_FVG_IN_WINDOW,4H,146.0,
+FULL_DEV,REJECTED|NO_DEPARTURE_FVG_IN_WINDOW,1D,14.0,
+SYNTHETIC,REJECTED|NO_DEPARTURE_FVG_IN_WINDOW,5m,,HIGHER_LOW (bearish episode)
+FULL_DEV,REJECTED|NOT_VALIDATED_IN_WINDOW,1m,477.0,
+FULL_DEV,REJECTED|NOT_VALIDATED_IN_WINDOW,5m,84.0,
+FULL_DEV,REJECTED|NOT_VALIDATED_IN_WINDOW,15m,31.0,
+FULL_DEV,REJECTED|NOT_VALIDATED_IN_WINDOW,1H,12.0,
+FULL_DEV,REJECTED|NOT_VALIDATED_IN_WINDOW,4H,3.0,
+FULL_DEV,REJECTED|NOT_VALIDATED_IN_WINDOW,1D,0.0,
+SYNTHETIC,REJECTED|NOT_VALIDATED_IN_WINDOW,5m,,BREAKER (bearish episode at k1)
+FULL_DEV,REJECTED|ALREADY_INVALID_BEFORE_ADMISSION,1m,0.0,
+FULL_DEV,REJECTED|ALREADY_INVALID_BEFORE_ADMISSION,5m,0.0,
+FULL_DEV,REJECTED|ALREADY_INVALID_BEFORE_ADMISSION,15m,0.0,
+FULL_DEV,REJECTED|ALREADY_INVALID_BEFORE_ADMISSION,1H,0.0,
+FULL_DEV,REJECTED|ALREADY_INVALID_BEFORE_ADMISSION,4H,0.0,
+FULL_DEV,REJECTED|ALREADY_INVALID_BEFORE_ADMISSION,1D,0.0,
+SYNTHETIC,REJECTED|ALREADY_INVALID_BEFORE_ADMISSION,5m,,none (DEVELOPMENT only)
+FULL_DEV,GAP_BEYOND_REGION,1m,53.0,
+FULL_DEV,GAP_BEYOND_REGION,5m,21.0,
+FULL_DEV,GAP_BEYOND_REGION,15m,13.0,
+FULL_DEV,GAP_BEYOND_REGION,1H,2.0,
+FULL_DEV,GAP_BEYOND_REGION,4H,1.0,
+FULL_DEV,GAP_BEYOND_REGION,1D,0.0,
+SYNTHETIC,GAP_BEYOND_REGION,5m,,INTERACT (+ mirrored)
+FULL_DEV_REFERENCE,reconcile|episodes,1m,149443.0,mismatches 0; fields: timeframe; direction; anchor_swing_id; status; decided_at; reason
+FULL_DEV_REFERENCE,reconcile|episodes,5m,29941.0,mismatches 0; fields: timeframe; direction; anchor_swing_id; status; decided_at; reason
+FULL_DEV_REFERENCE,reconcile|episodes,15m,10063.0,mismatches 0; fields: timeframe; direction; anchor_swing_id; status; decided_at; reason
+FULL_DEV_REFERENCE,reconcile|episodes,1H,2501.0,mismatches 0; fields: timeframe; direction; anchor_swing_id; status; decided_at; reason
+FULL_DEV_REFERENCE,reconcile|episodes,4H,615.0,mismatches 0; fields: timeframe; direction; anchor_swing_id; status; decided_at; reason
+FULL_DEV_REFERENCE,reconcile|episodes,1D,79.0,mismatches 0; fields: timeframe; direction; anchor_swing_id; status; decided_at; reason
+FULL_DEV_REFERENCE,reconcile|blocks,1m,13303.0,mismatches 0; fields: block key; ordinary_available_at; lower_ticks; upper_ticks; formation_fvg_id
+FULL_DEV_REFERENCE,reconcile|blocks,5m,3204.0,mismatches 0; fields: block key; ordinary_available_at; lower_ticks; upper_ticks; formation_fvg_id
+FULL_DEV_REFERENCE,reconcile|blocks,15m,1104.0,mismatches 0; fields: block key; ordinary_available_at; lower_ticks; upper_ticks; formation_fvg_id
+FULL_DEV_REFERENCE,reconcile|blocks,1H,251.0,mismatches 0; fields: block key; ordinary_available_at; lower_ticks; upper_ticks; formation_fvg_id
+FULL_DEV_REFERENCE,reconcile|blocks,4H,63.0,mismatches 0; fields: block key; ordinary_available_at; lower_ticks; upper_ticks; formation_fvg_id
+FULL_DEV_REFERENCE,reconcile|blocks,1D,4.0,mismatches 0; fields: block key; ordinary_available_at; lower_ticks; upper_ticks; formation_fvg_id
+FULL_DEV_REFERENCE,reconcile|lifecycle,1m,25807.0,mismatches 0; fields: block key; from_state; to_state; at; reason
+FULL_DEV_REFERENCE,reconcile|lifecycle,5m,5988.0,mismatches 0; fields: block key; from_state; to_state; at; reason
+FULL_DEV_REFERENCE,reconcile|lifecycle,15m,1984.0,mismatches 0; fields: block key; from_state; to_state; at; reason
+FULL_DEV_REFERENCE,reconcile|lifecycle,1H,409.0,mismatches 0; fields: block key; from_state; to_state; at; reason
+FULL_DEV_REFERENCE,reconcile|lifecycle,4H,91.0,mismatches 0; fields: block key; from_state; to_state; at; reason
+FULL_DEV_REFERENCE,reconcile|lifecycle,1D,4.0,mismatches 0; fields: block key; from_state; to_state; at; reason
+FULL_DEV_REFERENCE,reconcile|motifs,1m,12632.0,mismatches 0; fields: block key; outcome; reason; a_swing_id; c_swing_id; raid_observed
+FULL_DEV_REFERENCE,reconcile|motifs,5m,2820.0,mismatches 0; fields: block key; outcome; reason; a_swing_id; c_swing_id; raid_observed
+FULL_DEV_REFERENCE,reconcile|motifs,15m,900.0,mismatches 0; fields: block key; outcome; reason; a_swing_id; c_swing_id; raid_observed
+FULL_DEV_REFERENCE,reconcile|motifs,1H,170.0,mismatches 0; fields: block key; outcome; reason; a_swing_id; c_swing_id; raid_observed
+FULL_DEV_REFERENCE,reconcile|motifs,4H,31.0,mismatches 0; fields: block key; outcome; reason; a_swing_id; c_swing_id; raid_observed
+FULL_DEV_REFERENCE,reconcile|motifs,1D,0.0,mismatches 0; fields: block key; outcome; reason; a_swing_id; c_swing_id; raid_observed
+FULL_DEV_REFERENCE,reconcile|stages,1m,25858.0,mismatches 0; fields: block key; stage_kind; direction; available_at; ended_at; end_reason
+FULL_DEV_REFERENCE,reconcile|stages,5m,6013.0,mismatches 0; fields: block key; stage_kind; direction; available_at; ended_at; end_reason
+FULL_DEV_REFERENCE,reconcile|stages,15m,1996.0,mismatches 0; fields: block key; stage_kind; direction; available_at; ended_at; end_reason
+FULL_DEV_REFERENCE,reconcile|stages,1H,415.0,mismatches 0; fields: block key; stage_kind; direction; available_at; ended_at; end_reason
+FULL_DEV_REFERENCE,reconcile|stages,4H,94.0,mismatches 0; fields: block key; stage_kind; direction; available_at; ended_at; end_reason
+FULL_DEV_REFERENCE,reconcile|stages,1D,4.0,mismatches 0; fields: block key; stage_kind; direction; available_at; ended_at; end_reason
+FULL_DEV_REFERENCE,reconcile|interactions,1m,117758.0,"mismatches 0; fields: block key; stage_kind; kind (first events, gap-beyond); at"
+FULL_DEV_REFERENCE,reconcile|interactions,5m,25085.0,"mismatches 0; fields: block key; stage_kind; kind (first events, gap-beyond); at"
+FULL_DEV_REFERENCE,reconcile|interactions,15m,7881.0,"mismatches 0; fields: block key; stage_kind; kind (first events, gap-beyond); at"
+FULL_DEV_REFERENCE,reconcile|interactions,1H,1424.0,"mismatches 0; fields: block key; stage_kind; kind (first events, gap-beyond); at"
+FULL_DEV_REFERENCE,reconcile|interactions,4H,263.0,"mismatches 0; fields: block key; stage_kind; kind (first events, gap-beyond); at"
+FULL_DEV_REFERENCE,reconcile|interactions,1D,0.0,"mismatches 0; fields: block key; stage_kind; kind (first events, gap-beyond); at"
+FULL_DEV_REFERENCE,reconcile|visits,1m,62224.0,mismatches 0; fields: block key; stage_kind; started_at; ended_at; bars; penetrated; midpoint / distal / full-span observed; max interior depth; max adverse excursion
+FULL_DEV_REFERENCE,reconcile|visits,5m,22137.0,mismatches 0; fields: block key; stage_kind; started_at; ended_at; bars; penetrated; midpoint / distal / full-span observed; max interior depth; max adverse excursion
+FULL_DEV_REFERENCE,reconcile|visits,15m,10457.0,mismatches 0; fields: block key; stage_kind; started_at; ended_at; bars; penetrated; midpoint / distal / full-span observed; max interior depth; max adverse excursion
+FULL_DEV_REFERENCE,reconcile|visits,1H,3419.0,mismatches 0; fields: block key; stage_kind; started_at; ended_at; bars; penetrated; midpoint / distal / full-span observed; max interior depth; max adverse excursion
+FULL_DEV_REFERENCE,reconcile|visits,4H,1029.0,mismatches 0; fields: block key; stage_kind; started_at; ended_at; bars; penetrated; midpoint / distal / full-span observed; max interior depth; max adverse excursion
+FULL_DEV_REFERENCE,reconcile|visits,1D,0.0,mismatches 0; fields: block key; stage_kind; started_at; ended_at; bars; penetrated; midpoint / distal / full-span observed; max interior depth; max adverse excursion
+FULL_DEV_REFERENCE,reconcile|depth_versions,1m,87445.0,mismatches 0; fields: block key; stage_kind; at; running max interior depth; running max adverse excursion
+FULL_DEV_REFERENCE,reconcile|depth_versions,5m,36282.0,mismatches 0; fields: block key; stage_kind; at; running max interior depth; running max adverse excursion
+FULL_DEV_REFERENCE,reconcile|depth_versions,15m,17246.0,mismatches 0; fields: block key; stage_kind; at; running max interior depth; running max adverse excursion
+FULL_DEV_REFERENCE,reconcile|depth_versions,1H,5591.0,mismatches 0; fields: block key; stage_kind; at; running max interior depth; running max adverse excursion
+FULL_DEV_REFERENCE,reconcile|depth_versions,4H,1731.0,mismatches 0; fields: block key; stage_kind; at; running max interior depth; running max adverse excursion
+FULL_DEV_REFERENCE,reconcile|depth_versions,1D,0.0,mismatches 0; fields: block key; stage_kind; at; running max interior depth; running max adverse excursion
+PREFIX_EARLY_DEV,prefix|admission_5m_at,all,0.0,cutoff 2024-07-09T22:10:00-04:00; all tables + views compared
+PREFIX_EARLY_DEV,prefix|admission_5m_minus_1m,all,0.0,cutoff 2024-07-09T22:09:00-04:00; all tables + views compared
+PREFIX_EARLY_DEV,prefix|swing_confirmation_15m_at,all,0.0,cutoff 2024-07-09T08:30:00-04:00; all tables + views compared
+PREFIX_EARLY_DEV,prefix|ordinary_failure_and_successor_at,all,0.0,cutoff 2024-07-10T21:31:00-04:00; all tables + views compared
+PREFIX_EARLY_DEV,prefix|ordinary_failure_minus_1m,all,0.0,cutoff 2024-07-10T21:30:00-04:00; all tables + views compared
+PREFIX_EARLY_DEV,prefix|mitigation_admission_at,all,0.0,cutoff 2024-07-11T19:38:00-04:00; all tables + views compared
+PREFIX_EARLY_DEV,prefix|successor_retirement_at,all,0.0,cutoff 2024-07-10T13:36:00-04:00; all tables + views compared
+PREFIX_EARLY_DEV,prefix|gap_onset,all,0.0,cutoff 2024-06-23T18:01:00-04:00; all tables + views compared
+PREFIX_EARLY_DEV,prefix|inside_gap,all,0.0,cutoff 2024-06-23T18:31:00-04:00; all tables + views compared
+SHUFFLE_WINDOW,ORDINARY_ADMITTED,all,1228.0,2024-09-02 .. 2024-09-30
+SHUFFLE_WINDOW,MITIGATION,all,115.0,2024-09-02 .. 2024-09-30
+SHUFFLE_WINDOW,BREAKER,all,1008.0,2024-09-02 .. 2024-09-30
+SHUFFLE_WINDOW,FAILED_FINAL|NO_PRIOR_EXTREME,all,1.0,2024-09-02 .. 2024-09-30
+SHUFFLE_WINDOW,TERMINATED_DATA_GAP,all,98.0,2024-09-02 .. 2024-09-30
+SHUFFLE_WINDOW,FAILED_FINAL|EQUAL_EXTREME,all,2.0,2024-09-02 .. 2024-09-30
+SHUFFLE_WINDOW,REJECTED|SOURCE_BODY_LT_4_TICKS,all,2243.0,2024-09-02 .. 2024-09-30
+SHUFFLE_WINDOW,REJECTED|SOURCE_DIRECTION_MISMATCH,all,4917.0,2024-09-02 .. 2024-09-30
+SHUFFLE_WINDOW,REJECTED|NO_DEPARTURE_FVG_IN_WINDOW,all,3023.0,2024-09-02 .. 2024-09-30
+SHUFFLE_WINDOW,SUPERSEDED,all,1612.0,2024-09-02 .. 2024-09-30
+SHUFFLE_WINDOW,REJECTED|NOT_VALIDATED_IN_WINDOW,all,45.0,2024-09-02 .. 2024-09-30

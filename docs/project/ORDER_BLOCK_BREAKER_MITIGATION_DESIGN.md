@@ -490,11 +490,21 @@ terminal source s (bearish mirrors):
 - Departure FVG: the first accepted same-timeframe bullish FVG (by C2) with s < C2 ≤ e; C1 may be s.
 - Validation: a complete own-timeframe close strictly above source.high at a bar in (s, e] (the same window). A
   qualifying close observed before the FVG confirms is retained; availability still waits for every confirmation.
-- ordinary_available_at = max(L.available_at, FVG.available_at, validation close, ownership deadline), where the
-  ownership deadline is the end of bar C2 − 1 + right_depth (any swing that could end the window before C2 is resolved
-  then; at N = 1 this is never later than the FVG itself).
+- ordinary_available_at = max(L.available_at, FVG.available_at, validation close, ownership deadline). Corrected
+  2026-10-09 (review of PR #19; the earlier prose "C2 − 1 + right_depth" was incomplete): the ownership deadline is
+  the first bar at which the window membership of **all** evidence through m = max(C2, validation bar) is knowable —
+  every left-qualified same-side run starting in (s, m] (a new same-side swing there ends the window before m, D-154)
+  and every left-qualified opposite run starting after s and ending before m (it would close the window before m) is
+  decided by the detector's own window rule (confirmed at run end + right_depth, or denied at the first strictly more
+  extreme right-window bar). Runs that are not left-qualified can never become swings and cause no wait. Worked
+  case (tests/test_ob_deadlines.py, mirrored): anchor k2 (confirmed k3), FVG C2 k4 (confirmed k5), validation k6 —
+  k6 not a possible new swing low → admitted at k6; k6 a candidate denied by k7 → admitted at k7; k6 confirmed as a
+  new swing low at k7 → superseded at k7 (admitting at k6 would have been contradicted by later data). Equal-extreme
+  plateaus through m extend the wait to the plateau's resolution. Evidence rows are never known before their
+  episode opens (anchor confirmation).
 - Rejection for no departure / no validation inside the window is recorded only when the window end is knowable
-  (H.available_at); supersession by L2 at L2.available_at; never backdated.
+  (H confirmed and every left-qualified same-side run starting in (s, H's last bar] decided); supersession by L2 at
+  L2.available_at; never backdated.
 
 **Finding: successor classification resolves at the failure close when N = 1.** Every C must end strictly before the
 reversal close x, so with right_depth 1 it is confirmed by x's close; A and B are known earlier. At the default N = 1,
@@ -525,12 +535,14 @@ N = 1 is expected to report zero waiting states. This is a consequence of the se
 | OB-I5 | MACHINE VALIDATION PASSED — `src.experiments.ob_dev_validation`; evidence `reports/validation/ob_dev_*.csv`; local visual package `reports/validation/ob_visual_validation.html` |
 | OB-I6 | PENDING — human visual review; freeze / merge only when authorized |
 
-DEVELOPMENT (N = 1, six timeframes, full partition): 192,642 discovery episodes (one per confirmed swing), 17,926
-ordinary blocks, 16,550 ordinary failures → 14,689 BREAKER, 1,761 MITIGATION, 100 FAILED_FINAL; 0
-FAILED_AWAITING_CLASSIFICATION (as derived in §22). The independent causal reference reproduces every episode,
-block, lifecycle change, motif, stage, interaction, visit and depth version on every timeframe (0 mismatches);
-OB-INV-1 … 13 = 0; 9 payload-level DEVELOPMENT prefix rebuilds equivalent; shuffled dependency rows deterministic;
-FVG dependency fingerprint equal to the frozen FVG baseline. The motif distribution (BREAKER ≫ MITIGATION at N = 1)
-is reported, not tuned. DEVELOPMENT contains no pure contract change: pending adjustment, N = 2 delayed successors and
-the remaining motif edge cases are covered by synthetic fixtures. The 98 arithmetic assertions of §18 remain limited
-fixture evidence, not feature validation.
+DEVELOPMENT (N = 1, six timeframes, full partition; evidence from `ae1462e`, corrected 2026-10-09 after review of
+PR #19): 192,642 discovery episodes (one per confirmed swing), 17,929 ordinary blocks, 16,553 ordinary failures →
+14,690 BREAKER, 1,761 MITIGATION, 102 FAILED_FINAL; 0 FAILED_AWAITING_CLASSIFICATION (as derived in §22). The
+independent causal reference reproduces every episode, block, lifecycle change, motif, stage, interaction, visit and
+depth version on every timeframe (0 mismatches over 48 category × timeframe cells; the four Daily cells for motifs,
+interactions, visits and depth versions are empty on DEVELOPMENT); OB-INV-1 … 14 = 0; 9 payload-level DEVELOPMENT prefix
+rebuilds equivalent (ongoing visits reconstructed causally); shuffled dependency rows deterministic; FVG dependency
+fingerprint equal to the frozen FVG baseline. The motif distribution (BREAKER ≫ MITIGATION at N = 1) is reported, not
+tuned. DEVELOPMENT contains no pure contract change: pending adjustment, N = 2 delayed successors, invalid-before-
+admission and the remaining motif edge cases are covered by synthetic fixtures. The 98 arithmetic assertions of §18
+remain limited fixture evidence, not feature validation.

@@ -1752,11 +1752,14 @@ repository. For D-101 onward the date is when it was recorded here
 
 - **Implementation note (D-153 – D-157, 2026-10-08):** OB-I1 – OB-I5 implemented on `ob-design` in
   `src/ict_blocks/` (inputs, engine, pipeline, audit) with tests `tests/test_ob_*.py`.
-  - DEVELOPMENT machine validation (`src.experiments.ob_dev_validation`, code `7e53b43`): all 12 gates PASS —
+  - Corrected 2026-10-09 after review of PR #19 (`ae8a462`): exact ownership deadlines (left-qualified swing
+    candidates only; §22 prose corrected), evidence never known before its episode (OB-INV-14), causal visit
+    prefix comparison, per category × timeframe coverage, visual corrections. No trading definition changed.
+  - DEVELOPMENT machine validation (`src.experiments.ob_dev_validation`, code `ae1462e`): all 12 gates PASS —
     Swing parity with the public detector at 1/1, FVG zone fingerprint = frozen FVG baseline, 1m continuity
-    baseline, frozen sources unchanged, OB-INV-1 … 13 = 0, independent reference = production on every
+    baseline, frozen sources unchanged, OB-INV-1 … 14 = 0, independent reference = production on every
     timeframe (0 mismatches), 9 prefix rebuilds equivalent, shuffled-input determinism.
-  - 17,926 ordinary blocks; 14,689 BREAKER, 1,761 MITIGATION, 100 FAILED_FINAL; 0 waiting classifications at N = 1.
+  - 17,929 ordinary blocks; 14,690 BREAKER, 1,761 MITIGATION, 102 FAILED_FINAL; 0 waiting classifications at N = 1.
   - Human visual approval of `ob_visual_validation.html` is pending; nothing is frozen.
 
 ### PROPOSED items awaiting design-authority approval (2026-09-28)

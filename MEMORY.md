@@ -228,7 +228,9 @@ at a time with explicit approval (D-117).
         branch `ob-design`); machine validation PASSED, human visual approval PENDING, not frozen. Swing
         depth 1/1 (OB layer only), terminal source candle, departure window inclusive of the opposite swing's
         span (user decision 2026-10-08). At N = 1 FAILED_AWAITING is unreachable (N = 2 fixtures cover it).
-        Runner `src.experiments.ob_dev_validation` (full ~34 min, `--fast` ~2 min).
+        Runner `src.experiments.ob_dev_validation` (full ~46 min, `--fast` ~1.5 min). Ownership deadlines
+        wait only for left-qualified swing candidates (detector window rule); prefix checks reconstruct
+        ongoing visits causally.
       - Spec rev 4 on branch `internal-liquidity-design`; D-143 – D-147.
       - Shared consumption predicate: strict beyond `p ± t` on 1m, with
         `t` = 4 internal and 6 External.

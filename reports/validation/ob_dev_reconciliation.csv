@@ -1,9 +1,49 @@
-category,method,reference,production,missing,extra
-episodes,FULL_RUN_INDEPENDENT_REFERENCE,192642,192642,0,0
-blocks,FULL_RUN_INDEPENDENT_REFERENCE,17926,17926,0,0
-lifecycle,FULL_RUN_INDEPENDENT_REFERENCE,34279,34279,0,0
-motifs,FULL_RUN_INDEPENDENT_REFERENCE,16550,16550,0,0
-stages,FULL_RUN_INDEPENDENT_REFERENCE,34376,34376,0,0
-interactions,FULL_RUN_INDEPENDENT_REFERENCE,152387,152387,0,0
-visits,FULL_RUN_INDEPENDENT_REFERENCE,99120,99120,0,0
-depth_versions,FULL_RUN_INDEPENDENT_REFERENCE,148037,148037,0,0
+category,method,timeframe,reference,production,missing,extra,compared_fields
+episodes,FULL_RUN_INDEPENDENT_REFERENCE,1m,149443,149443,0,0,timeframe; direction; anchor_swing_id; status; decided_at; reason
+episodes,FULL_RUN_INDEPENDENT_REFERENCE,5m,29941,29941,0,0,timeframe; direction; anchor_swing_id; status; decided_at; reason
+episodes,FULL_RUN_INDEPENDENT_REFERENCE,15m,10063,10063,0,0,timeframe; direction; anchor_swing_id; status; decided_at; reason
+episodes,FULL_RUN_INDEPENDENT_REFERENCE,1H,2501,2501,0,0,timeframe; direction; anchor_swing_id; status; decided_at; reason
+episodes,FULL_RUN_INDEPENDENT_REFERENCE,4H,615,615,0,0,timeframe; direction; anchor_swing_id; status; decided_at; reason
+episodes,FULL_RUN_INDEPENDENT_REFERENCE,1D,79,79,0,0,timeframe; direction; anchor_swing_id; status; decided_at; reason
+blocks,FULL_RUN_INDEPENDENT_REFERENCE,1m,13303,13303,0,0,block key; ordinary_available_at; lower_ticks; upper_ticks; formation_fvg_id
+blocks,FULL_RUN_INDEPENDENT_REFERENCE,5m,3204,3204,0,0,block key; ordinary_available_at; lower_ticks; upper_ticks; formation_fvg_id
+blocks,FULL_RUN_INDEPENDENT_REFERENCE,15m,1104,1104,0,0,block key; ordinary_available_at; lower_ticks; upper_ticks; formation_fvg_id
+blocks,FULL_RUN_INDEPENDENT_REFERENCE,1H,251,251,0,0,block key; ordinary_available_at; lower_ticks; upper_ticks; formation_fvg_id
+blocks,FULL_RUN_INDEPENDENT_REFERENCE,4H,63,63,0,0,block key; ordinary_available_at; lower_ticks; upper_ticks; formation_fvg_id
+blocks,FULL_RUN_INDEPENDENT_REFERENCE,1D,4,4,0,0,block key; ordinary_available_at; lower_ticks; upper_ticks; formation_fvg_id
+lifecycle,FULL_RUN_INDEPENDENT_REFERENCE,1m,25807,25807,0,0,block key; from_state; to_state; at; reason
+lifecycle,FULL_RUN_INDEPENDENT_REFERENCE,5m,5988,5988,0,0,block key; from_state; to_state; at; reason
+lifecycle,FULL_RUN_INDEPENDENT_REFERENCE,15m,1984,1984,0,0,block key; from_state; to_state; at; reason
+lifecycle,FULL_RUN_INDEPENDENT_REFERENCE,1H,409,409,0,0,block key; from_state; to_state; at; reason
+lifecycle,FULL_RUN_INDEPENDENT_REFERENCE,4H,91,91,0,0,block key; from_state; to_state; at; reason
+lifecycle,FULL_RUN_INDEPENDENT_REFERENCE,1D,4,4,0,0,block key; from_state; to_state; at; reason
+motifs,FULL_RUN_INDEPENDENT_REFERENCE,1m,12632,12632,0,0,block key; outcome; reason; a_swing_id; c_swing_id; raid_observed
+motifs,FULL_RUN_INDEPENDENT_REFERENCE,5m,2820,2820,0,0,block key; outcome; reason; a_swing_id; c_swing_id; raid_observed
+motifs,FULL_RUN_INDEPENDENT_REFERENCE,15m,900,900,0,0,block key; outcome; reason; a_swing_id; c_swing_id; raid_observed
+motifs,FULL_RUN_INDEPENDENT_REFERENCE,1H,170,170,0,0,block key; outcome; reason; a_swing_id; c_swing_id; raid_observed
+motifs,FULL_RUN_INDEPENDENT_REFERENCE,4H,31,31,0,0,block key; outcome; reason; a_swing_id; c_swing_id; raid_observed
+motifs,FULL_RUN_INDEPENDENT_REFERENCE,1D,0,0,0,0,block key; outcome; reason; a_swing_id; c_swing_id; raid_observed
+stages,FULL_RUN_INDEPENDENT_REFERENCE,1m,25858,25858,0,0,block key; stage_kind; direction; available_at; ended_at; end_reason
+stages,FULL_RUN_INDEPENDENT_REFERENCE,5m,6013,6013,0,0,block key; stage_kind; direction; available_at; ended_at; end_reason
+stages,FULL_RUN_INDEPENDENT_REFERENCE,15m,1996,1996,0,0,block key; stage_kind; direction; available_at; ended_at; end_reason
+stages,FULL_RUN_INDEPENDENT_REFERENCE,1H,415,415,0,0,block key; stage_kind; direction; available_at; ended_at; end_reason
+stages,FULL_RUN_INDEPENDENT_REFERENCE,4H,94,94,0,0,block key; stage_kind; direction; available_at; ended_at; end_reason
+stages,FULL_RUN_INDEPENDENT_REFERENCE,1D,4,4,0,0,block key; stage_kind; direction; available_at; ended_at; end_reason
+interactions,FULL_RUN_INDEPENDENT_REFERENCE,1m,117758,117758,0,0,"block key; stage_kind; kind (first events, gap-beyond); at"
+interactions,FULL_RUN_INDEPENDENT_REFERENCE,5m,25085,25085,0,0,"block key; stage_kind; kind (first events, gap-beyond); at"
+interactions,FULL_RUN_INDEPENDENT_REFERENCE,15m,7881,7881,0,0,"block key; stage_kind; kind (first events, gap-beyond); at"
+interactions,FULL_RUN_INDEPENDENT_REFERENCE,1H,1424,1424,0,0,"block key; stage_kind; kind (first events, gap-beyond); at"
+interactions,FULL_RUN_INDEPENDENT_REFERENCE,4H,263,263,0,0,"block key; stage_kind; kind (first events, gap-beyond); at"
+interactions,FULL_RUN_INDEPENDENT_REFERENCE,1D,0,0,0,0,"block key; stage_kind; kind (first events, gap-beyond); at"
+visits,FULL_RUN_INDEPENDENT_REFERENCE,1m,62224,62224,0,0,block key; stage_kind; started_at; ended_at; bars; penetrated; midpoint / distal / full-span observed; max interior depth; max adverse excursion
+visits,FULL_RUN_INDEPENDENT_REFERENCE,5m,22137,22137,0,0,block key; stage_kind; started_at; ended_at; bars; penetrated; midpoint / distal / full-span observed; max interior depth; max adverse excursion
+visits,FULL_RUN_INDEPENDENT_REFERENCE,15m,10457,10457,0,0,block key; stage_kind; started_at; ended_at; bars; penetrated; midpoint / distal / full-span observed; max interior depth; max adverse excursion
+visits,FULL_RUN_INDEPENDENT_REFERENCE,1H,3419,3419,0,0,block key; stage_kind; started_at; ended_at; bars; penetrated; midpoint / distal / full-span observed; max interior depth; max adverse excursion
+visits,FULL_RUN_INDEPENDENT_REFERENCE,4H,1029,1029,0,0,block key; stage_kind; started_at; ended_at; bars; penetrated; midpoint / distal / full-span observed; max interior depth; max adverse excursion
+visits,FULL_RUN_INDEPENDENT_REFERENCE,1D,0,0,0,0,block key; stage_kind; started_at; ended_at; bars; penetrated; midpoint / distal / full-span observed; max interior depth; max adverse excursion
+depth_versions,FULL_RUN_INDEPENDENT_REFERENCE,1m,87445,87445,0,0,block key; stage_kind; at; running max interior depth; running max adverse excursion
+depth_versions,FULL_RUN_INDEPENDENT_REFERENCE,5m,36282,36282,0,0,block key; stage_kind; at; running max interior depth; running max adverse excursion
+depth_versions,FULL_RUN_INDEPENDENT_REFERENCE,15m,17246,17246,0,0,block key; stage_kind; at; running max interior depth; running max adverse excursion
+depth_versions,FULL_RUN_INDEPENDENT_REFERENCE,1H,5591,5591,0,0,block key; stage_kind; at; running max interior depth; running max adverse excursion
+depth_versions,FULL_RUN_INDEPENDENT_REFERENCE,4H,1731,1731,0,0,block key; stage_kind; at; running max interior depth; running max adverse excursion
+depth_versions,FULL_RUN_INDEPENDENT_REFERENCE,1D,0,0,0,0,block key; stage_kind; at; running max interior depth; running max adverse excursion

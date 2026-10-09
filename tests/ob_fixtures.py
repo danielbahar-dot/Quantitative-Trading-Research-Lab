@@ -99,3 +99,7 @@ HIGHER_LOW_ROWS = EX151[:7] + [(118, 118.5, 112, 113), (113, 114, 108, 109), (10
 # §15.1 then interactions with the admitted bullish OB [99, 102] (zone midpoint 100.5)
 INTERACT_ROWS = EX151 + [(118, 118.5, 102, 103), (103, 104, 101.5, 103.5), (103.5, 104, 100.5, 103),
                          (98.5, 98.75, 98, 98.5)]
+# a completed one-minute visit at k8, then a multi-minute visit: k9 closes inside the admitted bullish zone [99, 102] (its last 4 minutes sit at 101) and
+# k10 stays inside; k11's first minute still touches, then the flat minutes leave → one visit spanning k9..k11; a later visit at k13
+LONG_VISIT_ROWS = EX151 + [(118, 118.5, 102, 103), (103, 104, 100.5, 101), (101, 101.5, 100.75, 101.25),
+                           (101.25, 104, 101, 103.5), (103.5, 104, 103, 103.5), (103.5, 104, 101.5, 103)]

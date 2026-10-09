@@ -66,6 +66,33 @@ def _run_end_naive(vals, m, t):
     return k, k == t
 
 
+def _pending_candidate(vals, more, r0, t, L, R):
+    """Naive: is the run starting at r0 (bars <= t only) still a possible swing at t?  ``more(a, b)`` = a is
+    strictly more extreme than b for this orientation."""
+    v = vals[r0]
+    if r0 - L < 0 or any(more(vals[k], v) for k in range(r0 - L, r0)):
+        return False                        # never a swing
+    r1 = r0
+    while r1 + 1 <= t and vals[r1 + 1] == v:
+        r1 += 1
+    if r1 == t:
+        return True                         # run may still extend
+    for k in range(r1 + 1, min(t, r1 + R) + 1):
+        if more(vals[k], v):
+            return False                    # denied
+    return t < r1 + R                       # confirmed once R bars are seen
+
+
+def _runs_from(vals, first, last):
+    starts, k = [], first
+    while k <= last:
+        starts.append(k)
+        while k + 1 <= last and vals[k + 1] == vals[k]:
+            k += 1
+        k += 1
+    return starts
+
+
 def _episode_of_segment(run, seg):
     loc = run.tape.locate(int(seg["end"][0]))
     return run.tape.episodes[loc[0]]
@@ -113,6 +140,10 @@ def _ref_segment(run, tf, si, seg, sws, fvs, R, out):
             d, s, L = ep["d"], ep["s"], ep["anchor"]
             same, opp = ("LOWER", "UPPER") if d == BULL else ("UPPER", "LOWER")
             vals = l if d == BULL else h
+            same_vals, opp_vals = (l, h) if d == BULL else (h, l)
+            same_more = (lambda a, b: a < b) if d == BULL else (lambda a, b: a > b)
+            opp_more = (lambda a, b: a > b) if d == BULL else (lambda a, b: a < b)
+            Ld = int(run.manifest["left_depth"])
             H = next((x[2] for x in known[opp] if x[0] > s), None)
             L2 = next((x[2] for x in known[same] if x[0] > s), None)
             e = t
@@ -132,8 +163,15 @@ def _ref_segment(run, tf, si, seg, sws, fvs, R, out):
                     break
             if fvg is not None and v is not None:
                 m = max(fvg["c2"], v)
-                rend, open_ = _run_end_naive(vals, m, t)
-                if m - 1 + R <= t and not open_ and rend + R <= t and L["av"] <= now:
+                pend = any(_pending_candidate(same_vals, same_more, r0, t, Ld, R)
+                           for r0 in range(s + 1, m + 1) if r0 == s + 1 or same_vals[r0] != same_vals[r0 - 1])
+                for r0 in _runs_from(opp_vals, s + 1, m - 1):
+                    r1 = r0
+                    while r1 + 1 <= m - 1 and opp_vals[r1 + 1] == opp_vals[r0]:
+                        r1 += 1
+                    if r1 + 1 <= t and opp_vals[r1 + 1] != opp_vals[r0] and r1 <= m - 1:
+                        pend |= _pending_candidate(opp_vals, opp_more, r0, t, Ld, R)
+                if not pend and L["av"] <= now:
                     lower, upper = (l[s], o[s]) if d == BULL else (o[s], h[s])
                     bad = any((c[k] < lower) if d == BULL else (c[k] > upper) for k in range(s + 1, t + 1))
                     if bad:
@@ -144,8 +182,9 @@ def _ref_segment(run, tf, si, seg, sws, fvs, R, out):
             if L2 is not None and (H is None or L2["a"] - 1 < H["b"]):
                 ep.update(status="SUPERSEDED", at=now, reason="NEW_SAME_SIDE_SWING")
             elif H is not None:
-                rend, open_ = _run_end_naive(vals, H["b"], t)
-                if not open_ and rend + R <= t:
+                pend = any(_pending_candidate(same_vals, same_more, r0, t, Ld, R)
+                           for r0 in range(s + 1, H["b"] + 1) if same_vals[r0] != same_vals[r0 - 1])
+                if not pend and H["av"] <= now:
                     ep.update(status="REJECTED", at=now,
                               reason="NO_DEPARTURE_FVG_IN_WINDOW" if fvg is None else "NOT_VALIDATED_IN_WINDOW")
     for ep in episodes:
@@ -314,6 +353,22 @@ def _ns(v):
         if not isinstance(v, (int, np.integer)) else int(v)
 
 
+# Exactly which semantic fields the independent reference reproduces (object identity = timeframe, direction and
+# source bar end).  Columns not listed (ids / hashes, refs, contract / basis labels, price floats derived from ticks,
+# evidence rows, entities / M7A transitions) are checked by invariants, schema validation and prefix comparison.
+COMPARED_FIELDS = {
+    "episodes": "timeframe; direction; anchor_swing_id; status; decided_at; reason",
+    "blocks": "block key; ordinary_available_at; lower_ticks; upper_ticks; formation_fvg_id",
+    "lifecycle": "block key; from_state; to_state; at; reason",
+    "motifs": "block key; outcome; reason; a_swing_id; c_swing_id; raid_observed",
+    "stages": "block key; stage_kind; direction; available_at; ended_at; end_reason",
+    "interactions": "block key; stage_kind; kind (first events, gap-beyond); at",
+    "visits": "block key; stage_kind; started_at; ended_at; bars; penetrated; midpoint / distal / full-span observed; "
+              "max interior depth; max adverse excursion",
+    "depth_versions": "block key; stage_kind; at; running max interior depth; running max adverse excursion",
+}
+
+
 def reconcile(run, ref) -> pd.DataFrame:
     E = run.engine
     tfs = set(ref["timeframes"])
@@ -324,11 +379,19 @@ def reconcile(run, ref) -> pd.DataFrame:
         r = reg.loc[b.source_region_id]
         key_of[b.block_id] = (b.timeframe, b.ordinary_direction, r["source_bar_end"].value)
     rows = []
+    order = [t for t in ("1m", "5m", "15m", "1H", "4H", "1D") if t in tfs] + sorted(tfs - {"1m", "5m", "15m", "1H", "4H", "1D"})
+
+    def tf_of(item):
+        head = item[0]
+        return head if isinstance(head, str) else head[0]      # episodes: tf first; others: block key first
 
     def add(cat, expected, actual):
-        e, a = Counter(expected), Counter(actual)
-        rows.append({"category": cat, "reference": sum(e.values()), "production": sum(a.values()),
-                     "missing": sum((e - a).values()), "extra": sum((a - e).values())})
+        for tf in order:                                        # every category x timeframe, zero cells kept
+            e = Counter(x for x in expected if tf_of(x) == tf)
+            a = Counter(x for x in actual if tf_of(x) == tf)
+            rows.append({"category": cat, "timeframe": tf, "reference": sum(e.values()), "production": sum(a.values()),
+                         "missing": sum((e - a).values()), "extra": sum((a - e).values()),
+                         "compared_fields": COMPARED_FIELDS[cat]})
     ep = E.episodes[E.episodes["timeframe"].isin(tfs)]
     status_map = {"TERMINATED": "TERMINATED"}
     add("episodes", [(t, d, a, s, _ns(at), r) for t, d, a, s, at, r in ref["episodes"]],
@@ -437,6 +500,9 @@ def invariants(run) -> pd.DataFrame:
     rec("OB-INV-8 ordinary availability >= swing confirmation and validation close", len(b), bad)
     lc = E.lifecycle
     rec("OB-INV-9 one logical change per block and instant", len(lc), int(lc.duplicated(["block_id", "at"]).sum()))
+    ev = E.evidence.join(eps["opened_at"], on="episode_id")
+    rec("OB-INV-14 no episode evidence known before its episode opened", len(ev),
+        int((ev["known_at"] < ev["opened_at"]).sum()) if len(ev) else 0)
     from src.ict_blocks.engine import block_namespace
     from src.state.contract import validate_transitions
     bad = 0
@@ -512,6 +578,52 @@ PREFIX_TABLES = {      # table -> (time column, identity key)
 }
 
 
+def visits_as_of(run, cut) -> pd.DataFrame:
+    """Every visit started by ``cut`` as observable at ``cut``: its 1m bars ending at or before ``cut``, with
+    membership, duration, flags and aggregates recomputed from those observations (scalar; independent of the
+    production aggregation).  Visit rows describe the observed extent so far, so an ongoing visit is compared
+    through the cutoff rather than excluded."""
+    from src.ict_blocks.engine import VISIT_COLUMNS
+    E = run.engine
+    v = E.visits[E.visits["started_at"] <= cut]
+    if v.empty:
+        return v
+    st = E.stages.set_index("stage_id")
+    reg = E.regions.set_index("source_region_id")
+    blk = E.blocks.set_index("block_id")["source_region_id"]
+    rows = []
+    cut_ns = int(cut.value)
+    for r in v.itertuples(index=False):
+        g = reg.loc[blk.loc[r.block_id]]
+        lo, up = int(g["lower_ticks"]), int(g["upper_ticks"])
+        bull = st.loc[r.stage_id, "direction"] == BULL
+        a_ns = r.started_at.value
+        ep = next(e for e in run.tape.episodes if len(e.end) and e.end[0] <= a_ns <= e.end[-1])
+        ends, L, H = ep.end.tolist(), ep.l.tolist(), ep.h.tolist()
+        i = ends.index(a_ns)
+        last = min(r.ended_at.value, cut_ns)
+        n = pen = midp = dist = full = False
+        bars, dep, adv = 0, 0, 0
+        while i < len(ends) and ends[i] <= last:
+            lo_i, hi_i = L[i], H[i]
+            bars += 1
+            pen |= hi_i > lo and lo_i < up
+            midp |= 2 * lo_i <= lo + up <= 2 * hi_i
+            far = lo if bull else up
+            dist |= lo_i <= far <= hi_i
+            full |= lo_i <= lo and hi_i >= up
+            dep = max(dep, max(0, min(up - lo, (up - max(lo_i, lo)) if bull else (min(hi_i, up) - lo))))
+            adv = max(adv, max(0, lo - lo_i) if bull else max(0, hi_i - up))
+            n = ends[i]
+            i += 1
+        rows.append((r.visit_id, r.stage_id, r.block_id, r.visit_seq, r.started_at, pd.Timestamp(n, tz="UTC"), bars,
+                     bool(pen), bool(midp), bool(dist), bool(full), dep, adv))
+    out = pd.DataFrame(rows, columns=list(VISIT_COLUMNS))
+    for c in ("started_at", "ended_at"):
+        out[c] = pd.to_datetime(out[c], utc=True)
+    return out
+
+
 def project_as_of(run, cut) -> dict:
     from src.ict_blocks.pipeline import episodes_as_of, stages_as_of
     E = run.engine
@@ -534,8 +646,7 @@ def project_as_of(run, cut) -> dict:
             m[col] = m[col].astype(object)
             m.loc[later, col] = None
     out["motifs"] = m
-    v = E.visits[E.visits["started_at"] <= cut]
-    out["visits"] = v[v["ended_at"] <= cut]          # visits are reported once complete in the cutoff run too
+    out["visits"] = visits_as_of(run, cut)
     return out
 
 
@@ -546,10 +657,6 @@ def prefix_mismatches(full, part) -> dict:
     for name in ["episodes", "stages"] + list(PREFIX_TABLES):
         a = exp[name]
         b = getattr(part.engine, name)
-        if name == "visits":          # a visit still open at the cutoff is compared once complete, not truncated
-            open_ids = set(full.engine.visits.loc[full.engine.visits["ended_at"] > cut, "visit_id"])
-            b = b[~b["visit_id"].isin(open_ids)]
-            a = a[~a["visit_id"].isin(open_ids)]
         ra, rb = Counter(canonical_rows(a)), Counter(canonical_rows(b))
         out[name] = sum(((ra - rb) + (rb - ra)).values())
         key = PREFIX_TABLES.get(name, (None, ["episode_id"] if name == "episodes" else ["stage_id"]))[1]

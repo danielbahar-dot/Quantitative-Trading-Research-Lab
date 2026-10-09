@@ -7,10 +7,11 @@ Per timeframe and continuity segment (bullish shown; bearish mirrors every inequ
 Discovery (one episode per confirmed LOWER swing L, terminal source s = L's last span bar):
   source tests (body ≥ 4 ticks, then bearish colour) → window end e = source end of the first UPPER swing H with
   span start > s (inclusive), cut before a new LOWER swing L2 (start > s) → departure = first bullish FVG with
-  s < C2 ≤ e → validation = first close > h[s] at a bar in (s, e] → ownership deadline = bar m − 1 + R and the
-  end of the same-side (low) run containing m, + R, where m = max(C2, validation bar) → admission at
+  s < C2 ≤ e → validation = first close > h[s] at a bar in (s, e] → ownership deadline for m = max(C2, validation
+  bar): the first bar at which every left-qualified LOWER run starting in (s, m] and every left-qualified UPPER run
+  in (s, m) is decided (confirmed or denied by the detector's own window rule) → admission at
   max(L, FVG, validation, deadline) unless a close < l[s] occurred in (s, admission]. Rejection only when
-  knowable (H / L2 availability); waiting episodes end at a 1m reset.
+  knowable (H confirmed and every same-side candidate in (s, H] decided); waiting episodes end at a 1m reset.
 
 Lifecycle (one block, persistent block_id; ``ict.block`` M7A entity):
   ORDINARY fails at the first close < lower after admission (x). Motif: B = L (pinned), A = latest UPPER swing
@@ -156,6 +157,57 @@ def _run_end(vals: np.ndarray, m: int) -> int:
     return k
 
 
+def _decision(signed: np.ndarray, r0: int, r1: int, L: int, R: int):
+    """Bar at which the swing status of the maximal equal run [r0, r1] is decided (detector semantics: only a
+    strictly more extreme value inside the L / R windows fails it).  ``None`` when the run can never be a swing
+    (not left-qualified: decided as soon as it starts); a value > last bar means still undecided in the data."""
+    h = int(signed[r0])
+    if r0 - L < 0 or int(signed[r0 - L:r0].max()) > h:
+        return None
+    for j in range(1, R + 1):
+        k = r1 + j
+        if k >= len(signed) or int(signed[k]) > h:
+            return k                    # beyond the data (undecided) or denied at k
+    return r1 + R                       # confirmed at r1 + R
+
+
+def _candidate_runs(signed: np.ndarray, first: int, last: int):
+    """Maximal equal runs (r0, r1) with r0 in [first, last]."""
+    k = first
+    while k <= last:
+        r1 = _run_end(signed, k)
+        yield k, r1
+        k = r1 + 1
+
+
+def ownership_deadline(same: np.ndarray, opp: np.ndarray, s: int, m: int, L: int, R: int) -> int:
+    """First bar at which window membership of evidence at bar m is knowable: every same-side run starting in
+    (s, m] (a new same-side swing there would end the window before m) and every opposite run starting after s
+    and ending before m (it would close the window before m) is decided.  Only left-qualified runs can wait."""
+    deadline = m
+    for r0, r1 in _candidate_runs(same, s + 1, m):
+        d = _decision(same, r0, r1, L, R)
+        if d is not None:
+            deadline = max(deadline, d)
+    for r0, r1 in _candidate_runs(opp, s + 1, m - 1):
+        if r1 <= m - 1:
+            d = _decision(opp, r0, r1, L, R)
+            if d is not None:
+                deadline = max(deadline, d)
+    return deadline
+
+
+def window_close_decision(same: np.ndarray, s: int, hb: int, L: int, R: int) -> int:
+    """First bar at which a window ending at the opposite swing's last bar hb is final: hb's swing is confirmed
+    (hb + R) and no same-side swing can still start in (s, hb]."""
+    dec = hb + R
+    for r0, r1 in _candidate_runs(same, s + 1, hb):
+        d = _decision(same, r0, r1, L, R)
+        if d is not None:
+            dec = max(dec, d)
+    return dec
+
+
 def discover(tf: str, obs: TfObs, swings: dict, fvgs: dict, tape: MinuteTape, cfg: ObConfig, out: dict) -> list:
     """Episodes and ordinary admissions; returns the admitted block specs for the lifecycle stage."""
     R = cfg.right_depth
@@ -173,7 +225,9 @@ def discover(tf: str, obs: TfObs, swings: dict, fvgs: dict, tape: MinuteTape, cf
             opp_a = [s.a for s in opps]
             dir_fvgs = [f for f in seg_fvgs if f.direction == direction]
             fvg_c2 = [f.c2 for f in dir_fvgs]
-            run_vals = l if direction == BULLISH else h
+            same_signed = -l if direction == BULLISH else h        # larger = more extreme for the anchor side
+            opp_signed = h if direction == BULLISH else -l
+            Ld = cfg.left_depth
             for idx, L in enumerate(anchors):
                 out["counters"]["source_searches"] += 1
                 s = L.b
@@ -215,9 +269,10 @@ def discover(tf: str, obs: TfObs, swings: dict, fvgs: dict, tape: MinuteTape, cf
                 seg_c = c[s + 1:e + 1]
                 hit = np.flatnonzero(seg_c > far_wick if direction == BULLISH else seg_c < far_wick)
                 v = s + 1 + int(hit[0]) if len(hit) else None
-                # evidence is reported when its window ownership is knowable (bar m - 1 + R, same-side run of m + R)
+                # evidence is reported when its window ownership is knowable, and never before its episode exists
+                # (the anchor swing's confirmation, bar b + R)
                 def known(own, m):
-                    k_ = max(own, m - 1 + R, _run_end(run_vals, m) + R)
+                    k_ = max(own, L.b + R, ownership_deadline(same_signed, opp_signed, s, m, Ld, R))
                     return k_ if k_ <= n - 1 else None
                 kf = known(fvg.c2 + 1, fvg.c2) if fvg is not None else None
                 kv = known(v, v) if v is not None else None
@@ -228,7 +283,7 @@ def discover(tf: str, obs: TfObs, swings: dict, fvgs: dict, tape: MinuteTape, cf
                                                                             int(end[v])), _ts(end[v]), _ts(end[kv]), True, None))
                 if fvg is not None and v is not None:
                     m = max(fvg.c2, v)
-                    deadline = max(m - 1 + R, _run_end(run_vals, m) + R)
+                    deadline = ownership_deadline(same_signed, opp_signed, s, m, Ld, R)
                     adm = max(L.b + R, fvg.c2 + 1, v, deadline)
                     if adm <= n - 1:
                         row.update(formation_fvg_id=fvg.zone_id, validation_close_at=_ts(end[v]),
@@ -254,7 +309,7 @@ def discover(tf: str, obs: TfObs, swings: dict, fvgs: dict, tape: MinuteTape, cf
                 if boundary_kind == "SUPERSEDE":
                     dec = boundary.b + R
                 elif boundary_kind == "WINDOW":
-                    dec = max(boundary.b + R, _run_end(run_vals, boundary.b) + R)
+                    dec = window_close_decision(same_signed, s, boundary.b, Ld, R)
                 if not complete and dec is not None and dec <= n - 1:
                     row["window_swing_id" if boundary_kind == "WINDOW" else "superseded_by_swing_id"] = boundary.swing_id
                     if boundary_kind == "SUPERSEDE":

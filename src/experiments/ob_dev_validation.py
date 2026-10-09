@@ -41,6 +41,27 @@ FROZEN_FVG_ZONE_FP = "735995a88d72336ec43dc8906983c18da3d186c707f97699884c1cfd93
 SHUFFLE_WINDOW = ("2024-09-02", "2024-09-30")
 PRICE_WORDS = ("price", "open", "high", "low", "close", "ticks", "lower", "upper", "midpoint", "ohlc")
 FULL_DEV_ONLY = ("minute_episodes_equal_continuity_segments", "fvg_zone_fingerprint_equals_frozen_fvg")
+# lifecycle / rejection paths and the synthetic fixtures (tests/ob_fixtures.py) that exercise each
+SYNTHETIC_PATHS = {
+    "ORDINARY_ADMITTED": "EX151 (+ mirrored), PLATEAU_OK, RALLY, HIGHER_LOW, INTERACT, LONG_VISIT",
+    "BREAKER": "BREAKER (+ mirrored), CONCURRENT, NO_PRIOR source episodes, N2_DELAYED",
+    "MITIGATION": "MITIGATION (+ mirrored)",
+    "FAILED_FINAL|EQUAL_EXTREME": "EQUAL (+ mirrored)",
+    "FAILED_FINAL|RAID_WITH_LESS_EXTREME_C": "RAID_LOWER_C (+ mirrored; raid on the break bar)",
+    "FAILED_FINAL|NO_PRIOR_EXTREME": "NO_PRIOR (+ mirrored)",
+    "FAILED_FINAL|NO_REVERSAL_SWING": "EARLY_RAID (+ mirrored)",
+    "FAILED_AWAITING_CLASSIFICATION": "N2_DELAYED, N2_INVALID (N = 2 only; unreachable at N = 1)",
+    "FAILED_FINAL|QUALIFIED_BUT_INVALID_BEFORE_ADMISSION": "N2_INVALID (N = 2 only)",
+    "TERMINATED_DATA_GAP": "BREAKER with a missing bar (gap)",
+    "PENDING_ADJUSTMENT": "BREAKER with a pure roll (roll); none on DEVELOPMENT",
+    "SUPERSEDED": "test_ob_deadlines candidate_confirmed / plateau_confirmed",
+    "REJECTED|SOURCE_BODY_LT_4_TICKS": "with_source 0 / 1 / 3 ticks, PLATEAU_DOJI",
+    "REJECTED|SOURCE_DIRECTION_MISMATCH": "with_source bullish candle",
+    "REJECTED|NO_DEPARTURE_FVG_IN_WINDOW": "HIGHER_LOW (bearish episode)",
+    "REJECTED|NOT_VALIDATED_IN_WINDOW": "BREAKER (bearish episode at k1)",
+    "REJECTED|ALREADY_INVALID_BEFORE_ADMISSION": "none (DEVELOPMENT only)",
+    "GAP_BEYOND_REGION": "INTERACT (+ mirrored)",
+}
 TABLES = ("regions", "episodes", "evidence", "blocks", "stages", "lifecycle", "motifs", "visits", "interactions",
           "depth_versions", "transitions", "warnings", "pending")
 
@@ -71,7 +92,17 @@ SYNTHETIC = {
     "ROLL": (_HEAD + [(117, 123, 113, 122), (122, 124, 120, 121), (121, 121.5, 108, 109), (109, 110, 98, 98.5),
                       (98.5, 101, 97, 100), (100, 106, 99.5, 105.5), (105.5, 106, 104, 105)], 1,
              {"contracts": ["MNQ 09-26"] * 9 + ["MNQ 12-26"] * 5}),
+    "ORDINARY": (_EX151, 1, {}),
 }
+
+
+def _mirror(rows, axis=200.0):
+    return [(axis - o, axis - l, axis - h, axis - c) for o, h, l, c in rows]
+
+
+SYNTHETIC["ORDINARY_M"] = (_mirror(_EX151), 1, {})
+SYNTHETIC["BREAKER_M"] = (_mirror(SYNTHETIC["BREAKER"][0]), 1, {})
+SYNTHETIC["MITIGATION_M"] = (_mirror(SYNTHETIC["MITIGATION"][0]), 1, {})
 
 
 def build_synthetic(name, spec):
@@ -176,6 +207,7 @@ def main(argv=None) -> int:
     sb = bars if fast else select_window(load_development_bars(), *SHUFFLE_WINDOW)
     scut = sb.index.max()
     base = build_order_blocks(sb, spec, instrument_id=INSTRUMENT, replay_cutoff=scut)
+    shuffle_counts = _path_counts(base)
     shuffle_ok = True
     for seed in (11, 23):
         other = build_order_blocks(sb, spec, instrument_id=INSTRUMENT, replay_cutoff=scut, shuffle_seed=seed)
@@ -196,7 +228,7 @@ def main(argv=None) -> int:
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "ob_visual_validation.html").write_text(page(cases, {"dev": Facts(run), **syn_facts}, header), encoding="utf-8")
     timings.append({"stage": "visual", "seconds": round(time.perf_counter() - t0, 1), "peak_rss_mb": mem.mb()})
-    gates["visual_cases_generated"] = len(dev_cases) >= (1 if fast else 10) and len(syn_cases) >= 9
+    gates["visual_cases_generated"] = len(dev_cases) >= (1 if fast else 10) and len(syn_cases) >= 13
     add("visual", "", "dev_cases", len(dev_cases))
     add("visual", "", "synthetic_cases", len(syn_cases))
     add("visual", "", "dev_case_ids", ",".join(c.case_id for c in dev_cases))
@@ -208,7 +240,12 @@ def main(argv=None) -> int:
     slow = [t["stage"] for t in timings if t["stage"] not in ("build_order_blocks", "prefix_replays", "total",
                                                                 "shuffle_determinism") and t["seconds"] > max(build_s, 30)]
     add("runtime", "", "stages_slower_than_build", ",".join(slow) or "none")
+    coverage = coverage_frame(run, rec, prefix, "fast window" if fast else f"{SHUFFLE_WINDOW[0]} .. {SHUFFLE_WINDOW[1]}",
+                              shuffle_counts, tier)
+    absent_1d = sorted(set(rec.loc[(rec["timeframe"] == "1D") & (rec["reference"] == 0), "category"]))
+    add("coverage", "1D", "reference_categories_absent", ",".join(absent_1d) or "none")
     tracked = {"ob_dev_invariants.csv": inv, "ob_dev_reconciliation.csv": rec, "ob_dev_prefix_replay.csv": prefix,
+               "ob_dev_evidence_coverage.csv": coverage,
                "ob_dev_runtime.csv": pd.DataFrame(timings),
                "ob_visual_validation_cases.csv": pd.DataFrame(manifest_rows(cases))}
     summary = pd.DataFrame(rows)
@@ -225,6 +262,58 @@ def main(argv=None) -> int:
     if slow:
         print(f"WARNING stages slower than the build: {', '.join(slow)}")
     return 1 if any(v is False for v in gates.values()) else 0
+
+
+def _path_counts(run) -> dict:
+    E = run.engine
+    tf_of = dict(zip(E.blocks["block_id"], E.blocks["timeframe"]))
+    out: dict = {}
+
+    def bump(path, tf):
+        out.setdefault(path, {}).setdefault(tf, 0)
+        out[path][tf] += 1
+    for b in E.blocks.itertuples(index=False):
+        bump("ORDINARY_ADMITTED", b.timeframe)
+    for r in E.lifecycle.itertuples(index=False):
+        tf = tf_of[r.block_id]
+        if r.to_state in ("BREAKER", "MITIGATION", "FAILED_AWAITING_CLASSIFICATION", "TERMINATED_DATA_GAP",
+                          "PENDING_ADJUSTMENT"):
+            bump(r.to_state, tf)
+        elif r.to_state == "FAILED_FINAL":
+            bump(f"FAILED_FINAL|{r.reason}", tf)
+    for r in E.episodes.itertuples(index=False):
+        if r.status == "SUPERSEDED":
+            bump("SUPERSEDED", r.timeframe)
+        elif r.status == "REJECTED":
+            bump(f"REJECTED|{r.reason}", r.timeframe)
+    for r in E.interactions[E.interactions["kind"] == "GAP_BEYOND_REGION"].itertuples(index=False):
+        bump("GAP_BEYOND_REGION", tf_of[r.block_id])
+    return out
+
+
+def coverage_frame(run, rec, prefix, shuffle_label, shuffle_counts, tier) -> pd.DataFrame:
+    """Evidence classes kept distinct: FULL_DEV (or FAST window) counts per path x timeframe (zero cells kept),
+    the reference reconciliation cells, the shuffled-input window, each prefix cutoff, and synthetic fixtures."""
+    tfs = ("1m", "5m", "15m", "1H", "4H", "1D")
+    rows = []
+    cls = "FULL_DEV" if tier.startswith("FULL") else "FAST_WINDOW"
+    counts = _path_counts(run)
+    for path in SYNTHETIC_PATHS:
+        for tf in tfs:
+            rows.append({"evidence_class": cls, "item": path, "timeframe": tf, "count": counts.get(path, {}).get(tf, 0),
+                         "note": ""})
+        rows.append({"evidence_class": "SYNTHETIC", "item": path, "timeframe": "5m", "count": None,
+                     "note": SYNTHETIC_PATHS[path]})
+    for r in rec.itertuples(index=False):
+        rows.append({"evidence_class": f"{cls}_REFERENCE", "item": f"reconcile|{r.category}", "timeframe": r.timeframe,
+                     "count": int(r.reference), "note": f"mismatches {int(r.missing) + int(r.extra)}; fields: {r.compared_fields}"})
+    for r in prefix.itertuples(index=False):
+        rows.append({"evidence_class": "PREFIX_EARLY_DEV", "item": f"prefix|{r.case}", "timeframe": "all",
+                     "count": int(r.mismatches), "note": f"cutoff {r.replay_cutoff}; all tables + views compared"})
+    for path, per in shuffle_counts.items():
+        rows.append({"evidence_class": "SHUFFLE_WINDOW", "item": path, "timeframe": "all", "count": sum(per.values()),
+                     "note": shuffle_label})
+    return pd.DataFrame(rows)
 
 
 def _src_fp() -> str:

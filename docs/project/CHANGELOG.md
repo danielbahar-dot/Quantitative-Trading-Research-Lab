@@ -12,6 +12,27 @@ Areas: `ARCH`, `FEATURE`, `STATE`, `SIGNAL`, `EXECUTION`, `METHOD`, `DATA`,
 
 ## Unreleased
 
+- 2026-10-10 — [FEATURE] Order Block / Breaker / Mitigation (ROADMAP 4) is **APPROVED / FROZEN** (D-153 – D-157;
+  D-153 freeze note; PR #19). Human visual approval on the package from `ae1462e`. Frozen DEVELOPMENT baseline:
+  17,929 ordinary blocks, 14,690 BREAKER, 1,761 MITIGATION; reference 0 mismatches; OB-INV-1 … 14 = 0; overall
+  fingerprint `bc4bf187098f1e43…`. Suite: 859 passed / 6,908 subtests.
+
+- 2026-10-09 — [VALIDATION-TOOLING] Order Block review corrections (PR #19 at `ae8a462`): exact ownership
+  deadlines (only left-qualified swing candidates wait; §22 prose corrected), evidence never known before its
+  episode (OB-INV-14), causally reconstructed visit prefix comparison, per category × timeframe reference coverage
+  and an evidence-coverage CSV, visual package corrections. DEVELOPMENT evidence regenerated from `ae1462e`;
+  pending human visual approval.
+
+- 2026-10-08 — [FEATURE] Order Block / Breaker / Mitigation (ROADMAP 4, ICT
+  family) implemented in `src/ict_blocks/` (D-153 – D-157; design rev 3 + §22).
+  - Swing-episode discovery (N = 1), single terminal source candle (body ≥ 4
+    ticks, no fallback), open-to-wick geometry, FVG departure within the
+    inclusive window, persistent block lifecycle with parent-pinned BB / MB
+    motifs, 1m stage interactions, gap / roll resets, M7A `ict.block` log.
+  - DEVELOPMENT machine validation passed (independent reference on every
+    timeframe, 0 mismatches; OB-INV-* = 0; prefix and shuffle checks).
+    Pending human visual approval; not frozen.
+
 - 2026-10-08 — [VALIDATION-TOOLING] FVG validation runner: fast tier and
   visual speed-up (`6bc7490`; no semantic change).
   - Visual case selection builds mover-provenance lookups once per run:

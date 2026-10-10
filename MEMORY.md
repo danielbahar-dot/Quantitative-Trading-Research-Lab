@@ -224,6 +224,13 @@ at a time with explicit approval (D-117).
         is quadratic, so it covers only the 1m episodes of ≤ 3,600 bars (4.48 % of bars); the full-run
         check is `src.fvg.audit_full` (exact per-object restrictions). Strategy views must stay as-of
         projections (no future exit columns); prefix checks compare payloads, not ids.
+      - Order Block / Breaker / Mitigation: implemented in `src/ict_blocks/` (D-153 – D-157; rev 3 + §22;
+        APPROVED / FROZEN 2026-10-10, D-153 freeze note, PR #19; fingerprint `bc4bf187098f1e43…`). Swing
+        depth 1/1 (OB layer only), terminal source candle, departure window inclusive of the opposite swing's
+        span (user decision 2026-10-08). At N = 1 FAILED_AWAITING is unreachable (N = 2 fixtures cover it).
+        Runner `src.experiments.ob_dev_validation` (full ~46 min, `--fast` ~1.5 min). Ownership deadlines
+        wait only for left-qualified swing candidates (detector window rule); prefix checks reconstruct
+        ongoing visits causally.
       - Spec rev 4 on branch `internal-liquidity-design`; D-143 – D-147.
       - Shared consumption predicate: strict beyond `p ± t` on 1m, with
         `t` = 4 internal and 6 External.

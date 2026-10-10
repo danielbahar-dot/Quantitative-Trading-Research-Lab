@@ -1,0 +1,15 @@
+invariant,checked,violations
+"OB-INV-1 open-to-wick geometry, exact zone and body midpoints",17929,0
+"OB-INV-2 single source: opposite colour, body >= 4 ticks",17929,0
+OB-INV-3 one block per source region; unique ids,17929,0
+OB-INV-4 one admission per episode; admitted episodes link one block,17929,0
+"OB-INV-5 every successor has an earlier ordinary parent, reversed direction, after its failure",16451,0
+OB-INV-6 at most one successor stage per block,16451,0
+OB-INV-7 interactions only from bars after stage availability and before its end,152411,0
+OB-INV-8 ordinary availability >= swing confirmation and validation close,17929,0
+OB-INV-9 one logical change per block and instant,34283,0
+OB-INV-14 no episode evidence known before its episode opened,248381,0
+OB-INV-10 M7A lifecycle validity,1,0
+OB-INV-11 no repeated inversion,17866,0
+OB-INV-12 BREAKER: C beyond A; MITIGATION: C short of A without raid,16451,0
+OB-INV-13 no liquidity / structure inputs in the manifest,1,0

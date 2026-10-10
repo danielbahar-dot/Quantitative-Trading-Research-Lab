@@ -1689,6 +1689,114 @@ repository. For D-101 onward the date is when it was recorded here
   - The decision texts of D-148 – D-152 are unchanged. Future semantic changes
     require a new decision.
 
+### D-153 — Order Block scope, source and geometry
+- **Date:** 2026-10-08
+- **Decision** (`docs/project/ORDER_BLOCK_BREAKER_MITIGATION_DESIGN.md` rev 3 §1, §5, §20, §22):
+  - Independent ICT feature layer (`src/ict_blocks/`): ordinary OB, BREAKER, MITIGATION only; rejection,
+    morning/evening star, reclaimed, propulsion and vacuum blocks deferred.
+  - Dependencies: Swing (public detector, OB default left_depth = right_depth = 1, configurable) and raw accepted
+    FVG facts (`fvg-v1`). No liquidity, generic BOS/CHoCH/MSS or strategy inputs.
+  - One last source candle: the terminal member of the anchor swing's source span. Bullish OB needs a bearish
+    candle, bearish OB a bullish candle; body ≥ 4 ticks (exactly 4 qualifies); no earlier substitute, no
+    aggregation, no morning-star exception.
+  - Geometry: bullish [source.low, source.open]; bearish [source.open, source.high]; exact ticks, half-tick zone
+    midpoint distinct from the source-body midpoint; successors inherit the exact interval.
+- **Reason:** design-authority revision 3 with user-confirmed requirements.
+- **Status:** ACTIVE — APPROVED / FROZEN (2026-10-10; D-153 freeze note; PR #19).
+
+### D-154 — Order Block discovery and ordinary formation
+- **Date:** 2026-10-08
+- **Decision** (rev 3 §6, §22):
+  - Swing-episode driven: each confirmed LOWER swing opens one bullish episode, each UPPER swing one bearish
+    episode; opposing ordinary OBs coexist; an admitted episode is latched (later FVGs never restart source
+    selection or duplicate); lifecycle monitoring continues.
+  - Departure window (user decision 2026-10-08): from the source to the source end of the first opposite swing
+    after it, inclusive (and before a new same-side swing's span). First same-timeframe FVG in the OB direction
+    with source < C2 ≤ window end (no adjacency or price overlap required); a strict close beyond the source's
+    far wick (bullish: above source.high) within the same window; no adverse close through admission.
+  - ordinary_available_at = max(swing, FVG, validation close, ownership deadline); rejection only when knowable.
+- **Reason:** design-authority revision 3 plus the 2026-10-08 window clarification.
+- **Status:** ACTIVE — APPROVED / FROZEN (2026-10-10; D-153 freeze note; PR #19).
+
+### D-155 — Order Block lifecycle, Breaker and Mitigation
+- **Date:** 2026-10-08
+- **Decision** (rev 3 §7, §8, §22):
+  - One persistent block_id; immutable stage epochs. BREAKER / MITIGATION are alternative successors of an
+    admitted ordinary parent (no direct-motif admission; NO_ORDINARY_PARENT is audit only).
+  - Ordinary failure: strict own-timeframe close beyond the far boundary; actionability ends immediately.
+  - Motif for a bearish successor (bullish mirrored): B = pinned anchor; A = latest opposite swing strictly before
+    B; C = most extreme opposite swing strictly between B and the reversal close x; raid = a high strictly above A
+    after B through x. C > A → BREAKER; C < A without raid → MITIGATION; otherwise FAILED_FINAL with reason.
+  - successor_available_at = max(x, A/B/C availability, resolution); FAILED_AWAITING_CLASSIFICATION while unresolved
+    (unreachable at N = 1); invalid-before-admission recorded; no backdating, same-close retest or re-inversion;
+    successors retire on a strict close beyond their own far boundary.
+- **Reason:** design-authority revision 3.
+- **Status:** ACTIVE — APPROVED / FROZEN (2026-10-10; D-153 freeze note; PR #19).
+
+### D-156 — Order Block interactions
+- **Date:** 2026-10-08
+- **Decision** (rev 3 §9): canonical 1m observations from each stage's availability; touch (closed interval),
+  interior penetration, midpoint / distal / full-span observed (inclusive, doubled ticks), interior depth and
+  uncapped adverse excursion, gap-beyond evidence, visits (contiguous intersecting minutes; a scheduled closure
+  breaks a visit); touches never retire a stage; no inferred intrabar order.
+- **Reason:** design-authority revision 3.
+- **Status:** ACTIVE — APPROVED / FROZEN (2026-10-10; D-153 freeze note; PR #19).
+
+### D-157 — Order Block data quality, basis and outputs
+- **Date:** 2026-10-08
+- **Decision** (rev 3 §10 – §13): causal batch order; 1m DATA_GAP onsets terminate active stages, waiting
+  episodes and motifs; pure rolls → PENDING_ADJUSTMENT with explicit pending comparisons; raw basis only
+  (adjustment deferred); fixed schemas, natural ids, M7A lifecycle, as-of causal views; no age limits.
+- **Reason:** design-authority revision 3.
+- **Status:** ACTIVE — APPROVED / FROZEN (2026-10-10; D-153 freeze note; PR #19).
+
+- **Implementation note (D-153 – D-157, 2026-10-08):** OB-I1 – OB-I5 implemented on `ob-design` in
+  `src/ict_blocks/` (inputs, engine, pipeline, audit) with tests `tests/test_ob_*.py`.
+  - Corrected 2026-10-09 after review of PR #19 (`ae8a462`): exact ownership deadlines (left-qualified swing
+    candidates only; §22 prose corrected), evidence never known before its episode (OB-INV-14), causal visit
+    prefix comparison, per category × timeframe coverage, visual corrections. No trading definition changed.
+  - DEVELOPMENT machine validation (`src.experiments.ob_dev_validation`, code `ae1462e`): all 12 gates PASS —
+    Swing parity with the public detector at 1/1, FVG zone fingerprint = frozen FVG baseline, 1m continuity
+    baseline, frozen sources unchanged, OB-INV-1 … 14 = 0, independent reference = production on every
+    timeframe (0 mismatches), 9 prefix rebuilds equivalent, shuffled-input determinism.
+  - 17,929 ordinary blocks; 14,690 BREAKER, 1,761 MITIGATION, 102 FAILED_FINAL; 0 waiting classifications at N = 1.
+  - Human visual approval of `ob_visual_validation.html` is pending; nothing is frozen.
+
+- **Freeze note 2026-10-10 (Order Block / Breaker / Mitigation, D-153 – D-157):**
+  - Human visual review passed (2026-10-10) on the corrected package (24 DEVELOPMENT, 13 SYNTHETIC cases)
+    generated from code `ae1462e` (clean worktree; evidence commit `e5f574a`, the reviewed PR #19 head); merged to
+    `main` via PR #19. No change after the reviewed checkpoint other than this closure documentation.
+  - Machine validation: all 12 gates PASS; independent causal reference = production on all 48 category ×
+    timeframe cells (0 mismatches); OB-INV-1 … 14 = 0; 9 payload-level DEVELOPMENT prefix rebuilds equivalent;
+    shuffled dependency rows deterministic; FVG zone fingerprint = frozen FVG baseline. Full suite at `ae1462e`:
+    859 passed / 0 failed / 6,908 subtests.
+  - **Frozen DEVELOPMENT baseline** (cutoff 2025-06-30 17:00 ET; Swing depths 1/1; `fvg-v1`; `run_id`
+    `obr_run_491310169e6a4c57e78c82ce63d173d4fdc5a63ffeb26eade48b3c5600c4d62c`; OB source SHA-256 `607a7d85…`):
+
+    | metric | value |
+    |---|---|
+    | discovery episodes | 192,642 |
+    | ordinary blocks | 17,929 (1m 13,303 · 5m 3,204 · 15m 1,104 · 1H 251 · 4H 63 · 1D 4) |
+    | ordinary failures | 16,553 |
+    | successors | 14,690 BREAKER · 1,761 MITIGATION |
+    | FAILED_FINAL | 102 |
+    | FAILED_AWAITING_CLASSIFICATION (N = 1) | 0 |
+    | `block_id` SHA-256 | `022ccd7cbe2ddb12…` |
+    | `source_region_id` SHA-256 | `82d6c6fb962a9df3…` |
+    | `stage_id` SHA-256 | `a80821dea4c04093…` |
+    | `episode_id` SHA-256 | `f1603ca88708deda…` |
+    | `transition_id` SHA-256 | `193a665a6fef510d…` |
+    | `motif_id` SHA-256 | `839df69a67d05725…` |
+
+    - Full fingerprints: `reports/validation/ob_dev_summary.csv`.
+    - Overall fingerprint = SHA-256 of the six identity values in the order above, joined by newlines:
+      `bc4bf187098f1e43eecdbeffac79f3e3d67544a0819ef123ae276d2b612f88e8`.
+  - Known limits at freeze: no pure contract change on DEVELOPMENT; FAILED_AWAITING_CLASSIFICATION and
+    QUALIFIED_BUT_INVALID_BEFORE_ADMISSION are N = 2-only paths; Daily has no motifs / interactions on DEVELOPMENT
+    (all covered by synthetic fixtures); BREAKER ≫ MITIGATION at N = 1 (reported, not tuned); raw basis only.
+  - The decision texts of D-153 – D-157 are unchanged (plus the §22 representation choices and the corrected
+    ownership rule). Future semantic changes require a new decision.
+
 ### PROPOSED items awaiting design-authority approval (2026-09-28)
 Claude recommendations from the architecture closeout; **not decisions**:
 ~~Market Context as tidy-DataFrame functions (no MarketContext object)~~

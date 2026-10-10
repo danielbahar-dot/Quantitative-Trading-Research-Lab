@@ -475,3 +475,75 @@ fixtures and unit tests only. DEVELOPMENT prefix rebuilds are early cutoffs
 (the full-run recomputation and the synthetic every-cutoff prefix tests cover
 later behaviour). The naive subset reference does not reach 1D, 4H BPRs or
 the long episodes; the full-run recomputation does.
+
+## `ob_*`
+
+Order Block / Breaker / Mitigation (ROADMAP 4, ICT family) OB-I5 DEVELOPMENT
+validation (2026-10-08; corrected 2026-10-09 after review of PR #19 at
+`ae8a462`). Status: **APPROVED / FROZEN** (2026-10-10; human visual approval
+on the package from `ae1462e`; merged via PR #19). This is the frozen
+validation baseline (D-153 freeze note). Design: `docs/project/ORDER_BLOCK_BREAKER_MITIGATION_DESIGN.md`
+rev 3 (+ §22 binding, corrected ownership rule; §23 status); D-153 – D-157.
+
+**Scope and provenance.** DEVELOPMENT only (337,815 canonical 1m bars);
+explicit `replay_cutoff` 2025-06-30 17:00 ET; six timeframes; OB Swing depths
+1/1 (public detector); raw `fvg-v1` formations; raw basis. Evidence generated
+from code `ae1462e` with a clean worktree (`provenance` rows in the summary and
+the HTML header; OB source SHA-256 `607a7d85…`). The earlier evidence from
+`7e53b43` is superseded (production discovery timing changed).
+
+- **Reproduce (FULL tier):** `.\.venv\Scripts\python.exe -m src.experiments.ob_dev_validation`
+  (about 46 minutes, 1.7 GB peak RSS; run alone).
+- **FAST tier:** `--fast` (DEVELOPMENT week 2024-08-05 – 2024-08-09, about
+  1.5 minutes) or `--start / --end`; full-DEV-only gates SKIPPED; outputs
+  Git-ignored under `reports/validation/ob_fast/`.
+- No PnL, strategy, backtest or optimization; no VALIDATION / OOS data.
+
+**Evidence classes** (`ob_dev_evidence_coverage.csv`, `evidence_class`):
+
+| Class | What | Scope |
+|---|---|---|
+| FULL_DEV | every lifecycle / rejection path × timeframe count (zero cells kept) | whole partition |
+| FULL_DEV_REFERENCE | independent causal reference vs production per category × timeframe, with the compared fields | whole partition, every timeframe |
+| PREFIX_EARLY_DEV | 9 payload-level prefix rebuilds (all tables, causally reconstructed visits, active-block and discovery views) | early DEVELOPMENT cutoffs only |
+| SHUFFLE_WINDOW | shuffled dependency rows, two seeds, outputs identical | DEVELOPMENT 2024-09-02 – 2024-09-30 |
+| SYNTHETIC | isolated fixtures per path (`tests/ob_fixtures.py`, `tests/test_ob_deadlines.py`) | paths absent from DEVELOPMENT |
+
+**Compared fields** (independent reference; object key = timeframe, direction,
+source bar end): episodes (anchor, status, decided_at, reason); blocks
+(ordinary_available_at, lower / upper ticks, formation FVG); lifecycle (from,
+to, at, reason); motifs (outcome, reason, A and C swing ids, raid observed);
+stages (kind, direction, available_at, ended_at, end reason); interactions
+(kind, at); visits (start, end, bars, penetration / midpoint / distal /
+full-span flags, max depth, max adverse excursion); depth versions (at, running
+maxima). Ids, refs, contract / basis labels, price floats, evidence rows and the
+M7A log are checked by invariants, schema validation and prefix comparison, not
+by the reference.
+
+**Tracked files** (price-free): `ob_dev_summary.csv`, `ob_dev_invariants.csv`
+(OB-INV-1 … 14), `ob_dev_reconciliation.csv` (48 category × timeframe rows),
+`ob_dev_evidence_coverage.csv`, `ob_dev_prefix_replay.csv`, `ob_dev_runtime.csv`,
+`ob_visual_validation_cases.csv`.
+
+**Results.** All 12 gates PASS. 192,642 episodes; 17,929 ordinary blocks
+(1m 13,303 · 5m 3,204 · 15m 1,104 · 1H 251 · 4H 63 · 1D 4); 16,553 failures →
+14,690 BREAKER, 1,761 MITIGATION, 102 FAILED_FINAL (EQUAL_EXTREME 62,
+NO_REVERSAL_SWING 20, NO_PRIOR_EXTREME 11, RAID_WITH_LESS_EXTREME_C 8,
+EQUAL_EXTREME_WITH_RAID 1); 0 FAILED_AWAITING_CLASSIFICATION (N = 1);
+reference 0 mismatches over all 48 cells; OB-INV-1 … 14 = 0; prefix 0
+mismatches; shuffle identical.
+
+**Not covered on DEVELOPMENT** (synthetic only): pure contract change /
+PENDING_ADJUSTMENT; FAILED_AWAITING_CLASSIFICATION and
+QUALIFIED_BUT_INVALID_BEFORE_ADMISSION (N = 2 only); ALREADY_INVALID_BEFORE_ADMISSION
+(0 after the exact-deadline correction). Daily: 4 ordinary blocks and no
+motifs, interactions, visits or depth versions (reference cells are zero, not
+compared). Prefix cutoffs are early in DEVELOPMENT.
+
+**Local, Git-ignored:** `ob_visual_validation.html` — 24 DEVELOPMENT cases and
+13 synthetic cases (ordinary / Breaker / Mitigation in both directions, equal
+extreme, outside reversal bar, N = 2 delayed and invalid-before-admission,
+concurrent pair, 3-tick source, pure roll). Formation and lifecycle panels keep
+the focus inside a plotted window; omitted context is listed; tables carry the
+numerical decision evidence and separate later audit outcomes from what was
+known at the focus.

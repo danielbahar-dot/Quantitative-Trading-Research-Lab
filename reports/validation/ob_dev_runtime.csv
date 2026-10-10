@@ -1,0 +1,8 @@
+stage,seconds,peak_rss_mb
+build_order_blocks,309.0,1619
+invariants,24.1,1688
+reference,1400.0,1688
+prefix_replays,435.0,1688
+shuffle_determinism,193.8,1688
+visual,20.6,1688
+total,2753.0,1688

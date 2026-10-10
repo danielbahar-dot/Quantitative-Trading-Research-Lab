@@ -200,10 +200,35 @@ time with explicit approval (D-117).
     fast tier `--fast` / `--start --end` (~4 min per DEV week; full-DEV-only
     gates SKIPPED); full tier now ~45 min; re-verified identical to the
     frozen evidence.
-  - **Next:** Order Block / Breaker / Mitigation design (on hold until the
-    design authority resumes it).
+  - Validation tooling merged via PR #18 (`f4beabc`).
+- **Order Block / Breaker / Mitigation: APPROVED / FROZEN** (2026-10-10;
+  rev 3; D-153 – D-157; D-153 freeze note; merged via PR #19).
+  - Code `src/ict_blocks/`; runner `src.experiments.ob_dev_validation` (full
+    ~46 min / 1.7 GB; `--fast` ~1.5 min); visual `src.experiments.ob_visual`.
+  - Corrected 2026-10-09 (review of PR #19 at `ae8a462`): exact ownership
+    deadlines, evidence timing (OB-INV-14), causal visit prefix comparison,
+    per-cell coverage, visual corrections; evidence regenerated from
+    `ae1462e`.
+  - DEVELOPMENT: 17,929 ordinary blocks; 14,690 BREAKER; 1,761 MITIGATION;
+    102 FAILED_FINAL; 0 waiting classifications (N = 1); 32 data-gap
+    warnings; 0 pure rolls (synthetic coverage only).
+  - All 12 gates PASS incl. independent reference on every timeframe (0
+    mismatches over 48 cells), OB-INV-1 … 14 = 0, 9 prefix rebuilds, shuffle
+    determinism.
+  - Full suite at `ae1462e`: 859 passed / 0 failed / 6,908 subtests.
+  - Human visual approval passed (2026-10-10; 24 DEV + 13 synthetic cases
+    from `ae1462e`); overall fingerprint `bc4bf187098f1e43…`.
+  - **Next:** awaiting the design authority's next ROADMAP 4 item.
 
 ## Last completed work
+
+- **2026-10-10 — Order Block / Breaker / Mitigation APPROVED / FROZEN.**
+  Human visual review passed; PR #19 merged; freeze recorded (D-153 freeze
+  note).
+
+- **2026-10-08 — Order Block OB-I0 – OB-I5: machine validation passed.**
+  - Rev 3 registered (D-153 – D-157); implementation, tests, DEVELOPMENT
+    validation and visual package (pending human approval).
 
 - **2026-10-08 — FVG / IFVG / BPR APPROVED / FROZEN.** Human visual review
   passed; PR #17 merged; freeze recorded (D-148 freeze note).

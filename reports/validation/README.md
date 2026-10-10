@@ -480,8 +480,9 @@ the long episodes; the full-run recomputation does.
 
 Order Block / Breaker / Mitigation (ROADMAP 4, ICT family) OB-I5 DEVELOPMENT
 validation (2026-10-08; corrected 2026-10-09 after review of PR #19 at
-`ae8a462`). Status: **MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL
-APPROVAL**. Not frozen. Design: `docs/project/ORDER_BLOCK_BREAKER_MITIGATION_DESIGN.md`
+`ae8a462`). Status: **APPROVED / FROZEN** (2026-10-10; human visual approval
+on the package from `ae1462e`; merged via PR #19). This is the frozen
+validation baseline (D-153 freeze note). Design: `docs/project/ORDER_BLOCK_BREAKER_MITIGATION_DESIGN.md`
 rev 3 (+ §22 binding, corrected ownership rule; §23 status); D-153 – D-157.
 
 **Scope and provenance.** DEVELOPMENT only (337,815 canonical 1m bars);

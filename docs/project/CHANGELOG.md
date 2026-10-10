@@ -12,6 +12,11 @@ Areas: `ARCH`, `FEATURE`, `STATE`, `SIGNAL`, `EXECUTION`, `METHOD`, `DATA`,
 
 ## Unreleased
 
+- 2026-10-10 — [FEATURE] Order Block / Breaker / Mitigation (ROADMAP 4) is **APPROVED / FROZEN** (D-153 – D-157;
+  D-153 freeze note; PR #19). Human visual approval on the package from `ae1462e`. Frozen DEVELOPMENT baseline:
+  17,929 ordinary blocks, 14,690 BREAKER, 1,761 MITIGATION; reference 0 mismatches; OB-INV-1 … 14 = 0; overall
+  fingerprint `bc4bf187098f1e43…`. Suite: 859 passed / 6,908 subtests.
+
 - 2026-10-09 — [VALIDATION-TOOLING] Order Block review corrections (PR #19 at `ae8a462`): exact ownership
   deadlines (only left-qualified swing candidates wait; §22 prose corrected), evidence never known before its
   episode (OB-INV-14), causally reconstructed visit prefix comparison, per category × timeframe reference coverage

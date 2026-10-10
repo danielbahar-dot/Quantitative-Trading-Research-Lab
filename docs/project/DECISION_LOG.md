@@ -1702,7 +1702,7 @@ repository. For D-101 onward the date is when it was recorded here
   - Geometry: bullish [source.low, source.open]; bearish [source.open, source.high]; exact ticks, half-tick zone
     midpoint distinct from the source-body midpoint; successors inherit the exact interval.
 - **Reason:** design-authority revision 3 with user-confirmed requirements.
-- **Status:** ACTIVE — IMPLEMENTED — MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL; NOT FROZEN.
+- **Status:** ACTIVE — APPROVED / FROZEN (2026-10-10; D-153 freeze note; PR #19).
 
 ### D-154 — Order Block discovery and ordinary formation
 - **Date:** 2026-10-08
@@ -1716,7 +1716,7 @@ repository. For D-101 onward the date is when it was recorded here
     far wick (bullish: above source.high) within the same window; no adverse close through admission.
   - ordinary_available_at = max(swing, FVG, validation close, ownership deadline); rejection only when knowable.
 - **Reason:** design-authority revision 3 plus the 2026-10-08 window clarification.
-- **Status:** ACTIVE — IMPLEMENTED — MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL; NOT FROZEN.
+- **Status:** ACTIVE — APPROVED / FROZEN (2026-10-10; D-153 freeze note; PR #19).
 
 ### D-155 — Order Block lifecycle, Breaker and Mitigation
 - **Date:** 2026-10-08
@@ -1731,7 +1731,7 @@ repository. For D-101 onward the date is when it was recorded here
     (unreachable at N = 1); invalid-before-admission recorded; no backdating, same-close retest or re-inversion;
     successors retire on a strict close beyond their own far boundary.
 - **Reason:** design-authority revision 3.
-- **Status:** ACTIVE — IMPLEMENTED — MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL; NOT FROZEN.
+- **Status:** ACTIVE — APPROVED / FROZEN (2026-10-10; D-153 freeze note; PR #19).
 
 ### D-156 — Order Block interactions
 - **Date:** 2026-10-08
@@ -1740,7 +1740,7 @@ repository. For D-101 onward the date is when it was recorded here
   uncapped adverse excursion, gap-beyond evidence, visits (contiguous intersecting minutes; a scheduled closure
   breaks a visit); touches never retire a stage; no inferred intrabar order.
 - **Reason:** design-authority revision 3.
-- **Status:** ACTIVE — IMPLEMENTED — MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL; NOT FROZEN.
+- **Status:** ACTIVE — APPROVED / FROZEN (2026-10-10; D-153 freeze note; PR #19).
 
 ### D-157 — Order Block data quality, basis and outputs
 - **Date:** 2026-10-08
@@ -1748,7 +1748,7 @@ repository. For D-101 onward the date is when it was recorded here
   episodes and motifs; pure rolls → PENDING_ADJUSTMENT with explicit pending comparisons; raw basis only
   (adjustment deferred); fixed schemas, natural ids, M7A lifecycle, as-of causal views; no age limits.
 - **Reason:** design-authority revision 3.
-- **Status:** ACTIVE — IMPLEMENTED — MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL; NOT FROZEN.
+- **Status:** ACTIVE — APPROVED / FROZEN (2026-10-10; D-153 freeze note; PR #19).
 
 - **Implementation note (D-153 – D-157, 2026-10-08):** OB-I1 – OB-I5 implemented on `ob-design` in
   `src/ict_blocks/` (inputs, engine, pipeline, audit) with tests `tests/test_ob_*.py`.
@@ -1761,6 +1761,41 @@ repository. For D-101 onward the date is when it was recorded here
     timeframe (0 mismatches), 9 prefix rebuilds equivalent, shuffled-input determinism.
   - 17,929 ordinary blocks; 14,690 BREAKER, 1,761 MITIGATION, 102 FAILED_FINAL; 0 waiting classifications at N = 1.
   - Human visual approval of `ob_visual_validation.html` is pending; nothing is frozen.
+
+- **Freeze note 2026-10-10 (Order Block / Breaker / Mitigation, D-153 – D-157):**
+  - Human visual review passed (2026-10-10) on the corrected package (24 DEVELOPMENT, 13 SYNTHETIC cases)
+    generated from code `ae1462e` (clean worktree; evidence commit `e5f574a`, the reviewed PR #19 head); merged to
+    `main` via PR #19. No change after the reviewed checkpoint other than this closure documentation.
+  - Machine validation: all 12 gates PASS; independent causal reference = production on all 48 category ×
+    timeframe cells (0 mismatches); OB-INV-1 … 14 = 0; 9 payload-level DEVELOPMENT prefix rebuilds equivalent;
+    shuffled dependency rows deterministic; FVG zone fingerprint = frozen FVG baseline. Full suite at `ae1462e`:
+    859 passed / 0 failed / 6,908 subtests.
+  - **Frozen DEVELOPMENT baseline** (cutoff 2025-06-30 17:00 ET; Swing depths 1/1; `fvg-v1`; `run_id`
+    `obr_run_491310169e6a4c57e78c82ce63d173d4fdc5a63ffeb26eade48b3c5600c4d62c`; OB source SHA-256 `607a7d85…`):
+
+    | metric | value |
+    |---|---|
+    | discovery episodes | 192,642 |
+    | ordinary blocks | 17,929 (1m 13,303 · 5m 3,204 · 15m 1,104 · 1H 251 · 4H 63 · 1D 4) |
+    | ordinary failures | 16,553 |
+    | successors | 14,690 BREAKER · 1,761 MITIGATION |
+    | FAILED_FINAL | 102 |
+    | FAILED_AWAITING_CLASSIFICATION (N = 1) | 0 |
+    | `block_id` SHA-256 | `022ccd7cbe2ddb12…` |
+    | `source_region_id` SHA-256 | `82d6c6fb962a9df3…` |
+    | `stage_id` SHA-256 | `a80821dea4c04093…` |
+    | `episode_id` SHA-256 | `f1603ca88708deda…` |
+    | `transition_id` SHA-256 | `193a665a6fef510d…` |
+    | `motif_id` SHA-256 | `839df69a67d05725…` |
+
+    - Full fingerprints: `reports/validation/ob_dev_summary.csv`.
+    - Overall fingerprint = SHA-256 of the six identity values in the order above, joined by newlines:
+      `bc4bf187098f1e43eecdbeffac79f3e3d67544a0819ef123ae276d2b612f88e8`.
+  - Known limits at freeze: no pure contract change on DEVELOPMENT; FAILED_AWAITING_CLASSIFICATION and
+    QUALIFIED_BUT_INVALID_BEFORE_ADMISSION are N = 2-only paths; Daily has no motifs / interactions on DEVELOPMENT
+    (all covered by synthetic fixtures); BREAKER ≫ MITIGATION at N = 1 (reported, not tuned); raw basis only.
+  - The decision texts of D-153 – D-157 are unchanged (plus the §22 representation choices and the corrected
+    ownership rule). Future semantic changes require a new decision.
 
 ### PROPOSED items awaiting design-authority approval (2026-09-28)
 Claude recommendations from the architecture closeout; **not decisions**:

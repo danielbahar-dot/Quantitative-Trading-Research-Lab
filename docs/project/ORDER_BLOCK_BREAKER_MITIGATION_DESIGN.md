@@ -4,7 +4,7 @@ Research and implementation design for the Quantitative Trading Research Lab
 
 Version 3.0 | 7 October 2026 | Revised to Daniel’s OB-layer requirements
 
-**Status (2026-10-08): DESIGN APPROVED — IMPLEMENTED (`src/ict_blocks/`) — MACHINE VALIDATION PASSED — PENDING HUMAN VISUAL APPROVAL; NOT FROZEN** (D-153 – D-157; OB-I0 binding §22; implementation evidence §23). Original status line: USER DEFINITIONS SETTLED; IMPLEMENTATION HANDOFF AUTHORIZED; FEATURE NOT IMPLEMENTED OR FROZEN. This revision supersedes v1/v2 and the earlier PDF. The current task updates the document and prepares Claude’s handoff; it does not execute repository implementation. Prior fixture results are historical and do not validate this revision.
+**Status: APPROVED / FROZEN (2026-10-10; D-153 freeze note; merged via PR #19)** (D-153 – D-157; OB-I0 binding §22; implementation evidence §23; overall fingerprint `bc4bf187098f1e43…`). Original status line: USER DEFINITIONS SETTLED; IMPLEMENTATION HANDOFF AUTHORIZED; FEATURE NOT IMPLEMENTED OR FROZEN. This revision supersedes v1/v2 and the earlier PDF. The current task updates the document and prepares Claude’s handoff; it does not execute repository implementation. Prior fixture results are historical and do not validate this revision.
 
 ## 1 Purpose, scope and revision authority
 
@@ -533,7 +533,7 @@ N = 1 is expected to report zero waiting states. This is a consequence of the se
 | OB-I0 | DONE — §22 binding and clarifications; D-153 – D-157 |
 | OB-I1 – OB-I4 | DONE — `src/ict_blocks/` (`inputs`, `engine`, `pipeline`, `audit`); tests `tests/test_ob_*.py` (24 tests, 202 subtests) |
 | OB-I5 | MACHINE VALIDATION PASSED — `src.experiments.ob_dev_validation`; evidence `reports/validation/ob_dev_*.csv`; local visual package `reports/validation/ob_visual_validation.html` |
-| OB-I6 | PENDING — human visual review; freeze / merge only when authorized |
+| OB-I6 | DONE — human visual approval 2026-10-10 on the package from `ae1462e`; frozen (D-153 freeze note); merged via PR #19 |
 
 DEVELOPMENT (N = 1, six timeframes, full partition; evidence from `ae1462e`, corrected 2026-10-09 after review of
 PR #19): 192,642 discovery episodes (one per confirmed swing), 17,929 ordinary blocks, 16,553 ordinary failures →
